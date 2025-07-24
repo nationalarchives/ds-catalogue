@@ -60,12 +60,13 @@ if (ga4Id) {
         },
         rootData: {
           data_component_name: "catalogue_hierarchy",
-          data_link: ($el) => $el.dataset.analyticsLevel,
+          data_link: ($el) =>
+            `Level_${$el.dataset.analyticsLevelCode} - ${$el.dataset.analyticsLevel}`,
           data_link_type: "link",
           data_position: helpers.valueGetters.index,
         },
       },
     ],
-    "select_hierarchy"
+    "select_hierarchy",
   );
 }

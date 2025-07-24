@@ -1,7 +1,7 @@
 {% from 'components/pagination/macro.html' import tnaPagination %}
 
 {% macro hierarchy(record) %}
-  <div class="tna-container tna-container--nested">
+  <div class="tna-container tna-container--nested etna-details-hierarchy">
     <div class="tna-column tna-column--full">
       {% set hierarchy_column_widths = [
         '11-12',
@@ -53,7 +53,7 @@
                       <a href="{{ hierarchy_record.url }}">{{ hierarchy_record.summary_title }}</a>
                     </h3>
                   </hgroup> -->
-                  <h3 class="tna-heading-s">Within the {{ hierarchy_record.level | lower }}: <a href="{{ hierarchy_record.url }}">{{ hierarchy_record.reference_number }}</a></h3>
+                  <h3 class="tna-heading-s">Within the {{ hierarchy_record.level | lower }}: <a class="analytics-hierarchy-link" href="{{ hierarchy_record.url }}" data-analytics-level="{{ hierarchy_record.level }}" data-analytics-level-code="{{ hierarchy_record.level_code }}">{{ hierarchy_record.reference_number }}</a></h3>
                   <p class="tna-!--no-margin-top">{{ (hierarchy_record.title or hierarchy_record.summary_title) | striptags }}</p>
                 </div>
               </div>
