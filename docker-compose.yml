@@ -23,6 +23,7 @@ services:
       - CSP_FRAME_SRC='self',www.youtube.com
       - FEATURE_PHASE_BANNER=False
       - WAGTAIL_API_URL=https://wagtail.nationalarchives.gov.uk/api/v2
+      - GA4_ID=GTM-KX8ZWVZG
     ports:
       - 65533:8080
     volumes:
