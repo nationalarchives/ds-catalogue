@@ -12,10 +12,8 @@ if (ga4Id) {
       eventName: "double_click",
       on: "dblclick",
       data: {
-        // eslint-disable-next-line no-unused-vars
-        state: ($el, $scope, event, index) => helpers.getXPathTo(event.target),
-        // eslint-disable-next-line no-unused-vars
-        value: ($el, $scope, event, index) => event.target.innerHTML,
+        state: ($el, $scope, event) => helpers.getXPathTo(event.target),
+        value: helpers.valueGetters.html,
       },
     },
   ]);
@@ -47,5 +45,27 @@ if (ga4Id) {
       },
     ],
     "select_feature",
+  );
+
+  analytics.addListeners(
+    ".etna-details-hierarchy",
+    "hierarchy",
+    [
+      {
+        eventName: "select",
+        targetElement: ".analytics-hierarchy-link",
+        on: "click",
+        data: {
+          group: helpers.valueGetters.closestHeading,
+        },
+        rootData: {
+          data_component_name: "catalogue_hierarchy",
+          data_link: ($el) => $el.dataset.analyticsLevel,
+          data_link_type: "link",
+          data_position: helpers.valueGetters.index,
+        },
+      },
+    ],
+    "select_hierarchy"
   );
 }
