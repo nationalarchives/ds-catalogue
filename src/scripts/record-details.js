@@ -1,4 +1,5 @@
 import { Cookies } from "@nationalarchives/frontend/nationalarchives/all.mjs";
+import { Accordion } from "./etna-accordion.mjs";
 
 class toggleDetailsListDescriptions {
   constructor(checkbox, detailsList, cookies) {
@@ -99,3 +100,9 @@ if (
   embededPlayer.classList.add("tna-!--margin-top-m");
   youtubeLink.replaceWith(embededPlayer);
 }
+
+const $accordions = document.querySelectorAll('[data-module="etna-accordion"]');
+
+$accordions.forEach(($accordion) => {
+  new Accordion($accordion);
+});

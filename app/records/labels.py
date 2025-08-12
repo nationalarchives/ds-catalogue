@@ -62,6 +62,7 @@ FIELD_LABELS = {
     "related_records": {"title": "Related records"},
     "restrictions_on_use": {"title": "Restrictions on use"},
     "separated_materials": {"title": "Separated material"},
+    "subjects": {"title": "Subjects"},
     "summary_title": {"title": "Summary title"},
     "title": {"title": "Title"},
     "unpublished_finding_aids": {"title": "Unpublished finding aids"},

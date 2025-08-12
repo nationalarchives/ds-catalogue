@@ -1,0 +1,19 @@
+{% macro etna_accordion(params) %}
+  <div class="etna-accordion"
+       data-multiselectable="true" data-module="etna-accordion">
+  {%- for item in params.accordionItems %}
+    <div class="etna-accordion__item" data-isopen="{{ item.open or 'false' }}">
+      <h3 class="etna-accordion__heading" id="{{ params.id }}-heading-{{ loop.index }}">
+        {{ item.title }}
+      </h3>
+      <div class="etna-accordion__body" id="{{ params.id }}-content-{{ loop.index }}">
+        {%- if item.text %}
+          <p>{{ item.text }}</p>
+        {%- else %}
+          {{ item.body | safe }}
+        {%- endif %}
+      </div>
+    </div>
+  {%- endfor %}
+  </div>
+{% endmacro %}

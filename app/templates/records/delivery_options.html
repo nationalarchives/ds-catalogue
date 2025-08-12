@@ -1,0 +1,25 @@
+{# Temporary replacement for delivery options panel #}
+{% from 'components/button/macro.html' import tnaButton %}
+
+<div class="tna-container">
+    {% if delivery_instructions %}
+        <ol class="tna-ol">
+            {% for instruction in delivery_instructions %}
+                <li>{{ instruction }}</li>
+            {% endfor %}
+        </ol>
+    {% endif %}
+    
+    {% if tna_discovery_link %}
+        <div class="tna-column tna-column--full tna-!--margin-top-s">
+            <div class="tna-button-group">
+                {{ tnaButton({
+                    'text': 'View this record page',
+                    'href': tna_discovery_link,
+                    'target': '_blank'
+                }) }}
+            </div>
+        </div>
+    {% endif %}
+</div>
+   

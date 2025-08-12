@@ -19,4 +19,33 @@ if (ga4Id) {
       },
     },
   ]);
+
+  analytics.addListeners(
+    "#field-descriptions",
+    "field_descriptions",
+    [
+      {
+        targetElement: "#field-descriptions-hide",
+        on: "change",
+        data: {
+          state: helpers.valueGetters.checked,
+          value: ($el) => $el.parentNode.innerText.trim(),
+          group: ($el, $scope) =>
+            $scope
+              .closest(".tna-form__group")
+              ?.querySelector(".tna-form__heading")
+              ?.innerText?.trim(),
+        },
+        rootData: {
+          data_component_name: "checkboxes",
+          data_link: ($el) =>
+            `Hide field descriptions:${helpers.valueGetters.checked($el)}`,
+          data_section: "Record details",
+          data_link_type: "checkboxes",
+          data_position: 1,
+        },
+      },
+    ],
+    "select_feature",
+  );
 }

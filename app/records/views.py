@@ -7,6 +7,7 @@ from app.deliveryoptions.delivery_options import (
     AvailabilityCondition,
     construct_delivery_options,
 )
+from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
 from app.records.api import record_details_by_id
 from app.records.labels import FIELD_LABELS
 from django.template.response import TemplateResponse
@@ -72,48 +73,63 @@ def record_detail_view(request, id):
         if record.custom_record_type == "ARCHON":
             determine_delivery_options = False
             template_name = "records/archon_detail.html"
-        if record.custom_record_type == "CREATORS":
+        elif record.custom_record_type == "CREATORS":
             template_name = "records/creator_detail.html"
             determine_delivery_options = False
 
+    # TODO: This is an alternative action on delivery options while we wait on decisions on how we are going to present it.
     if determine_delivery_options:
-        # Only get the delivery options if we are looking at records
-        # Get the delivery options for the iaid
-        delivery_options_context = {}
-
-        try:
-            delivery_options = delivery_options_request_handler(
-                iaid=record.iaid
-            )
-
-            delivery_options_context = construct_delivery_options(
-                delivery_options, record, request
-            )
-
-        except Exception as e:
-            # Built in order exception option
-            error_message = f"DORIS Connection error using url '{os.getenv("DELIVERY_OPTIONS_API_URL", "")}' - returning OrderException from Availability Conditions {str(e)}"
-
-            # Sentry notification
-            logger.error(error_message)
-            capture_message(error_message)
-
-            # The delivery options include a special case called OrderException which has nothing to do with
-            # python exceptions. It is the message to be displayed when the connection is down or there is no
-            # match for the given iaid. So, we don't treat it as a python exception beyond this point.
-            delivery_options_context = construct_delivery_options(
-                [
-                    {
-                        "options": AvailabilityCondition.OrderException,
-                        "surrogateLinks": [],
-                        "advancedOrderUrlParameters": "",
-                    }
-                ],
-                record,
-                request,
-            )
-
+        # Add temporary delivery options context
+        delivery_options_context = {
+            "delivery_options_heading": "How to order it",
+            "delivery_instructions": [
+                "View this record page in our current catalogue",
+                "Check viewing and downloading options",
+                "Select an option and follow instructions",
+            ],
+            "tna_discovery_link": f"{BASE_TNA_DISCOVERY_URL}/details/r/{record.iaid}",
+        }
         context.update(delivery_options_context)
+
+    # if determine_delivery_options:
+    # TODO: Temporarily commented out delivery options functionality
+    # # Only get the delivery options if we are looking at records
+    # # Get the delivery options for the iaid
+    # delivery_options_context = {}
+
+    # try:
+    #     delivery_options = delivery_options_request_handler(
+    #         iaid=record.iaid
+    #     )
+
+    #     delivery_options_context = construct_delivery_options(
+    #         delivery_options, record, request
+    #     )
+
+    # except Exception as e:
+    #     # Built in order exception option
+    #     error_message = f"DORIS Connection error using url '{os.getenv("DELIVERY_OPTIONS_API_URL", "")}' - returning OrderException from Availability Conditions {str(e)}"
+
+    #     # Sentry notification
+    #     logger.error(error_message)
+    #     capture_message(error_message)
+
+    #     # The delivery options include a special case called OrderException which has nothing to do with
+    #     # python exceptions. It is the message to be displayed when the connection is down or there is no
+    #     # match for the given iaid. So, we don't treat it as a python exception beyond this point.
+    #     delivery_options_context = construct_delivery_options(
+    #         [
+    #             {
+    #                 "options": AvailabilityCondition.OrderException,
+    #                 "surrogateLinks": [],
+    #                 "advancedOrderUrlParameters": "",
+    #             }
+    #         ],
+    #         record,
+    #         request,
+    #     )
+
+    # context.update(delivery_options_context)
 
     return TemplateResponse(
         request=request, template=template_name, context=context

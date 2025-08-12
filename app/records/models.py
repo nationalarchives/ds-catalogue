@@ -5,7 +5,7 @@ import re
 from typing import Any
 
 from app.lib.xslt_transformations import apply_schema_xsl, apply_series_xsl
-from app.records.constants import NON_TNA_LEVELS, TNA_LEVELS
+from app.records.constants import NON_TNA_LEVELS, SUBJECTS_LIMIT, TNA_LEVELS
 from app.records.utils import (
     change_discovery_record_details_links,
     extract,
@@ -455,3 +455,8 @@ class Record(APIModel):
             if item.level == "Series":
                 return item
         return None
+
+    @cached_property
+    def subjects(self) -> list[str]:
+        """Returns up to SUBJECTS_LIMIT items from the api value of the attr if found, empty list otherwise."""
+        return self.get("subjects", [])[:SUBJECTS_LIMIT]

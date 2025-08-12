@@ -114,7 +114,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "app", "static")]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -159,11 +158,7 @@ CONTENT_SECURITY_POLICY = {
         "object-src": [NONE],
         "img-src": os.environ.get("CSP_IMG_SRC", SELF).split(","),
         "script-src": os.environ.get("CSP_SCRIPT_SRC", SELF).split(","),
-        "script-src-elem": os.environ.get("CSP_SCRIPT_SRC_ELEM", SELF).split(
-            ","
-        ),
         "style-src": os.environ.get("CSP_STYLE_SRC", SELF).split(","),
-        "style-src-elem": os.environ.get("CSP_STYLE_SRC_ELEM", SELF).split(","),
         "font-src": os.environ.get("CSP_FONT_SRC", SELF).split(","),
         "connect-src": os.environ.get("CSP_CONNECT_SRC", SELF).split(","),
         "media-src": os.environ.get("CSP_MEDIA_SRC", SELF).split(","),
@@ -173,10 +168,6 @@ CONTENT_SECURITY_POLICY = {
 }
 
 GA4_ID = os.environ.get("GA4_ID", "")
-
-# Should always be False in production. Can be set to True in local environments
-# to serve static files even when DEBUG is False
-DJANGO_SERVE_STATIC = False
 
 ROSETTA_API_URL = os.getenv("ROSETTA_API_URL")
 

@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from app.records.models import Record
 from django.test import SimpleTestCase
 
@@ -59,6 +61,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.parent, None)
         self.assertEqual(self.record.is_tna, False)
         self.assertEqual(self.record.is_digitised, False)
+        self.assertEqual(self.record.subjects, [])
 
     def test_iaid(self):
 
@@ -957,3 +960,93 @@ class RecordModelTests(SimpleTestCase):
             self.record.url,
             "/catalogue/id/C11827825/",
         )
+
+    def test_subjects_with_data(self):
+        """Test that subjects returns list of subjects when present"""
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["subjects"] = [
+            "Military history",
+            "World War II",
+            "Intelligence services",
+            "Government records",
+        ]
+        self.assertEqual(
+            self.record.subjects,
+            [
+                "Military history",
+                "World War II",
+                "Intelligence services",
+                "Government records",
+            ],
+        )
+
+    @patch("app.records.models.SUBJECTS_LIMIT", 3)
+    def test_subjects_respects_limit(self):
+        """Test that subjects list is limited to SUBJECTS_LIMIT"""
+        self.record = Record(self.template_details)
+        # Create more subjects than the limit
+        long_subjects_list = [
+            "Subject 1",
+            "Subject 2",
+            "Subject 3",
+            "Subject 4",  # This should be excluded
+            "Subject 5",  # This should be excluded
+        ]
+        self.record._raw["subjects"] = long_subjects_list
+
+        # Should only return first 3 items (mocked SUBJECTS_LIMIT)
+        expected = long_subjects_list[:3]
+        self.assertEqual(self.record.subjects, expected)
+        self.assertEqual(len(self.record.subjects), 3)
+
+    def test_subjects_with_single_item(self):
+        """Test that subjects works correctly with a single item"""
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["subjects"] = ["Military records"]
+        self.assertEqual(self.record.subjects, ["Military records"])
+
+    def test_subjects_empty_list_in_data(self):
+        """Test that subjects handles empty list in API data"""
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["subjects"] = []
+        self.assertEqual(self.record.subjects, [])
+
+    @patch("app.records.models.SUBJECTS_LIMIT", 5)
+    def test_subjects_exactly_at_limit(self):
+        """Test that subjects works when exactly at the limit"""
+        self.record = Record(self.template_details)
+        # Create exactly SUBJECTS_LIMIT items (mocked as 5)
+        exact_limit_subjects = [
+            "Subject 1",
+            "Subject 2",
+            "Subject 3",
+            "Subject 4",
+            "Subject 5",
+        ]
+        self.record._raw["subjects"] = exact_limit_subjects
+        self.assertEqual(self.record.subjects, exact_limit_subjects)
+        self.assertEqual(len(self.record.subjects), 5)
+
+    def test_subjects_caching(self):
+        """Test that subjects property is cached (since it uses @cached_property)"""
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["subjects"] = ["Test subject"]
+
+        # First access
+        first_result = self.record.subjects
+
+        # Modify the raw data
+        self.record._raw["subjects"] = ["Modified subject"]
+
+        # Second access should return cached result
+        second_result = self.record.subjects
+
+        # Should be the same object (cached)
+        self.assertIs(first_result, second_result)
+        self.assertEqual(
+            second_result, ["Test subject"]
+        )  # Original value, not modified

@@ -3,6 +3,7 @@
 @use "@nationalarchives/frontend/nationalarchives/tools/media";
 @use "@nationalarchives/frontend/nationalarchives/tools/spacing";
 @use "@nationalarchives/frontend/nationalarchives/tools/typography";
+@use "./accordion";
 
 .back-link-group {
   display: flex;

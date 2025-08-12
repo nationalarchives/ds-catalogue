@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% from 'components/accordion/macro.html' import tnaAccordion %}
+{% from 'records/macros/accordion.html' import etna_accordion %}
 {% from 'records/macros/whats_it_about.html' import whats_it_about %}
 {% from 'records/macros/information_boxes.html' import information_boxes %}
 {% from 'records/macros/detail_fields.html' import detail_fields %}
@@ -49,8 +49,8 @@
       {% set accordion_items = [] %}
 
       {% set accordion_items = accordion_items + [{
-        'title': do_heading,
-        'body': how_to_order(do_description, do_orderbuttons)
+        'title': delivery_options_heading,
+        'body': how_to_order(delivery_instructions, tna_discovery_link)
       }] %}
 
       {% if record.hierarchy_series %}
@@ -64,20 +64,18 @@
         'title': 'Catalogue hierarchy',
         'body': hierarchy(record)
       }] %}
-      
-      {{ tnaAccordion({
-        'itemHeadingLevel': 3,
-        'items': accordion_items,
+
+      {{ etna_accordion({
+        'accordionItems': accordion_items,
         'id': 'record-extended-details',
-        'openMultipleItems': True
       }) }}
+
     </div>
   </div>
 </div>
 
 {{ related_records_block(record) }}
 
-</div>
 {% endblock %}
 
 {% block bodyEnd %}

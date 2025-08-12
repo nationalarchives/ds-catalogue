@@ -130,3 +130,5 @@ TNA_SUBJECTS = {
     "99": "Sewerage",
     "100": "Disarmament",
 }
+
+SUBJECTS_LIMIT = 20

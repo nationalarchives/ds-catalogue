@@ -336,6 +336,14 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                     "title": "Remove search within",
                 }
             )
+        if self.request.GET.get("online", None):
+            selected_filters.append(
+                {
+                    "label": f'Online only "{self.request.GET.get("online")}"',
+                    "href": f"?{qs_remove_value(self.request.GET, 'online')}",
+                    "title": "Remove online only",
+                }
+            )
         if self.request.GET.get("date_from", None):
             selected_filters.append(
                 {

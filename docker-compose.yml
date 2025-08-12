@@ -10,6 +10,7 @@ services:
     environment:
       - RUNTIME=develop
       - ENVIRONMENT_NAME=develop
+      - DEBUG=True
       - DJANGO_SETTINGS_MODULE=config.settings.develop
       - SECRET_KEY=abc123
       - NPM_DEVELOP_COMMAND=dev
@@ -17,11 +18,11 @@ services:
       - DJANGO_SUPERUSER_USERNAME=admin
       - COOKIE_DOMAIN=localhost
       - CSP_IMG_SRC='self',*.nationalarchives.gov.uk
-      - CSP_STYLE_SRC_ELEM='self',fonts.googleapis.com,p.typekit.net,use.typekit.net
+      - CSP_STYLE_SRC='self',fonts.googleapis.com,p.typekit.net,use.typekit.net
       - CSP_FONT_SRC='self',fonts.gstatic.com,use.typekit.net
       - CSP_FRAME_SRC='self',www.youtube.com
       - FEATURE_PHASE_BANNER=False
-      - WAGTAIL_API_URL=https://beta.nationalarchives.gov.uk/api/v2
+      - WAGTAIL_API_URL=https://wagtail.nationalarchives.gov.uk/api/v2
     ports:
       - 65533:8080
     volumes:

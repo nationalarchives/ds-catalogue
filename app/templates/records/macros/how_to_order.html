@@ -1,12 +1,12 @@
 {# TODO: Temporarily commented out - this is due to be replaced with hierarchical templates #}
 {# {% from 'components/button/macro.html' import tnaButton %} #}
 
-{% macro how_to_order(do_description, do_orderbuttons) %}
+{% macro how_to_order(delivery_instructions, tna_discovery_link) %}
 <div class="tna-container tna-container--nested">
   <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
     
     {# TODO: This template will be replaced by a hierarchical set of templates, one per DO #}
-    {% include "records/record-crosslink-panel.html" %}
+    {% include "records/delivery_options.html" %}
 
     {# TODO: Temporarily commented out - this is due to be replaced with hierarchical templates #}
     {#

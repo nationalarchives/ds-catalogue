@@ -55,6 +55,7 @@
         'map_scale',
         'physical_condition',
         'closure_status',
+        'subjects',
         'custodial_history',
         'accumulation_dates',
         'accruals',
@@ -128,6 +129,17 @@
                 {# Output the field value and maybe the raw value #}
                 {{ record[field] | sanitise_record_field | safe }}
 
+              {% elif field == 'subjects' %}
+                <dl class="tna-dl-chips">
+                  <dt>Topics</dt>
+                  {% for item in record[field] %}
+                    <dd>
+                      <a href="#" class="tna-dl-chips__item">
+                        {{ item }}
+                      </a>
+                    </dd>
+                  {% endfor %}
+                </dl> 
               {% else %}
                 {# Just output the field value #}
                 {{ record[field] | apply_generic_xsl | sanitise_record_field | safe }}
@@ -135,37 +147,6 @@
             </dd>
           {% endif %}
         {% endfor %}
-        <dt>Subjects</dt>
-        <dd>
-          <dl class="tna-dl-chips">
-            <dt>Topics</dt>
-            <dd>
-              <a href="#" class="tna-dl-chips__item">
-                Artwork
-              </a>
-            </dd>
-            <dd>
-              <a href="#" class="tna-dl-chips__item">
-                Art
-              </a>
-            </dd>
-            <dd>
-              <a href="#" class="tna-dl-chips__item">
-                Artists
-              </a>
-            </dd>
-            <dd>
-              <a href="#" class="tna-dl-chips__item">
-                Publicity
-              </a>
-            </dd>
-            <dd>
-              <a href="#" class="tna-dl-chips__item">
-                Propaganda
-              </a>
-            </dd>
-          </dl>
-        </dd> 
         <dt>Record URL</dt>
         <dd><span class="copy-url">{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.iaid})) }}</span></dd>
       </dl>

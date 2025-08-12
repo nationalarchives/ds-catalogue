@@ -3,33 +3,36 @@
 {% from "components/date-input/macro.html" import tnaDateInput %}
 
 
-{% macro date_range(request, name, id, title) %}
+{% macro date_input(request, name, id, title) %}
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
   <h3 class="tna-heading-m">{{ title }}</h3>
-  {{ tnaDateSearch({
-    'label': 'Enter a start date',
+    {{ tnaDateInput({
+    'label': "From",
     'headingLevel': 4,
-    'headingSize': 's',
+    'headingSize': "s",
     'id': id + '-from',
     'name': name + '_from',
     'value': request.GET.get(name + '_from', ''),
     'formGroupClasses': 'tna-!--margin-top-s',
+    'progressive': true,
     'attributes': {
       'form': 'search-form'
     }
-  }) }}
-  {{ tnaDateSearch({
-    'label': 'Enter an end date',
+    }) }}
+
+    {{ tnaDateInput({
+    'label': "To",
     'headingLevel': 4,
-    'headingSize': 's',
+    'headingSize': "s",
     'id': id + '-to',
     'name': name + '_to',
     'value': request.GET.get(name + '_to', ''),
     'formGroupClasses': 'tna-!--margin-top-s',
+    'progressive': true,
     'attributes': {
       'form': 'search-form'
     }
-  }) }}
+    }) }}
   
   <div class="tna-button-group tna-!--margin-top-s">
     {{ tnaButton({
