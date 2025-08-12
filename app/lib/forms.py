@@ -56,7 +56,7 @@ class BaseForm:
         valid = True
 
         # clean and validate fields
-        for field in self.fields.values():
+        for field_name, field in self.fields.items():
             if not field.is_valid():
                 valid = False
 

@@ -1,7 +1,9 @@
 """Module for custom fields which interfaces with FE component attrs."""
 
+from datetime import date
+from typing import Optional
+from calendar import monthrange
 from django.utils.functional import cached_property
-
 
 class ValidationError(Exception):
     pass
@@ -284,3 +286,172 @@ class DynamicMultipleChoiceField(BaseField):
         # Replace the field's attribute value
         self.choices = choices
         self.choices_updated = True
+
+
+class DateComponentField(BaseField):
+    """Handles day/month/year components and validates them as a complete date"""
+    
+    def __init__(self, is_from_date=True, **kwargs):
+        """
+        Args:
+            is_from_date: If True, partial dates default to start of period.
+                         If False, partial dates default to end of period.
+        """
+        super().__init__(**kwargs)
+        self.day = None
+        self.month = None 
+        self.year = None
+        self.is_from_date = is_from_date
+        
+    def bind(self, name, value: list | str) -> None:
+        """Binds the field with component values from request data"""
+        # Call parent bind with empty string to satisfy parent class
+        super().bind(name, '')
+        
+        # Determine if this is a from or to date based on field name
+        if name:
+            self.is_from_date = 'from' in name.lower()
+        
+        # The data comes from request.GET as separate fields
+        # We need to extract from the parent form's data
+        if hasattr(self, '_form_data'):
+            self.day = self._form_data.get(f'{name}-day', '')
+            self.month = self._form_data.get(f'{name}-month', '')
+            self.year = self._form_data.get(f'{name}-year', '')
+    
+    def set_form_data(self, form_data):
+        """Set reference to form data for accessing component fields"""
+        self._form_data = form_data
+        # Re-extract components after form data is set
+        if self.name:
+            self.day = form_data.get(f'{self.name}-day', '')
+            self.month = form_data.get(f'{self.name}-month', '')
+            self.year = form_data.get(f'{self.name}-year', '')
+    
+    def is_valid(self):
+        """Override to handle DateComponentField validation properly"""
+        
+        try:
+            # For DateComponentField, we don't use self.value in clean
+            # We use the component values directly
+            self._cleaned = self.clean(None)
+        except ValidationError as e:
+            self.add_error(str(e))
+        except Exception as e:
+            self.add_error("An error occurred validating the date")
+
+        result = not bool(self._error)
+        return result
+    
+    def clean(self, value):
+        """Convert components to date object or None, handling partial dates"""
+        
+        # If no components provided, return None (field is optional)
+        if not any([self.day, self.month, self.year]):
+            return None
+        
+        # Must have at least a year
+        if not self.year:
+            raise ValidationError("Year is required if any date component is provided")
+        
+        try:
+            year = int(self.year)
+            
+            # Validate year range
+            if year < 1000 or year > 9999:
+                raise ValidationError("Please enter a valid 4-digit year")
+            
+            # Keep year as string for consistency
+            self.year = str(year)
+            
+            # Handle year-only input
+            if not self.month and not self.day:
+                if self.is_from_date:
+                    # Start of year: January 1st
+                    self.month = '1'
+                    self.day = '1'
+                    return date(year, 1, 1)
+                else:
+                    # End of year: December 31st
+                    self.month = '12'
+                    self.day = '31'
+                    return date(year, 12, 31)
+            
+            # Handle year and month input (no day)
+            if self.month and not self.day:
+                month = int(self.month)
+                
+                # Validate month
+                if not (1 <= month <= 12):
+                    raise ValidationError("Month must be between 1 and 12")
+                
+                # Keep month as string
+                self.month = str(month)
+                
+                if self.is_from_date:
+                    # Start of month: 1st day
+                    self.day = '1'
+                    return date(year, month, 1)
+                else:
+                    # End of month: last day (28/29/30/31 depending on month)
+                    last_day = monthrange(year, month)[1]
+                    self.day = str(last_day)
+                    return date(year, month, last_day)
+            
+            # Handle complete date (all components provided)
+            if self.day:
+                if not self.month:
+                    raise ValidationError("Month is required if day is provided")
+                
+                day = int(self.day)
+                month = int(self.month)
+                
+                # Basic range validation
+                if not (1 <= month <= 12):
+                    raise ValidationError("Month must be between 1 and 12")
+                if not (1 <= day <= 31):
+                    raise ValidationError("Day must be between 1 and 31")
+                
+                # Keep as strings for consistency
+                self.day = str(day)
+                self.month = str(month)
+                
+                # Create date object (this validates the actual date)
+                return date(year, month, day)
+            
+        except ValueError as e:
+            if "day is out of range for month" in str(e):
+                raise ValidationError("Invalid day for the given month")
+            elif "month must be" in str(e):
+                raise ValidationError("Month must be between 1 and 12")
+            else:
+                raise ValidationError("Please enter a valid date")
+        except ValidationError:
+            raise
+        except Exception as e:
+            raise ValidationError("Please enter a valid date")
+    
+    @property
+    def value(self):
+        """Return the component values as a dict for template access"""
+        return {
+            'day': self.day or '',
+            'month': self.month or '',
+            'year': self.year or ''
+        }
+    
+    def get_computed_components(self) -> dict:
+        """Get the computed component values after cleaning"""
+        # Make sure we return the current values (which may have been computed)
+        result = {
+            f'{self.name}-day': str(self.day) if self.day else '',
+            f'{self.name}-month': str(self.month) if self.month else '',
+            f'{self.name}-year': str(self.year) if self.year else ''
+        }
+        return result
+    
+    def format_for_api(self) -> Optional[str]:
+        """Format the cleaned date as YYYY-MM-DD for API"""
+        if self.cleaned:
+            return self.cleaned.strftime('%Y-%m-%d')
+        return None

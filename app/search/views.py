@@ -6,6 +6,7 @@ from typing import Any
 from app.errors import views as errors_view
 from app.lib.api import ResourceNotFound
 from app.lib.pagination import pagination_object
+from app.lib.fields import DateComponentField
 from app.records.constants import (
     CLOSURE_STATUSES,
     COLLECTIONS,
@@ -19,6 +20,7 @@ from django.http import (
     HttpResponse,
 )
 from django.views.generic import TemplateView
+from django.shortcuts import redirect
 
 from .buckets import CATALOGUE_BUCKETS, Bucket, BucketKeys, BucketList
 from .constants import (
@@ -54,26 +56,24 @@ class APIMixin:
         return self.api_result
 
     def get_api_params(self, form, current_bucket: Bucket) -> dict:
-        """The API params
-        filter: for querying buckets, aggs
-        aggs: for checkbox items with counts."""
-
+        """The API params including date filters"""
+        
         def add_filter(params: dict, value):
             if not isinstance(value, list):
                 value = [value]
             return params.setdefault("filter", []).extend(value)
-
+        
         params = {}
-
+        
         # aggregations
         params.update({"aggs": current_bucket.aggregations})
-
+        
         # filter records for a bucket
         add_filter(params, f"group:{current_bucket.key}")
-
+        
         # applies to catalogue records to filter records with iaid in the results
         add_filter(params, FILTER_DATATYPE_RECORD)
-
+        
         # filter aggregations for each field
         filter_aggregations = []
         for field_name in self.dynamic_choice_fields:
@@ -87,7 +87,11 @@ class APIMixin:
             )
         if filter_aggregations:
             add_filter(params, filter_aggregations)
-
+        
+        # Add date parameters for API
+        date_params = form.get_api_date_params()
+        params.update(date_params)
+        
         return params
 
     def replace_input_data(self, field_name, selected_values: list[str]):
@@ -190,6 +194,12 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             FieldsConstant.GROUP: self.default_group,
             FieldsConstant.SORT: self.default_sort,
         }
+    
+    def get_cleaned_querystring(self) -> str:
+        """Get querystring with computed date values filled in"""
+        if hasattr(self.form, 'get_cleaned_query_dict'):
+            return self.form.get_cleaned_query_dict().urlencode()
+        return self.request.GET.urlencode()
 
     def get(self, request, *args, **kwargs) -> HttpResponse:
         """
@@ -206,6 +216,13 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
                 self.current_bucket = self.bucket_list.get_bucket(
                     self.form.fields[FieldsConstant.GROUP].cleaned
                 )
+                
+                # Check if we need to redirect with computed date values
+                # This must happen AFTER form.is_valid() so fields are cleaned
+                if self.should_redirect_with_computed_dates():
+                    cleaned_qs = self.form.get_cleaned_query_dict().urlencode()
+                    return redirect(f"{request.path}?{cleaned_qs}")
+                
                 return self.form_valid()
             else:
                 return self.form_invalid()
@@ -215,6 +232,26 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         except ResourceNotFound:
             # no results
             return self.form_invalid()
+    
+    def should_redirect_with_computed_dates(self) -> bool:
+        """Check if we need to redirect to include computed date values"""
+        
+        # Check if any date field has been computed (has partial date that needs completion)
+        for field_name, field in self.form.fields.items():
+            if isinstance(field, DateComponentField) and field.cleaned:
+                # Get what's currently in the URL
+                url_day = self.request.GET.get(f'{field_name}-day', '')
+                url_month = self.request.GET.get(f'{field_name}-month', '')
+                url_year = self.request.GET.get(f'{field_name}-year', '')
+                
+                # If we have a cleaned date and any component is missing from URL, redirect
+                if field.year:
+                    # Check if computed values differ from URL values
+                    if (field.day and field.day != url_day) or \
+                       (field.month and field.month != url_month) or \
+                       (field.year and field.year != url_year):
+                        return True
+        return False
 
     @property
     def page(self) -> int:
@@ -258,13 +295,14 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
                 buckets=self.api_result.buckets,
                 current_bucket_key=self.current_bucket_key,
             )
-        context.update(
-            {
-                "bucket_list": self.bucket_list,
-                "results_range": results_range,
-                "pagination": pagination,
-            }
-        )
+        
+        # Pass the cleaned query dict for use in templates
+        context.update({
+            "bucket_list": self.bucket_list,
+            "results_range": results_range,
+            "pagination": pagination,
+            "cleaned_query_dict": self.form.get_cleaned_query_dict() if hasattr(self.form, 'get_cleaned_query_dict') else self.request.GET,
+        })
         return context
 
     def paginate_api_result(self) -> tuple | HttpResponse:
@@ -282,7 +320,9 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             + self.api_result.stats_results,
         }
 
-        pagination = pagination_object(self.page, pages, self.request.GET)
+        # Use cleaned query dict for pagination links
+        query_dict = self.form.get_cleaned_query_dict() if hasattr(self.form, 'get_cleaned_query_dict') else self.request.GET
+        pagination = pagination_object(self.page, pages, query_dict)
 
         return (results_range, pagination)
 
