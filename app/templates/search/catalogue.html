@@ -13,6 +13,7 @@
 {% from 'components/skip-link/macro.html' import tnaSkipLink %}
 {% from 'components/text-input/macro.html' import tnaTextInput %}
 
+{%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
 {% from 'search/macros/filters/search_within.html' import search_within %}
 {% from 'search/macros/filters/date_range.html' import date_range %}
 {% from 'search/macros/filters/date_input.html' import date_input %}
@@ -65,6 +66,9 @@
 {% endblock %}
 
 {% block content %}
+<div class="tna-background-accent">
+  {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
+</div>
 <div class="tna-background-accent tna-!--padding-top-s">
   <div class="tna-container">
     <form id="search-form" method="get" class="tna-column tna-column--full">

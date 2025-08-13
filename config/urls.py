@@ -48,10 +48,7 @@ def redirect_to_live_site(request):
         "/explore-the-collection/",
         "/people/",
     ]
-    if url_has_allowed_host_and_scheme(
-        "https://www.nationalarchives.gov.uk",
-        allowed_hosts=["www.nationalarchives.gov.uk"],
-    ) and any(request.path.startswith(path) for path in allowed_paths):
+    if any(request.path.startswith(path) for path in allowed_paths):
         new_url = urljoin("https://www.nationalarchives.gov.uk", request.path)
         return HttpResponseRedirect(new_url)
     return HttpResponseRedirect("https://www.nationalarchives.gov.uk")
