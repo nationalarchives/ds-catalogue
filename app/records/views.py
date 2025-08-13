@@ -13,6 +13,7 @@ from app.lib.api import ResourceNotFound
 from app.records.api import record_details_by_id, wagtail_request_handler
 from app.records.labels import FIELD_LABELS
 from django.conf import settings
+from django.conf import settings
 from django.template.response import TemplateResponse
 from django.utils.text import slugify
 from sentry_sdk import capture_message
@@ -92,6 +93,18 @@ def record_detail_view(request, id):
     context: dict = {
         "field_labels": FIELD_LABELS,
     }
+
+    global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
+    global_alerts_client.add_parameters(
+        {"fields": "_,global_alert,mourning_notice"}
+    )
+    try:
+        context["global_alert"] = global_alerts_client.get(
+            f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}"
+        )
+    except Exception as e:
+        logger.error(e)
+        context["global_alert"] = {}
 
     record = record_details_by_id(id=id)
 

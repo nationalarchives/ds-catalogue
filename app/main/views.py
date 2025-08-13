@@ -48,6 +48,18 @@ def catalogue(request):
         logger.error(e)
         context["top_pages"] = []
 
+    global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
+    global_alerts_client.add_parameters(
+        {"fields": "_,global_alert,mourning_notice"}
+    )
+    try:
+        context["global_alert"] = global_alerts_client.get(
+            f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}"
+        )
+    except Exception as e:
+        logger.error(e)
+        context["global_alert"] = {}
+
     return HttpResponse(template.render(context, request))
 
 
