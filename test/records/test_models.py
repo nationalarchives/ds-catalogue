@@ -62,6 +62,8 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.is_tna, False)
         self.assertEqual(self.record.is_digitised, False)
         self.assertEqual(self.record.subjects, [])
+        self.assertEqual(self.record.subjects_enrichment, {})
+        self.assertEqual(self.record.has_subjects_enrichment, False)
 
     def test_iaid(self):
 

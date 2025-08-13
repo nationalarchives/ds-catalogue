@@ -10,6 +10,7 @@
 {% from 'records/macros/series_information.html' import series_information %}
 {% from 'records/macros/top_navigation.html' import top_navigation %}
 {% from 'records/macros/related_records_block.html' import related_records_block %}
+{% from 'records/macros/related_content_block.html' import related_content_block %}
 
 {%- set pageTitle = (record.summary_title or '[No title]') | striptags -%}
 
@@ -77,6 +78,10 @@
     </div>
   </div>
 </div>
+
+{% if record.has_subjects_enrichment %}
+  {{ related_content_block(record) }}
+{% endif %}
 
 {{ related_records_block(record) }}
 
