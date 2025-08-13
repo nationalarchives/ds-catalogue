@@ -81,9 +81,11 @@ See [Sentry's official guide](https://docs.sentry.io/platforms/python/guides/dja
 | -------------------------- | -------------------------------------------------------------------------- |
 | `ROSETTA_API_URL`          | The base API URL for Rosetta, including the `/rosetta/data` path           |
 | `WAGTAIL_API_URL`          | The base API URL for Wagtail                                               |
+| `WAGTAIL_API_TIMEOUT`      | Maximum timeout of Wagtail api (seconds)                                   |
 | `DELIVERY_OPTIONS_API_URL` | Api for Delivery options                                                   |
 | `DCS_PREFIXES`             | Comma separated list of document prefixes for distressing content          |
 | `STAFFIN_IP_ADDRESSES`     | Comma separated list of CIDR format IP addresses identifying staff access  |
 | `ONSITE_IP_ADDRESSES`      | Comma separated list of CIDR format IP addresses identifying onsite access |
+| `MAX_SUBJECTS_PER_RECORD`  | Maximum number of subjects displayed on details screen                     |
 
 TODO: Find where the IP_ADDRESSES are documented and link to document here

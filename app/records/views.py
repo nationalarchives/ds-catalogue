@@ -1,6 +1,5 @@
 import logging
 import os
-import pprint as pp
 from http import HTTPStatus
 
 import requests
@@ -71,7 +70,7 @@ def get_subjects_enrichment(subjects_list: list[str], limit: int = 10) -> dict:
         response = requests.get(
             f"{settings.WAGTAIL_API_URL}/article_tags",
             params={"tags": subjects_param, "limit": limit},
-            timeout=getattr(settings, "SUBJECTS_API_TIMEOUT", 5),
+            timeout=settings.WAGTAIL_API_TIMEOUT,
         )
         response.raise_for_status()
         logger.info(
@@ -98,7 +97,7 @@ def record_detail_view(request, id):
 
     if record.subjects:
         subjects_enrichment = get_subjects_enrichment(
-            record.subjects, limit=getattr(settings, "SUBJECTS_API_LIMIT", 10)
+            record.subjects, limit=settings.MAX_SUBJECTS_PER_RECORD
         )
         record._subjects_enrichment = subjects_enrichment
         logger.info(

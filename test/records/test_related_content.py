@@ -13,8 +13,8 @@ from jinja2 import BaseLoader, Environment
 
 @override_settings(
     WAGTAIL_API_URL="https://test-api.example.com",
-    SUBJECTS_API_TIMEOUT=5,
-    SUBJECTS_API_LIMIT=10,
+    WAGTAIL_API_TIMEOUT=5,
+    MAX_SUBJECTS_PER_RECORD=10,
 )
 class SubjectsEnrichmentTests(TestCase):
     """Tests for the new subjects enrichment functionality"""
