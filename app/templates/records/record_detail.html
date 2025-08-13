@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
 {% from 'records/macros/accordion.html' import etna_accordion %}
 {% from 'records/macros/whats_it_about.html' import whats_it_about %}
 {% from 'records/macros/information_boxes.html' import information_boxes %}
@@ -23,6 +24,9 @@
 {% endblock %}
 
 {% block content %}
+<div class="tna-background-accent-">
+  {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
+</div>
 <div class="tna-section">
   <div class="tna-container">
     <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
