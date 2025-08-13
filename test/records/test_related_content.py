@@ -4,8 +4,9 @@ Tests for subjects enrichment functionality
 
 from unittest.mock import Mock, patch
 
-import requests
-import responses
+from app.lib.api import ResourceNotFound
+from app.records.models import Record
+from app.records.views import get_subjects_enrichment
 from django.test import TestCase, override_settings
 from django.utils.text import slugify
 from jinja2 import BaseLoader, Environment
@@ -107,8 +108,6 @@ class SubjectsEnrichmentTests(TestCase):
     # Test 2: Record model - subjects property exists
     def test_record_subjects_property(self):
         """Test that Record.subjects property works correctly"""
-        from app.records.models import Record
-
         record = Record(self.sample_record_data)
 
         # Test that subjects property exists and returns expected data
@@ -119,17 +118,10 @@ class SubjectsEnrichmentTests(TestCase):
         self.assertIn("Military operations", record.subjects)
 
     # Test 3: get_subjects_enrichment function success
-    @responses.activate
-    def test_get_subjects_enrichment_success(self):
+    @patch("app.records.views.wagtail_request_handler")
+    def test_get_subjects_enrichment_success(self, mock_wagtail_handler):
         """Test successful API call for subjects enrichment"""
-        from app.records.views import get_subjects_enrichment
-
-        responses.add(
-            responses.GET,
-            "https://test-api.example.com/article_tags",
-            json=self.mock_enrichment_response,
-            status=200,
-        )
+        mock_wagtail_handler.return_value = self.mock_enrichment_response
 
         result = get_subjects_enrichment(self.sample_record_data["subjects"])
 
@@ -140,25 +132,20 @@ class SubjectsEnrichmentTests(TestCase):
             result["items"][0]["title"], "RAF Operations in World War II"
         )
 
-        # Check that API was called with correct parameters
-        self.assertEqual(len(responses.calls), 1)
-        request_url = responses.calls[0].request.url
-        self.assertIn(
-            "tags=world-war-1939-1945%2Caviation%2Croyal-air-force%2Cmilitary-operations",
-            request_url,
+        # Check that handler was called with correct parameters
+        mock_wagtail_handler.assert_called_once_with(
+            "/article_tags",
+            {
+                "tags": "world-war-1939-1945,aviation,royal-air-force,military-operations",
+                "limit": 10,
+            },
         )
 
     # Test 4: get_subjects_enrichment function failure
-    @responses.activate
-    def test_get_subjects_enrichment_failure(self):
+    @patch("app.records.views.wagtail_request_handler")
+    def test_get_subjects_enrichment_failure(self, mock_wagtail_handler):
         """Test that API failures are handled gracefully"""
-        from app.records.views import get_subjects_enrichment
-
-        responses.add(
-            responses.GET,
-            "https://test-api.example.com/article_tags",
-            status=500,
-        )
+        mock_wagtail_handler.side_effect = Exception("API Error")
 
         result = get_subjects_enrichment(self.sample_record_data["subjects"])
 
@@ -168,8 +155,6 @@ class SubjectsEnrichmentTests(TestCase):
     # Test 5: get_subjects_enrichment with empty subjects
     def test_get_subjects_enrichment_empty_subjects(self):
         """Test get_subjects_enrichment with empty subjects list"""
-        from app.records.views import get_subjects_enrichment
-
         result = get_subjects_enrichment([])
 
         # Should return empty dict without making API call
@@ -178,8 +163,6 @@ class SubjectsEnrichmentTests(TestCase):
     # Test 6: Record model - subjects_enrichment property
     def test_record_subjects_enrichment_property(self):
         """Test that Record.subjects_enrichment works correctly"""
-        from app.records.models import Record
-
         record = Record(self.sample_record_data)
 
         # Test default state (no enrichment data)
@@ -194,8 +177,6 @@ class SubjectsEnrichmentTests(TestCase):
     # Test 7: Record model - has_subjects_enrichment property
     def test_record_has_subjects_enrichment_property(self):
         """Test that Record.has_subjects_enrichment returns correct boolean"""
-        from app.records.models import Record
-
         record = Record(self.sample_record_data)
 
         # Test default state (no enrichment data)
@@ -223,8 +204,6 @@ class SubjectsEnrichmentTests(TestCase):
         """
 
         # Create mock record
-        from app.records.models import Record
-
         record = Record(self.sample_record_data)
         record._subjects_enrichment = self.mock_enrichment_response
 
@@ -248,8 +227,6 @@ class SubjectsEnrichmentTests(TestCase):
           <!-- No related content -->
         {% endif %}
         """
-
-        from app.records.models import Record
 
         record = Record(self.sample_record_data)
         # Don't set _subjects_enrichment, so has_subjects_enrichment will be False
@@ -334,84 +311,75 @@ class SubjectsEnrichmentTests(TestCase):
         # Should have exactly 3 item divs
         self.assertEqual(rendered.count('class="item"'), 3)
 
+    # Test 12: Record detail view integration
+    @patch("app.records.api.rosetta_request_handler")
+    @patch("app.records.views.wagtail_request_handler")
+    def test_record_detail_view_includes_enrichment(
+        self, mock_wagtail_handler, mock_rosetta
+    ):
+        """Test that record detail view includes enrichment data"""
+        # Mock the rosetta API call for getting record details
+        mock_rosetta.return_value = {
+            "data": [{"@template": {"details": self.sample_record_data}}]
+        }
 
-# Test 12: Record detail view integration
-@responses.activate
-@patch("app.records.api.rosetta_request_handler")
-def test_record_detail_view_includes_enrichment(self, mock_rosetta):
-    """Test that record detail view includes enrichment data"""
-    # Mock the rosetta API call for getting record details
-    mock_rosetta.return_value = {
-        "data": [{"@template": {"details": self.sample_record_data}}]
-    }
+        # Mock the subjects enrichment API call
+        mock_wagtail_handler.return_value = self.mock_enrichment_response
 
-    # Mock the subjects enrichment API call
-    responses.add(
-        responses.GET,
-        "https://test-api.example.com/article_tags",
-        json=self.mock_enrichment_response,
-        status=200,
-    )
+        # Call the record detail view
+        response = self.client.get("/catalogue/id/C123456/")
 
-    # Call the record detail view
-    response = self.client.get("/catalogue/id/C123456/")
+        # Ensure the response is OK
+        self.assertEqual(response.status_code, 200)
 
-    # Ensure the response is OK
-    self.assertEqual(response.status_code, 200)
+        # For TemplateResponse, we need to render it first to access context
+        if hasattr(response, "render"):
+            response.render()
 
-    # For TemplateResponse, we need to render it first to access context
-    if hasattr(response, "render"):
-        response.render()
+        # Now try to access context_data (for TemplateResponse) or context (for regular response)
+        context_data = getattr(response, "context_data", None) or getattr(
+            response, "context", None
+        )
 
-    # Now try to access context_data (for TemplateResponse) or context (for regular response)
-    context_data = getattr(response, "context_data", None) or getattr(
-        response, "context", None
-    )
+        if context_data and "record" in context_data:
+            record = context_data["record"]
+            # Test that the record has the enrichment properties
+            self.assertTrue(hasattr(record, "has_subjects_enrichment"))
+            self.assertTrue(hasattr(record, "subjects_enrichment"))
+            # Test that enrichment was actually added
+            self.assertTrue(record.has_subjects_enrichment)
+            self.assertIn("items", record.subjects_enrichment)
 
-    if context_data and "record" in context_data:
-        record = context_data["record"]
-        # Test that the record has the enrichment properties
-        self.assertTrue(hasattr(record, "has_subjects_enrichment"))
-        self.assertTrue(hasattr(record, "subjects_enrichment"))
-        # Test that enrichment was actually added
-        self.assertTrue(record.has_subjects_enrichment)
-        self.assertIn("items", record.subjects_enrichment)
+        # Verify that the enrichment API was called
+        mock_wagtail_handler.assert_called_once()
 
-    # Verify that the enrichment API was called
-    self.assertEqual(len(responses.calls), 1)
-    self.assertIn("article_tags", responses.calls[0].request.url)
+        # Check that the response has content
+        html = response.content.decode()
+        self.assertIsInstance(html, str)
+        self.assertGreater(len(html), 0)
 
-    # Check that the response has content
-    html = response.content.decode()
-    self.assertIsInstance(html, str)
-    self.assertGreater(len(html), 0)
-
-    # Test 13: Error handling - network timeout
-    @patch("app.records.views.requests.get")
-    def test_network_timeout_handling(self, mock_get):
-        """Test that network timeouts are handled gracefully"""
-        from app.records.views import get_subjects_enrichment
-
-        mock_get.side_effect = requests.exceptions.Timeout("Request timed out")
-
-        result = get_subjects_enrichment(self.sample_record_data["subjects"])
-
-        # Should return empty dict on timeout
-        self.assertEqual(result, {})
-
-    # Test 14: Error handling - connection error
-    @patch("app.records.views.requests.get")
-    def test_connection_error_handling(self, mock_get):
-        """Test that connection errors are handled gracefully"""
-        from app.records.views import get_subjects_enrichment
-
-        mock_get.side_effect = requests.exceptions.ConnectionError(
-            "Connection failed"
+    # Test 13: Error handling - ResourceNotFound
+    @patch("app.records.views.wagtail_request_handler")
+    def test_resource_not_found_handling(self, mock_wagtail_handler):
+        """Test that ResourceNotFound exceptions are handled gracefully"""
+        mock_wagtail_handler.side_effect = ResourceNotFound(
+            "Resource not found"
         )
 
         result = get_subjects_enrichment(self.sample_record_data["subjects"])
 
-        # Should return empty dict on connection error
+        # Should return empty dict on ResourceNotFound
+        self.assertEqual(result, {})
+
+    # Test 14: Error handling - general exception
+    @patch("app.records.views.wagtail_request_handler")
+    def test_general_exception_handling(self, mock_wagtail_handler):
+        """Test that general exceptions are handled gracefully"""
+        mock_wagtail_handler.side_effect = Exception("Connection failed")
+
+        result = get_subjects_enrichment(self.sample_record_data["subjects"])
+
+        # Should return empty dict on general exception
         self.assertEqual(result, {})
 
     # Test 15: Record detail view with no subjects
@@ -442,18 +410,11 @@ def test_record_detail_view_includes_enrichment(self, mock_rosetta):
         self.assertEqual(record.subjects_enrichment, {})
 
     # Test 16: Logging behavior
-    @responses.activate
+    @patch("app.records.views.wagtail_request_handler")
     @patch("app.records.views.logger")
-    def test_logging_behavior(self, mock_logger):
+    def test_logging_behavior(self, mock_logger, mock_wagtail_handler):
         """Test that appropriate logging occurs"""
-        from app.records.views import get_subjects_enrichment
-
-        responses.add(
-            responses.GET,
-            "https://test-api.example.com/article_tags",
-            json=self.mock_enrichment_response,
-            status=200,
-        )
+        mock_wagtail_handler.return_value = self.mock_enrichment_response
 
         get_subjects_enrichment(self.sample_record_data["subjects"])
 
@@ -463,12 +424,7 @@ def test_record_detail_view_includes_enrichment(self, mock_rosetta):
         )
 
         # Test failure logging
-        responses.reset()
-        responses.add(
-            responses.GET,
-            "https://test-api.example.com/article_tags",
-            status=500,
-        )
+        mock_wagtail_handler.side_effect = Exception("API Error")
 
         get_subjects_enrichment(self.sample_record_data["subjects"])
 

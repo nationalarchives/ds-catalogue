@@ -9,7 +9,8 @@ from app.deliveryoptions.delivery_options import (
     construct_delivery_options,
 )
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
-from app.records.api import record_details_by_id
+from app.lib.api import ResourceNotFound
+from app.records.api import record_details_by_id, wagtail_request_handler
 from app.records.labels import FIELD_LABELS
 from django.conf import settings
 from django.template.response import TemplateResponse
@@ -67,17 +68,16 @@ def get_subjects_enrichment(subjects_list: list[str], limit: int = 10) -> dict:
     subjects_param = ",".join(slugified_subjects)
 
     try:
-        response = requests.get(
-            f"{settings.WAGTAIL_API_URL}/article_tags",
-            params={"tags": subjects_param, "limit": limit},
-            timeout=settings.WAGTAIL_API_TIMEOUT,
-        )
-        response.raise_for_status()
+        params = {"tags": subjects_param, "limit": limit}
+        results = wagtail_request_handler("/article_tags", params)
         logger.info(
             f"Successfully fetched subjects enrichment for: {subjects_param}"
         )
-        return response.json()
-    except requests.RequestException as e:
+        return results
+    except ResourceNotFound:
+        logger.warning(f"No subjects enrichment found for {subjects_param}")
+        return {}
+    except Exception as e:
         logger.warning(
             f"Failed to fetch subjects enrichment for {subjects_param}: {e}"
         )
