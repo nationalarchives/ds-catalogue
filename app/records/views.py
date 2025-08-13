@@ -13,7 +13,6 @@ from app.lib.api import ResourceNotFound
 from app.records.api import record_details_by_id, wagtail_request_handler
 from app.records.labels import FIELD_LABELS
 from django.conf import settings
-from django.conf import settings
 from django.template.response import TemplateResponse
 from django.utils.text import slugify
 from sentry_sdk import capture_message
