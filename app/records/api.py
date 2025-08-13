@@ -1,5 +1,6 @@
-from app.lib.api import ResourceNotFound, rosetta_request_handler
+from app.lib.api import JSONAPIClient, ResourceNotFound, rosetta_request_handler
 from app.records.models import APIResponse, Record
+from django.conf import settings
 
 
 def record_details_by_id(id, params={}) -> Record:
@@ -22,3 +23,13 @@ def record_details_by_id(id, params={}) -> Record:
 def record_details_by_ref(reference, params={}):
     # TODO: Implement record_details_by_ref once Rosetta has support
     pass
+
+
+def wagtail_request_handler(uri, params={}) -> dict:
+    """Prepares and initiates Wagtail API requests using JSONAPIClient"""
+    api_url = settings.WAGTAIL_API_URL
+    if not api_url:
+        raise Exception("WAGTAIL_API_URL not set")
+
+    client = JSONAPIClient(api_url, params)
+    return client.get(uri)

@@ -460,3 +460,14 @@ class Record(APIModel):
     def subjects(self) -> list[str]:
         """Returns up to SUBJECTS_LIMIT items from the api value of the attr if found, empty list otherwise."""
         return self.get("subjects", [])[:SUBJECTS_LIMIT]
+
+    # Add to your Record class in app/records/models.py
+    @property
+    def subjects_enrichment(self) -> dict:
+        """Returns subjects enrichment data if available."""
+        return getattr(self, "_subjects_enrichment", {})
+
+    @property
+    def has_subjects_enrichment(self) -> bool:
+        """Check if this record has enrichment data available."""
+        return bool(self.subjects_enrichment)
