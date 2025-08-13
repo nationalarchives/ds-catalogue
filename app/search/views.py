@@ -4,7 +4,7 @@ import math
 from typing import Any
 
 from app.errors import views as errors_view
-from app.lib.api import ResourceNotFound
+from app.lib.api import JSONAPIClient, ResourceNotFound
 from app.lib.pagination import pagination_object
 from app.records.constants import (
     CLOSURE_STATUSES,
@@ -13,6 +13,7 @@ from app.records.constants import (
 )
 from app.search.api import search_records
 from config.jinja2 import qs_remove_value, qs_toggle_value
+from django.conf import settings
 from django.http import (
     HttpRequest,
     HttpResponse,
@@ -307,6 +308,18 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
             )
 
         selected_filters = self.build_selected_filters_list()
+
+        global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
+        global_alerts_client.add_parameters(
+            {"fields": "_,global_alert,mourning_notice"}
+        )
+        try:
+            context["global_alert"] = global_alerts_client.get(
+                f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}"
+            )
+        except Exception as e:
+            logger.error(e)
+            context["global_alert"] = {}
 
         context.update(
             {
