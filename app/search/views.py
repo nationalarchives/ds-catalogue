@@ -386,6 +386,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
 
     def build_selected_filters_list(self):
         selected_filters = []
+        
         # TODO: commented code is retained from previous code, want to have q in filter?
         # if request.GET.get("q", None):
         #     selected_filters.append(
@@ -395,6 +396,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
         #             "title": f"Remove query: \"{request.GET.get('q')}\"",
         #         }
         #     )
+        
         if self.request.GET.get("search_within", None):
             selected_filters.append(
                 {
@@ -403,6 +405,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                     "title": "Remove search within",
                 }
             )
+        
         if self.request.GET.get("online", None):
             selected_filters.append(
                 {
@@ -411,22 +414,55 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                     "title": "Remove online only",
                 }
             )
-        if self.request.GET.get("date_from", None):
+        
+        # Handle record dates using the form's cleaned date values
+        rd_from = self.form.fields[FieldsConstant.RECORD_DATE_FROM].cleaned
+        if rd_from:
+            # Format the date nicely for display
+            formatted_date = rd_from.strftime("%d %B %Y")  # e.g., "15 June 2023"
             selected_filters.append(
                 {
-                    "label": f"Record date from: {self.request.GET.get('date_from')}",
-                    "href": f"?{qs_remove_value(self.request.GET, 'date_from')}",
-                    "title": "Remove record from date",
+                    "label": f"Record date from: {formatted_date}",
+                    "href": f"?{self._remove_date_params(self.request.GET, 'rd_from')}",
+                    "title": f"Remove record from date",
                 }
             )
-        if self.request.GET.get("date_to", None):
+        
+        rd_to = self.form.fields[FieldsConstant.RECORD_DATE_TO].cleaned
+        if rd_to:
+            formatted_date = rd_to.strftime("%d %B %Y")
             selected_filters.append(
                 {
-                    "label": f"Record date to: {self.request.GET.get('date_to')}",
-                    "href": f"?{qs_remove_value(self.request.GET, 'date_to')}",
-                    "title": "Remove record to date",
+                    "label": f"Record date to: {formatted_date}",
+                    "href": f"?{self._remove_date_params(self.request.GET, 'rd_to')}",
+                    "title": f"Remove record to date",
                 }
             )
+        
+        # Handle opening dates
+        od_from = self.form.fields[FieldsConstant.OPENING_DATE_FROM].cleaned
+        if od_from:
+            formatted_date = od_from.strftime("%d %B %Y")
+            selected_filters.append(
+                {
+                    "label": f"Opening date from: {formatted_date}",
+                    "href": f"?{self._remove_date_params(self.request.GET, 'od_from')}",
+                    "title": f"Remove opening from date",
+                }
+            )
+        
+        od_to = self.form.fields[FieldsConstant.OPENING_DATE_TO].cleaned
+        if od_to:
+            formatted_date = od_to.strftime("%d %B %Y")
+            selected_filters.append(
+                {
+                    "label": f"Opening date to: {formatted_date}",
+                    "href": f"?{self._remove_date_params(self.request.GET, 'od_to')}",
+                    "title": f"Remove opening to date",
+                }
+            )
+        
+        # Handle levels
         if levels := self.form.fields[FieldsConstant.LEVEL].value:
             levels_lookup = {}
             for _, v in TNA_LEVELS.items():
@@ -440,6 +476,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "title": f"Remove {levels_lookup.get(level, level)} level",
                     }
                 )
+        
         if closure_statuses := self.request.GET.getlist("closure_status", None):
             for closure_status in closure_statuses:
                 selected_filters.append(
@@ -449,6 +486,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "title": f"Remove {CLOSURE_STATUSES.get(closure_status)} closure status",
                     }
                 )
+        
         if collections := self.request.GET.getlist("collections", None):
             for collection in collections:
                 selected_filters.append(
@@ -458,4 +496,20 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "title": f"Remove {COLLECTIONS.get(collection)} collection",
                     }
                 )
+        
         return selected_filters
+
+    def _remove_date_params(self, query_dict, date_field_prefix):
+        """Helper method to remove all date component parameters for a given date field"""
+        from django.http import QueryDict
+        
+        # Create a mutable copy
+        new_qs = query_dict.copy()
+        
+        # Remove all three components for this date field
+        for suffix in ['-year', '-month', '-day']:
+            param_name = f"{date_field_prefix}{suffix}"
+            if param_name in new_qs:
+                del new_qs[param_name]
+        
+        return new_qs.urlencode()
