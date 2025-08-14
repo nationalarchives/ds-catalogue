@@ -62,7 +62,7 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
             self.response.context_data.get("form").fields["level"].cleaned,
             ["Department", "Division"],
         )
-        # queried valid values without their response get count 0
+        # queried valid values without their response have a count of 0
         # shows Lettercode to Deparment replacement
         self.assertEqual(
             self.response.context_data.get("form").fields["level"].items,

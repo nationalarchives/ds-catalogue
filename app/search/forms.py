@@ -8,6 +8,8 @@ from app.records.constants import TNA_LEVELS
 from app.search.buckets import CATALOGUE_BUCKETS
 from app.search.constants import Sort
 
+from .collection_names import COLLECTION_CHOICES
+
 
 class FieldsConstant:
 
@@ -15,6 +17,7 @@ class FieldsConstant:
     SORT = "sort"
     LEVEL = "level"
     GROUP = "group"
+    COLLECTION = "collection"
 
 
 class CatalogueSearchForm(BaseForm):
@@ -39,5 +42,10 @@ class CatalogueSearchForm(BaseForm):
                 label="Filter by levels",
                 choices=list((level, level) for level in TNA_LEVELS.values()),
                 validate_input=True,  # validate input with choices before querying the API
+            ),
+            FieldsConstant.COLLECTION: DynamicMultipleChoiceField(
+                label="Collections",
+                choices=COLLECTION_CHOICES,
+                validate_input=False,  # do not validate input COLLECTION_CHOICES fixed or dynamic
             ),
         }

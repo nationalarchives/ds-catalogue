@@ -120,7 +120,7 @@
     {{ online_tna(request, is_tna_results_page=(form.fields.group.value==bucket_keys.TNA)) }}
     {{ search_within(request) }}
     {{ date_input(request, 'date', 'date', 'Filter by record date') }}
-    {{ collections_tna(request, collections) }}
+    {{ collections_tna(request, form.fields['collection']) }}
     {{ subjects_tna(request, subjects) }}
     {{ levels_tna(request, form.fields['level']) }}
     {{ date_input(request, 'date', 'date', 'Filter by record opening date') }} 

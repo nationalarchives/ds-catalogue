@@ -8,7 +8,6 @@ from app.lib.api import JSONAPIClient, ResourceNotFound
 from app.lib.pagination import pagination_object
 from app.records.constants import (
     CLOSURE_STATUSES,
-    COLLECTIONS,
     TNA_LEVELS,
     TNA_SUBJECTS,
 )
@@ -42,7 +41,7 @@ class APIMixin:
     """A mixin to get the api result, processes api result, sets the context."""
 
     # fields used to extract aggregation entries from the api result
-    dynamic_choice_fields = [FieldsConstant.LEVEL]
+    dynamic_choice_fields = [FieldsConstant.LEVEL, FieldsConstant.COLLECTION]
 
     def get_api_result(self, query, results_per_page, page, sort, params):
         self.api_result = search_records(
@@ -298,7 +297,6 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
         context.update(
             {
                 "closure_statuses": CLOSURE_STATUSES,
-                "collections": COLLECTIONS,
             }
         )
 
@@ -397,13 +395,18 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "title": f"Remove {CLOSURE_STATUSES.get(closure_status)} closure status",
                     }
                 )
-        if collections := self.request.GET.getlist("collections", None):
+        if collections := self.form.fields[FieldsConstant.COLLECTION].value:
+
+            choice_labels = self.form.fields[
+                FieldsConstant.COLLECTION
+            ].configured_choice_labels
+
             for collection in collections:
                 selected_filters.append(
                     {
-                        "label": f"Collection: {COLLECTIONS.get(collection)}",
-                        "href": f"?{qs_toggle_value(self.request.GET, 'collections', collection)}",
-                        "title": f"Remove {COLLECTIONS.get(collection)} collection",
+                        "label": f"Collection: {choice_labels.get(collection, collection)}",
+                        "href": f"?{qs_toggle_value(self.request.GET, 'collection', collection)}",
+                        "title": f"Remove {choice_labels.get(collection, collection)} collection",
                     }
                 )
         return selected_filters

@@ -37,6 +37,13 @@ class CatalogueSearchViewTests(TestCase):
                             {"value": "Division", "doc_count": 5},
                         ],
                     },
+                    {
+                        "name": "collection",
+                        "entries": [
+                            {"value": "BT", "doc_count": 50},
+                            {"value": "WO", "doc_count": 35},
+                        ],
+                    },
                 ],
                 "buckets": [
                     {
@@ -111,7 +118,7 @@ class CatalogueSearchViewTests(TestCase):
             self.response.context_data.get("form"), CatalogueSearchForm
         )
         self.assertEqual(self.response.context_data.get("form").errors, {})
-        self.assertEqual(len(self.response.context_data.get("form").fields), 4)
+        self.assertEqual(len(self.response.context_data.get("form").fields), 5)
 
         # ### form fields ###
 
@@ -185,6 +192,19 @@ class CatalogueSearchViewTests(TestCase):
             [
                 {"text": "Item (100)", "value": "Item"},
                 {"text": "Division (5)", "value": "Division"},
+            ],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["collection"].items,
+            [
+                {
+                    "text": "BT - Board of Trade and successors (50)",
+                    "value": "BT",
+                },
+                {
+                    "text": "WO - War Office, Armed Forces, Judge Advocate General, and related bodies (35)",
+                    "value": "WO",
+                },
             ],
         )
 
@@ -381,9 +401,16 @@ class CatalogueSearchViewLoggerDebugAPITests(TestCase):
                         }
                     }
                 ],
+                # Note: api response is not checked for these values
                 "aggregations": [
                     {
                         "name": "level",
+                        "entries": [
+                            {"value": "somevalue", "doc_count": 100},
+                        ],
+                    },
+                    {
+                        "name": "collection",
                         "entries": [
                             {"value": "somevalue", "doc_count": 100},
                         ],
@@ -410,7 +437,7 @@ class CatalogueSearchViewLoggerDebugAPITests(TestCase):
         self.response = self.client.get("/catalogue/search/")
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&filter=group%3Atna&filter=datatype%3Arecord&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&filter=group%3Atna&filter=datatype%3Arecord&q=%2A&size=20"
         )
 
         # query with search term, non tna records
