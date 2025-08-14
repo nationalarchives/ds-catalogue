@@ -2,6 +2,7 @@ import base64
 import json
 import re
 from datetime import datetime
+from urllib.parse import unquote
 
 from app.lib.xslt_transformations import apply_generic_xsl
 from app.records.utils import change_discovery_record_details_links
@@ -25,6 +26,38 @@ def sanitise_record_field(s):
     s = re.sub(r"(</p>)\s+(<p[ >])", r"\1\2", s).strip()
     s = change_discovery_record_details_links(s)
     return s
+
+
+def tna_html(s):
+    if not s:
+        return s
+    # lists_to_tna_lists
+    s = s.replace("<ul>", '<ul class="tna-ul">')
+    # s = re.sub(r'<ul( class="([^"]*)")?>', r'<ul class="tna-ul \g<2>">', s)
+    s = s.replace("<ol>", '<ol class="tna-ol">')
+    # b_to_strong
+    s = s.replace("<b>", "<strong>")
+    s = s.replace("<b ", "<strong ")
+    s = s.replace("</b>", "</strong>")
+    # strip_wagtail_attributes
+    s = re.sub(r' data-block-key="([^"]*)"', "", s)
+    # replace_line_breaks
+    s = s.replace("\r\n", "<br>")
+    # add_rel_to_external_links
+    s = re.sub(
+        r'<a href="(?!https:\/\/(www|discovery|webarchive)\.nationalarchives\.gov\.uk\/)',
+        '<a rel="noreferrer nofollow noopener" href="',
+        s,
+    )
+    return s
+
+
+def parse_json(s):
+    try:
+        unquoted_string = unquote(s)
+        return json.loads(unquoted_string)
+    except Exception:
+        return {}
 
 
 def base64_encode(s):
@@ -169,6 +202,8 @@ def environment(**options):
             "base64_decode": base64_decode,
             "sanitise_record_field": sanitise_record_field,
             "apply_generic_xsl": apply_generic_xsl,
+            "parse_json": parse_json,
+            "tna_html": tna_html,
         }
     )
     return env

@@ -141,8 +141,20 @@
                   {% endfor %}
                 </dl> 
               {% else %}
-                {# Just output the field value #}
-                {{ record[field] | apply_generic_xsl | sanitise_record_field | safe }}
+                {# Apply apply_generic_xsl for other values #}
+                {% if field in ['location_of_originals'] %}
+                  {% if record[field] | length > 1 %}
+                    <ul class="tna-ul">
+                    {% for item in record[field] %}
+                      <li>{{ item | apply_generic_xsl | sanitise_record_field | safe }}</li>
+                    {% endfor %}
+                    </ul>
+                  {% else %}
+                    {{ record[field][0] | apply_generic_xsl | sanitise_record_field | safe }}
+                  {% endif %}
+                {% else %}
+                  {{ record[field] | apply_generic_xsl | sanitise_record_field | safe }}
+                {% endif %}
               {% endif %}
             </dd>
           {% endif %}

@@ -3,21 +3,13 @@
 
 {% macro collections_tna(request, collection) %}
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
-  {% set collections = [] %}
-  {% for collection_id, collection in collection.items() %}
-    {% set collections = collections.append({
-      'text': collection,
-      'value': collection_id,
-      'checked': qs_is_value_active(request.GET, 'collections', collection_id)
-    }) %}
-  {% endfor %}
   {{ tnaCheckboxes({
     'label': 'Collections',
     'headingLevel': 3,
     'headingSize': 'm',
-    'id': 'collections',
-    'name': 'collections',
-    'items': collections,
+    'id': 'collection',
+    'name': collection.name,
+    'items': collection.items,
     'small': True,
     'attributes': {
       'form': 'search-form'
