@@ -179,8 +179,9 @@ def environment(**options):
             "static": static,
             "app_config": {
                 "GA4_ID": settings.GA4_ID,
-                "TNA_FRONTEND_VERSION": TNA_FRONTEND_VERSION,
+                "CONTAINER_IMAGE": settings.CONTAINER_IMAGE,
                 "BUILD_VERSION": settings.BUILD_VERSION,
+                "TNA_FRONTEND_VERSION": TNA_FRONTEND_VERSION,
                 "COOKIE_DOMAIN": settings.COOKIE_DOMAIN,
             },
             "feature": {"PHASE_BANNER": settings.FEATURE_PHASE_BANNER},
