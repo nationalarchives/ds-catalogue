@@ -226,3 +226,47 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         self.assertIsInstance(self.record.parent, Record)
         self.assertEqual(self.record.is_tna, True)
         self.assertEqual(self.record.is_digitised, True)
+
+        for i, r in enumerate(
+            zip(
+                self.record.hierarchy,
+                [
+                    (
+                        True,
+                        "C16676497",
+                        "/catalogue/id/C16676497/",
+                        1,
+                        "Department",
+                        "LITV",
+                        "Records of the Inquest and Inquiry into the death of Alexander Litvinenko on 23 November...",
+                        2391,
+                    ),
+                    (
+                        True,
+                        "C16685569",
+                        "/catalogue/id/C16685569/",
+                        3,
+                        "Series",
+                        "LITV 2",
+                        "Records of the Inquiry into the death of Alexander Litvinenko on 23 November 2006:...",
+                        2388,
+                    ),
+                ],
+            )
+        ):
+            with self.subTest(i):
+                hierarchy_record, expected = r[0], r[1]
+                self.assertIsInstance(hierarchy_record, Record)
+                self.assertEqual(
+                    (
+                        hierarchy_record.is_tna,
+                        hierarchy_record.iaid,
+                        hierarchy_record.url,
+                        hierarchy_record.level_code,
+                        hierarchy_record.level,
+                        hierarchy_record.reference_number,
+                        hierarchy_record.summary_title,
+                        hierarchy_record.hierarchy_count,
+                    ),
+                    expected,
+                )
