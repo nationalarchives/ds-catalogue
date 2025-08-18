@@ -140,6 +140,40 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         self.assertEqual(self.record.is_tna, True)
         self.assertEqual(self.record.is_digitised, False)
 
+        for i, r in enumerate(
+            zip(
+                self.record.hierarchy,
+                [
+                    (
+                        True,
+                        "C76",
+                        "/catalogue/id/C76/",
+                        1,
+                        "Department",
+                        "DEFE",
+                        "Records of the Ministry of Defence",
+                        62555,
+                    ),
+                ],
+            )
+        ):
+            with self.subTest(i):
+                hierarchy_record, expected = r[0], r[1]
+                self.assertIsInstance(hierarchy_record, Record)
+                self.assertEqual(
+                    (
+                        hierarchy_record.is_tna,
+                        hierarchy_record.iaid,
+                        hierarchy_record.url,
+                        hierarchy_record.level_code,
+                        hierarchy_record.level,
+                        hierarchy_record.reference_number,
+                        hierarchy_record.summary_title,
+                        hierarchy_record.hierarchy_count,
+                    ),
+                    expected,
+                )
+
     def test_response_00149557ca64456a8a41e44f14621801_1(self):
 
         fixture_path = (
