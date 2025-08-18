@@ -250,6 +250,15 @@ class XsltTransformationsTestCase(unittest.TestCase):
             str(apply_schema_xsl(source, schema)),
         )
 
+    def test_Miscellaneous(self):
+        # C1386377
+        source = '<emph altrender="doctype">G</emph>Report of Committee on Homosexual Offences and Prostitution (Cmnd 247).(Keyword: gay).'
+        schema = "Miscellaneous"
+        self.assertEqual(
+            """Report of Committee on Homosexual Offences and Prostitution (Cmnd 247).(Keyword: gay).""",
+            str(apply_schema_xsl(source, schema)),
+        )
+
     def test_MusterRolls(self):
         # D7152922
         source = '<emph altrender="doctype">MS</emph><persname><emph altrender="surname">Boisnard</emph> <emph altrender="forenames">Francois</emph></persname><corpname>Duguay-Trouin</corpname><emph altrender="rating">Etat Major</emph>'
