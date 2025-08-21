@@ -46,7 +46,8 @@
               },
               "summary": {
                 "title": "Records of the Ministry of Defence"
-              }
+              },
+              "count": 62555
             },
             {
               "@admin": {
@@ -60,7 +61,8 @@
               },
               "summary": {
                 "title": "Communications and Intelligence Records"
-              }
+              },
+              "count": 3690
             },
             {
               "@admin": {
@@ -79,7 +81,8 @@
               },
               "summary": {
                 "title": "Ministry of Defence: Joint Intelligence Bureau and Defence Intelligence Staff: Intelligence..."
-              }
+              },
+              "count": 8
             }
           ],
           "iaid": "C15836",

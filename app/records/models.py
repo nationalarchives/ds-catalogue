@@ -373,6 +373,11 @@ class Record(APIModel):
         return hierarchy_records
 
     @cached_property
+    def hierarchy_count(self) -> int | None:
+        """Returns the count usually found in record of the hierarchy records i.e. @hierarchy."""
+        return self.get("count", None)
+
+    @cached_property
     def next(self) -> Record | None:
         """Returns a record transformed from the values of the attr if found, None otherwise."""
         if next := self.get("@next", None):

@@ -48,7 +48,8 @@
               },
               "summary": {
                 "title": "Records of the Inquest and Inquiry into the death of Alexander Litvinenko on 23 November..."
-              }
+              },
+              "count": 2391
             },
             {
               "@admin": {
@@ -67,7 +68,8 @@
               },
               "summary": {
                 "title": "Records of the Inquiry into the death of Alexander Litvinenko on 23 November 2006:..."
-              }
+              },
+              "count": 2388
             },
             {
               "@admin": {
@@ -86,7 +88,8 @@
               },
               "summary": {
                 "title": "INQ019885.pdf"
-              }
+              },
+              "count": 1
             }
           ],
           "iaid": "00149557ca64456a8a41e44f14621801_1",
