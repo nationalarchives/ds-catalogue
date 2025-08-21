@@ -13,6 +13,7 @@ class Aggregation(StrEnum):
 
     LEVEL = "level"
     COLLECTION = "collection"
+    HELD_BY = "heldBy"
 
 
 @dataclass
@@ -112,6 +113,9 @@ CATALOGUE_BUCKETS = BucketList(
             key=BucketKeys.NON_TNA.value,
             label="Records at other UK archives",
             description="Results for records held at other archives in the UK (and not at The National Archives) that match your search term.",
+            aggregations=[
+                Aggregation.HELD_BY.value,
+            ]
         ),
     ]
 )
