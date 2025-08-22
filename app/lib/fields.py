@@ -155,12 +155,18 @@ class ChoiceField(BaseField):
 class DynamicMultipleChoiceField(BaseField):
 
     def __init__(self, choices: list[tuple[str, str]], **kwargs):
-        """choices: format [(field value, display value),]. Has field specific attributes."""
+        """choices: format [(field value, display value),]. Has field specific attributes.
+        keyword args: validate_input: bool (optional, default True if choices provided)
+        """
 
         # field specific attr, validate input choices before querying the api
-        self.validate_input = bool(choices) and kwargs.pop(
-            "validate_input", True
-        )
+        validate_default = True if choices else False
+        if choices:
+            self.validate_input = kwargs.pop("validate_input", validate_default)
+        else:
+            self.validate_input = False
+            kwargs.pop("validate_input", None)
+
         super().__init__(**kwargs)
         self.choices = choices
         self.configured_choices = self.choices

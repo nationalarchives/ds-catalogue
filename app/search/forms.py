@@ -18,6 +18,7 @@ class FieldsConstant:
     LEVEL = "level"
     GROUP = "group"
     COLLECTION = "collection"
+    HELD_BY = "held_by"
 
 
 class CatalogueSearchForm(BaseForm):
@@ -47,5 +48,9 @@ class CatalogueSearchForm(BaseForm):
                 label="Collections",
                 choices=COLLECTION_CHOICES,
                 validate_input=False,  # do not validate input COLLECTION_CHOICES fixed or dynamic
+            ),
+            FieldsConstant.HELD_BY: DynamicMultipleChoiceField(
+                label="Held by",
+                choices=[],  # no initial choices as they are set dynamically
             ),
         }
