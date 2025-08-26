@@ -23,6 +23,7 @@
 {% from 'search/macros/filters/collections_tna.html' import collections_tna %}
 {% from 'search/macros/filters/online_tna.html' import online_tna %}
 {% from 'search/macros/filters/subjects_tna.html' import subjects_tna %}
+{% from 'search/macros/filters/held_by.html' import held_by %}
 
 {%- set pageTitle = 'Catalogue search results' -%}
 {%- set encodedQuery = request.GET.urlencode() | base64_encode -%}
@@ -120,7 +121,11 @@
     {{ online_tna(request, is_tna_results_page=(form.fields.group.value==bucket_keys.TNA)) }}
     {{ search_within(request) }}
     {{ date_input(request, 'date', 'date', 'Filter by record date') }}
-    {{ collections_tna(request, form.fields['collection']) }}
+    {% if form.fields.group.value==bucket_keys.TNA %}
+      {{ collections_tna(request, form.fields['collection']) }}
+    {% elif form.fields.group.value==bucket_keys.NON_TNA %}
+      {{ held_by(request, form.fields['held_by']) }}
+    {% endif %}
     {{ subjects_tna(request, subjects) }}
     {{ levels_tna(request, form.fields['level']) }}
     {{ date_input(request, 'date', 'date', 'Filter by record opening date') }} 
