@@ -23,7 +23,6 @@
 {% from 'search/macros/filters/collections_tna.html' import collections_tna %}
 {% from 'search/macros/filters/online_tna.html' import online_tna %}
 {% from 'search/macros/filters/subjects_tna.html' import subjects_tna %}
-{% from 'search/macros/filters/held_by.html' import held_by %}
 
 {%- set pageTitle = 'Catalogue search results' -%}
 {%- set encodedQuery = request.GET.urlencode() | base64_encode -%}
@@ -36,8 +35,8 @@
 {% block skipLink %}
 {% if results %}
 {{ tnaSkipLink({
-'href': 'results',
-'text': 'Skip to results'
+  'href': 'results',
+  'text': 'Skip to results'
 }) }}
 {% endif %}
 {{ super() }}
@@ -48,18 +47,18 @@
   <div class="tna-container">
     <div class="tna-column tna-column--full">
       {{ tnaBreadcrumbs({
-      'items': [
-      {
-      'text': 'Home',
-      'href': '/'
-      },
-      {
-      'text': 'Catalogue',
-      'href': url('main:catalogue')
-      }
-      ],
-      'structuredData': True,
-      'classes': 'tna-!--padding-vertical-s'
+        'items': [
+          {
+            'text': 'Home',
+            'href': '/'
+          },
+          {
+            'text': 'Catalogue',
+            'href': url('main:catalogue')
+          }
+        ],
+        'structuredData': True,
+        'classes': 'tna-!--padding-vertical-s'
       }) }}
     </div>
   </div>
@@ -74,12 +73,12 @@
   <div class="tna-container">
     <form id="search-form" method="get" class="tna-column tna-column--full">
       {{ tnaSearchField({
-      'label': pageTitle,
-      'headingLevel': 1,
-      'headingSize': 'l',
-      'id': 'search',
+        'label': pageTitle,
+        'headingLevel': 1,
+        'headingSize': 'l',
+        'id': 'search',
         'name':  form.fields.q.name,
-      'value': form.fields.q.value
+        'value': form.fields.q.value
       }) }}
       <!-- <div class="tna-button-group tna-!--margin-top-xs">
         {{ tnaButton({
@@ -94,12 +93,12 @@
     </form>
     <div class="tna-column tna-column--full">
       {{ tnaSecondaryNavigation({
-      'title': 'Sections',
-      'headingLevel': 2,
-      'items': bucket_list.items,
-      'noBottomBorder': True,
-      'visuallyHideHeading': True,
-      'classes': 'tna-!--margin-top-m'
+        'title': 'Sections',
+        'headingLevel': 2,
+        'items': bucket_list.items,
+        'noBottomBorder': True,
+        'visuallyHideHeading': True,
+        'classes': 'tna-!--margin-top-m'
       }) }}
     </div>
   </div>
@@ -108,32 +107,26 @@
   <div class="tna-column tna-column--width-1-4 tna-column--width-1-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-l">
     <h2 class="tna-heading-l">Filters</h2>
     {% if selected_filters %}
-    <div class="tna-aside tna-aside--tight tna-background-accent-light tna-!--margin-top-s">
+        <div class="tna-aside tna-aside--tight tna-background-accent-light tna-!--margin-top-s">
             <h3 class="tna-heading-m">Active filters {% if selected_filters %} ({{ selected_filters | length }}){% endif %}:</h3>
-      {{ tnaCompoundFilters({
-      'items': selected_filters,
+            {{ tnaCompoundFilters({
+              'items': selected_filters,
               'removeAllHref': url('search:catalogue') + '?q=' + form.fields.q.value + '&display=' + (request.GET.get('display') or ''),
-      'removeAllText': 'Reset filters',
-      'classes': 'tna-!--margin-top-s'
-      }) }}
-    </div>
+              'removeAllText': 'Reset filters',
+              'classes': 'tna-!--margin-top-s'
+            }) }}
+        </div>
     {% endif %}
     {{ online_tna(request, is_tna_results_page=(form.fields.group.value==bucket_keys.TNA)) }}
     {{ search_within(request) }}
     {{ date_input(request, 'date', 'date', 'Filter by record date') }}
-
-    {% if form.fields.group.value==bucket_keys.TNA %}
-      {{ collections_tna(request, form.fields['collection']) }}
-    {% elif form.fields.group.value==bucket_keys.NON_TNA %}
-      {{ held_by(request, form.fields['held_by']) }}
-    {% endif %}
-
+    {{ collections_tna(request, form.fields['collection']) }}
     {{ subjects_tna(request, subjects) }}
     {{ levels_tna(request, form.fields['level']) }}
-    {{ date_input(request, 'date', 'date', 'Filter by record opening date') }}
+    {{ date_input(request, 'date', 'date', 'Filter by record opening date') }} 
     {{ closure_statuses_tna(request, closure_statuses) }}
-
-
+    
+    
   </div>
   {% if results %}
   <div id="results" class="tna-column tna-column--width-3-4 tna-column--width-2-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-l">
@@ -143,29 +136,29 @@
       {% endif %}
       <div class="tna-column tna-column--full-tiny">
         {{ tnaSelect({
-        'label': 'Sort by',
-        'headingLevel': 2,
-        'headingSize': 's',
-        'id': 'sort',
-        'name': form.fields.sort.name,
-        'items': form.fields.sort.items,
-        'selected': form.fields.sort.value,
-        'formGroupAttributes': {
-        'id': 'sort-form-group'
-        },
-        'attributes': {
-        'form': 'search-form'
-        }
+          'label': 'Sort by',
+          'headingLevel': 2,
+          'headingSize': 's',
+          'id': 'sort',
+          'name': form.fields.sort.name,
+          'items': form.fields.sort.items,
+          'selected': form.fields.sort.value,
+          'formGroupAttributes': {
+            'id': 'sort-form-group'
+          },
+          'attributes': {
+            'form': 'search-form'
+          }
         }) }}
         <div class="tna-button-group tna-button-group--small tna-!--margin-top-xs">
           {{ tnaButton({
-          'text': 'Apply',
-          'buttonElement': True,
-          'buttonType': 'submit',
-          'small': True,
-          'attributes': {
-          'form': 'search-form'
-          }
+            'text': 'Apply',
+            'buttonElement': True,
+            'buttonType': 'submit',
+            'small': True,
+            'attributes': {
+              'form': 'search-form'
+            }
           }) }}
         </div>
       </div>
@@ -173,72 +166,72 @@
         <h2 class="tna-visually-hidden">Results layout</h2>
         <div class="tna-button-group tna-button-group--small tna-!--no-margin-top">
           {{ tnaButton({
-          'text': 'List',
-          'href': '?' + qs_replace_value(request.GET, 'display', 'list'),
-          'small': True,
-          'icon': 'list',
-          'iconOnly': True
+            'text': 'List',
+            'href': '?' + qs_replace_value(request.GET, 'display', 'list'),
+            'small': True,
+            'icon': 'list',
+            'iconOnly': True
           }) }}
           {{ tnaButton({
-          'text': 'Grid',
-          'href': '?' + qs_replace_value(request.GET, 'display', 'grid'),
-          'small': True,
-          'icon': 'grip',
-          'iconOnly': True
+            'text': 'Grid',
+            'href': '?' + qs_replace_value(request.GET, 'display', 'grid'),
+            'small': True,
+            'icon': 'grip',
+            'iconOnly': True
           }) }}
         </div>
       </div>
     </div>
     <h2 class="tna-visually-hidden">Results</h2>
     {% if request.GET.get('display') == 'grid' %}
-    <ul class="tna-container tna-container--nested">
+      <ul class="tna-container tna-container--nested">
+        {% for record in results %}
+          <li class="tna-column tna-column--width-1-2 tna-column--full-tiny tna-!--margin-top-l">
+            {{ tnaCard({
+              'title': record.summary_title | safe,
+              'headingLevel': 3,
+              'headingSize': 's',
+              'href': url('records:details', kwargs={'id': record.iaid}) + '?search=' + encodedQuery,
+              'meta': [
+                {
+                  'title': 'Held by',
+                  'text': record.held_by,
+                  'icon': 'building'
+                },
+                {
+                  'title': 'Date',
+                  'text': record.date_covering,
+                  'icon': 'calendar'
+                },
+                {
+                  'title': 'Reference',
+                  'text': record.reference_number,
+                  'icon': 'hashtag'
+                }
+              ],
+              'body': record.description | safe,
+              'fullAreaClick': True,
+              'attributes': {
+                'id': 'record-' + record.iaid
+              }
+            }) }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
       {% for record in results %}
-      <li class="tna-column tna-column--width-1-2 tna-column--full-tiny tna-!--margin-top-l">
-        {{ tnaCard({
+      {{ tnaCard({
         'title': record.summary_title | safe,
         'headingLevel': 3,
-        'headingSize': 's',
+        'headingSize': 'm',
         'href': url('records:details', kwargs={'id': record.iaid}) + '?search=' + encodedQuery,
-        'meta': [
-        {
-        'title': 'Held by',
-        'text': record.held_by,
-        'icon': 'building'
-        },
-        {
-        'title': 'Date',
-        'text': record.date_covering,
-        'icon': 'calendar'
-        },
-        {
-        'title': 'Reference',
-        'text': record.reference_number,
-        'icon': 'hashtag'
-        }
-        ],
-        'body': record.description | safe,
+        'body': (record.description + '<dl class="tna-dl tna-dl--plain"><dt>Held by</dt><dd>' + record.held_by + '</dd><dt>Date</dt><dd>' + record.date_covering + '</dd><dt>Reference</dt><dd>' + record.reference_number + '</dd></dl>') | safe,
         'fullAreaClick': True,
         'attributes': {
-        'id': 'record-' + record.iaid
+          'id': 'record-' + record.iaid
         }
-        }) }}
-      </li>
+      }) }}
       {% endfor %}
-    </ul>
-    {% else %}
-    {% for record in results %}
-    {{ tnaCard({
-    'title': record.summary_title | safe,
-    'headingLevel': 3,
-    'headingSize': 'm',
-    'href': url('records:details', kwargs={'id': record.iaid}) + '?search=' + encodedQuery,
-        'body': (record.description + '<dl class="tna-dl tna-dl--plain"><dt>Held by</dt><dd>' + record.held_by + '</dd><dt>Date</dt><dd>' + record.date_covering + '</dd><dt>Reference</dt><dd>' + record.reference_number + '</dd></dl>') | safe,
-    'fullAreaClick': True,
-    'attributes': {
-    'id': 'record-' + record.iaid
-    }
-    }) }}
-    {% endfor %}
     {% endif %}
   </div>
   <div class="tna-column tna-column--full tna-!--margin-top-l">
@@ -252,19 +245,19 @@
 
     {# TODO: Error logging is temporary for demo and must be formalised #}
     {% if form.errors or form.non_field_errors %}
-    <h4>Form Errors</h4>
-    <dl class="tna-dl">
-      <dt>Param/ErrorName</dt>
-      <dd>Value</dd>
-      {% for field, error in form.errors.items() %}
-      <dt>{{ field }}</dt>
-      <dd>{{ error.text }}</dd>
-      {% endfor %}
-      {% for error in form.non_field_errors %}
-      <dt>NONFIELDERROR</dt>
-      <dd>{{ error.text }}</dd>
-      {% endfor %}
-    </dl>
+      <h4>Form Errors</h4>
+      <dl class="tna-dl">
+        <dt>Param/ErrorName</dt>
+        <dd>Value</dd>
+        {% for field, error in form.errors.items() %}
+          <dt>{{ field }}</dt>
+          <dd>{{ error.text }}</dd>
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+          <dt>NONFIELDERROR</dt>
+          <dd>{{ error.text }}</dd>
+        {% endfor %}
+      </dl>
     {% endif %}
   </div>
   {% endif %}
@@ -273,5 +266,5 @@
 
 {% block bodyEnd %}
 {{ super() }}
-<script src="{{ static('catalogue-results.min.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
+    <script src="{{ static('catalogue-results.min.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
 {% endblock %}
