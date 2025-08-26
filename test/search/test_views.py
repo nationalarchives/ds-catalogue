@@ -118,7 +118,7 @@ class CatalogueSearchViewTests(TestCase):
             self.response.context_data.get("form"), CatalogueSearchForm
         )
         self.assertEqual(self.response.context_data.get("form").errors, {})
-        self.assertEqual(len(self.response.context_data.get("form").fields), 5)
+        self.assertEqual(len(self.response.context_data.get("form").fields), 6)
 
         # ### form fields ###
 
@@ -444,5 +444,5 @@ class CatalogueSearchViewLoggerDebugAPITests(TestCase):
         self.response = self.client.get("/catalogue/search/?group=nonTna&q=ufo")
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
+            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
         )
