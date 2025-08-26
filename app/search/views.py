@@ -29,6 +29,7 @@ from .constants import (
 )
 from .forms import CatalogueSearchForm, FieldsConstant
 from .models import APISearchResponse
+from .utils import camelcase_to_underscore, underscore_to_camelcase
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,11 @@ class APIMixin:
     """A mixin to get the api result, processes api result, sets the context."""
 
     # fields used to extract aggregation entries from the api result
-    dynamic_choice_fields = [FieldsConstant.LEVEL, FieldsConstant.COLLECTION]
+    dynamic_choice_fields = [
+        FieldsConstant.LEVEL,
+        FieldsConstant.COLLECTION,
+        FieldsConstant.HELD_BY,
+    ]
 
     def get_api_result(self, query, results_per_page, page, sort, params):
         self.api_result = search_records(
@@ -77,7 +82,7 @@ class APIMixin:
         # filter aggregations for each field
         filter_aggregations = []
         for field_name in self.dynamic_choice_fields:
-            filter_name = field_name
+            filter_name = underscore_to_camelcase(field_name)
             selected_values = form.fields[field_name].cleaned
             selected_values = self.replace_input_data(
                 field_name, selected_values
@@ -108,7 +113,7 @@ class APIMixin:
         reflect data included in the API's `aggs` response."""
 
         for aggregation in api_result.aggregations:
-            field_name = aggregation.get("name")
+            field_name = camelcase_to_underscore(aggregation.get("name"))
             if field_name in self.dynamic_choice_fields:
                 choice_api_data = aggregation.get("entries", ())
                 self.replace_api_data(field_name, choice_api_data)
@@ -407,6 +412,21 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "label": f"Collection: {choice_labels.get(collection, collection)}",
                         "href": f"?{qs_toggle_value(self.request.GET, 'collection', collection)}",
                         "title": f"Remove {choice_labels.get(collection, collection)} collection",
+                    }
+                )
+
+        if held_by := self.form.fields[FieldsConstant.HELD_BY].value:
+
+            choice_labels = self.form.fields[
+                FieldsConstant.HELD_BY
+            ].configured_choice_labels
+
+            for item in held_by:
+                selected_filters.append(
+                    {
+                        "label": f"Held by: {choice_labels.get(item, item)}",
+                        "href": f"?{qs_toggle_value(self.request.GET, 'held_by', item)}",
+                        "title": f"Remove {choice_labels.get(item, item)} held by",
                     }
                 )
         return selected_filters
