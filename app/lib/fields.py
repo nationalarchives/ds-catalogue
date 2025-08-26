@@ -155,8 +155,19 @@ class ChoiceField(BaseField):
 class DynamicMultipleChoiceField(BaseField):
 
     def __init__(self, choices: list[tuple[str, str]], **kwargs):
-        """choices: format [(field value, display value),]. Has field specific attributes.
-        keyword args: validate_input: bool (optional, default True if choices provided)
+        """
+        choices: data format - [(field value, display value),]
+        defined choices act to validate input against and lookup
+        display labels for dynamic values, otherwise an empty list when
+        there are no fixed choices to validate against or need to
+        lookup labels.
+
+        keyword args - validate_input: bool
+        validate_input is optional, it defaults True if choices provided,
+        False otherwise. Override to False when validation from defined
+        choices is required.
+
+        Choices are updated dynamically using update_choices() method.
         """
 
         # field specific attr, validate input choices before querying the api
