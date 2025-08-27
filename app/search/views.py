@@ -378,19 +378,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                     "title": "Remove record to date",
                 }
             )
-        if levels := self.form.fields[FieldsConstant.LEVEL].value:
-            levels_lookup = {}
-            for _, v in TNA_LEVELS.items():
-                levels_lookup.update({v: v})
 
-            for level in levels:
-                selected_filters.append(
-                    {
-                        "label": f"Level: {levels_lookup.get(level, level)}",
-                        "href": f"?{qs_toggle_value(self.request.GET, 'level', level)}",
-                        "title": f"Remove {levels_lookup.get(level, level)} level",
-                    }
-                )
         if closure_statuses := self.request.GET.getlist("closure_status", None):
             for closure_status in closure_statuses:
                 selected_filters.append(
@@ -400,33 +388,30 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "title": f"Remove {CLOSURE_STATUSES.get(closure_status)} closure status",
                     }
                 )
-        if collections := self.form.fields[FieldsConstant.COLLECTION].value:
 
-            choice_labels = self.form.fields[
-                FieldsConstant.COLLECTION
-            ].configured_choice_labels
+        for field_constant in [
+            # sequence matters to show selected filters in order with the form
+            FieldsConstant.COLLECTION,
+            FieldsConstant.LEVEL,
+            FieldsConstant.HELD_BY,
+        ]:
+            field = self.form.fields[field_constant]
+            if field.value == FieldsConstant.LEVEL:
+                choice_labels = {}
+                for _, v in TNA_LEVELS.items():
+                    choice_labels.update({v: v})
+            else:
+                choice_labels = self.form.fields[
+                    field_constant
+                ].configured_choice_labels
 
-            for collection in collections:
+            for item in field.value:
                 selected_filters.append(
                     {
-                        "label": f"Collection: {choice_labels.get(collection, collection)}",
-                        "href": f"?{qs_toggle_value(self.request.GET, 'collection', collection)}",
-                        "title": f"Remove {choice_labels.get(collection, collection)} collection",
+                        "label": f"{field.filter_label}: {choice_labels.get(item, item)}",
+                        "href": f"?{qs_toggle_value(self.request.GET, field.name, item)}",
+                        "title": f"Remove {choice_labels.get(item, item)} {field.filter_label.lower()}",
                     }
                 )
 
-        if held_by := self.form.fields[FieldsConstant.HELD_BY].value:
-
-            choice_labels = self.form.fields[
-                FieldsConstant.HELD_BY
-            ].configured_choice_labels
-
-            for item in held_by:
-                selected_filters.append(
-                    {
-                        "label": f"Held by: {choice_labels.get(item, item)}",
-                        "href": f"?{qs_toggle_value(self.request.GET, 'held_by', item)}",
-                        "title": f"Remove {choice_labels.get(item, item)} held by",
-                    }
-                )
         return selected_filters
