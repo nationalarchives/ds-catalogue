@@ -18,7 +18,7 @@ class BaseField:
     5. Access field attributes
     """
 
-    def __init__(self, label=None, required=False, hint="", filter_label=None):
+    def __init__(self, label=None, required=False, hint="", active_filter_label=None):
         self.label = label
         self.required = required
         self.hint = hint
@@ -26,7 +26,7 @@ class BaseField:
         self._cleaned = None
         self._error = {}
         self.choices = None  # applicable to certain fields ex choice
-        self.filter_label = filter_label  # filter label shown in active filter
+        self.active_filter_label = active_filter_label
 
     def bind(self, name, value: list | str) -> None:
         """Binds field name, value to the field. The value is usually from

@@ -408,9 +408,9 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
             for item in field.value:
                 selected_filters.append(
                     {
-                        "label": f"{field.filter_label}: {choice_labels.get(item, item)}",
+                        "label": f"{field.active_filter_label}: {choice_labels.get(item, item)}",
                         "href": f"?{qs_toggle_value(self.request.GET, field.name, item)}",
-                        "title": f"Remove {choice_labels.get(item, item)} {field.filter_label.lower()}",
+                        "title": f"Remove {choice_labels.get(item, item)} {field.active_filter_label.lower()}",
                     }
                 )
 
