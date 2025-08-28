@@ -91,6 +91,9 @@
       <input type="hidden" name="display" value="{{ request.GET.get('display') or 'list' }}">
       <input type="hidden" name="group" value="{{ request.GET.get('group') or bucket_keys.TNA }}">
     </form>
+    <div class="tna-column tna-column-full">
+      <a href="{{ url('main:catalogue') }}">Start new search</a>
+    </div>
     <div class="tna-column tna-column--full">
       {{ tnaSecondaryNavigation({
         'title': 'Sections',
