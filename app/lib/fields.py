@@ -18,7 +18,9 @@ class BaseField:
     5. Access field attributes
     """
 
-    def __init__(self, label=None, required=False, hint="", active_filter_label=None):
+    def __init__(
+        self, label=None, required=False, hint="", active_filter_label=None
+    ):
         self.label = label
         self.required = required
         self.hint = hint
