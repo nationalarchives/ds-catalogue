@@ -1,4 +1,5 @@
 @use "@nationalarchives/frontend/nationalarchives/tools/colour";
+@use "@nationalarchives/frontend/nationalarchives/tools/spacing";
 
 .tna-dl-chips__item {
   text-align: left;
@@ -8,6 +9,25 @@
   &__item:not(&__item--remove) {
     @include colour.colour-background("input-background");
     @include colour.colour-border("contrast-background");
+  }
+}
+
+.etna-results-buckets {
+  .tna-secondary-navigation__item {
+    &--current {
+      .tna-secondary-navigation__link {
+        @include colour.colour-border(
+          "base-background",
+          spacing.space(0.5),
+          solid,
+          bottom
+        );
+      }
+    }
+
+    .tna-secondary-navigation__link {
+      border-bottom-width: spacing.space(0.5);
+    }
   }
 }
 
