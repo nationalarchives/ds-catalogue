@@ -49,14 +49,14 @@ class APIMixin:
     ]
 
     def get_api_result(self, query, results_per_page, page, sort, params):
-        self.api_result = search_records(
+        api_result = search_records(
             query=query,
             results_per_page=results_per_page,
             page=page,
             sort=sort,
             params=params,
         )
-        return self.api_result
+        return api_result
 
     def get_api_params(self, form, current_bucket: Bucket) -> dict:
         """The API params
