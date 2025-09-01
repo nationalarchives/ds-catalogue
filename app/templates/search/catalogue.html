@@ -171,14 +171,14 @@
         <h2 class="tna-visually-hidden">Results layout</h2>
         <div class="tna-button-group tna-button-group--small tna-!--no-margin-top">
           {{ tnaButton({
-            'text': 'List',
+            'text': 'Display as list',
             'href': '?' + qs_replace_value(request.GET, 'display', 'list'),
             'small': True,
             'icon': 'list',
             'iconOnly': True
           }) }}
           {{ tnaButton({
-            'text': 'Grid',
+            'text': 'Display as grid',
             'href': '?' + qs_replace_value(request.GET, 'display', 'grid'),
             'small': True,
             'icon': 'grip',
