@@ -49,7 +49,7 @@ def search_records(
             if bucket.get("name", "") == "group":
                 if len(bucket.get("entries", [])) > 0:
                     for entry in bucket.get("entries", []):
-                        # check if at least one configuerd bucket has count
+                        # check if at least one configured bucket has count
                         if entry.get("value", "") in [
                             bucket.key for bucket in CATALOGUE_BUCKETS
                         ]:
