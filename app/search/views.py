@@ -277,8 +277,6 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         pages = math.ceil(self.api_result.stats_total / RESULTS_PER_PAGE)
         if pages > PAGE_LIMIT:
             pages = PAGE_LIMIT
-        elif pages == 0:
-            pages = PAGE_LIMIT
 
         if self.page > pages:
             raise PageNotFound
