@@ -1,4 +1,4 @@
-from app.search.utils import underscore_to_camelcase, camelcase_to_underscore
+from app.search.utils import camelcase_to_underscore, underscore_to_camelcase
 from django.test import SimpleTestCase
 
 
@@ -14,8 +14,10 @@ class TestUtils(SimpleTestCase):
 
         for input_str, expected_output in test_cases.items():
             with self.subTest(input_str=input_str):
-                self.assertEqual(camelcase_to_underscore(input_str), expected_output)
-    
+                self.assertEqual(
+                    camelcase_to_underscore(input_str), expected_output
+                )
+
     def test_underscore_to_camelcase(self):
         test_cases = {
             "simple_test": "simpleTest",
@@ -27,4 +29,6 @@ class TestUtils(SimpleTestCase):
 
         for input_str, expected_output in test_cases.items():
             with self.subTest(input_str=input_str):
-                self.assertEqual(underscore_to_camelcase(input_str), expected_output)
+                self.assertEqual(
+                    underscore_to_camelcase(input_str), expected_output
+                )
