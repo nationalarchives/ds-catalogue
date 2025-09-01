@@ -306,13 +306,6 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
             }
         )
 
-        if self.api_result:
-            self.bucket_list.update_buckets_for_display(
-                query=self.query,
-                buckets=self.api_result.buckets,
-                current_bucket_key=self.current_bucket_key,
-            )
-
         selected_filters = self.build_selected_filters_list()
 
         global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
