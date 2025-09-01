@@ -31,6 +31,22 @@
   }
 }
 
+.etna-results-sort-by {
+  padding-bottom: spacing.space(0.5);
+
+  flex-direction: row;
+  align-items: center;
+  justify-content: end;
+
+  .tna-form__group-contents {
+    flex: none;
+  }
+}
+
+.enta-results-layout {
+  flex: 0 0 auto;
+}
+
 mark {
   @include colour.yellow-accent;
   @include colour.accent;
