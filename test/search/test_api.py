@@ -130,4 +130,4 @@ class SearchRecordsTests(SimpleTestCase):
         self.assertIsInstance(api_result, APISearchResponse)
         self.assertEqual(api_result.records, [])
         self.assertEqual(api_result.stats_total, 0)
-        self.assertEqual(api_result.stats_total, 0)
+        self.assertEqual(api_result.stats_results, 0)
