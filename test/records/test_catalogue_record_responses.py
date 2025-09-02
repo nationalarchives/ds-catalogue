@@ -140,6 +140,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         self.assertEqual(self.record.is_tna, True)
         self.assertEqual(self.record.is_digitised, False)
 
+        self.assertEqual(self.record.held_by_count, 25695139)
         for i, r in enumerate(
             zip(
                 self.record.hierarchy,
@@ -261,6 +262,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         self.assertEqual(self.record.is_tna, True)
         self.assertEqual(self.record.is_digitised, True)
 
+        self.assertEqual(self.record.held_by_count, 25695139)
         for i, r in enumerate(
             zip(
                 self.record.hierarchy,

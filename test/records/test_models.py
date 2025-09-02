@@ -37,6 +37,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.held_by, "")
         self.assertEqual(self.record.held_by_id, "")
         self.assertEqual(self.record.held_by_url, "")
+        self.assertEqual(self.record.held_by_count, None)
         self.assertEqual(self.record.access_condition, "")
         self.assertEqual(self.record.closure_status, "")
         self.assertEqual(self.record.record_opening, "")
@@ -387,6 +388,12 @@ class RecordModelTests(SimpleTestCase):
             "WARNING:app.records.models:held_by_url:Record(C12345):No reverse match for record_details with held_by_id=INVALID",
             lc.output,
         )
+
+    def test_held_by_count(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["heldByCount"] = 12345
+        self.assertEqual(self.record.held_by_count, 12345)
 
     def test_access_condition(self):
         self.record = Record(self.template_details)
