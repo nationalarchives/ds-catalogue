@@ -29,6 +29,7 @@ from .constants import (
 )
 from .forms import CatalogueSearchForm, FieldsConstant
 from .models import APISearchResponse
+from .utils import camelcase_to_underscore, underscore_to_camelcase
 
 logger = logging.getLogger(__name__)
 
@@ -41,17 +42,21 @@ class APIMixin:
     """A mixin to get the api result, processes api result, sets the context."""
 
     # fields used to extract aggregation entries from the api result
-    dynamic_choice_fields = [FieldsConstant.LEVEL, FieldsConstant.COLLECTION]
+    dynamic_choice_fields = [
+        FieldsConstant.LEVEL,
+        FieldsConstant.COLLECTION,
+        FieldsConstant.HELD_BY,
+    ]
 
     def get_api_result(self, query, results_per_page, page, sort, params):
-        self.api_result = search_records(
+        api_result = search_records(
             query=query,
             results_per_page=results_per_page,
             page=page,
             sort=sort,
             params=params,
         )
-        return self.api_result
+        return api_result
 
     def get_api_params(self, form, current_bucket: Bucket) -> dict:
         """The API params
@@ -77,7 +82,7 @@ class APIMixin:
         # filter aggregations for each field
         filter_aggregations = []
         for field_name in self.dynamic_choice_fields:
-            filter_name = field_name
+            filter_name = underscore_to_camelcase(field_name)
             selected_values = form.fields[field_name].cleaned
             selected_values = self.replace_input_data(
                 field_name, selected_values
@@ -108,7 +113,7 @@ class APIMixin:
         reflect data included in the API's `aggs` response."""
 
         for aggregation in api_result.aggregations:
-            field_name = aggregation.get("name")
+            field_name = camelcase_to_underscore(aggregation.get("name"))
             if field_name in self.dynamic_choice_fields:
                 choice_api_data = aggregation.get("entries", ())
                 self.replace_api_data(field_name, choice_api_data)
@@ -243,6 +248,12 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
     def form_invalid(self):
         """Renders invalid form, context."""
+        # keep current bucket in focus
+        self.bucket_list.update_buckets_for_display(
+            query="",
+            buckets={},
+            current_bucket_key=self.current_bucket_key,
+        )
 
         context = self.get_context_data(form=self.form)
         return self.render_to_response(context=context)
@@ -252,7 +263,8 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
         results_range = pagination = None
         if self.api_result:
-            results_range, pagination = self.paginate_api_result()
+            if self.api_result.stats_total > 0:
+                results_range, pagination = self.paginate_api_result()
             self.bucket_list.update_buckets_for_display(
                 query=self.query,
                 buckets=self.api_result.buckets,
@@ -299,13 +311,6 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                 "closure_statuses": CLOSURE_STATUSES,
             }
         )
-
-        if self.api_result:
-            self.bucket_list.update_buckets_for_display(
-                query=self.query,
-                buckets=self.api_result.buckets,
-                current_bucket_key=self.current_bucket_key,
-            )
 
         selected_filters = self.build_selected_filters_list()
 
@@ -373,19 +378,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                     "title": "Remove record to date",
                 }
             )
-        if levels := self.form.fields[FieldsConstant.LEVEL].value:
-            levels_lookup = {}
-            for _, v in TNA_LEVELS.items():
-                levels_lookup.update({v: v})
 
-            for level in levels:
-                selected_filters.append(
-                    {
-                        "label": f"Level: {levels_lookup.get(level, level)}",
-                        "href": f"?{qs_toggle_value(self.request.GET, 'level', level)}",
-                        "title": f"Remove {levels_lookup.get(level, level)} level",
-                    }
-                )
         if closure_statuses := self.request.GET.getlist("closure_status", None):
             for closure_status in closure_statuses:
                 selected_filters.append(
@@ -395,18 +388,30 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "title": f"Remove {CLOSURE_STATUSES.get(closure_status)} closure status",
                     }
                 )
-        if collections := self.form.fields[FieldsConstant.COLLECTION].value:
 
-            choice_labels = self.form.fields[
-                FieldsConstant.COLLECTION
-            ].configured_choice_labels
+        for field_constant in [
+            # sequence matters to show selected filters in order with the form
+            FieldsConstant.COLLECTION,
+            FieldsConstant.LEVEL,
+            FieldsConstant.HELD_BY,
+        ]:
+            field = self.form.fields[field_constant]
+            if field_constant == FieldsConstant.LEVEL:
+                choice_labels = {}
+                for _, v in TNA_LEVELS.items():
+                    choice_labels.update({v: v})
+            else:
+                choice_labels = self.form.fields[
+                    field_constant
+                ].configured_choice_labels
 
-            for collection in collections:
+            for item in field.value:
                 selected_filters.append(
                     {
-                        "label": f"Collection: {choice_labels.get(collection, collection)}",
-                        "href": f"?{qs_toggle_value(self.request.GET, 'collection', collection)}",
-                        "title": f"Remove {choice_labels.get(collection, collection)} collection",
+                        "label": f"{field.active_filter_label}: {choice_labels.get(item, item)}",
+                        "href": f"?{qs_toggle_value(self.request.GET, field.name, item)}",
+                        "title": f"Remove {choice_labels.get(item, item)} {field.active_filter_label.lower()}",
                     }
                 )
+
         return selected_filters

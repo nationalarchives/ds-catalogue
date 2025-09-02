@@ -1,0 +1,177 @@
+from http import HTTPStatus
+
+import responses
+from django.conf import settings
+from django.test import TestCase
+
+
+class CatalogueSearchViewHeldByFilterTests(TestCase):
+    """Mainly tests the context."""
+
+    def setUp(self):
+        self.maxDiff = None
+
+    @responses.activate
+    def test_catalogue_search_context_for_held_by(
+        self,
+    ):
+
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "iaid": "89d4c544-3d43-43a7-ae95-79e3bba0c25b",
+                                "heldBy": "Devon Archives and Local Studies Service (South West Heritage Trust)",
+                                "referenceNumber": "4420M/Z 13",
+                            }
+                        }
+                    },
+                    {
+                        "@template": {
+                            "details": {
+                                "iaid": "C3828406",
+                                "heldBy": "National Library of Wales: Department of Collection Services",
+                                "referenceNumber": "WALE 20/160",
+                            }
+                        }
+                    },
+                ],
+                "aggregations": [
+                    {
+                        "name": "heldBy",
+                        "entries": [
+                            {
+                                "value": "Devon Archives and Local Studies Service (South West Heritage Trust)",
+                                "doc_count": 1,
+                            },
+                            {
+                                "value": "National Library of Wales: Department of Collection Services",
+                                "doc_count": 1,
+                            },
+                        ],
+                    }
+                ],
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "nonTna", "count": 25},
+                        ],
+                    }
+                ],
+                "stats": {
+                    "total": 2,
+                    "results": 20,
+                },
+            },
+        )
+
+        self.response = self.client.get(
+            "/catalogue/search/?group=nonTna&held_by=Devon Archives and Local Studies Service (South West Heritage Trust)&held_by=National Library of Wales: Department of Collection Services"
+        )
+
+        self.assertEqual(
+            self.response.context_data.get("form").fields["held_by"].value,
+            [
+                "Devon Archives and Local Studies Service (South West Heritage Trust)",
+                "National Library of Wales: Department of Collection Services",
+            ],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["held_by"].cleaned,
+            [
+                "Devon Archives and Local Studies Service (South West Heritage Trust)",
+                "National Library of Wales: Department of Collection Services",
+            ],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["held_by"].items,
+            [
+                {
+                    "text": "Devon Archives and Local Studies Service (South West Heritage Trust) (1)",
+                    "value": "Devon Archives and Local Studies Service (South West Heritage Trust)",
+                    "checked": True,
+                },
+                {
+                    "text": "National Library of Wales: Department of Collection Services (1)",
+                    "value": "National Library of Wales: Department of Collection Services",
+                    "checked": True,
+                },
+            ],
+        )
+        self.assertEqual(
+            self.response.context_data.get("selected_filters"),
+            [
+                {
+                    "label": "Held by: Devon Archives and Local Studies Service (South West Heritage Trust)",
+                    "href": "?group=nonTna&held_by=National+Library+of+Wales%3A+Department+of+Collection+Services",
+                    "title": "Remove Devon Archives and Local Studies Service (South West Heritage Trust) held by",
+                },
+                {
+                    "label": "Held by: National Library of Wales: Department of Collection Services",
+                    "href": "?group=nonTna&held_by=Devon+Archives+and+Local+Studies+Service+%28South+West+Heritage+Trust%29",
+                    "title": "Remove National Library of Wales: Department of Collection Services held by",
+                },
+            ],
+        )
+
+    @responses.activate
+    def test_catalogue_search_context_for_held_by_does_not_exist(
+        self,
+    ):
+
+        # data is empty, but bucket has count for nonTna group
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [],
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "nonTna", "count": 25},
+                        ],
+                    }
+                ],
+                "stats": {
+                    "total": 0,
+                    "results": 0,
+                },
+            },
+        )
+
+        self.response = self.client.get(
+            "/catalogue/search/?group=nonTna&held_by=DOESNOTEXIST"
+        )
+
+        self.assertEqual(self.response.context_data.get("results"), [])
+        self.assertEqual(self.response.context_data.get("results_range"), None)
+        self.assertEqual(self.response.context_data.get("pagination"), None)
+
+        self.assertEqual(
+            self.response.context_data.get("form").fields["held_by"].value,
+            ["DOESNOTEXIST"],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["held_by"].cleaned,
+            ["DOESNOTEXIST"],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["held_by"].items,
+            [],
+        )
+        self.assertEqual(
+            self.response.context_data.get("selected_filters"),
+            [
+                {
+                    "label": "Held by: DOESNOTEXIST",
+                    "href": "?group=nonTna",
+                    "title": "Remove DOESNOTEXIST held by",
+                },
+            ],
+        )

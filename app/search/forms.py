@@ -18,6 +18,7 @@ class FieldsConstant:
     LEVEL = "level"
     GROUP = "group"
     COLLECTION = "collection"
+    HELD_BY = "held_by"
 
 
 class CatalogueSearchForm(BaseForm):
@@ -42,10 +43,17 @@ class CatalogueSearchForm(BaseForm):
                 label="Filter by levels",
                 choices=list((level, level) for level in TNA_LEVELS.values()),
                 validate_input=True,  # validate input with choices before querying the API
+                active_filter_label="Level",
             ),
             FieldsConstant.COLLECTION: DynamicMultipleChoiceField(
                 label="Collections",
                 choices=COLLECTION_CHOICES,
                 validate_input=False,  # do not validate input COLLECTION_CHOICES fixed or dynamic
+                active_filter_label="Collection",
+            ),
+            FieldsConstant.HELD_BY: DynamicMultipleChoiceField(
+                label="Held by",
+                choices=[],  # no initial choices as they are set dynamically
+                active_filter_label="Held by",
             ),
         }
