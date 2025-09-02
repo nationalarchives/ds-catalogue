@@ -225,6 +225,11 @@ class Record(APIModel):
         return ""
 
     @cached_property
+    def held_by_count(self) -> int | None:
+        """Returns the api value of the attr if found, None otherwise."""
+        return self.get("heldByCount", None)
+
+    @cached_property
     def access_condition(self) -> str:
         """Returns the api value of the attr if found, empty str otherwise."""
         return self.get("accessCondition", "")
