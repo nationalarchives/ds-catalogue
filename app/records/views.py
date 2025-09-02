@@ -9,7 +9,7 @@ from app.deliveryoptions.delivery_options import (
     construct_delivery_options,
 )
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
-from app.lib.api import ResourceNotFound, JSONAPIClient
+from app.lib.api import JSONAPIClient, ResourceNotFound
 from app.records.api import record_details_by_id, wagtail_request_handler
 from app.records.labels import FIELD_LABELS
 from django.conf import settings

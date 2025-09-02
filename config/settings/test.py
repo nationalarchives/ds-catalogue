@@ -6,9 +6,9 @@ from .features import *
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
-INSTALLED_APPS = INSTALLED_APPS + ["test"]
+WAGTAIL_API_URL = "https://rosetta.test/data"
 
-ENVIRONMENT = "test"
+INSTALLED_APPS = INSTALLED_APPS + ["test"]
 
 SECRET_KEY = "abc123"
 
