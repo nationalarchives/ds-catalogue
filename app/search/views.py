@@ -390,7 +390,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
             FieldsConstant.HELD_BY,
         ]:
             field = self.form.fields[field_constant]
-            if field.value == FieldsConstant.LEVEL:
+            if field_constant == FieldsConstant.LEVEL:
                 choice_labels = {}
                 for _, v in TNA_LEVELS.items():
                     choice_labels.update({v: v})
