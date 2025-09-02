@@ -168,7 +168,7 @@ class DynamicMultipleChoiceField(BaseField):
         keyword args - validate_input: bool
         validate_input is optional, it defaults True if choices provided,
         False otherwise. Override to False when validation from defined
-        choices is required.
+        choices is required. Coerce to False when no choices provided.
 
         Choices are updated dynamically using update_choices() method.
         """
@@ -178,6 +178,7 @@ class DynamicMultipleChoiceField(BaseField):
         if choices:
             self.validate_input = kwargs.pop("validate_input", validate_default)
         else:
+            # coerce to False when no choices provided
             self.validate_input = False
             kwargs.pop("validate_input", None)
 
