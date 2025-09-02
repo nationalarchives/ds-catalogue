@@ -65,6 +65,7 @@
 
 .full-height-aside {
   height: 100%;
+
   box-sizing: border-box;
 }
 
@@ -228,4 +229,14 @@
 #youtube-embeded-player {
   height: auto;
   aspect-ratio: 16 / 9;
+}
+
+.related-records {
+  .tna-hgroup__supertitle {
+    color: var(--base-font-dark);
+
+    background-color: var(--base-background);
+
+    border-color: var(--accent-border);
+  }
 }
