@@ -373,7 +373,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
         if online:
             filters.append(
                 {
-                    "label": f'Online only "{online}"',
+                    "label": "Online only",
                     "href": f"?{qs_remove_value(self.request.GET, 'online')}",
                     "title": "Remove online only",
                 }
