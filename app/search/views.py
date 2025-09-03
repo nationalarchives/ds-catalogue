@@ -17,6 +17,7 @@ from django.conf import settings
 from django.http import (
     HttpRequest,
     HttpResponse,
+    QueryDict,
 )
 from django.views.generic import TemplateView
 
@@ -91,6 +92,9 @@ class APIMixin:
 
         if form.fields[FieldsConstant.ONLINE].cleaned == "true":
             add_filter(params, "digitised:true")
+
+        date_params = form.get_api_date_params()
+        params.update(date_params)
 
         return params
 
@@ -335,82 +339,182 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
         return context
 
     def build_selected_filters_list(self):
+        """Build a list of selected filters with their labels and removal URLs."""
         selected_filters = []
-        # TODO: commented code is retained from previous code, want to have q in filter?
-        # if request.GET.get("q", None):
-        #     selected_filters.append(
-        #         {
-        #             "label": f"\"{request.GET.get('q')}\"",
-        #             "href": f"?{qs_remove_value(request.GET, 'q')}",
-        #             "title": f"Remove query: \"{request.GET.get('q')}\"",
-        #         }
-        #     )
-        if self.request.GET.get("search_within", None):
-            selected_filters.append(
+
+        # Add each type of filter
+        selected_filters.extend(self._add_search_within_filter())
+        selected_filters.extend(self._add_online_filter())
+        selected_filters.extend(self._add_date_filters())
+        selected_filters.extend(self._add_level_filters())
+        selected_filters.extend(self._add_closure_status_filters())
+        selected_filters.extend(self._add_collection_filters())
+
+        return selected_filters
+
+    def _add_search_within_filter(self):
+        """Add search within filter if present."""
+        filters = []
+        search_within = self.request.GET.get("search_within")
+        if search_within:
+            filters.append(
                 {
-                    "label": f"Sub query {self.request.GET.get('search_within')}",
+                    "label": f"Sub query {search_within}",
                     "href": f"?{qs_remove_value(self.request.GET, 'search_within')}",
                     "title": "Remove search within",
                 }
             )
-        if self.request.GET.get("online", None):
-            selected_filters.append(
+        return filters
+
+    def _add_online_filter(self):
+        """Add online filter if present."""
+        filters = []
+        online = self.request.GET.get("online")
+        if online:
+            filters.append(
                 {
-                    "label": f'Online only "{self.request.GET.get("online")}"',
+                    "label": f'Online only "{online}"',
                     "href": f"?{qs_remove_value(self.request.GET, 'online')}",
                     "title": "Remove online only",
                 }
             )
-        if self.request.GET.get("date_from", None):
-            selected_filters.append(
+        return filters
+
+    def _add_date_filters(self):
+        """Add all date-related filters."""
+        filters = []
+
+        # Record date filters
+        filters.extend(self._add_record_date_filters())
+        # Opening date filters
+        filters.extend(self._add_opening_date_filters())
+
+        return filters
+
+    def _add_record_date_filters(self):
+        """Add record date from/to filters."""
+        filters = []
+
+        rd_from = self.form.fields[FieldsConstant.RECORD_DATE_FROM].cleaned
+        if rd_from:
+            formatted_date = rd_from.strftime("%d %B %Y")
+            filters.append(
                 {
-                    "label": f"Record date from: {self.request.GET.get('date_from')}",
-                    "href": f"?{qs_remove_value(self.request.GET, 'date_from')}",
+                    "label": f"Record date from: {formatted_date}",
+                    "href": f"?{self._remove_date_params(self.request.GET, 'rd_from')}",
                     "title": "Remove record from date",
                 }
             )
-        if self.request.GET.get("date_to", None):
-            selected_filters.append(
+
+        rd_to = self.form.fields[FieldsConstant.RECORD_DATE_TO].cleaned
+        if rd_to:
+            formatted_date = rd_to.strftime("%d %B %Y")
+            filters.append(
                 {
-                    "label": f"Record date to: {self.request.GET.get('date_to')}",
-                    "href": f"?{qs_remove_value(self.request.GET, 'date_to')}",
+                    "label": f"Record date to: {formatted_date}",
+                    "href": f"?{self._remove_date_params(self.request.GET, 'rd_to')}",
                     "title": "Remove record to date",
                 }
             )
-        if levels := self.form.fields[FieldsConstant.LEVEL].value:
-            levels_lookup = {}
-            for _, v in TNA_LEVELS.items():
-                levels_lookup.update({v: v})
+
+        return filters
+
+    def _add_opening_date_filters(self):
+        """Add opening date from/to filters."""
+        filters = []
+
+        od_from = self.form.fields[FieldsConstant.OPENING_DATE_FROM].cleaned
+        if od_from:
+            formatted_date = od_from.strftime("%d %B %Y")
+            filters.append(
+                {
+                    "label": f"Opening date from: {formatted_date}",
+                    "href": f"?{self._remove_date_params(self.request.GET, 'od_from')}",
+                    "title": "Remove opening from date",
+                }
+            )
+
+        od_to = self.form.fields[FieldsConstant.OPENING_DATE_TO].cleaned
+        if od_to:
+            formatted_date = od_to.strftime("%d %B %Y")
+            filters.append(
+                {
+                    "label": f"Opening date to: {formatted_date}",
+                    "href": f"?{self._remove_date_params(self.request.GET, 'od_to')}",
+                    "title": "Remove opening to date",
+                }
+            )
+
+        return filters
+
+    def _add_level_filters(self):
+        """Add level filters."""
+        filters = []
+        levels = self.form.fields[FieldsConstant.LEVEL].value
+
+        if levels:
+            levels_lookup = {v: v for _, v in TNA_LEVELS.items()}
 
             for level in levels:
-                selected_filters.append(
+                level_label = levels_lookup.get(level, level)
+                filters.append(
                     {
-                        "label": f"Level: {levels_lookup.get(level, level)}",
+                        "label": f"Level: {level_label}",
                         "href": f"?{qs_toggle_value(self.request.GET, 'level', level)}",
-                        "title": f"Remove {levels_lookup.get(level, level)} level",
+                        "title": f"Remove {level_label} level",
                     }
                 )
-        if closure_statuses := self.request.GET.getlist("closure_status", None):
-            for closure_status in closure_statuses:
-                selected_filters.append(
-                    {
-                        "label": f"Closure status: {CLOSURE_STATUSES.get(closure_status)}",
-                        "href": f"?{qs_toggle_value(self.request.GET, 'closure_status', closure_status)}",
-                        "title": f"Remove {CLOSURE_STATUSES.get(closure_status)} closure status",
-                    }
-                )
-        if collections := self.form.fields[FieldsConstant.COLLECTION].value:
 
+        return filters
+
+    def _add_closure_status_filters(self):
+        """Add closure status filters."""
+        filters = []
+        closure_statuses = self.request.GET.getlist("closure_status")
+
+        for closure_status in closure_statuses:
+            status_label = CLOSURE_STATUSES.get(closure_status)
+            filters.append(
+                {
+                    "label": f"Closure status: {status_label}",
+                    "href": f"?{qs_toggle_value(self.request.GET, 'closure_status', closure_status)}",
+                    "title": f"Remove {status_label} closure status",
+                }
+            )
+
+        return filters
+
+    def _add_collection_filters(self):
+        """Add collection filters."""
+        filters = []
+        collections = self.form.fields[FieldsConstant.COLLECTION].value
+
+        if collections:
             choice_labels = self.form.fields[
                 FieldsConstant.COLLECTION
             ].configured_choice_labels
 
             for collection in collections:
-                selected_filters.append(
+                collection_label = choice_labels.get(collection, collection)
+                filters.append(
                     {
-                        "label": f"Collection: {choice_labels.get(collection, collection)}",
+                        "label": f"Collection: {collection_label}",
                         "href": f"?{qs_toggle_value(self.request.GET, 'collection', collection)}",
-                        "title": f"Remove {choice_labels.get(collection, collection)} collection",
+                        "title": f"Remove {collection_label} collection",
                     }
                 )
-        return selected_filters
+
+        return filters
+
+    def _remove_date_params(self, query_dict, date_field_prefix):
+        """Helper method to remove all date component parameters for a given date field"""
+        # Create a mutable copy
+        new_qs = query_dict.copy()
+
+        # Remove all three components for this date field
+        for suffix in ["-year", "-month", "-day"]:
+            param_name = f"{date_field_prefix}{suffix}"
+            if param_name in new_qs:
+                del new_qs[param_name]
+
+        return new_qs.urlencode()

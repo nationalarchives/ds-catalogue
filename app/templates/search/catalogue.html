@@ -119,11 +119,11 @@
     {% endif %}
     {{ online_tna(request, is_tna_results_page=(form.fields.group.value==bucket_keys.TNA)) }}
     {{ search_within(request) }}
-    {{ date_input(request, 'date', 'date', 'Filter by record date') }}
+    {{ date_input(request, 'rd', 'record-date', 'Filter by record date') }}
     {{ collections_tna(request, form.fields['collection']) }}
     {{ subjects_tna(request, subjects) }}
     {{ levels_tna(request, form.fields['level']) }}
-    {{ date_input(request, 'date', 'date', 'Filter by record opening date') }} 
+    {{ date_input(request, 'od', 'opening-date', 'Filter by record opening date') }}
     {{ closure_statuses_tna(request, closure_statuses) }}
     
     

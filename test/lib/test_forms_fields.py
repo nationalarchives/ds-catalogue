@@ -3,8 +3,8 @@ from datetime import datetime
 from app.lib.fields import (
     CharField,
     ChoiceField,
+    CustomValidationError,
     DynamicMultipleChoiceField,
-    ValidationError,
 )
 from app.lib.forms import BaseForm
 from django.http import QueryDict
@@ -405,7 +405,7 @@ class NewFieldWithRaiseValidationTest(TestCase):
                     try:
                         datetime.strptime(value, "%Y-%m-%d")
                     except ValueError:
-                        raise ValidationError(
+                        raise CustomValidationError(
                             "Value is not in format YYYY-MM-DD"
                         )
                     super().validate(value)
