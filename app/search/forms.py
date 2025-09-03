@@ -18,6 +18,7 @@ class FieldsConstant:
     LEVEL = "level"
     GROUP = "group"
     COLLECTION = "collection"
+    ONLINE = "online"
 
 
 class CatalogueSearchForm(BaseForm):
@@ -47,5 +48,12 @@ class CatalogueSearchForm(BaseForm):
                 label="Collections",
                 choices=COLLECTION_CHOICES,
                 validate_input=False,  # do not validate input COLLECTION_CHOICES fixed or dynamic
+            ),
+            FieldsConstant.ONLINE: ChoiceField(
+                choices=[
+                    ("", "All records"),
+                    ("true", "Available online only"),
+                ],
+                required=False,
             ),
         }

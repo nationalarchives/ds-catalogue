@@ -85,8 +85,12 @@ class APIMixin:
             filter_aggregations.extend(
                 (f"{filter_name}:{value}" for value in selected_values)
             )
+
         if filter_aggregations:
             add_filter(params, filter_aggregations)
+
+        if form.fields[FieldsConstant.ONLINE].cleaned == "true":
+            add_filter(params, "digitised:true")
 
         return params
 
