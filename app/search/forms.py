@@ -164,7 +164,7 @@ class CatalogueSearchForm(BaseForm):
         if rd_from := self.fields[
             FieldsConstant.RECORD_DATE_FROM
         ].format_for_api():
-            params["dateCovering"] = rd_from
+            params["record_date_from"] = rd_from
         if rd_to := self.fields[FieldsConstant.RECORD_DATE_TO].format_for_api():
             params["record_date_to"] = rd_to
 
