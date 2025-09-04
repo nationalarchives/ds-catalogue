@@ -3,7 +3,7 @@
 {% from "components/date-input/macro.html" import tnaDateInput %}
 
 
-{% macro date_input(request, name, id, title) %}
+{% macro date_input(request, name, id, title, from_field, to_field) %}
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
   <h3 class="tna-heading-m">{{ title }}</h3>
     {{ tnaDateInput({
@@ -12,7 +12,7 @@
     'headingSize': "s",
     'id': id + '-from',
     'name': name + '_from',
-    'value': request.GET.get(name + '_from', ''),
+    'value': from_field.value if from_field else request.GET.get(name + '_from', ''),
     'formGroupClasses': 'tna-!--margin-top-s',
     'progressive': true,
     'attributes': {
@@ -26,7 +26,7 @@
     'headingSize': "s",
     'id': id + '-to',
     'name': name + '_to',
-    'value': request.GET.get(name + '_to', ''),
+    'value': to_field.value if to_field else request.GET.get(name + '_to', ''),
     'formGroupClasses': 'tna-!--margin-top-s',
     'progressive': true,
     'attributes': {

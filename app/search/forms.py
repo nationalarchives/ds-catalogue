@@ -34,7 +34,7 @@ class CatalogueSearchForm(BaseForm):
         # Pass form data to date fields so they can access components
         for field_name, field in self.fields.items():
             if isinstance(field, DateComponentField):
-                field.set_form_data(self.data)
+                field.set_form_data(self.data if data else {})
 
     def add_fields(self):
 

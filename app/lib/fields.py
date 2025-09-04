@@ -417,10 +417,26 @@ class DateComponentField(BaseField):
 
     @property
     def value(self):
+        # If components are set from form data, use those
+        if any([self.day, self.month, self.year]):
+            return {
+                "day": self.day or "",
+                "month": self.month or "",
+                "year": self.year or "",
+            }
+    
+        # Otherwise, try to get from the original request data
+        if hasattr(self, '_form_data') and self.name:
+            return {
+                "day": self._form_data.get(f"{self.name}-day", ""),
+                "month": self._form_data.get(f"{self.name}-month", ""),
+                "year": self._form_data.get(f"{self.name}-year", ""),
+            }
+    
         return {
-            "day": self.day or "",
-            "month": self.month or "",
-            "year": self.year or "",
+            "day": "",
+            "month": "",
+            "year": "",
         }
 
     def get_computed_components(self) -> dict:
