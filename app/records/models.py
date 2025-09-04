@@ -4,6 +4,7 @@ import logging
 import re
 from typing import Any
 
+import sentry_sdk
 from app.lib.xslt_transformations import apply_schema_xsl, apply_series_xsl
 from app.records.constants import NON_TNA_LEVELS, SUBJECTS_LIMIT, TNA_LEVELS
 from app.records.utils import (
@@ -226,8 +227,16 @@ class Record(APIModel):
 
     @cached_property
     def held_by_count(self) -> int | None:
-        """Returns the api value of the attr if found, None otherwise."""
-        return self.get("heldByCount", None)
+        """Returns the api value of the attr if found, None otherwise.
+        Usually expected to be present to show in the UI."""
+
+        count = self.get("heldByCount", None)
+        if not count:
+            # Handles missing value by logging the issue and continuing without user-facing impact.
+            message = f"held_by_count is missing for record {self.iaid}"
+            logger.error(message)
+            sentry_sdk.capture_message(message, level="error")
+        return count
 
     @cached_property
     def access_condition(self) -> str:
@@ -379,8 +388,18 @@ class Record(APIModel):
 
     @cached_property
     def hierarchy_count(self) -> int | None:
-        """Returns the count usually found in record of the hierarchy records i.e. @hierarchy."""
-        return self.get("count", None)
+        """Returns the count usually found in record of the hierarchy records i.e. @hierarchy.
+        Usually expected to be present to show in the UI."""
+
+        count = self.get("count", None)
+        if not count:
+            # Handles missing value by logging the issue and continuing without user-facing impact.
+            message = (
+                f"hierarchy_count missing for hierarchy record {self.iaid}"
+            )
+            logger.error(message)
+            sentry_sdk.capture_message(message, level="error")
+        return count
 
     @cached_property
     def next(self) -> Record | None:
