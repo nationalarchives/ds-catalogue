@@ -390,7 +390,7 @@ class Record(APIModel):
         return hierarchy_records
 
     @cached_property
-    def hierarchy_count(self) -> int | None:
+    def hierarchy_count(self) -> str:
         """Returns the formatted count usually found in record of the hierarchy
         records i.e. @hierarchy, default text otherwise.
         Usually expected to be present to show in the UI."""
