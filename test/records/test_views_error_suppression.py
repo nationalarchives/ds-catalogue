@@ -38,7 +38,9 @@ class TestRecordViewForSuppressedErrorsLogged(TestCase):
             "ERROR:app.records.models:held_by_count is missing for record C123456",
             "".join(log.output),
         )
-        self.assertIsNone(response.context_data.get("record").held_by_count)
+        self.assertEqual(
+            response.context_data.get("record").held_by_count, "Count unknown"
+        )
 
     @responses.activate
     def test_record_detail_view_hierarchy_count_error_log(self):
@@ -81,6 +83,7 @@ class TestRecordViewForSuppressedErrorsLogged(TestCase):
             "ERROR:app.records.models:hierarchy_count missing for hierarchy record C236",
             "".join(log.output),
         )
-        self.assertIsNone(
-            response.context_data.get("record").hierarchy[0].hierarchy_count
+        self.assertEqual(
+            response.context_data.get("record").hierarchy[0].hierarchy_count,
+            "Count unknown",
         )

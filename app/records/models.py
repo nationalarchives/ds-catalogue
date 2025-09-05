@@ -13,10 +13,12 @@ from app.records.utils import (
     format_extref_links,
     format_link,
 )
+from config.jinja2 import format_number
 from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
 from lxml import etree
 
+from .constants import MISSING_COUNT_TEXT
 from .converters import IDConverter
 
 logger = logging.getLogger(__name__)
@@ -226,8 +228,8 @@ class Record(APIModel):
         return ""
 
     @cached_property
-    def held_by_count(self) -> int | None:
-        """Returns the api value of the attr if found, None otherwise.
+    def held_by_count(self) -> str:
+        """Returns the api value formatted of the attr if found, default text otherwise.
         Usually expected to be present to show in the UI."""
 
         count = self.get("heldByCount", None)
@@ -236,7 +238,8 @@ class Record(APIModel):
             message = f"held_by_count is missing for record {self.iaid}"
             logger.error(message)
             sentry_sdk.capture_message(message, level="error")
-        return count
+            return MISSING_COUNT_TEXT
+        return format_number(count)
 
     @cached_property
     def access_condition(self) -> str:
@@ -399,7 +402,8 @@ class Record(APIModel):
             )
             logger.error(message)
             sentry_sdk.capture_message(message, level="error")
-        return count
+            return MISSING_COUNT_TEXT
+        return format_number(count)
 
     @cached_property
     def next(self) -> Record | None:

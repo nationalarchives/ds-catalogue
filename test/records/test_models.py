@@ -37,7 +37,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.held_by, "")
         self.assertEqual(self.record.held_by_id, "")
         self.assertEqual(self.record.held_by_url, "")
-        self.assertEqual(self.record.held_by_count, None)
+        self.assertEqual(self.record.held_by_count, "Count unknown")
         self.assertEqual(self.record.access_condition, "")
         self.assertEqual(self.record.closure_status, "")
         self.assertEqual(self.record.record_opening, "")
@@ -393,7 +393,7 @@ class RecordModelTests(SimpleTestCase):
         self.record = Record(self.template_details)
         # patch raw data
         self.record._raw["heldByCount"] = 12345
-        self.assertEqual(self.record.held_by_count, 12345)
+        self.assertEqual(self.record.held_by_count, "12,345")
 
     def test_access_condition(self):
         self.record = Record(self.template_details)
@@ -787,7 +787,7 @@ class RecordModelTests(SimpleTestCase):
                         "Department",
                         "AIR",
                         "Records created or inherited by the Air Ministry, the Royal Air Force, and related...",
-                        723850,
+                        "723,850",
                     ),
                     (
                         True,
@@ -797,7 +797,7 @@ class RecordModelTests(SimpleTestCase):
                         "Series",
                         "AIR 79",
                         "Air Ministry: Air Member for Personnel and predecessors: Airmen's Records",
-                        319338,
+                        "319,338",
                     ),
                     (
                         True,
@@ -807,7 +807,7 @@ class RecordModelTests(SimpleTestCase):
                         "Piece",
                         "AIR 79/962",
                         "107079 - 107200 (Described at item level).",
-                        123,
+                        "123",
                     ),
                     (
                         True,
@@ -817,6 +817,7 @@ class RecordModelTests(SimpleTestCase):
                         "Item",
                         "AIR 79/962/107133",
                         "Name: Percy Augustus Cecil Gadd.",
+                        "1",
                     ),
                 ],
             )

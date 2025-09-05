@@ -140,7 +140,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         self.assertEqual(self.record.is_tna, True)
         self.assertEqual(self.record.is_digitised, False)
 
-        self.assertEqual(self.record.held_by_count, 25695139)
+        self.assertEqual(self.record.held_by_count, "25,695,139")
         for i, r in enumerate(
             zip(
                 self.record.hierarchy,
@@ -153,7 +153,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
                         "Department",
                         "DEFE",
                         "Records of the Ministry of Defence",
-                        62555,
+                        "62,555",
                     ),
                 ],
             )
@@ -262,7 +262,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         self.assertEqual(self.record.is_tna, True)
         self.assertEqual(self.record.is_digitised, True)
 
-        self.assertEqual(self.record.held_by_count, 25695139)
+        self.assertEqual(self.record.held_by_count, "25,695,139")
         for i, r in enumerate(
             zip(
                 self.record.hierarchy,
@@ -275,7 +275,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
                         "Department",
                         "LITV",
                         "Records of the Inquest and Inquiry into the death of Alexander Litvinenko on 23 November...",
-                        2391,
+                        "2,391",
                     ),
                     (
                         True,
@@ -285,7 +285,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
                         "Series",
                         "LITV 2",
                         "Records of the Inquiry into the death of Alexander Litvinenko on 23 November 2006:...",
-                        2388,
+                        "2,388",
                     ),
                 ],
             )

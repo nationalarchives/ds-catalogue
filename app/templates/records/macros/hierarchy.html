@@ -1,7 +1,5 @@
 {% from 'components/pagination/macro.html' import tnaPagination %}
 
-{%- set default_count_text = 'Count unknown' -%}
-
 {% macro hierarchy(record) %}
   <div class="tna-container tna-container--nested">
     <div class="tna-column tna-column--full">
@@ -22,7 +20,7 @@
         {# HELD BY #}
         <div class="tna-container tna-container--nested">
           <div class="tna-column tna-column--width-{{ hierarchy_column_widths[0] }} tna-column--align-centre">
-            <div class="tna-background-accent record-hierarchy__count">{{ record.held_by_count | format_number if record.held_by_count is not none else default_count_text }} items</div>
+            <div class="tna-background-accent record-hierarchy__count">{{ record.held_by_count }} items</div>
           </div>
           <div class="tna-column tna-column--full">
             <div class="tna-aside tna-aside--tight">
@@ -45,7 +43,7 @@
           {% for hierarchy_record in record.hierarchy %}
             <div class="tna-container tna-container--nested">
               <div class="tna-column tna-column--width-{{ hierarchy_column_widths[loop.index] }} tna-column--align-centre">
-                <div class="tna-background-accent record-hierarchy__count">{{ hierarchy_record.hierarchy_count | format_number if hierarchy_record.hierarchy_count is not none else default_count_text }} items</div>
+                <div class="tna-background-accent record-hierarchy__count">{{ hierarchy_record.hierarchy_count }} items</div>
               </div>
               <div class="tna-column tna-column--full">
                 <div class="tna-aside tna-aside--tight">
