@@ -326,6 +326,12 @@ class Record(APIModel):
         )
 
     @cached_property
+    def clean_description(self) -> str:
+        """Returns value for cleanDescription if found, empty str otherwise."""
+        if clean_description := self.get("cleanDescription", ""):
+            return clean_description
+
+    @cached_property
     def description(self) -> str:
         """Returns the api value of the attr if found, empty str otherwise."""
         if description := self.raw_description:
