@@ -21,7 +21,7 @@ def catalogue(request):
     pages_client = JSONAPIClient(settings.WAGTAIL_API_URL)
     pages_client.add_parameters(
         {
-            "child_of": settings.WAGTAIL_EXPLORE_THE_COLLECTION_PAGE_ID,
+            "child_of": settings.WAGTAIL_EXPLORE_THE_COLLECTION_STORIES_PAGE_ID,
             "limit": 3,
             "order": "-first_published_at",
         }
@@ -36,9 +36,10 @@ def catalogue(request):
     top_pages_client = JSONAPIClient(settings.WAGTAIL_API_URL)
     top_pages_client.add_parameters(
         {
-            "child_of": settings.WAGTAIL_HOME_PAGE_ID,
+            "child_of": settings.WAGTAIL_EXPLORE_THE_COLLECTION_PAGE_ID,
             "limit": 3,
-            "order": "-first_published_at",
+            "type": "collections.TopicExplorerIndexPage,collections.TimePeriodExplorerIndexPage,articles.ArticleIndexPage",
+            "order": "title",
         }
     )
     try:
