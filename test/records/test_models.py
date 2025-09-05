@@ -54,6 +54,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.publication_note, [])
         self.assertEqual(self.record.related_materials, ())
         self.assertEqual(self.record.description, "")
+        self.assertEqual(self.record.clean_description, None)
         self.assertEqual(self.record.separated_materials, ())
         self.assertEqual(self.record.unpublished_finding_aids, [])
         self.assertEqual(self.record.hierarchy, ())
@@ -642,6 +643,19 @@ class RecordModelTests(SimpleTestCase):
                 """C244: <span class=\"emph-italic\">Censuses of Population</span>"""
                 """C244: <span class=\"list\"><span class=\"item\">Correspondence and """
                 """papers</span></span>"""
+            ),
+        )
+
+    def test_clean_description(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["cleanDescription"] = (
+            "Appellant: <mark>Florence</mark> Emily <mark>Fenn</mark>. Respondent: Ernest William <mark>Fenn</mark>. Type: Wife's petition for divorce [wd]. "
+        )
+        self.assertEqual(
+            self.record.clean_description,
+            (
+                "Appellant: <mark>Florence</mark> Emily <mark>Fenn</mark>. Respondent: Ernest William <mark>Fenn</mark>. Type: Wife's petition for divorce [wd]. "
             ),
         )
 
