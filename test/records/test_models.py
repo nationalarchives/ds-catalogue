@@ -37,7 +37,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.held_by, "")
         self.assertEqual(self.record.held_by_id, "")
         self.assertEqual(self.record.held_by_url, "")
-        self.assertEqual(self.record.held_by_count, "Count unknown")
+        self.assertEqual(self.record.held_by_count, "Unknown number of")
         self.assertEqual(self.record.access_condition, "")
         self.assertEqual(self.record.closure_status, "")
         self.assertEqual(self.record.record_opening, "")

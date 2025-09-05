@@ -39,7 +39,8 @@ class TestRecordViewForSuppressedErrorsLogged(TestCase):
             "".join(log.output),
         )
         self.assertEqual(
-            response.context_data.get("record").held_by_count, "Count unknown"
+            response.context_data.get("record").held_by_count,
+            "Unknown number of",
         )
 
     @responses.activate
@@ -85,5 +86,5 @@ class TestRecordViewForSuppressedErrorsLogged(TestCase):
         )
         self.assertEqual(
             response.context_data.get("record").hierarchy[0].hierarchy_count,
-            "Count unknown",
+            "Unknown number of",
         )
