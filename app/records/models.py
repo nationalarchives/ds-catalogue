@@ -4,6 +4,7 @@ import logging
 import re
 from typing import Any
 
+import sentry_sdk
 from app.lib.xslt_transformations import apply_schema_xsl, apply_series_xsl
 from app.records.constants import NON_TNA_LEVELS, SUBJECTS_LIMIT, TNA_LEVELS
 from app.records.utils import (
@@ -12,10 +13,12 @@ from app.records.utils import (
     format_extref_links,
     format_link,
 )
+from config.jinja2 import format_number
 from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
 from lxml import etree
 
+from .constants import MISSING_COUNT_TEXT
 from .converters import IDConverter
 
 logger = logging.getLogger(__name__)
@@ -225,6 +228,20 @@ class Record(APIModel):
         return ""
 
     @cached_property
+    def held_by_count(self) -> str:
+        """Returns the api value formatted of the attr if found, default text otherwise.
+        Usually expected to be present to show in the UI."""
+
+        count = self.get("heldByCount", None)
+        if not count:
+            # Handles missing value by logging the issue and continuing without user-facing impact.
+            message = f"held_by_count is missing for record {self.iaid}"
+            logger.error(message)
+            sentry_sdk.capture_message(message, level="error")
+            return MISSING_COUNT_TEXT
+        return format_number(count)
+
+    @cached_property
     def access_condition(self) -> str:
         """Returns the api value of the attr if found, empty str otherwise."""
         return self.get("accessCondition", "")
@@ -371,6 +388,23 @@ class Record(APIModel):
                 hierarchy_records += (hierarchy_record,)
 
         return hierarchy_records
+
+    @cached_property
+    def hierarchy_count(self) -> str:
+        """Returns the formatted count usually found in record of the hierarchy
+        records i.e. @hierarchy, default text otherwise.
+        Usually expected to be present to show in the UI."""
+
+        count = self.get("count", None)
+        if not count:
+            # Handles missing value by logging the issue and continuing without user-facing impact.
+            message = (
+                f"hierarchy_count missing for hierarchy record {self.iaid}"
+            )
+            logger.error(message)
+            sentry_sdk.capture_message(message, level="error")
+            return MISSING_COUNT_TEXT
+        return format_number(count)
 
     @cached_property
     def next(self) -> Record | None:
