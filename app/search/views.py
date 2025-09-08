@@ -278,9 +278,9 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         context: dict = super().get_context_data(**kwargs)
 
         results_range = pagination = None
+        if self.api_result and self.api_result.stats_total > 0:
+            results_range, pagination = self.paginate_api_result()
         if self.api_result:
-            if self.api_result.stats_total > 0:
-                results_range, pagination = self.paginate_api_result()
             self.bucket_list.update_buckets_for_display(
                 query=self.query,
                 buckets=self.api_result.buckets,
