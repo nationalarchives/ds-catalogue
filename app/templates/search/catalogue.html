@@ -130,7 +130,9 @@
       {{ held_by(request, form.fields['held_by']) }}
     {% endif %}
     {{ subjects_tna(request, subjects) }}
-    {{ levels_tna(request, form.fields['level']) }}
+    {% if form.fields.group.value==bucket_keys.TNA %}
+      {{ levels_tna(request, form.fields['level']) }}
+    {% endif %}
     {{ date_input(request, 'date', 'date', 'Filter by record opening date') }} 
     {{ closure_statuses_tna(request, closure_statuses) }}
     
