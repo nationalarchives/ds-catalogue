@@ -5,6 +5,7 @@ from typing import Any
 
 from app.errors import views as errors_view
 from app.lib.api import JSONAPIClient, ResourceNotFound
+from app.lib.fields import DynamicMultipleChoiceField
 from app.lib.pagination import pagination_object
 from app.records.constants import (
     CLOSURE_STATUSES,
@@ -27,7 +28,11 @@ from .constants import (
     RESULTS_PER_PAGE,
     Sort,
 )
-from .forms import CatalogueSearchForm, FieldsConstant
+from .forms import (
+    CatalogueSearchNonTnaForm,
+    CatalogueSearchTnaForm,
+    FieldsConstant,
+)
 from .models import APISearchResponse
 from .utils import camelcase_to_underscore, underscore_to_camelcase
 
@@ -40,13 +45,6 @@ class PageNotFound(Exception):
 
 class APIMixin:
     """A mixin to get the api result, processes api result, sets the context."""
-
-    # fields used to extract aggregation entries from the api result
-    dynamic_choice_fields = [
-        FieldsConstant.LEVEL,
-        FieldsConstant.COLLECTION,
-        FieldsConstant.HELD_BY,
-    ]
 
     def get_api_result(self, query, results_per_page, page, sort, params):
         api_result = search_records(
@@ -77,26 +75,27 @@ class APIMixin:
         add_filter(params, f"group:{current_bucket.key}")
 
         # applies to catalogue records to filter records with iaid in the results
-        if current_bucket.key == BucketKeys.NONTNA.value:
+        if current_bucket.key == BucketKeys.NON_TNA.value:
             add_filter(params, FILTER_DATATYPE_RECORD)
 
         # filter aggregations for each field
         filter_aggregations = []
-        for field_name in self.dynamic_choice_fields:
-            filter_name = underscore_to_camelcase(field_name)
-            selected_values = form.fields[field_name].cleaned
-            selected_values = self.replace_input_data(
-                field_name, selected_values
-            )
-            filter_aggregations.extend(
-                (f"{filter_name}:{value}" for value in selected_values)
-            )
-
+        for field_name in form.fields:
+            if isinstance(form.fields[field_name], DynamicMultipleChoiceField):
+                filter_name = underscore_to_camelcase(field_name)
+                selected_values = form.fields[field_name].cleaned
+                selected_values = self.replace_input_data(
+                    field_name, selected_values
+                )
+                filter_aggregations.extend(
+                    (f"{filter_name}:{value}" for value in selected_values)
+                )
         if filter_aggregations:
             add_filter(params, filter_aggregations)
 
-        if form.fields[FieldsConstant.ONLINE].cleaned == "true":
-            add_filter(params, "digitised:true")
+        if current_bucket.key == BucketKeys.TNA.value:
+            if form.fields[FieldsConstant.ONLINE].cleaned == "true":
+                add_filter(params, "digitised:true")
 
         return params
 
@@ -112,19 +111,25 @@ class APIMixin:
         return selected_values
 
     def process_api_result(
-        self, form: CatalogueSearchForm, api_result: APISearchResponse
+        self,
+        form: CatalogueSearchTnaForm | CatalogueSearchNonTnaForm,
+        api_result: APISearchResponse,
     ):
-        """Update checkbox `choices` values on the form's `dynamic_choice_fields` to
+        """Update checkbox `choices` values on the form's `dynamic choice fields` to
         reflect data included in the API's `aggs` response."""
 
         for aggregation in api_result.aggregations:
             field_name = camelcase_to_underscore(aggregation.get("name"))
-            if field_name in self.dynamic_choice_fields:
-                choice_api_data = aggregation.get("entries", ())
-                self.replace_api_data(field_name, choice_api_data)
-                form.fields[field_name].update_choices(
-                    choice_api_data, form.fields[field_name].value
-                )
+
+            if field_name in form.fields:
+                if isinstance(
+                    form.fields[field_name], DynamicMultipleChoiceField
+                ):
+                    choice_api_data = aggregation.get("entries", ())
+                    self.replace_api_data(field_name, choice_api_data)
+                    form.fields[field_name].update_choices(
+                        choice_api_data, form.fields[field_name].value
+                    )
 
     def replace_api_data(
         self, field_name, entries_data: list[dict[str, str | int]]
@@ -170,7 +175,13 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         """Creates the form instance and some attributes"""
 
         super().setup(request, *args, **kwargs)
-        self.form = CatalogueSearchForm(**self.get_form_kwargs())
+        form_kwargs = self.get_form_kwargs()
+        # create two separate forms for TNA and NonTNA with different fields
+        if form_kwargs.get("data").get("group") == BucketKeys.TNA.value:
+            self.form = CatalogueSearchTnaForm(**form_kwargs)
+        else:
+            self.form = CatalogueSearchNonTnaForm(**form_kwargs)
+
         self.bucket_list: BucketList = copy.deepcopy(CATALOGUE_BUCKETS)
         self.current_bucket_key = self.form.fields[FieldsConstant.GROUP].value
         self.api_result = None
@@ -394,29 +405,31 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                     }
                 )
 
-        for field_constant in [
-            # sequence matters to show selected filters in order with the form
-            FieldsConstant.COLLECTION,
-            FieldsConstant.LEVEL,
-            FieldsConstant.HELD_BY,
-        ]:
-            field = self.form.fields[field_constant]
-            if field_constant == FieldsConstant.LEVEL:
-                choice_labels = {}
-                for _, v in TNA_LEVELS.items():
-                    choice_labels.update({v: v})
-            else:
-                choice_labels = self.form.fields[
-                    field_constant
-                ].configured_choice_labels
-
-            for item in field.value:
-                selected_filters.append(
-                    {
-                        "label": f"{field.active_filter_label}: {choice_labels.get(item, item)}",
-                        "href": f"?{qs_toggle_value(self.request.GET, field.name, item)}",
-                        "title": f"Remove {choice_labels.get(item, item)} {field.active_filter_label.lower()}",
-                    }
-                )
+        self.build_dynamic_multiple_choice_field_filters(selected_filters)
 
         return selected_filters
+
+    def build_dynamic_multiple_choice_field_filters(self, existing_filters):
+        """Appends selected filters for dynamic multiple choice fields."""
+        for field_name in self.form.fields:
+            if isinstance(
+                self.form.fields[field_name], DynamicMultipleChoiceField
+            ):
+                field = self.form.fields[field_name]
+                if field_name == FieldsConstant.LEVEL:
+                    choice_labels = {}
+                    for _, v in TNA_LEVELS.items():
+                        choice_labels.update({v: v})
+                else:
+                    choice_labels = self.form.fields[
+                        field_name
+                    ].configured_choice_labels
+
+                for item in field.value:
+                    existing_filters.append(
+                        {
+                            "label": f"{field.active_filter_label}: {choice_labels.get(item, item)}",
+                            "href": f"?{qs_toggle_value(self.request.GET, field.name, item)}",
+                            "title": f"Remove {choice_labels.get(item, item)} {field.active_filter_label.lower()}",
+                        }
+                    )
