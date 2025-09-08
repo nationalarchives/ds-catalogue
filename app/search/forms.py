@@ -4,7 +4,7 @@ from app.lib.fields import (
     DynamicMultipleChoiceField,
 )
 from app.lib.forms import BaseForm
-from app.records.constants import TNA_LEVELS
+from app.records.constants import TNA_LEVELS, TNA_SUBJECTS
 from app.search.buckets import CATALOGUE_BUCKETS
 from app.search.constants import Sort
 
@@ -19,6 +19,7 @@ class FieldsConstant:
     GROUP = "group"
     COLLECTION = "collection"
     ONLINE = "online"
+    SUBJECTS = "subjects"
 
 
 class CatalogueSearchForm(BaseForm):
@@ -48,6 +49,11 @@ class CatalogueSearchForm(BaseForm):
                 label="Collections",
                 choices=COLLECTION_CHOICES,
                 validate_input=False,  # do not validate input COLLECTION_CHOICES fixed or dynamic
+            ),
+            FieldsConstant.SUBJECTS: DynamicMultipleChoiceField(
+                label="Subjects",
+                choices=list((subject_id, subject_name) for subject_id, subject_name in TNA_SUBJECTS.items()),
+                validate_input=True,  # validate input with static choices
             ),
             FieldsConstant.ONLINE: ChoiceField(
                 choices=[

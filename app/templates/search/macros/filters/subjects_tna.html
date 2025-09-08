@@ -1,44 +1,40 @@
 {% from 'components/button/macro.html' import tnaButton %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 
-{% macro subjects_tna(request, subjects_tna, number_of_subjects_to_show=10) %}
+{% macro subjects_tna(request, subjects_field, number_of_subjects_to_show=10) %}
   {% set is_tna_results_page = request.GET.get('group') in [None, 'tna'] %}
   {% if is_tna_results_page %}
     <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
-      {% set show_more_link = subjects_tna.items() | length > number_of_subjects_to_show %}
-      {% set subjects = [] %}
-      {% for subject_id, subject in subjects_tna.items() %}
+      {% set show_more_link = subjects_field.items | length > number_of_subjects_to_show %}
+      {% set limited_subjects = [] %}
+      {% for item in subjects_field.items %}
         {% if loop.index <= number_of_subjects_to_show %}
-          {% set subjects = subjects.append({
-          'text': subject,
-          'value': subject_id,
-          'checked': qs_is_value_active(request.GET, 'subjects', subject_id)
-        }) %}
-        {% elif loop.index > number_of_subjects_to_show %}
-          {% set show_more_link = true %}
+          {% set limited_subjects = limited_subjects.append(item) %}
         {% endif %}
       {% endfor %}
+      
       {{ tnaCheckboxes({
-            'label': 'Subjects',
-            'headingLevel': 3,
-            'headingSize': 'm',
-            'id': 'subjects',
-            'name': 'subjects',
-            'items': subjects,
-            'small': True,
-            'attributes': {
-              'form': 'search-form'
-            }
-          }) }}
+        'label': subjects_field.label,
+        'headingLevel': 3,
+        'headingSize': 'm',
+        'id': 'subject',
+        'name': subjects_field.name,
+        'items': limited_subjects,
+        'small': True,
+        'attributes': {
+          'form': 'search-form'
+        }
+      }) }}
+      
       <div class="tna-button-group tna-button-group--small tna-!--margin-top-s">
         {{ tnaButton({
-              'text': 'Update',
-              'buttonElement': True,
-              'buttonType': 'submit',
-              'attributes': {
-                'form': 'search-form'
-              }
-            }) }}
+          'text': 'Update',
+          'buttonElement': True,
+          'buttonType': 'submit',
+          'attributes': {
+            'form': 'search-form'
+          }
+        }) }}
 
         {% if show_more_link is true %}
           {{ tnaButton({

@@ -86,6 +86,12 @@ class APIMixin:
                 (f"{filter_name}:{value}" for value in selected_values)
             )
 
+        # Add subjects filter if selected
+        if subjects := self.request.GET.getlist("subjects"):
+            filter_aggregations.extend(
+                (f"subjects:{subject}" for subject in subjects)
+            )
+
         if filter_aggregations:
             add_filter(params, filter_aggregations)
 
@@ -413,4 +419,19 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "title": f"Remove {choice_labels.get(collection, collection)} collection",
                     }
                 )
+        if subjects := self.form.fields[FieldsConstant.SUBJECTS].value:
+            choice_labels = self.form.fields[
+                FieldsConstant.SUBJECTS
+            ].configured_choice_labels
+
+            for subject in subjects:
+                subject_label = choice_labels.get(subject, subject)
+                selected_filters.append(
+                    {
+                        "label": f"Subject: {subject_label}",
+                        "href": f"?{qs_toggle_value(self.request.GET, 'subjects', subject)}",
+                        "title": f"Remove {subject_label} subject",
+                    }
+                )
+        
         return selected_filters
