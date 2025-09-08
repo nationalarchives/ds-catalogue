@@ -67,8 +67,6 @@
   height: 100%;
 
   box-sizing: border-box;
-
-  border: solid 3px #86bc25;
 }
 
 .tna-dl--dotted {
@@ -231,4 +229,14 @@
 #youtube-embeded-player {
   height: auto;
   aspect-ratio: 16 / 9;
+}
+
+.related-records {
+  .tna-hgroup__supertitle {
+    color: var(--base-font-dark);
+
+    background-color: var(--base-background);
+
+    border-color: var(--accent-border);
+  }
 }

@@ -20,6 +20,7 @@ class TestRecordView(TestCase):
                                 "iaid": "C123456",
                                 "title": "Test Title",
                                 "source": "CAT",
+                                "heldByCount": 100,
                             }
                         }
                     }

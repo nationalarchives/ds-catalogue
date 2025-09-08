@@ -132,3 +132,5 @@ TNA_SUBJECTS = {
 }
 
 SUBJECTS_LIMIT = 20
+
+MISSING_COUNT_TEXT = "Unknown number of"
