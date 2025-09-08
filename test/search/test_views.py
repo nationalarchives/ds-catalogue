@@ -437,7 +437,7 @@ class CatalogueSearchViewLoggerDebugAPITests(TestCase):
         self.response = self.client.get("/catalogue/search/")
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&filter=group%3Atna&filter=datatype%3Arecord&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&filter=group%3Atna&q=%2A&size=20"
         )
 
         # query with search term, non tna records

@@ -18,6 +18,7 @@ class FieldsConstant:
     LEVEL = "level"
     GROUP = "group"
     COLLECTION = "collection"
+    ONLINE = "online"
     HELD_BY = "held_by"
 
 
@@ -50,6 +51,13 @@ class CatalogueSearchForm(BaseForm):
                 choices=COLLECTION_CHOICES,
                 validate_input=False,  # do not validate input COLLECTION_CHOICES fixed or dynamic
                 active_filter_label="Collection",
+            ),
+            FieldsConstant.ONLINE: ChoiceField(
+                choices=[
+                    ("", "All records"),
+                    ("true", "Available online only"),
+                ],
+                required=False,
             ),
             FieldsConstant.HELD_BY: DynamicMultipleChoiceField(
                 label="Held by",

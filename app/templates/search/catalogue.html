@@ -92,6 +92,9 @@
       <input type="hidden" name="display" value="{{ request.GET.get('display') or 'list' }}">
       <input type="hidden" name="group" value="{{ request.GET.get('group') or bucket_keys.TNA }}">
     </form>
+    <div class="tna-column tna-column-full">
+      <a href="{{ url('main:catalogue') }}">Start new search</a>
+    </div>
     <div class="tna-column tna-column--full">
       {{ tnaSecondaryNavigation({
         'title': 'Sections',
@@ -99,7 +102,7 @@
         'items': bucket_list.items,
         'noBottomBorder': True,
         'visuallyHideHeading': True,
-        'classes': 'tna-!--margin-top-m'
+        'classes': 'tna-!--margin-top-m etna-results-buckets'
       }) }}
     </div>
   </div>
@@ -139,7 +142,7 @@
       {% if stats %}
       <div class="tna-column tna-column--flex-1 tna-column--full-tiny">Showing results {{ results_range.from | format_number }}–{{ results_range.to | format_number }} of {{ stats.total | format_number }}</div>
       {% endif %}
-      <div class="tna-column tna-column--full-tiny">
+      <div class="tna-column tna-column--flex-1 tna-column--full-tiny">
         {{ tnaSelect({
           'label': 'Sort by',
           'headingLevel': 2,
@@ -148,6 +151,7 @@
           'name': form.fields.sort.name,
           'items': form.fields.sort.items,
           'selected': form.fields.sort.value,
+          'formGroupClasses': 'etna-results-sort-by',
           'formGroupAttributes': {
             'id': 'sort-form-group'
           },
@@ -167,7 +171,7 @@
           }) }}
         </div>
       </div>
-      <div class="tna-column tna-column--full-tiny">
+      <div class="tna-column tna-column--full-tiny enta-results-layout">
         <h2 class="tna-visually-hidden">Results layout</h2>
         <div class="tna-button-group tna-button-group--small tna-!--no-margin-top">
           {{ tnaButton({
@@ -266,6 +270,13 @@
     {% endif %}
   </div>
   {% endif %}
+  <section class="tna-column tna-column--full tna-!--hide-on-print">
+      <hr>
+      <p>
+        <a href="#top" class="tna-button tna-button--small tna-button--plain"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i>Back to top</a>
+      </p>
+</section>  
+
 </div>
 {% endblock %}
 

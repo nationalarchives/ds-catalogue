@@ -77,7 +77,8 @@ class APIMixin:
         add_filter(params, f"group:{current_bucket.key}")
 
         # applies to catalogue records to filter records with iaid in the results
-        add_filter(params, FILTER_DATATYPE_RECORD)
+        if current_bucket.key == BucketKeys.NONTNA.value:
+            add_filter(params, FILTER_DATATYPE_RECORD)
 
         # filter aggregations for each field
         filter_aggregations = []
@@ -90,8 +91,12 @@ class APIMixin:
             filter_aggregations.extend(
                 (f"{filter_name}:{value}" for value in selected_values)
             )
+
         if filter_aggregations:
             add_filter(params, filter_aggregations)
+
+        if form.fields[FieldsConstant.ONLINE].cleaned == "true":
+            add_filter(params, "digitised:true")
 
         return params
 
@@ -357,7 +362,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
         if self.request.GET.get("online", None):
             selected_filters.append(
                 {
-                    "label": f'Online only "{self.request.GET.get("online")}"',
+                    "label": "Online only",
                     "href": f"?{qs_remove_value(self.request.GET, 'online')}",
                     "title": "Remove online only",
                 }
