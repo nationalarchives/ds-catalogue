@@ -52,7 +52,10 @@ class CatalogueSearchForm(BaseForm):
             ),
             FieldsConstant.SUBJECTS: DynamicMultipleChoiceField(
                 label="Subjects",
-                choices=list((subject_id, subject_name) for subject_id, subject_name in TNA_SUBJECTS.items()),
+                choices=list(
+                    (subject_id, subject_name)
+                    for subject_id, subject_name in TNA_SUBJECTS.items()
+                ),
                 validate_input=True,  # validate input with static choices
             ),
             FieldsConstant.ONLINE: ChoiceField(

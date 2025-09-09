@@ -434,5 +434,5 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "title": f"Remove {subject_label} subject",
                     }
                 )
-        
+
         return selected_filters
