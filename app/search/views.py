@@ -72,7 +72,8 @@ class APIMixin:
         add_filter(params, f"group:{current_bucket.key}")
 
         # applies to catalogue records to filter records with iaid in the results
-        add_filter(params, FILTER_DATATYPE_RECORD)
+        if current_bucket.key == BucketKeys.NONTNA.value:
+            add_filter(params, FILTER_DATATYPE_RECORD)
 
         # filter aggregations for each field
         filter_aggregations = []
