@@ -118,7 +118,7 @@ class CatalogueSearchViewTests(TestCase):
             self.response.context_data.get("form"), CatalogueSearchForm
         )
         self.assertEqual(self.response.context_data.get("form").errors, {})
-        self.assertEqual(len(self.response.context_data.get("form").fields), 6)
+        self.assertEqual(len(self.response.context_data.get("form").fields), 7)
 
         # ### form fields ###
 
