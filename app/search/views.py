@@ -41,7 +41,11 @@ class APIMixin:
     """A mixin to get the api result, processes api result, sets the context."""
 
     # fields used to extract aggregation entries from the api result
-    dynamic_choice_fields = [FieldsConstant.LEVEL, FieldsConstant.COLLECTION]
+    dynamic_choice_fields = [
+        FieldsConstant.LEVEL,
+        FieldsConstant.COLLECTION,
+        FieldsConstant.SUBJECTS,
+    ]
 
     def get_api_result(self, query, results_per_page, page, sort, params):
         self.api_result = search_records(
@@ -341,98 +345,99 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
         )
         return context
 
-    def build_selected_filters_list(self):
-        selected_filters = []
-        # TODO: commented code is retained from previous code, want to have q in filter?
-        # if request.GET.get("q", None):
-        #     selected_filters.append(
-        #         {
-        #             "label": f"\"{request.GET.get('q')}\"",
-        #             "href": f"?{qs_remove_value(request.GET, 'q')}",
-        #             "title": f"Remove query: \"{request.GET.get('q')}\"",
-        #         }
-        #     )
-        if self.request.GET.get("search_within", None):
-            selected_filters.append(
-                {
-                    "label": f"Sub query {self.request.GET.get('search_within')}",
-                    "href": f"?{qs_remove_value(self.request.GET, 'search_within')}",
-                    "title": "Remove search within",
-                }
-            )
-        if self.request.GET.get("online", None):
-            selected_filters.append(
-                {
-                    "label": "Online only",
-                    "href": f"?{qs_remove_value(self.request.GET, 'online')}",
-                    "title": "Remove online only",
-                }
-            )
-        if self.request.GET.get("date_from", None):
-            selected_filters.append(
-                {
-                    "label": f"Record date from: {self.request.GET.get('date_from')}",
-                    "href": f"?{qs_remove_value(self.request.GET, 'date_from')}",
-                    "title": "Remove record from date",
-                }
-            )
-        if self.request.GET.get("date_to", None):
-            selected_filters.append(
-                {
-                    "label": f"Record date to: {self.request.GET.get('date_to')}",
-                    "href": f"?{qs_remove_value(self.request.GET, 'date_to')}",
-                    "title": "Remove record to date",
-                }
-            )
+    def _add_filter(self, selected_filters, label, href, title):
+        """Helper method to add a filter to the selected_filters list"""
+        selected_filters.append(
+            {
+                "label": label,
+                "href": href,
+                "title": title,
+            }
+        )
+
+    def _add_simple_filters(self, selected_filters):
+        """Add simple GET parameter based filters"""
+        simple_filters = [
+            ("search_within", "Sub query", "Remove search within"),
+            ("online", "Online only", "Remove online only"),
+            ("date_from", "Record date from", "Remove record from date"),
+            ("date_to", "Record date to", "Remove record to date"),
+        ]
+
+        for param, label_prefix, title in simple_filters:
+            if value := self.request.GET.get(param):
+                label = (
+                    f"{label_prefix}: {value}"
+                    if param.startswith("date_")
+                    else label_prefix
+                )
+                self._add_filter(
+                    selected_filters,
+                    label,
+                    f"?{qs_remove_value(self.request.GET, param)}",
+                    title,
+                )
+
+    def _add_form_field_filters(self, selected_filters):
+        """Add filters based on form fields"""
+        # Levels
         if levels := self.form.fields[FieldsConstant.LEVEL].value:
-            levels_lookup = {}
-            for _, v in TNA_LEVELS.items():
-                levels_lookup.update({v: v})
-
+            levels_lookup = {v: v for _, v in TNA_LEVELS.items()}
             for level in levels:
-                selected_filters.append(
-                    {
-                        "label": f"Level: {levels_lookup.get(level, level)}",
-                        "href": f"?{qs_toggle_value(self.request.GET, 'level', level)}",
-                        "title": f"Remove {levels_lookup.get(level, level)} level",
-                    }
+                level_label = levels_lookup.get(level, level)
+                self._add_filter(
+                    selected_filters,
+                    f"Level: {level_label}",
+                    f"?{qs_toggle_value(self.request.GET, 'level', level)}",
+                    f"Remove {level_label} level",
                 )
-        if closure_statuses := self.request.GET.getlist("closure_status", None):
-            for closure_status in closure_statuses:
-                selected_filters.append(
-                    {
-                        "label": f"Closure status: {CLOSURE_STATUSES.get(closure_status)}",
-                        "href": f"?{qs_toggle_value(self.request.GET, 'closure_status', closure_status)}",
-                        "title": f"Remove {CLOSURE_STATUSES.get(closure_status)} closure status",
-                    }
-                )
-        if collections := self.form.fields[FieldsConstant.COLLECTION].value:
 
+        # Collections
+        if collections := self.form.fields[FieldsConstant.COLLECTION].value:
             choice_labels = self.form.fields[
                 FieldsConstant.COLLECTION
             ].configured_choice_labels
-
             for collection in collections:
-                selected_filters.append(
-                    {
-                        "label": f"Collection: {choice_labels.get(collection, collection)}",
-                        "href": f"?{qs_toggle_value(self.request.GET, 'collection', collection)}",
-                        "title": f"Remove {choice_labels.get(collection, collection)} collection",
-                    }
+                collection_label = choice_labels.get(collection, collection)
+                self._add_filter(
+                    selected_filters,
+                    f"Collection: {collection_label}",
+                    f"?{qs_toggle_value(self.request.GET, 'collection', collection)}",
+                    f"Remove {collection_label} collection",
                 )
+
+        # Subjects
         if subjects := self.form.fields[FieldsConstant.SUBJECTS].value:
             choice_labels = self.form.fields[
                 FieldsConstant.SUBJECTS
             ].configured_choice_labels
-
             for subject in subjects:
                 subject_label = choice_labels.get(subject, subject)
-                selected_filters.append(
-                    {
-                        "label": f"Subject: {subject_label}",
-                        "href": f"?{qs_toggle_value(self.request.GET, 'subjects', subject)}",
-                        "title": f"Remove {subject_label} subject",
-                    }
+                self._add_filter(
+                    selected_filters,
+                    f"Subject: {subject_label}",
+                    f"?{qs_toggle_value(self.request.GET, 'subjects', subject)}",
+                    f"Remove {subject_label} subject",
                 )
+
+    def _add_closure_status_filters(self, selected_filters):
+        """Add closure status filters"""
+        if closure_statuses := self.request.GET.getlist("closure_status"):
+            for closure_status in closure_statuses:
+                status_label = CLOSURE_STATUSES.get(closure_status)
+                self._add_filter(
+                    selected_filters,
+                    f"Closure status: {status_label}",
+                    f"?{qs_toggle_value(self.request.GET, 'closure_status', closure_status)}",
+                    f"Remove {status_label} closure status",
+                )
+
+    def build_selected_filters_list(self):
+        """Build a list of selected filters with their labels and removal URLs"""
+        selected_filters = []
+
+        self._add_simple_filters(selected_filters)
+        self._add_form_field_filters(selected_filters)
+        self._add_closure_status_filters(selected_filters)
 
         return selected_filters

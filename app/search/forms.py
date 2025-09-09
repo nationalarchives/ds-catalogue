@@ -56,7 +56,7 @@ class CatalogueSearchForm(BaseForm):
                     (subject_id, subject_name)
                     for subject_id, subject_name in TNA_SUBJECTS.items()
                 ),
-                validate_input=True,  # validate input with static choices
+                validate_input=False,  # validate input with static choices
             ),
             FieldsConstant.ONLINE: ChoiceField(
                 choices=[
