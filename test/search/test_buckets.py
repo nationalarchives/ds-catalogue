@@ -2,6 +2,7 @@ import copy
 
 from app.search.buckets import (
     CATALOGUE_BUCKETS,
+    Aggregation,
     BucketKeys,
 )
 from app.search.models import APISearchResponse
@@ -110,3 +111,53 @@ class TestBuckets(TestCase):
                 },
             ],
         )
+
+
+class SubjectsBucketsTests(TestCase):
+    """Tests for subjects integration in buckets configuration."""
+
+    def test_subjects_aggregation_exists(self):
+        """Test that SUBJECTS aggregation is defined."""
+        self.assertEqual(Aggregation.SUBJECTS, "subjects")
+        self.assertIn("subjects", [agg.value for agg in Aggregation])
+
+    def test_tna_bucket_includes_subjects_aggregation(self):
+        """Test that TNA bucket includes subjects in its aggregations."""
+        tna_bucket = CATALOGUE_BUCKETS.get_bucket(BucketKeys.TNA.value)
+
+        self.assertIn(Aggregation.SUBJECTS.value, tna_bucket.aggregations)
+
+        # Check all expected aggregations are present
+        expected_aggregations = [
+            Aggregation.LEVEL.value,
+            Aggregation.COLLECTION.value,
+            Aggregation.SUBJECTS.value,
+        ]
+
+        for aggregation in expected_aggregations:
+            self.assertIn(aggregation, tna_bucket.aggregations)
+
+    def test_non_tna_bucket_does_not_include_subjects(self):
+        """Test that non-TNA bucket doesn't include subjects aggregation."""
+        non_tna_bucket = CATALOGUE_BUCKETS.get_bucket(BucketKeys.NONTNA.value)
+
+        # Non-TNA bucket should not have any aggregations including subjects
+        self.assertEqual(non_tna_bucket.aggregations, [])
+
+    def test_all_aggregation_values_are_strings(self):
+        """Test that all aggregation enum values are strings."""
+        for aggregation in Aggregation:
+            self.assertIsInstance(aggregation.value, str)
+
+        # Test specific values
+        self.assertEqual(Aggregation.LEVEL.value, "level")
+        self.assertEqual(Aggregation.COLLECTION.value, "collection")
+        self.assertEqual(Aggregation.SUBJECTS.value, "subjects")
+
+    def test_tna_bucket_aggregations_order(self):
+        """Test that aggregations are in expected order."""
+        tna_bucket = CATALOGUE_BUCKETS.get_bucket(BucketKeys.TNA.value)
+
+        expected_order = ["level", "collection", "subjects"]
+
+        self.assertEqual(tna_bucket.aggregations, expected_order)
