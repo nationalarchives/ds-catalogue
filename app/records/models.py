@@ -235,7 +235,7 @@ class Record(APIModel):
         count = self.get("heldByCount", None)
         if not count:
             # Handles missing value by logging the issue and continuing without user-facing impact.
-            message = f"held_by_count is missing for record {self.iaid}"
+            message = "held_by_count is missing for the record"
             logger.error(message)
             sentry_sdk.capture_message(message, level="error")
             return MISSING_COUNT_TEXT
@@ -398,11 +398,13 @@ class Record(APIModel):
         count = self.get("count", None)
         if not count:
             # Handles missing value by logging the issue and continuing without user-facing impact.
-            message = (
-                f"hierarchy_count missing for hierarchy record {self.iaid}"
-            )
+            message = "hierarchy_count missing for hierarchy record"
             logger.error(message)
             sentry_sdk.capture_message(message, level="error")
+            # add context for debugging in Sentry
+            sentry_sdk.set_context(
+                "missing_info", {"hierarchy_record_id": {self.iaid}}
+            )
             return MISSING_COUNT_TEXT
         return format_number(count)
 
