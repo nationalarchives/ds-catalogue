@@ -529,12 +529,15 @@ class CatalogueSearchFormDateTest(TestCase):
 
         api_params = form.get_api_date_params()
 
-        self.assertEqual(api_params["record_date_from"], "2020-03-15")
-        self.assertEqual(api_params["record_date_to"], "2023-09-30")
-        self.assertEqual(api_params["opening_date_from"], "2022-01-01")
-        self.assertNotIn(
-            "opening_date_to", api_params
-        )  # Should not include None values
+        expected_filters = [
+            "coveringFromDate:(>=2020-03-15)",
+            "coveringToDate:(<=2023-09-30)",
+            "openingFromDate:(>=2022-01-01)",
+        ]
+
+        self.assertEqual(len(api_params), 3)
+        for expected_filter in expected_filters:
+            self.assertIn(expected_filter, api_params)
 
     def test_get_cleaned_query_dict(self):
         """Test getting cleaned query dict with computed date values"""

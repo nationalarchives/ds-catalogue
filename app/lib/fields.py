@@ -424,15 +424,15 @@ class DateComponentField(BaseField):
                 "month": self.month or "",
                 "year": self.year or "",
             }
-    
+
         # Otherwise, try to get from the original request data
-        if hasattr(self, '_form_data') and self.name:
+        if hasattr(self, "_form_data") and self.name:
             return {
                 "day": self._form_data.get(f"{self.name}-day", ""),
                 "month": self._form_data.get(f"{self.name}-month", ""),
                 "year": self._form_data.get(f"{self.name}-year", ""),
             }
-    
+
         return {
             "day": "",
             "month": "",

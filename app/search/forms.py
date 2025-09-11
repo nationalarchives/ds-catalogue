@@ -156,26 +156,28 @@ class CatalogueSearchForm(BaseForm):
 
         return errors
 
-    def get_api_date_params(self) -> dict:
-        """Get formatted date parameters for API request"""
-        params = {}
+    def get_api_date_params(self) -> list:
+        """Get formatted date parameters as filter list for API request"""
+        date_filters = []
+
+        # Helper function to safely get field value
+        def get_field_value(field_name):
+            if field_name in self.fields and hasattr(
+                self.fields[field_name], "format_for_api"
+            ):
+                return self.fields[field_name].format_for_api()
+            return None
 
         # Record dates
-        if rd_from := self.fields[
-            FieldsConstant.RECORD_DATE_FROM
-        ].format_for_api():
-            params["record_date_from"] = rd_from
-        if rd_to := self.fields[FieldsConstant.RECORD_DATE_TO].format_for_api():
-            params["record_date_to"] = rd_to
+        if rd_from := get_field_value(FieldsConstant.RECORD_DATE_FROM):
+            date_filters.append(f"coveringFromDate:(>={rd_from})")
+        if rd_to := get_field_value(FieldsConstant.RECORD_DATE_TO):
+            date_filters.append(f"coveringToDate:(<={rd_to})")
 
         # Opening dates
-        if od_from := self.fields[
-            FieldsConstant.OPENING_DATE_FROM
-        ].format_for_api():
-            params["opening_date_from"] = od_from
-        if od_to := self.fields[
-            FieldsConstant.OPENING_DATE_TO
-        ].format_for_api():
-            params["opening_date_to"] = od_to
+        if od_from := get_field_value(FieldsConstant.OPENING_DATE_FROM):
+            date_filters.append(f"openingFromDate:(>={od_from})")
+        if od_to := get_field_value(FieldsConstant.OPENING_DATE_TO):
+            date_filters.append(f"openingToDate:(<={od_to})")
 
-        return params
+        return date_filters

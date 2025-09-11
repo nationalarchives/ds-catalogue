@@ -94,8 +94,10 @@ class APIMixin:
         if form.fields[FieldsConstant.ONLINE].cleaned == "true":
             add_filter(params, "digitised:true")
 
-        date_params = form.get_api_date_params()
-        params.update(date_params)
+        date_filters = form.get_api_date_params()
+
+        if date_filters:
+            add_filter(params, date_filters)
 
         return params
 
