@@ -387,7 +387,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                 )
 
         selected_filters.extend(self._add_date_filters())
-
+    
         if closure_statuses := self.request.GET.getlist("closure_status", None):
             for closure_status in closure_statuses:
                 selected_filters.append(
@@ -468,7 +468,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
             )
 
         return filters
-
+        
     def _build_dynamic_multiple_choice_field_filters(self, existing_filters):
         """Appends selected filters for dynamic multiple choice fields."""
         for field_name in self.form.fields:
