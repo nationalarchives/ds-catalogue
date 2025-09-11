@@ -406,11 +406,11 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                     }
                 )
 
-        self.build_dynamic_multiple_choice_field_filters(selected_filters)
+        self._build_dynamic_multiple_choice_field_filters(selected_filters)
 
         return selected_filters
 
-    def build_dynamic_multiple_choice_field_filters(self, existing_filters):
+    def _build_dynamic_multiple_choice_field_filters(self, existing_filters):
         """Appends selected filters for dynamic multiple choice fields."""
         for field_name in self.form.fields:
             if isinstance(
