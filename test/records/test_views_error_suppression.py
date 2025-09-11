@@ -35,7 +35,7 @@ class TestRecordViewForSuppressedErrorsLogged(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn(
-            "ERROR:app.records.models:held_by_count is missing for record C123456",
+            "ERROR:app.records.models:held_by_count is missing for the record",
             "".join(log.output),
         )
         self.assertEqual(
@@ -81,7 +81,7 @@ class TestRecordViewForSuppressedErrorsLogged(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn(
-            "ERROR:app.records.models:hierarchy_count missing for hierarchy record C236",
+            "ERROR:app.records.models:hierarchy_count missing for hierarchy record",
             "".join(log.output),
         )
         self.assertEqual(
