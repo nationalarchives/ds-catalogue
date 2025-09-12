@@ -11,34 +11,32 @@ $sort.addEventListener("change", () => {
 // search filters for mobile version
 const $mobileFiltersButton = document.getElementById("mobile-filters");
 
+// mobile view
 const showEventFilters = () => {
-  console.log('mobile view');
+  // console.log('mobile view');
   $mobileFiltersButton.style.display = "block";
+  $visibleAsideElements.style.display = "none";
 };
 
+// desktop view
 const hideEventFilters = () => {
-  console.log('desktop view');
+  // console.log('desktop view');
   $mobileFiltersButton.style.display = "none";
 };
 
 const isMobile = window.matchMedia("(max-width: 48em)");
-  isMobile.onchange = (e) => {
-    
-    if (e.matches){
-         showEventFilters();
-    } 
-    
+isMobile.onchange = (e) => {
+  if (e.matches) {
+    showEventFilters();
+  }
 };
 
 const isDesktop = window.matchMedia("(min-width: 48em)");
-  isDesktop.onchange = (e) => {
-    
-    if (e.matches){
-         hideEventFilters();
-    } 
-    
+isDesktop.onchange = (e) => {
+  if (e.matches) {
+    hideEventFilters();
+  }
 };
-
 
 const $visibleAsideElements = document.getElementsByClassName("tna-aside");
 

@@ -53,8 +53,15 @@ mark {
 }
 
 #mobile-filters {
-  display:none;
-  @media only screen and (max-width: 48em) {
-    display:block;
+  display: none;
+  @media only screen and (width <= 48em) {
+    display: block;
+  }
+}
+
+.tna-aside {
+  display: none;
+  @media only screen and (width >= 48em) {
+    display: block;
   }
 }
