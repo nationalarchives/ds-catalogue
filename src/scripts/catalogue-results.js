@@ -10,6 +10,36 @@ $sort.addEventListener("change", () => {
 
 // search filters for mobile version
 const $mobileFiltersButton = document.getElementById("mobile-filters");
+
+const showEventFilters = () => {
+  console.log('mobile view');
+  $mobileFiltersButton.style.display = "block";
+};
+
+const hideEventFilters = () => {
+  console.log('desktop view');
+  $mobileFiltersButton.style.display = "none";
+};
+
+const isMobile = window.matchMedia("(max-width: 48em)");
+  isMobile.onchange = (e) => {
+    
+    if (e.matches){
+         showEventFilters();
+    } 
+    
+};
+
+const isDesktop = window.matchMedia("(min-width: 48em)");
+  isDesktop.onchange = (e) => {
+    
+    if (e.matches){
+         hideEventFilters();
+    } 
+    
+};
+
+
 const $visibleAsideElements = document.getElementsByClassName("tna-aside");
 
 $mobileFiltersButton.textContent = "Add Filters";

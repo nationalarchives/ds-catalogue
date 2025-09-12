@@ -51,3 +51,10 @@ mark {
   @include colour.yellow-accent;
   @include colour.accent;
 }
+
+#mobile-filters {
+  display:none;
+  @media only screen and (max-width: 48em) {
+    display:block;
+  }
+}
