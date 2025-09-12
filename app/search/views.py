@@ -405,7 +405,6 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "title": f"Remove {CLOSURE_STATUSES.get(closure_status)} closure status",
                     }
                 )
-<<<<<<< HEAD
         if collections := self.request.GET.getlist("collections", None):
             for collection in collections:
                 selected_filters.append(
@@ -416,34 +415,3 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                     }
                 )
         return selected_filters
-=======
-
-        self._build_dynamic_multiple_choice_field_filters(selected_filters)
-
-        return selected_filters
-
-    def _build_dynamic_multiple_choice_field_filters(self, existing_filters):
-        """Appends selected filters for dynamic multiple choice fields."""
-        for field_name in self.form.fields:
-            if isinstance(
-                self.form.fields[field_name], DynamicMultipleChoiceField
-            ):
-                field = self.form.fields[field_name]
-                if field_name == FieldsConstant.LEVEL:
-                    choice_labels = {}
-                    for _, v in TNA_LEVELS.items():
-                        choice_labels.update({v: v})
-                else:
-                    choice_labels = self.form.fields[
-                        field_name
-                    ].configured_choice_labels
-
-                for item in field.value:
-                    existing_filters.append(
-                        {
-                            "label": f"{field.active_filter_label}: {choice_labels.get(item, item)}",
-                            "href": f"?{qs_toggle_value(self.request.GET, field.name, item)}",
-                            "title": f"Remove {choice_labels.get(item, item)} {field.active_filter_label.lower()}",
-                        }
-                    )
->>>>>>> main
