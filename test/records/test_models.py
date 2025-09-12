@@ -37,6 +37,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.held_by, "")
         self.assertEqual(self.record.held_by_id, "")
         self.assertEqual(self.record.held_by_url, "")
+        self.assertEqual(self.record.held_by_count, "Unknown number of")
         self.assertEqual(self.record.access_condition, "")
         self.assertEqual(self.record.closure_status, "")
         self.assertEqual(self.record.record_opening, "")
@@ -62,6 +63,8 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.is_tna, False)
         self.assertEqual(self.record.is_digitised, False)
         self.assertEqual(self.record.subjects, [])
+        self.assertEqual(self.record.subjects_enrichment, {})
+        self.assertEqual(self.record.has_subjects_enrichment, False)
 
     def test_iaid(self):
 
@@ -385,6 +388,12 @@ class RecordModelTests(SimpleTestCase):
             "WARNING:app.records.models:held_by_url:Record(C12345):No reverse match for record_details with held_by_id=INVALID",
             lc.output,
         )
+
+    def test_held_by_count(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["heldByCount"] = 12345
+        self.assertEqual(self.record.held_by_count, "12,345")
 
     def test_access_condition(self):
         self.record = Record(self.template_details)
@@ -715,6 +724,7 @@ class RecordModelTests(SimpleTestCase):
                 "summary": {
                     "title": "Records created or inherited by the Air Ministry, the Royal Air Force, and related..."
                 },
+                "count": 723850,
             },
             {
                 "@admin": {"id": "C955"},
@@ -722,6 +732,7 @@ class RecordModelTests(SimpleTestCase):
                 "summary": {
                     "title": "Records of the Department of the Master General of Personnel and the Air Member for..."
                 },
+                "count": 478127,
             },
             {
                 "@admin": {"id": "C2133"},
@@ -734,6 +745,7 @@ class RecordModelTests(SimpleTestCase):
                 "summary": {
                     "title": "Air Ministry: Air Member for Personnel and predecessors: Airmen's Records"
                 },
+                "count": 319338,
             },
             {
                 "@admin": {"id": "C3872067"},
@@ -746,6 +758,7 @@ class RecordModelTests(SimpleTestCase):
                 "summary": {
                     "title": "107079 - 107200 (Described at item level)."
                 },
+                "count": 123,
             },
             {
                 "@admin": {"id": "C11827825"},
@@ -756,6 +769,7 @@ class RecordModelTests(SimpleTestCase):
                 ],
                 "level": {"code": 7},
                 "summary": {"title": "Name: Percy Augustus Cecil Gadd."},
+                "count": 1,
             },
         ]
 
@@ -773,6 +787,7 @@ class RecordModelTests(SimpleTestCase):
                         "Department",
                         "AIR",
                         "Records created or inherited by the Air Ministry, the Royal Air Force, and related...",
+                        "723,850",
                     ),
                     (
                         True,
@@ -782,6 +797,7 @@ class RecordModelTests(SimpleTestCase):
                         "Series",
                         "AIR 79",
                         "Air Ministry: Air Member for Personnel and predecessors: Airmen's Records",
+                        "319,338",
                     ),
                     (
                         True,
@@ -791,6 +807,7 @@ class RecordModelTests(SimpleTestCase):
                         "Piece",
                         "AIR 79/962",
                         "107079 - 107200 (Described at item level).",
+                        "123",
                     ),
                     (
                         True,
@@ -800,6 +817,7 @@ class RecordModelTests(SimpleTestCase):
                         "Item",
                         "AIR 79/962/107133",
                         "Name: Percy Augustus Cecil Gadd.",
+                        "1",
                     ),
                 ],
             )
@@ -816,6 +834,7 @@ class RecordModelTests(SimpleTestCase):
                         hierarchy_record.level,
                         hierarchy_record.reference_number,
                         hierarchy_record.summary_title,
+                        hierarchy_record.hierarchy_count,
                     ),
                     expected,
                 )

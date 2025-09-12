@@ -28,11 +28,6 @@ CLOSURE_STATUSES = {
     "3": "Open Document, Open Description",
 }
 
-COLLECTIONS = {
-    "1": "WO - War Office, Armed Forces, Judge Advocate General, and related bodies",
-    "2": "BT - Board of Trade and successors",
-}
-
 TNA_SUBJECTS = {
     "1": "Armed Forces (General Administration)",
     "2": "Army",
@@ -137,3 +132,5 @@ TNA_SUBJECTS = {
 }
 
 SUBJECTS_LIMIT = 20
+
+MISSING_COUNT_TEXT = "Unknown number of"

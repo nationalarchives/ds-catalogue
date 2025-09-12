@@ -36,8 +36,9 @@
 {% block head %}
     <meta name="tna.response.generated" content="{{ now_iso_8601() }}">
     <meta name="tna.response.status_code" content="{{ status_code | default('200') }}">
-    <meta name="tna.app.tna-frontend" content="{{ app_config.TNA_FRONTEND_VERSION }}">
+    <meta name="tna.app.container-image" content="{{ app_config.CONTAINER_IMAGE }}">
     <meta name="tna.app.build-version" content="{{ app_config.BUILD_VERSION }}">
+    <meta name="tna.app.tna-frontend" content="{{ app_config.TNA_FRONTEND_VERSION }}">
     <meta name="tna.settings.theme" content="{{ theme }}">
 {% endblock %}
 
@@ -57,7 +58,8 @@
 {% if 'cookie_preferences_set' not in request.COOKIES %}
 {{ tnaCookieBanner({
   'serviceName': 'The National Archives',
-  'cookiesUrl': url('main:cookies'),
+  'cookiesUrl_': url('main:cookies'),
+  'cookiesUrl': 'https://www.nationalarchives.gov.uk/cookies/',
   'preferencesSetKey': 'dontShowCookieNotice'
 }) | indent(6) }}
 {% endif %}
@@ -95,7 +97,7 @@
     },
     {
       'text': 'What’s on',
-      'href': 'https://www.nationalarchives.gov.uk/about/visit-us/whats-on/'
+      'href': 'https://www.nationalarchives.gov.uk/whats-on/'
     },
     {
       'text': 'Explore the collection',
@@ -179,11 +181,11 @@
         },
         {
           'text': 'Blog',
-          'href': 'https://blog.nationalarchives.gov.uk/'
+          'href': 'https://www.nationalarchives.gov.uk/blogs/'
         },
         {
-          'text': 'Podcasts',
-          'href': 'https://media.nationalarchives.gov.uk/index.php/category/podcasts-2/'
+          'text': 'Podcast',
+          'href': 'https://www.nationalarchives.gov.uk/explore-the-collection/on-the-record-podcast/'
         },
         {
           'text': 'Image library',
@@ -261,7 +263,7 @@
     },
     {
       'text': 'Cookies',
-      'href': 'https://www.nationalarchives.gov.uk/legal/cookies/'
+      'href': 'https://www.nationalarchives.gov.uk/cookies/'
     }
   ],
   'classes': 'tna-!--margin-top-l'

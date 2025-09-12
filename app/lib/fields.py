@@ -18,7 +18,9 @@ class BaseField:
     5. Access field attributes
     """
 
-    def __init__(self, label=None, required=False, hint=""):
+    def __init__(
+        self, label=None, required=False, hint="", active_filter_label=None
+    ):
         self.label = label
         self.required = required
         self.hint = hint
@@ -26,6 +28,7 @@ class BaseField:
         self._cleaned = None
         self._error = {}
         self.choices = None  # applicable to certain fields ex choice
+        self.active_filter_label = active_filter_label
 
     def bind(self, name, value: list | str) -> None:
         """Binds field name, value to the field. The value is usually from
@@ -155,12 +158,30 @@ class ChoiceField(BaseField):
 class DynamicMultipleChoiceField(BaseField):
 
     def __init__(self, choices: list[tuple[str, str]], **kwargs):
-        """choices: format [(field value, display value),]. Has field specific attributes."""
+        """
+        choices: data format - [(field value, display value),]
+        defined choices act to validate input against and lookup
+        display labels for dynamic values, otherwise an empty list when
+        there are no fixed choices to validate against or need to
+        lookup labels.
+
+        keyword args - validate_input: bool
+        validate_input is optional, it defaults True if choices provided,
+        False otherwise. Override to False when validation from defined
+        choices is required. Coerce to False when no choices provided.
+
+        Choices are updated dynamically using update_choices() method.
+        """
 
         # field specific attr, validate input choices before querying the api
-        self.validate_input = bool(choices) and kwargs.pop(
-            "validate_input", True
-        )
+        validate_default = True if choices else False
+        if choices:
+            self.validate_input = kwargs.pop("validate_input", validate_default)
+        else:
+            # coerce to False when no choices provided
+            self.validate_input = False
+            kwargs.pop("validate_input", None)
+
         super().__init__(**kwargs)
         self.choices = choices
         self.configured_choices = self.choices

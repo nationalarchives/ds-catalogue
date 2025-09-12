@@ -121,8 +121,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # TNA Configuration
 
-ENVIRONMENT: str = os.environ.get("ENVIRONMENT", "production")
-
+CONTAINER_IMAGE: str = os.environ.get("CONTAINER_IMAGE", "")
 BUILD_VERSION: str = os.environ.get("BUILD_VERSION", "")
 TNA_FRONTEND_VERSION: str = ""
 try:
@@ -142,8 +141,9 @@ except FileNotFoundError:
     pass
 
 WAGTAIL_API_URL: str = os.getenv("WAGTAIL_API_URL", "")
-WAGTAIL_HOME_PAGE_ID: int = 5
-WAGTAIL_EXPLORE_THE_COLLECTION_PAGE_ID: int = 55
+WAGTAIL_HOME_PAGE_ID: int = 3
+WAGTAIL_EXPLORE_THE_COLLECTION_PAGE_ID: int = 5
+WAGTAIL_EXPLORE_THE_COLLECTION_STORIES_PAGE_ID: int = 55
 
 SECRET_KEY: str = os.environ.get("SECRET_KEY", "")
 
@@ -170,6 +170,10 @@ CONTENT_SECURITY_POLICY = {
 GA4_ID = os.environ.get("GA4_ID", "")
 
 ROSETTA_API_URL = os.getenv("ROSETTA_API_URL")
+
+# Maximum number of subject/article_tags returned from Wagtail
+MAX_SUBJECTS_PER_RECORD: int = int(os.getenv("MAX_SUBJECTS_PER_RECORD", 20))
+WAGTAIL_API_TIMEOUT: int = int(os.getenv("WAGTAIL_API_TIMEOUT", 5))
 
 # DORIS is TNA's Document Ordering System that contains Delivery Options data
 DELIVERY_OPTIONS_API_URL = os.getenv("DELIVERY_OPTIONS_API_URL")

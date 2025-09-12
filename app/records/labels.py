@@ -57,7 +57,7 @@ FIELD_LABELS = {
         "title": "Reference",
         "description": "A unique code used to identify and order the record",
     },
-    "related_articles": {"title": "Related content"},
+    "related_articles": {"title": "You may be interested in"},
     "related_materials": {"title": "Related material"},
     "related_records": {"title": "Related records"},
     "restrictions_on_use": {"title": "Restrictions on use"},
