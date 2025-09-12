@@ -158,7 +158,7 @@ class APIMixin:
             {
                 "results": results,
                 "stats": stats,
-                "subjects": TNA_SUBJECTS,
+                "subjects_ctx": TNA_SUBJECTS,
             }
         )
 
@@ -324,7 +324,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
 
         context.update(
             {
-                "closure_statuses": CLOSURE_STATUSES,
+                "closure_statuses_ctx": CLOSURE_STATUSES,
             }
         )
 

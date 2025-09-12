@@ -1,7 +1,7 @@
 {% from 'components/button/macro.html' import tnaButton %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 
-{% macro closure_statuses_tna(request, statuses) %}
+{% macro closure_statuses(request, statuses) %}
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
   {% set closure_statuses = [] %}
   {% for status_id, status in statuses.items() %}
