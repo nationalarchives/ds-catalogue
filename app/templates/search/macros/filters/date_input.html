@@ -12,7 +12,11 @@
     'headingSize': "s",
     'id': id + '-from',
     'name': name + '_from',
-    'value': request.GET.get(name + '_from', ''),
+    'value': {
+      'day': request.GET.get(name + '_from-day', ''),
+      'month': request.GET.get(name + '_from-month', ''),
+      'year': request.GET.get(name + '_from-year', '')
+    },
     'formGroupClasses': 'tna-!--margin-top-s',
     'progressive': true,
     'attributes': {
@@ -26,7 +30,11 @@
     'headingSize': "s",
     'id': id + '-to',
     'name': name + '_to',
-    'value': request.GET.get(name + '_to', ''),
+    'value': {
+      'day': request.GET.get(name + '_to-day', ''),
+      'month': request.GET.get(name + '_to-month', ''),
+      'year': request.GET.get(name + '_to-year', '')
+    },
     'formGroupClasses': 'tna-!--margin-top-s',
     'progressive': true,
     'attributes': {
@@ -47,4 +55,3 @@
   </div>
 </div>
 {% endmacro %}
-  

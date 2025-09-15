@@ -1,14 +1,271 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from app.lib.fields import (
     CharField,
     ChoiceField,
+    CustomValidationError,
+    DateComponentField,
     DynamicMultipleChoiceField,
-    ValidationError,
 )
 from app.lib.forms import BaseForm
 from django.http import QueryDict
 from django.test import TestCase
+
+
+class BaseFormWithDateComponentFieldTest(TestCase):
+
+    def get_form_with_date_field(self, data=None, is_from_date=True):
+
+        class MyTestForm(BaseForm):
+            def __init__(self, data=None):
+                super().__init__(data)
+                # Pass form data to date fields so they can access components
+                for field_name, field in self.fields.items():
+                    if hasattr(
+                        field, "set_form_data"
+                    ):  # Check if it's a DateComponentField
+                        field.set_form_data(self.data if data else {})
+
+            def add_fields(self):
+                return {
+                    "date_field": DateComponentField(
+                        label="Test Date",
+                        is_from_date=is_from_date,
+                        required=False,
+                    )
+                }
+
+        form = MyTestForm(data)
+        return form
+
+    def test_debug_is_from_date(self):
+        data = QueryDict("date_field-year=2020")
+        form = self.get_form_with_date_field(data, is_from_date=True)
+
+        field = form.fields["date_field"]
+        print(f"is_from_date value: {field.is_from_date}")
+
+        form.is_valid()
+        print(f"Cleaned result: {field.cleaned}")
+        print("Expected: date(2020, 1, 1)")
+
+    def test_date_field_initial_attrs(self):
+        form = self.get_form_with_date_field()
+        self.assertEqual(form.fields["date_field"].name, "date_field")
+        self.assertEqual(form.fields["date_field"].label, "Test Date")
+        self.assertEqual(form.fields["date_field"].is_from_date, True)
+
+    def test_date_field_empty_is_valid(self):
+        data = QueryDict("")
+        form = self.get_form_with_date_field(data)
+        valid_status = form.is_valid()
+        self.assertTrue(valid_status)
+        self.assertEqual(form.fields["date_field"].cleaned, None)
+        self.assertEqual(form.fields["date_field"].error, {})
+
+    def test_date_field_full_date_valid(self):
+        data = QueryDict(
+            "date_field-year=2020&date_field-month=6&date_field-day=15"
+        )
+        form = self.get_form_with_date_field(data)
+        valid_status = form.is_valid()
+        self.assertTrue(valid_status)
+        self.assertEqual(form.fields["date_field"].cleaned, date(2020, 6, 15))
+        self.assertEqual(form.fields["date_field"].error, {})
+
+    def test_date_field_year_only_from_date(self):
+        data = QueryDict("date_field-year=2020")
+        form = self.get_form_with_date_field(data, is_from_date=True)
+        valid_status = form.is_valid()
+        self.assertTrue(valid_status)
+        # From date should default to January 1st
+        self.assertEqual(form.fields["date_field"].cleaned, date(2020, 1, 1))
+        self.assertEqual(form.fields["date_field"].error, {})
+
+    def test_date_field_year_only_to_date(self):
+        data = QueryDict("date_field-year=2020")
+        form = self.get_form_with_date_field(data, is_from_date=False)
+        valid_status = form.is_valid()
+        self.assertTrue(valid_status)
+        # To date should default to December 31st
+        self.assertEqual(form.fields["date_field"].cleaned, date(2020, 12, 31))
+        self.assertEqual(form.fields["date_field"].error, {})
+
+    def test_date_field_year_month_from_date(self):
+        data = QueryDict("date_field-year=2020&date_field-month=6")
+        form = self.get_form_with_date_field(data, is_from_date=True)
+        valid_status = form.is_valid()
+        self.assertTrue(valid_status)
+        # From date should default to 1st of month
+        self.assertEqual(form.fields["date_field"].cleaned, date(2020, 6, 1))
+
+    def test_date_field_year_month_to_date(self):
+        data = QueryDict("date_field-year=2020&date_field-month=6")
+        form = self.get_form_with_date_field(data, is_from_date=False)
+        valid_status = form.is_valid()
+        self.assertTrue(valid_status)
+        # To date should default to last day of month (June has 30 days)
+        self.assertEqual(form.fields["date_field"].cleaned, date(2020, 6, 30))
+
+    def test_date_field_invalid_year(self):
+        data = QueryDict("date_field-year=abc")
+        form = self.get_form_with_date_field(data)
+        valid_status = form.is_valid()
+        self.assertFalse(valid_status)
+        self.assertEqual(form.fields["date_field"].cleaned, None)
+        self.assertEqual(
+            form.fields["date_field"].error["text"],
+            "Please enter a valid 4-digit year",
+        )
+
+    def test_date_field_invalid_month(self):
+        data = QueryDict(
+            "date_field-year=2020&date_field-month=13&date_field-day=1"
+        )
+        form = self.get_form_with_date_field(data)
+
+        # First check the components are extracted correctly
+        field = form.fields["date_field"]
+        self.assertEqual(field.month, "13")  # Should be extracted as string
+
+        valid_status = form.is_valid()
+        print(f"Form valid: {valid_status}")
+        print(f"Field cleaned: {field.cleaned}")
+        print(f"Field error: {field.error}")
+
+        self.assertFalse(valid_status)
+        self.assertIsNone(field.cleaned)
+        self.assertEqual(
+            form.fields["date_field"].error["text"],
+            "Month must be between 1 and 12",
+        )
+
+    def test_debug_month_validation(self):
+        data = QueryDict(
+            "date_field-year=2020&date_field-month=13&date_field-day=1"
+        )
+        form = self.get_form_with_date_field(data)
+
+        # Let's see what components were extracted
+        field = form.fields["date_field"]
+        print(f"Day: {field.day}, Month: {field.month}, Year: {field.year}")
+
+        valid_status = form.is_valid()
+        print(f"Valid: {valid_status}")
+        print(f"Cleaned: {field.cleaned}")
+        print(f"Error: {field.error}")
+
+    def test_date_field_invalid_day_for_month(self):
+        # February doesn't have 30 days
+        data = QueryDict(
+            "date_field-year=2020&date_field-month=2&date_field-day=30"
+        )
+        form = self.get_form_with_date_field(data)
+        valid_status = form.is_valid()
+        self.assertFalse(valid_status)
+        self.assertEqual(
+            form.fields["date_field"].error["text"],
+            "Invalid date - please check the day is valid for the given month",
+        )
+
+    def test_date_field_day_without_month_invalid(self):
+        data = QueryDict("date_field-year=2020&date_field-day=15")
+        form = self.get_form_with_date_field(data)
+        valid_status = form.is_valid()
+        self.assertFalse(valid_status)
+        self.assertEqual(
+            form.fields["date_field"].error["text"],
+            "Month is required if day is provided",
+        )
+
+    def test_date_field_format_for_api(self):
+        data = QueryDict(
+            "date_field-year=2020&date_field-month=6&date_field-day=15"
+        )
+        form = self.get_form_with_date_field(data)
+        form.is_valid()
+        # Should format as ISO date string
+        self.assertEqual(
+            form.fields["date_field"].format_for_api(), "2020-06-15"
+        )
+
+    def test_date_field_format_for_api_none_when_empty(self):
+        data = QueryDict("")
+        form = self.get_form_with_date_field(data)
+        form.is_valid()
+        self.assertIsNone(form.fields["date_field"].format_for_api())
+
+
+class BaseFormWithCrossValidationDateTest(TestCase):
+    """Test cross-validation between date fields"""
+
+    def get_form_with_date_range_fields(self, data=None):
+
+        class MyTestForm(BaseForm):
+            def __init__(self, data=None):
+                super().__init__(data)
+                # Pass form data to date fields so they can access components
+                for field_name, field in self.fields.items():
+                    if hasattr(field, "set_form_data"):
+                        field.set_form_data(self.data)
+
+            def add_fields(self):
+                return {
+                    "from_date": DateComponentField(
+                        label="From Date",
+                        is_from_date=True,
+                        required=False,
+                    ),
+                    "to_date": DateComponentField(
+                        label="To Date",
+                        is_from_date=False,
+                        required=False,
+                    ),
+                }
+
+            def cross_validate(self) -> list[str]:
+                errors = []
+                from_date = self.fields["from_date"].cleaned
+                to_date = self.fields["to_date"].cleaned
+
+                if from_date and to_date and from_date > to_date:
+                    errors.append("From date cannot be later than to date")
+
+                return errors
+
+        form = MyTestForm(data)
+        return form
+
+    def test_valid_date_range_passes_validation(self):
+        data = QueryDict(
+            "from_date-year=2019&from_date-month=6&from_date-day=15"
+            "&to_date-year=2020&to_date-month=6&to_date-day=15"
+        )
+        form = self.get_form_with_date_range_fields(data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(len(form.non_field_errors), 0)
+
+    def test_invalid_date_range_fails_validation(self):
+        data = QueryDict(
+            "from_date-year=2020&from_date-month=6&from_date-day=15"
+            "&to_date-year=2019&to_date-month=6&to_date-day=15"
+        )
+        form = self.get_form_with_date_range_fields(data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(len(form.non_field_errors), 1)
+        self.assertEqual(
+            form.non_field_errors[0]["text"],
+            "From date cannot be later than to date",
+        )
+
+    def test_same_dates_are_valid(self):
+        data = QueryDict(
+            "from_date-year=2020&from_date-month=6&from_date-day=15"
+            "&to_date-year=2020&to_date-month=6&to_date-day=15"
+        )
+        form = self.get_form_with_date_range_fields(data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(len(form.non_field_errors), 0)
 
 
 class BaseFormWithCharFieldTest(TestCase):
@@ -405,7 +662,7 @@ class NewFieldWithRaiseValidationTest(TestCase):
                     try:
                         datetime.strptime(value, "%Y-%m-%d")
                     except ValueError:
-                        raise ValidationError(
+                        raise CustomValidationError(
                             "Value is not in format YYYY-MM-DD"
                         )
                     super().validate(value)

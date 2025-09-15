@@ -123,7 +123,7 @@
     {% endif %}
     {{ online_tna(request, is_tna_results_page=(form.fields.group.value==bucket_keys.TNA)) }}
     {{ search_within(request) }}
-    {{ date_input(request, 'date', 'date', 'Filter by record date') }}
+    {{ date_input(request, 'rd', 'record-date', 'Filter by record date') }}
     {% if form.fields.group.value==bucket_keys.TNA %}
       {{ collections_tna(request, form.fields['collection']) }}
     {% elif form.fields.group.value==bucket_keys.NON_TNA %}
@@ -132,8 +132,8 @@
     {{ subjects_tna(request, subjects) }}
     {% if form.fields.group.value==bucket_keys.TNA %}
       {{ levels_tna(request, form.fields['level']) }}
+      {{ date_input(request, 'od', 'opening-date', 'Filter by record opening date') }}
     {% endif %}
-    {{ date_input(request, 'date', 'date', 'Filter by record opening date') }} 
     {{ closure_statuses_tna(request, closure_statuses) }}
     
     
