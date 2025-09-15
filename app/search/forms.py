@@ -105,7 +105,7 @@ class BaseCatalogueSearchForm(BaseForm, ABC):
 
         return errors
 
-    def get_api_date_params(self) -> list:
+    def get_api_date_params(self) -> list[str]:
         """Get formatted date parameters as filter list for API request"""
         date_filters = []
 
