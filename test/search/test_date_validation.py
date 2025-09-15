@@ -2,13 +2,12 @@ from http import HTTPStatus
 from unittest.mock import patch
 
 import responses
+from app.lib.fields import DateComponentField
+from app.lib.forms import BaseForm
 from django.conf import settings
 from django.http import QueryDict
 from django.test import TestCase
 from django.utils.encoding import force_str
-
-from app.lib.forms import BaseForm
-from app.lib.fields import DateComponentField
 
 
 class DateValidationTests(TestCase):
@@ -229,31 +228,31 @@ class DateValidationTests(TestCase):
                 "rd_from-year=2020&rd_from-month=2&rd_from-day=29"  # Valid leap year
                 "&rd_to-year=2020&rd_to-month=3&rd_to-day=1",
                 True,
-                None
+                None,
             ),
             (
                 "rd_from-year=2021&rd_from-month=2&rd_from-day=29"  # Invalid non-leap year
                 "&rd_to-year=2021&rd_to-month=3&rd_to-day=1",
                 False,
-                "Invalid date"
+                "Invalid date",
             ),
             (
                 "rd_from-year=2020&rd_from-month=4&rd_from-day=31"  # April doesn't have 31 days
                 "&rd_to-year=2020&rd_to-month=5&rd_to-day=1",
                 False,
-                "Invalid date"
+                "Invalid date",
             ),
             (
                 "rd_from-year=2020&rd_from-month=6"  # Year-month only, valid
                 "&rd_to-year=2020&rd_to-month=8",
                 True,
-                None
+                None,
             ),
             (
                 "rd_from-year=2020&rd_from-month=8"  # Year-month only, invalid range
                 "&rd_to-year=2020&rd_to-month=6",
                 False,
-                "cannot be later than"
+                "cannot be later than",
             ),
         ]
 
@@ -261,14 +260,18 @@ class DateValidationTests(TestCase):
             with self.subTest(params=params):
                 response = self.client.get(f"/catalogue/search/?{params}")
                 self.assertEqual(response.status_code, HTTPStatus.OK)
-                
+
                 form = response.context_data.get("form")
-                
+
                 if should_be_valid:
-                    self.assertTrue(form.is_valid(), f"Expected valid form for: {params}")
+                    self.assertTrue(
+                        form.is_valid(), f"Expected valid form for: {params}"
+                    )
                 else:
-                    self.assertFalse(form.is_valid(), f"Expected invalid form for: {params}")
-                    
+                    self.assertFalse(
+                        form.is_valid(), f"Expected invalid form for: {params}"
+                    )
+
                     if expected_error:
                         # Check either field errors or non-field errors
                         all_errors = []
@@ -276,10 +279,14 @@ class DateValidationTests(TestCase):
                             all_errors.append(field_error.get("text", ""))
                         for non_field_error in form.non_field_errors:
                             all_errors.append(non_field_error.get("text", ""))
-                        
-                        error_found = any(expected_error in error for error in all_errors)
-                        self.assertTrue(error_found, 
-                                      f"Expected error '{expected_error}' not found in: {all_errors}")
+
+                        error_found = any(
+                            expected_error in error for error in all_errors
+                        )
+                        self.assertTrue(
+                            error_found,
+                            f"Expected error '{expected_error}' not found in: {all_errors}",
+                        )
 
     @responses.activate
     def test_date_validation_with_other_filters(self):
@@ -304,10 +311,10 @@ class DateValidationTests(TestCase):
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         form = response.context_data.get("form")
-        
+
         # Form should be invalid due to date range
         self.assertFalse(form.is_valid())
-        
+
         # But other fields should still be valid
         self.assertEqual(form.fields["q"].cleaned, "test")
         self.assertEqual(form.fields["group"].cleaned, "tna")
@@ -330,7 +337,7 @@ class DateValidationTests(TestCase):
             "&rd_from-year=2020&rd_from-month=6&rd_from-day=15"
             "&rd_to-year=2019&rd_to-month=3&rd_to-day=10"  # Invalid record range
             "&od_from-year=2020&od_from-month=12&od_from-day=31"
-            "&od_to-year=2020&od_to-month=1&od_to-day=1"   # Invalid opening range
+            "&od_to-year=2020&od_to-month=1&od_to-day=1"  # Invalid opening range
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -342,24 +349,33 @@ class DateValidationTests(TestCase):
             "Record date &#x27;from&#x27; cannot be later than &#x27;to&#x27; date",
             "Record date &#39;from&#39; cannot be later than &#39;to&#39; date",
         ]
-        
+
         possible_opening_errors = [
             "Opening date 'from' cannot be later than 'to' date",
             "Opening date &#x27;from&#x27; cannot be later than &#x27;to&#x27; date",
             "Opening date &#39;from&#39; cannot be later than &#39;to&#39; date",
         ]
 
-        record_error_found = any(error in html for error in possible_record_errors)
-        opening_error_found = any(error in html for error in possible_opening_errors)
+        record_error_found = any(
+            error in html for error in possible_record_errors
+        )
+        opening_error_found = any(
+            error in html for error in possible_opening_errors
+        )
 
-        self.assertTrue(record_error_found, "Record date validation error not found in HTML")
-        self.assertTrue(opening_error_found, "Opening date validation error not found in HTML")
+        self.assertTrue(
+            record_error_found, "Record date validation error not found in HTML"
+        )
+        self.assertTrue(
+            opening_error_found,
+            "Opening date validation error not found in HTML",
+        )
 
-    @responses.activate 
+    @responses.activate
     def test_date_validation_performance(self):
         """Test that date validation doesn't significantly impact performance"""
         import time
-        
+
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
@@ -369,7 +385,7 @@ class DateValidationTests(TestCase):
 
         # Test with multiple date fields
         start_time = time.time()
-        
+
         for i in range(10):
             response = self.client.get(
                 f"/catalogue/search/?group=tna"
@@ -379,9 +395,9 @@ class DateValidationTests(TestCase):
                 f"&od_to-year=202{i % 10}&od_to-month={(i % 12) + 1}&od_to-day={(i % 28) + 1}"
             )
             self.assertEqual(response.status_code, HTTPStatus.OK)
-        
+
         end_time = time.time()
-        
+
         # Should complete quickly (less than 5 seconds for 10 requests)
         self.assertLess(end_time - start_time, 5.0)
 
@@ -404,7 +420,10 @@ class DateValidationTests(TestCase):
 
         # May return 500 due to API error, but date validation should have run
         # The exact behavior depends on error handling middleware
-        self.assertIn(response.status_code, [HTTPStatus.OK, HTTPStatus.INTERNAL_SERVER_ERROR])
+        self.assertIn(
+            response.status_code,
+            [HTTPStatus.OK, HTTPStatus.INTERNAL_SERVER_ERROR],
+        )
 
     @responses.activate
     def test_non_tna_form_date_validation(self):
@@ -413,7 +432,7 @@ class DateValidationTests(TestCase):
         non_tna_response["buckets"] = [
             {"name": "group", "entries": [{"value": "nonTna", "count": 1}]}
         ]
-        
+
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
@@ -431,16 +450,18 @@ class DateValidationTests(TestCase):
 
         form = response.context_data.get("form")
         self.assertFalse(form.is_valid())
-        
+
         # Should have record date error
         error_messages = [error["text"] for error in form.non_field_errors]
         self.assertIn(
             "Record date 'from' cannot be later than 'to' date",
             error_messages,
         )
-        
+
         # Should NOT have opening date error (because NonTNA forms don't have opening dates)
-        opening_error_found = any("Opening date" in msg for msg in error_messages)
+        opening_error_found = any(
+            "Opening date" in msg for msg in error_messages
+        )
         self.assertFalse(opening_error_found)
 
     @responses.activate
@@ -458,40 +479,41 @@ class DateValidationTests(TestCase):
             (
                 "rd_from-year=2019&rd_from-month=12&rd_from-day=31"
                 "&rd_to-year=2020&rd_to-month=1&rd_to-day=1",
-                True
+                True,
             ),
-            # Same day different years - from later year should be invalid  
+            # Same day different years - from later year should be invalid
             (
                 "rd_from-year=2020&rd_from-month=6&rd_from-day=15"
-                "&rd_to-year=2019&rd_to-month=6&rd_to-day=15", 
-                False
+                "&rd_to-year=2019&rd_to-month=6&rd_to-day=15",
+                False,
             ),
             # End of February leap year vs non-leap year
             (
                 "rd_from-year=2020&rd_from-month=2&rd_from-day=29"  # Leap year
-                "&rd_to-year=2021&rd_to-month=2&rd_to-day=28",     # Non-leap year
-                True
+                "&rd_to-year=2021&rd_to-month=2&rd_to-day=28",  # Non-leap year
+                True,
             ),
             # Year-only with same year should be valid
-            (
-                "rd_from-year=2020&rd_to-year=2020",
-                True
-            ),
+            ("rd_from-year=2020&rd_to-year=2020", True),
         ]
 
         for params, should_be_valid in edge_cases:
             with self.subTest(params=params):
                 response = self.client.get(f"/catalogue/search/?{params}")
                 self.assertEqual(response.status_code, HTTPStatus.OK)
-                
+
                 form = response.context_data.get("form")
                 if should_be_valid:
-                    self.assertTrue(form.is_valid(), f"Expected valid for: {params}")
+                    self.assertTrue(
+                        form.is_valid(), f"Expected valid for: {params}"
+                    )
                 else:
-                    self.assertFalse(form.is_valid(), f"Expected invalid for: {params}")
+                    self.assertFalse(
+                        form.is_valid(), f"Expected invalid for: {params}"
+                    )
 
     @responses.activate
-    @patch('app.search.views.logger')
+    @patch("app.search.views.logger")
     def test_date_validation_error_logging(self, mock_logger):
         """Test that date validation errors are properly logged"""
         responses.add(
@@ -507,7 +529,7 @@ class DateValidationTests(TestCase):
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        
+
         # Verify form validation failed
         form = response.context_data.get("form")
         self.assertFalse(form.is_valid())
@@ -525,7 +547,7 @@ class DateValidationTests(TestCase):
         # Create multiple validation errors
         response = self.client.get(
             "/catalogue/search/?group=tna"
-            "&rd_from-year=abc"          # Invalid year format
+            "&rd_from-year=abc"  # Invalid year format
             "&rd_to-year=2020&rd_to-month=13"  # Invalid month
             "&od_from-year=2020&od_from-month=6&od_from-day=15"
             "&od_to-year=2019&od_to-month=3&od_to-day=10"  # Invalid range
@@ -537,7 +559,9 @@ class DateValidationTests(TestCase):
 
         # Should have multiple error types
         self.assertTrue(len(form.errors) > 0)  # Field-level errors
-        self.assertTrue(len(form.non_field_errors) > 0)  # Cross-validation errors
+        self.assertTrue(
+            len(form.non_field_errors) > 0
+        )  # Cross-validation errors
 
     @responses.activate
     def test_date_api_parameter_formatting(self):
@@ -548,29 +572,28 @@ class DateValidationTests(TestCase):
             json=self.mock_api_response,
             status=HTTPStatus.OK,
         )
-        
-        # Use the same approach as other tests - go through the view
+
         response = self.client.get(
             "/catalogue/search/?group=tna"
             "&rd_from-year=2020&rd_from-month=6&rd_from-day=15"
             "&rd_to-year=2021&rd_to-month=8&rd_to-day=20"
         )
-        
+
         self.assertEqual(response.status_code, HTTPStatus.OK)
         form = response.context_data.get("form")
         self.assertTrue(form.is_valid())
-        
+
         # Test API parameter formatting
         date_params = form.get_api_date_params()
         expected_params = [
             "coveringFromDate:(>=2020-06-15)",
-            "coveringToDate:(<=2021-08-20)"
+            "coveringToDate:(<=2021-08-20)",
         ]
-        
+
         for expected in expected_params:
             self.assertIn(expected, date_params)
 
-    @responses.activate  
+    @responses.activate
     def test_opening_date_api_parameters_tna_only(self):
         """Test that opening date API parameters only apply to TNA forms"""
         responses.add(
@@ -579,31 +602,32 @@ class DateValidationTests(TestCase):
             json=self.mock_api_response,
             status=HTTPStatus.OK,
         )
-        
+
         # TNA form should include opening date parameters
         tna_data = QueryDict(
             "group=tna&od_from-year=2020&od_from-month=1&od_from-day=1"
             "&od_to-year=2020&od_to-month=12&od_to-day=31"
         )
-        
+
         from app.search.forms import CatalogueSearchTnaForm
+
         tna_form = CatalogueSearchTnaForm(data=tna_data)
         self.assertTrue(tna_form.is_valid())
-        
+
         date_params = tna_form.get_api_date_params()
         self.assertIn("openingFromDate:(>=2020-01-01)", date_params)
         self.assertIn("openingToDate:(<=2020-12-31)", date_params)
-        
+
         # NonTNA form should not include opening date parameters
         from app.search.forms import CatalogueSearchNonTnaForm
+
         nontna_data = QueryDict("group=nonTna")
         nontna_form = CatalogueSearchNonTnaForm(data=nontna_data)
         self.assertTrue(nontna_form.is_valid())
-        
+
         nontna_date_params = nontna_form.get_api_date_params()
         opening_params = [p for p in nontna_date_params if "opening" in p]
         self.assertEqual(len(opening_params), 0)
-
 
     @responses.activate
     def test_specific_date_error_messages(self):
@@ -614,25 +638,43 @@ class DateValidationTests(TestCase):
             json=self.mock_api_response,
             status=HTTPStatus.OK,
         )
-        
+
         error_cases = [
             # (query_params, expected_error_substring)
             ("rd_from-year=abc", "valid 4-digit year"),
-            ("rd_from-year=2020&rd_from-month=13", "Month must be between 1 and 12"),
-            ("rd_from-year=2020&rd_from-month=2&rd_from-day=35", "Day must be between 1 and 31"),
-            ("rd_from-year=2020&rd_from-day=15", "Month is required if day is provided"),
-            ("rd_from-year=2020&rd_from-month=4&rd_from-day=31", "Invalid date"),
+            (
+                "rd_from-year=2020&rd_from-month=13",
+                "Month must be between 1 and 12",
+            ),
+            (
+                "rd_from-year=2020&rd_from-month=2&rd_from-day=35",
+                "Day must be between 1 and 31",
+            ),
+            (
+                "rd_from-year=2020&rd_from-day=15",
+                "Month is required if day is provided",
+            ),
+            (
+                "rd_from-year=2020&rd_from-month=4&rd_from-day=31",
+                "Invalid date",
+            ),
         ]
-        
+
         for params, expected_error in error_cases:
             with self.subTest(params=params):
                 response = self.client.get(f"/catalogue/search/?{params}")
                 self.assertEqual(response.status_code, HTTPStatus.OK)
-                
-                form = response.context_data.get("form") 
+
+                form = response.context_data.get("form")
                 self.assertFalse(form.is_valid())
-                
+
                 # Check that the specific error message appears
-                field_errors = [error.get("text", "") for error in form.errors.values()]
-                error_found = any(expected_error in error for error in field_errors)
-                self.assertTrue(error_found, f"Expected error '{expected_error}' not found")
+                field_errors = [
+                    error.get("text", "") for error in form.errors.values()
+                ]
+                error_found = any(
+                    expected_error in error for error in field_errors
+                )
+                self.assertTrue(
+                    error_found, f"Expected error '{expected_error}' not found"
+                )

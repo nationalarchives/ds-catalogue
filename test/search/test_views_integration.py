@@ -17,7 +17,7 @@ class CatalogueSearchViewIntegrationTests(TestCase):
             ],
             "stats": {"total": 0, "results": 0},
         }
-        
+
     @responses.activate
     def test_catalogue_search_online_checkbox(self):
 
@@ -275,23 +275,25 @@ class CatalogueSearchViewIntegrationTests(TestCase):
             f"{settings.ROSETTA_API_URL}/search",
             json={
                 "data": [],
-                "buckets": [{"name": "group", "entries": [{"value": "tna", "count": 1}]}],
+                "buckets": [
+                    {"name": "group", "entries": [{"value": "tna", "count": 1}]}
+                ],
                 "stats": {"total": 0, "results": 0},
             },
             status=HTTPStatus.OK,
         )
-        
+
         response = self.client.get("/catalogue/search/?group=tna")
         html = force_str(response.content)
-        
+
         # Check that date component fields are present
         self.assertIn('name="rd_from-day"', html)
-        self.assertIn('name="rd_from-month"', html) 
+        self.assertIn('name="rd_from-month"', html)
         self.assertIn('name="rd_from-year"', html)
         self.assertIn('name="rd_to-day"', html)
         self.assertIn('name="rd_to-month"', html)
         self.assertIn('name="rd_to-year"', html)
-        
+
         # TNA form should also have opening date fields
         self.assertIn('name="od_from-day"', html)
         self.assertIn('name="od_to-day"', html)
@@ -301,18 +303,20 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         """Test that validation errors add appropriate CSS classes"""
         responses.add(
             responses.GET,
-            f"{settings.ROSETTA_API_URL}/search", 
+            f"{settings.ROSETTA_API_URL}/search",
             json=self.mock_api_response,
             status=HTTPStatus.OK,
         )
-        
+
         # Submit invalid date to trigger field-level error
         response = self.client.get(
             "/catalogue/search/?rd_from-year=abc&rd_from-month=13"
         )
-        
+
         html = force_str(response.content)
-        
+
         # Should contain error styling classes (adjust based on your CSS framework)
         # This depends on how your templates render errors
-        self.assertIn("error", html.lower())  # Generic check for error indicators
+        self.assertIn(
+            "error", html.lower()
+        )  # Generic check for error indicators
