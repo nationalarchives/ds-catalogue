@@ -1,5 +1,8 @@
 @use "@nationalarchives/frontend/nationalarchives/tools/colour";
 @use "@nationalarchives/frontend/nationalarchives/tools/spacing";
+@use "@nationalarchives/frontend/nationalarchives/tools/typography";
+@use "@nationalarchives/frontend/nationalarchives/tools/borders";
+@use "@nationalarchives/frontend/nationalarchives/tools/a11y";
 
 .tna-dl-chips__item {
   text-align: left;
@@ -16,17 +19,8 @@
   .tna-secondary-navigation__item {
     &--current {
       .tna-secondary-navigation__link {
-        @include colour.colour-border(
-          "base-background",
-          spacing.space(0.5),
-          solid,
-          bottom
-        );
+        --accent-border: var(--base-background);
       }
-    }
-
-    .tna-secondary-navigation__link {
-      border-bottom-width: spacing.space(0.5);
     }
   }
 }
@@ -43,8 +37,124 @@
   }
 }
 
-.enta-results-layout {
+.etna-results-layout {
   flex: 0 0 auto;
+}
+
+.etna-results {
+  list-style: none;
+
+  &--grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-columns: 1fr;
+    grid-auto-rows: 1fr;
+    gap: 0 2%;
+
+    @include borders.rounded-border;
+    @include colour.colour-border("base-keyline");
+  }
+
+  &--list {
+    border-radius: 4px;
+
+    h3 {
+      margin-top: spacing.space(1);
+
+      line-height: initial;
+      @include typography.heading-font;
+      @include typography.font-size(30);
+    }
+  }
+
+  > li {
+    margin-top: spacing.space(0.7);
+    padding: spacing.space(1);
+
+    position: relative;
+    @include borders.rounded-border;
+    @include colour.colour-border("base-keyline", 1px, solid);
+
+    &:hover {
+      outline-offset: spacing.space(0.2);
+      @include colour.colour-outline("base-keyline", 2px, solid);
+    }
+  }
+
+  p {
+    margin-top: spacing.space(0.5);
+  }
+
+  a {
+    &::before {
+      content: "";
+
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+
+      @include borders.rounded-border;
+    }
+
+    &:focus-visible,
+    &:active {
+      outline: none;
+
+      &::before {
+        @include a11y.focus-outline;
+      }
+    }
+  }
+}
+
+.etna-dl-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: spacing.space(0.75) spacing.space(0.2);
+
+  list-style: none;
+
+  dt {
+    @include a11y.visually-hidden;
+  }
+
+  dd {
+    margin-right: spacing.space(0.5);
+
+    padding: spacing.space(0.35) spacing.space(0.25);
+
+    color: colour.brand-colour("white");
+
+    background-color: colour.brand-colour("forest");
+
+    border-radius: 4px;
+    @include typography.detail-font-small;
+  }
+}
+
+.etna-result-attributes {
+  margin-top: spacing.space(0.5);
+
+  &--list {
+    display: grid;
+    grid-template-columns: 1fr 3.5fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 0 2%;
+  }
+
+  &--grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1.5fr 1fr;
+    gap: 15% 2%;
+    @include typography.detail-font-small;
+
+    dt {
+      @include a11y.visually-hidden;
+    }
+  }
+
+  color: var(--font-light);
 }
 
 mark {
