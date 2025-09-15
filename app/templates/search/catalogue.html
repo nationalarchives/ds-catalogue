@@ -24,6 +24,7 @@
 {% from 'search/macros/filters/online.html' import online %}
 {% from 'search/macros/filters/subjects.html' import subjects %}
 {% from 'search/macros/filters/held_by.html' import held_by %}
+{% from 'search/macros/search_results.html' import search_results %}
 
 {%- set pageTitle = 'Catalogue search results' -%}
 {%- set encodedQuery = request.GET.urlencode() | base64_encode -%}
@@ -174,7 +175,7 @@
           }) }}
         </div>
       </div>
-      <div class="tna-column tna-column--full-tiny enta-results-layout">
+      <div class="tna-column tna-column--full-tiny etna-results-layout">
         <h2 class="tna-visually-hidden">Results layout</h2>
         <div class="tna-button-group tna-button-group--small tna-!--no-margin-top">
           {{ tnaButton({
@@ -195,56 +196,7 @@
       </div>
     </div>
     <h2 class="tna-visually-hidden">Results</h2>
-    {% if request.GET.get('display') == 'grid' %}
-      <ul class="tna-container tna-container--nested">
-        {% for record in results %}
-          <li class="tna-column tna-column--width-1-2 tna-column--full-tiny tna-!--margin-top-l">
-            {{ tnaCard({
-              'title': record.summary_title | safe,
-              'headingLevel': 3,
-              'headingSize': 's',
-              'href': url('records:details', kwargs={'id': record.iaid}) + '?search=' + encodedQuery,
-              'meta': [
-                {
-                  'title': 'Held by',
-                  'text': record.held_by,
-                  'icon': 'building'
-                },
-                {
-                  'title': 'Date',
-                  'text': record.date_covering,
-                  'icon': 'calendar'
-                },
-                {
-                  'title': 'Reference',
-                  'text': record.reference_number,
-                  'icon': 'hashtag'
-                }
-              ],
-              'body': record.description | safe,
-              'fullAreaClick': True,
-              'attributes': {
-                'id': 'record-' + record.iaid
-              }
-            }) }}
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      {% for record in results %}
-      {{ tnaCard({
-        'title': record.summary_title | safe,
-        'headingLevel': 3,
-        'headingSize': 'm',
-        'href': url('records:details', kwargs={'id': record.iaid}) + '?search=' + encodedQuery,
-        'body': (record.description + '<dl class="tna-dl tna-dl--plain"><dt>Held by</dt><dd>' + record.held_by + '</dd><dt>Date</dt><dd>' + record.date_covering + '</dd><dt>Reference</dt><dd>' + record.reference_number + '</dd></dl>') | safe,
-        'fullAreaClick': True,
-        'attributes': {
-          'id': 'record-' + record.iaid
-        }
-      }) }}
-      {% endfor %}
-    {% endif %}
+    {{ search_results(request, results, encodedQuery) }}
   </div>
   <div class="tna-column tna-column--full tna-!--margin-top-l">
     {{ tnaPagination(pagination) }}
