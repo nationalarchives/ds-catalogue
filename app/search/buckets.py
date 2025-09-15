@@ -13,6 +13,7 @@ class Aggregation(StrEnum):
 
     LEVEL = "level"
     COLLECTION = "collection"
+    HELD_BY = "heldBy"
 
 
 @dataclass
@@ -57,7 +58,7 @@ class BucketKeys(StrEnum):
 
     TNA = "tna"
     DIGITISED = "digitised"
-    NONTNA = "nonTna"
+    NON_TNA = "nonTna"
 
 
 @dataclass
@@ -109,9 +110,12 @@ CATALOGUE_BUCKETS = BucketList(
             ],
         ),
         Bucket(
-            key=BucketKeys.NONTNA.value,
+            key=BucketKeys.NON_TNA.value,
             label="Records at other UK archives",
             description="Results for records held at other archives in the UK (and not at The National Archives) that match your search term.",
+            aggregations=[
+                Aggregation.HELD_BY.value,
+            ],
         ),
     ]
 )

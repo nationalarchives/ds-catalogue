@@ -196,7 +196,7 @@ class SubjectsEnrichmentTests(TestCase):
         # Simplest test - just check if enrichment data exists
         template_string = """
         {% if record.has_subjects_enrichment %}
-        <h2>Related content</h2>
+        <h2>You may be interested in</h2>
         <p>Enrichment data available</p>
         {% else %}
         <p>No enrichment data</p>
@@ -213,7 +213,7 @@ class SubjectsEnrichmentTests(TestCase):
         rendered = template.render(record=record)
 
         # Basic assertions
-        self.assertIn("Related content", rendered)
+        self.assertIn("You may be interested in", rendered)
         self.assertIn("Enrichment data available", rendered)
         self.assertNotIn("No enrichment data", rendered)
 
@@ -222,7 +222,7 @@ class SubjectsEnrichmentTests(TestCase):
         """Test template when no enrichment data is available"""
         template_string = """
         {% if record.has_subjects_enrichment %}
-          <h2>Related content</h2>
+          <h2>You may be interested in</h2>
         {% else %}
           <!-- No related content -->
         {% endif %}
@@ -236,7 +236,7 @@ class SubjectsEnrichmentTests(TestCase):
         rendered = template.render(record=record)
 
         # Should not render related content section
-        self.assertNotIn("Related content", rendered)
+        self.assertNotIn("You may be interested in", rendered)
 
     # Test 10: Template image rendering with Wagtail API structure
     def test_template_image_rendering(self):

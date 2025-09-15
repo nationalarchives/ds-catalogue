@@ -19,17 +19,8 @@
   .tna-secondary-navigation__item {
     &--current {
       .tna-secondary-navigation__link {
-        @include colour.colour-border(
-          "base-background",
-          spacing.space(0.5),
-          solid,
-          bottom
-        );
+        --accent-border: var(--base-background);
       }
-    }
-
-    .tna-secondary-navigation__link {
-      border-bottom-width: spacing.space(0.5);
     }
   }
 }
