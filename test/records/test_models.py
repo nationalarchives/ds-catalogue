@@ -20,6 +20,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.reference_number, "")
         self.assertEqual(self.record.title, "")
         self.assertEqual(self.record.summary_title, "")
+        self.assertEqual(self.record.clean_summary_title, "")
         self.assertEqual(self.record.date_covering, "")
         self.assertEqual(self.record.creator, [])
         self.assertEqual(self.record.dimensions, "")
@@ -211,6 +212,17 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(
             self.record.parent.summary_title,
             "Records created or inherited by the Law Officers' Department",
+        )
+
+    def test_clean_summary_title(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["cleanSummaryTitle"] = (
+            "PART I - ITEMS DISCUSSED AT THE MEETING1."
+        )
+        self.assertEqual(
+            self.record.clean_summary_title,
+            "PART I - ITEMS DISCUSSED AT THE MEETING1.",
         )
 
     def test_date_covering(self):

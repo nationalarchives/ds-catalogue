@@ -130,6 +130,11 @@ class Record(APIModel):
         return self.get("summary.title", "")
 
     @cached_property
+    def clean_summary_title(self) -> str:
+        """Returns the api value of the attr if found, empty str otherwise."""
+        return self.get("cleanSummaryTitle", "")
+
+    @cached_property
     def date_covering(self) -> str:
         """Returns the api value of the attr if found, empty str otherwise."""
         return self.get("dateCovering", "")
