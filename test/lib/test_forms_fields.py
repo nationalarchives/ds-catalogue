@@ -38,17 +38,6 @@ class BaseFormWithDateComponentFieldTest(TestCase):
         form = MyTestForm(data)
         return form
 
-    def test_debug_is_from_date(self):
-        data = QueryDict("date_field-year=2020")
-        form = self.get_form_with_date_field(data, is_from_date=True)
-
-        field = form.fields["date_field"]
-        print(f"is_from_date value: {field.is_from_date}")
-
-        form.is_valid()
-        print(f"Cleaned result: {field.cleaned}")
-        print("Expected: date(2020, 1, 1)")
-
     def test_date_field_initial_attrs(self):
         form = self.get_form_with_date_field()
         self.assertEqual(form.fields["date_field"].name, "date_field")
@@ -129,9 +118,6 @@ class BaseFormWithDateComponentFieldTest(TestCase):
         self.assertEqual(field.month, "13")  # Should be extracted as string
 
         valid_status = form.is_valid()
-        print(f"Form valid: {valid_status}")
-        print(f"Field cleaned: {field.cleaned}")
-        print(f"Field error: {field.error}")
 
         self.assertFalse(valid_status)
         self.assertIsNone(field.cleaned)
@@ -139,21 +125,6 @@ class BaseFormWithDateComponentFieldTest(TestCase):
             form.fields["date_field"].error["text"],
             "Month must be between 1 and 12",
         )
-
-    def test_debug_month_validation(self):
-        data = QueryDict(
-            "date_field-year=2020&date_field-month=13&date_field-day=1"
-        )
-        form = self.get_form_with_date_field(data)
-
-        # Let's see what components were extracted
-        field = form.fields["date_field"]
-        print(f"Day: {field.day}, Month: {field.month}, Year: {field.year}")
-
-        valid_status = form.is_valid()
-        print(f"Valid: {valid_status}")
-        print(f"Cleaned: {field.cleaned}")
-        print(f"Error: {field.error}")
 
     def test_date_field_invalid_day_for_month(self):
         # February doesn't have 30 days
@@ -194,6 +165,58 @@ class BaseFormWithDateComponentFieldTest(TestCase):
         form = self.get_form_with_date_field(data)
         form.is_valid()
         self.assertIsNone(form.fields["date_field"].format_for_api())
+
+    def test_date_field_format_for_api_none_when_empty(self):
+        data = QueryDict("")
+        form = self.get_form_with_date_field(data)
+        form.is_valid()
+        self.assertIsNone(form.fields["date_field"].format_for_api())
+
+    # ADD NEW TESTS HERE:
+    def test_date_component_field_edge_cases(self):
+        """Test edge cases in DateComponentField validation"""
+        
+        # Test boundary years
+        data = QueryDict("date_field-year=999")  # Below minimum
+        form = self.get_form_with_date_field(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("valid 4-digit year", form.fields["date_field"].error["text"])
+        
+        data = QueryDict("date_field-year=10000")  # Above maximum
+        form = self.get_form_with_date_field(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("valid 4-digit year", form.fields["date_field"].error["text"])
+
+    def test_date_component_field_february_edge_cases(self):
+        """Test February edge cases including leap years"""
+        
+        # Valid leap year Feb 29
+        data = QueryDict("date_field-year=2020&date_field-month=2&date_field-day=29")
+        form = self.get_form_with_date_field(data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.fields["date_field"].cleaned, date(2020, 2, 29))
+        
+        # Invalid non-leap year Feb 29
+        data = QueryDict("date_field-year=2021&date_field-month=2&date_field-day=29")
+        form = self.get_form_with_date_field(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("Invalid date", form.fields["date_field"].error["text"])
+
+    def test_date_component_field_get_computed_components(self):
+        """Test get_computed_components method"""
+        data = QueryDict("date_field-year=2020&date_field-month=6&date_field-day=15")
+        form = self.get_form_with_date_field(data)
+        form.is_valid()
+        
+        field = form.fields["date_field"]
+        components = field.get_computed_components()
+        
+        expected = {
+            "date_field-day": "15",
+            "date_field-month": "6", 
+            "date_field-year": "2020"
+        }
+        self.assertEqual(components, expected)
 
 
 class BaseFormWithCrossValidationDateTest(TestCase):

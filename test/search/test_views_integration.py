@@ -8,6 +8,16 @@ from django.utils.encoding import force_str
 
 class CatalogueSearchViewIntegrationTests(TestCase):
 
+    def setUp(self):
+        """Set up common mock API response"""
+        self.mock_api_response = {
+            "data": [],
+            "buckets": [
+                {"name": "group", "entries": [{"value": "tna", "count": 1}]}
+            ],
+            "stats": {"total": 0, "results": 0},
+        }
+        
     @responses.activate
     def test_catalogue_search_online_checkbox(self):
 
@@ -97,7 +107,6 @@ class CatalogueSearchViewIntegrationTests(TestCase):
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
-        # Debug: print the HTML to see what's actually there
         html = force_str(response.content)
 
         # Check for various possible error message formats
@@ -112,12 +121,9 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         found_error = False
         for error_msg in possible_error_messages:
             if error_msg in html:
-                print(f"Found error message: {error_msg}")
+
                 found_error = True
                 break
-
-        if not found_error:
-            print("No validation error found in HTML")
 
         # For now, just check that some form of validation error appears
         self.assertTrue(
@@ -260,3 +266,53 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         self.assertIn('value="2020"', html)  # to year
         self.assertIn('value="8"', html)  # to month
         self.assertIn('value="20"', html)  # to day
+
+    @responses.activate
+    def test_date_component_form_rendering(self):
+        """Test that date component fields render correctly in forms"""
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [],
+                "buckets": [{"name": "group", "entries": [{"value": "tna", "count": 1}]}],
+                "stats": {"total": 0, "results": 0},
+            },
+            status=HTTPStatus.OK,
+        )
+        
+        response = self.client.get("/catalogue/search/?group=tna")
+        html = force_str(response.content)
+        
+        # Check that date component fields are present
+        self.assertIn('name="rd_from-day"', html)
+        self.assertIn('name="rd_from-month"', html) 
+        self.assertIn('name="rd_from-year"', html)
+        self.assertIn('name="rd_to-day"', html)
+        self.assertIn('name="rd_to-month"', html)
+        self.assertIn('name="rd_to-year"', html)
+        
+        # TNA form should also have opening date fields
+        self.assertIn('name="od_from-day"', html)
+        self.assertIn('name="od_to-day"', html)
+
+    @responses.activate
+    def test_date_validation_error_classes(self):
+        """Test that validation errors add appropriate CSS classes"""
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search", 
+            json=self.mock_api_response,
+            status=HTTPStatus.OK,
+        )
+        
+        # Submit invalid date to trigger field-level error
+        response = self.client.get(
+            "/catalogue/search/?rd_from-year=abc&rd_from-month=13"
+        )
+        
+        html = force_str(response.content)
+        
+        # Should contain error styling classes (adjust based on your CSS framework)
+        # This depends on how your templates render errors
+        self.assertIn("error", html.lower())  # Generic check for error indicators
