@@ -10,19 +10,23 @@ $sort.addEventListener("change", () => {
 
 // search filters for mobile version
 const $mobileFiltersButton = document.getElementById("mobile-filters");
+const $visibleAsideElements = document.getElementsByClassName("tna-aside");
 
 // mobile view
 const showEventFilters = () => {
   // console.log('mobile view');
   $mobileFiltersButton.style.display = "block";
-  $visibleAsideElements.style.display = "none";
+  // $visibleAsideElements.style.display = "none";
 };
 
 // desktop view
 const hideEventFilters = () => {
   // console.log('desktop view');
   $mobileFiltersButton.style.display = "none";
+  
 };
+
+
 
 const isMobile = window.matchMedia("(max-width: 48em)");
 isMobile.onchange = (e) => {
@@ -35,10 +39,12 @@ const isDesktop = window.matchMedia("(min-width: 48em)");
 isDesktop.onchange = (e) => {
   if (e.matches) {
     hideEventFilters();
+
   }
 };
 
-const $visibleAsideElements = document.getElementsByClassName("tna-aside");
+
+
 
 $mobileFiltersButton.textContent = "Add Filters";
 
@@ -57,3 +63,33 @@ $mobileFiltersButton.onclick = function () {
     }
   }
 };
+
+// resizing of window
+
+function displayDesktopFilters() {
+  // console.log('show desktop filter');
+  for (let i = 0; i < $visibleAsideElements.length; i++) {
+      $visibleAsideElements[i].style.display = "block";
+    }
+
+}
+
+function displayMobilefilters() {
+  console.log('show mobile filter');
+
+}
+
+
+window.addEventListener('resize', () => {
+  // console.log(window.innerWidth);
+  if (window.innerWidth > 400) {
+     displayDesktopFilters();
+     
+  }
+  if (window.innerWidth < 400) {
+     displayMobilefilters();
+     
+  } 
+
+});
+
