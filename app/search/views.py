@@ -20,6 +20,7 @@ from django.http import (
     HttpResponse,
     QueryDict,
 )
+from django.shortcuts import redirect
 from django.views.generic import TemplateView
 
 from .buckets import CATALOGUE_BUCKETS, Bucket, BucketKeys, BucketList
@@ -257,6 +258,38 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         """Gets the api result and processes it after the form and fields
         are cleaned and validated. Renders with form, context."""
 
+        # Check if any date fields were expanded and need URL update
+        should_redirect = False
+        updated_params = self.request.GET.copy()
+        
+        # Check each date field for expansion
+        date_fields = [
+            (FieldsConstant.RECORD_DATE_FROM, 'rd_from'),
+            (FieldsConstant.RECORD_DATE_TO, 'rd_to'),
+        ]
+        
+        # Add opening dates for TNA forms
+        if isinstance(self.form, CatalogueSearchTnaForm):
+            date_fields.extend([
+                (FieldsConstant.OPENING_DATE_FROM, 'od_from'),
+                (FieldsConstant.OPENING_DATE_TO, 'od_to'),
+            ])
+        
+        for field_constant, param_prefix in date_fields:
+            if field_constant in self.form.fields:
+                field = self.form.fields[field_constant]
+                if hasattr(field, 'was_expanded') and field.was_expanded:
+                    # Update the URL parameters with expanded values
+                    expanded_date = field.cleaned
+                    updated_params[f'{param_prefix}-day'] = str(expanded_date.day)
+                    updated_params[f'{param_prefix}-month'] = str(expanded_date.month)
+                    updated_params[f'{param_prefix}-year'] = str(expanded_date.year)
+                    should_redirect = True
+        
+        if should_redirect:
+            # Redirect to the same view with expanded parameters
+            return redirect(f"{self.request.path}?{updated_params.urlencode()}")
+            
         self.api_result = self.get_api_result(
             query=self.query,
             results_per_page=RESULTS_PER_PAGE,

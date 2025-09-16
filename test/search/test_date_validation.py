@@ -223,43 +223,57 @@ class DateValidationTests(TestCase):
         )
 
         test_cases = [
-            # (params, should_be_valid, expected_error_fragment)
+            # (params, should_be_valid, expected_error_fragment, needs_redirect)
             (
                 "rd_from-year=2020&rd_from-month=2&rd_from-day=29"  # Valid leap year
                 "&rd_to-year=2020&rd_to-month=3&rd_to-day=1",
                 True,
                 None,
+                False,  # Full dates don't redirect
             ),
             (
                 "rd_from-year=2021&rd_from-month=2&rd_from-day=29"  # Invalid non-leap year
                 "&rd_to-year=2021&rd_to-month=3&rd_to-day=1",
                 False,
                 "Invalid date",
+                False,  # Full dates don't redirect
             ),
             (
                 "rd_from-year=2020&rd_from-month=4&rd_from-day=31"  # April doesn't have 31 days
                 "&rd_to-year=2020&rd_to-month=5&rd_to-day=1",
                 False,
                 "Invalid date",
+                False,  # Full dates don't redirect
             ),
             (
                 "rd_from-year=2020&rd_from-month=6"  # Year-month only, valid
                 "&rd_to-year=2020&rd_to-month=8",
                 True,
                 None,
+                True,  # Partial dates will redirect
             ),
             (
                 "rd_from-year=2020&rd_from-month=8"  # Year-month only, invalid range
                 "&rd_to-year=2020&rd_to-month=6",
                 False,
                 "cannot be later than",
+                True,  # Partial dates will redirect
             ),
         ]
 
-        for params, should_be_valid, expected_error in test_cases:
+        for params, should_be_valid, expected_error, needs_redirect in test_cases:
             with self.subTest(params=params):
-                response = self.client.get(f"/catalogue/search/?{params}")
-                self.assertEqual(response.status_code, HTTPStatus.OK)
+                response = self.client.get(
+                    f"/catalogue/search/?{params}",
+                    follow=needs_redirect  # Follow redirect only for partial dates
+                )
+                
+                if needs_redirect:
+                    # For redirected requests, check final status
+                    self.assertEqual(response.status_code, HTTPStatus.OK)
+                else:
+                    # For non-redirected requests, check direct status
+                    self.assertEqual(response.status_code, HTTPStatus.OK)
 
                 form = response.context_data.get("form")
 
@@ -475,31 +489,42 @@ class DateValidationTests(TestCase):
         )
 
         edge_cases = [
+            # (params, should_be_valid, needs_redirect)
             # December 31st to January 1st (next year) - should be valid
             (
                 "rd_from-year=2019&rd_from-month=12&rd_from-day=31"
                 "&rd_to-year=2020&rd_to-month=1&rd_to-day=1",
                 True,
+                False,  # Full dates
             ),
             # Same day different years - from later year should be invalid
             (
                 "rd_from-year=2020&rd_from-month=6&rd_from-day=15"
                 "&rd_to-year=2019&rd_to-month=6&rd_to-day=15",
                 False,
+                False,  # Full dates
             ),
             # End of February leap year vs non-leap year
             (
                 "rd_from-year=2020&rd_from-month=2&rd_from-day=29"  # Leap year
                 "&rd_to-year=2021&rd_to-month=2&rd_to-day=28",  # Non-leap year
                 True,
+                False,  # Full dates
             ),
             # Year-only with same year should be valid
-            ("rd_from-year=2020&rd_to-year=2020", True),
+            (
+                "rd_from-year=2020&rd_to-year=2020", 
+                True,
+                True,  # Year-only dates will redirect
+            ),
         ]
 
-        for params, should_be_valid in edge_cases:
+        for params, should_be_valid, needs_redirect in edge_cases:
             with self.subTest(params=params):
-                response = self.client.get(f"/catalogue/search/?{params}")
+                response = self.client.get(
+                    f"/catalogue/search/?{params}",
+                    follow=needs_redirect  # Follow redirect for partial dates
+                )
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
                 form = response.context_data.get("form")

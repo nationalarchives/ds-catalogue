@@ -321,6 +321,7 @@ class DateComponentField(BaseField):
         self.is_from_date = is_from_date
         self._form_data = None
         self._components_extracted = False
+        self.was_expanded = False
 
     def bind(self, name, value: list | str) -> None:
         super().bind(name, "")
@@ -362,16 +363,27 @@ class DateComponentField(BaseField):
         if not any([self.day, self.month, self.year]):
             return None
 
+        # Store original input state
+        original_has_day = bool(self.day)
+        original_has_month = bool(self.month)
+        original_has_year = bool(self.year)
+        
         # Validate and get the year first
         year = self._validate_year()
-
+        
         # Handle year-only input
         if not self.month and not self.day:
-            return self._fill_year_only(year)
-
+            result = self._fill_year_only(year)
+            if result:
+                self.was_expanded = True  # Always expanded for year-only
+            return result
+        
         # Handle year-month input (no day)
         if self.month and not self.day:
-            return self._fill_year_month_only(year)
+            result = self._fill_year_month_only(year)
+            if result:
+                self.was_expanded = True  # Always expanded for year-month
+            return result
 
         # Handle full date input
         if self.day:

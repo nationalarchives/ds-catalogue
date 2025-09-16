@@ -640,11 +640,13 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             status=HTTPStatus.OK,
         )
 
-        # Test year-only dates
+        # Test year-only dates - should redirect with expanded parameters
         response = self.client.get(
-            "/catalogue/search/?rd_from-year=2019&rd_to-year=2020"
+            "/catalogue/search/?rd_from-year=2019&rd_to-year=2020",
+            follow=True  # Follow the redirect to get the final response
         )
 
+        # Now we can access context_data from the final response
         form = response.context_data.get("form")
         # Year-only from date should default to Jan 1
         self.assertEqual(form.fields["rd_from"].cleaned, date(2019, 1, 1))
@@ -654,7 +656,8 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         # Test year-month dates
         response = self.client.get(
             "/catalogue/search/?rd_from-year=2019&rd_from-month=6"
-            "&rd_to-year=2020&rd_to-month=6"
+            "&rd_to-year=2020&rd_to-month=6",
+            follow=True  # Follow the redirect
         )
 
         form = response.context_data.get("form")
