@@ -67,7 +67,10 @@ function displayDesktopFilters() {
 }
 
 function displayMobilefilters() {
-  console.log("show mobile filter");
+  // console.log("show mobile filter");
+  for (let i = 0; i < $visibleAsideElements.length; i++) {
+    $visibleAsideElements[i].style.display = "none";
+  }
 }
 
 window.addEventListener("resize", () => {
