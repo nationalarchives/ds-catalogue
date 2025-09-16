@@ -23,10 +23,7 @@ const showEventFilters = () => {
 const hideEventFilters = () => {
   // console.log('desktop view');
   $mobileFiltersButton.style.display = "none";
-  
 };
-
-
 
 const isMobile = window.matchMedia("(max-width: 48em)");
 isMobile.onchange = (e) => {
@@ -39,12 +36,8 @@ const isDesktop = window.matchMedia("(min-width: 48em)");
 isDesktop.onchange = (e) => {
   if (e.matches) {
     hideEventFilters();
-
   }
 };
-
-
-
 
 $mobileFiltersButton.textContent = "Add Filters";
 
@@ -69,27 +62,20 @@ $mobileFiltersButton.onclick = function () {
 function displayDesktopFilters() {
   // console.log('show desktop filter');
   for (let i = 0; i < $visibleAsideElements.length; i++) {
-      $visibleAsideElements[i].style.display = "block";
-    }
-
+    $visibleAsideElements[i].style.display = "block";
+  }
 }
 
 function displayMobilefilters() {
-  console.log('show mobile filter');
-
+  console.log("show mobile filter");
 }
 
-
-window.addEventListener('resize', () => {
+window.addEventListener("resize", () => {
   // console.log(window.innerWidth);
   if (window.innerWidth > 400) {
-     displayDesktopFilters();
-     
+    displayDesktopFilters();
   }
   if (window.innerWidth < 400) {
-     displayMobilefilters();
-     
-  } 
-
+    displayMobilefilters();
+  }
 });
-
