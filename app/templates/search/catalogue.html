@@ -17,12 +17,12 @@
 {% from 'search/macros/filters/search_within.html' import search_within %}
 {% from 'search/macros/filters/date_range.html' import date_range %}
 {% from 'search/macros/filters/date_input.html' import date_input %}
-{% from 'search/macros/filters/levels_tna.html' import levels_tna %}
-{% from 'search/macros/filters/closure_statuses_tna.html' import closure_statuses_tna %}
+{% from 'search/macros/filters/levels.html' import levels %}
+{% from 'search/macros/filters/closure_statuses.html' import closure_statuses %}
 {% from 'search/macros/filters/opening_date.html' import opening_date %}
-{% from 'search/macros/filters/collections_tna.html' import collections_tna %}
-{% from 'search/macros/filters/online_tna.html' import online_tna %}
-{% from 'search/macros/filters/subjects_tna.html' import subjects_tna %}
+{% from 'search/macros/filters/collections.html' import collections %}
+{% from 'search/macros/filters/online.html' import online %}
+{% from 'search/macros/filters/subjects.html' import subjects %}
 {% from 'search/macros/filters/held_by.html' import held_by %}
 {% from 'search/macros/search_results.html' import search_results %}
 
@@ -122,20 +122,21 @@
             }) }}
         </div>
     {% endif %}
-    {{ online_tna(request, is_tna_results_page=(form.fields.group.value==bucket_keys.TNA)) }}
-    {{ search_within(request) }}
-    {{ date_input(request, 'date', 'date', 'Filter by record date') }}
+
     {% if form.fields.group.value==bucket_keys.TNA %}
-      {{ collections_tna(request, form.fields['collection']) }}
+      {{ online(request) }}
+      {{ search_within(request) }}
+      {{ date_input(request, 'date', 'date', 'Filter by record date') }}
+      {{ collections(request, form.fields['collection']) }}
+      {{ subjects(request, subjects_ctx) }}
+      {{ levels(request, form.fields['level']) }}
+      {{ date_input(request, 'date', 'date', 'Filter by record opening date') }}
+      {{ closure_statuses(request, closure_statuses_ctx) }}
     {% elif form.fields.group.value==bucket_keys.NON_TNA %}
+      {{ search_within(request) }}
+      {{ date_input(request, 'date', 'date', 'Filter by record date') }}
       {{ held_by(request, form.fields['held_by']) }}
     {% endif %}
-    {{ subjects_tna(request, subjects) }}
-    {% if form.fields.group.value==bucket_keys.TNA %}
-      {{ levels_tna(request, form.fields['level']) }}
-    {% endif %}
-    {{ date_input(request, 'date', 'date', 'Filter by record opening date') }} 
-    {{ closure_statuses_tna(request, closure_statuses) }}
     
     
   </div>

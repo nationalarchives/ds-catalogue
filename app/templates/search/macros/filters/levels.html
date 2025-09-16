@@ -1,7 +1,7 @@
 {% from 'components/button/macro.html' import tnaButton %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 
-{% macro levels_tna(request, level) %}
+{% macro levels(request, level) %}
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
   {{ tnaCheckboxes({
     'label': level.label,
