@@ -1,9 +1,6 @@
 import copy
 
-from app.search.buckets import (
-    CATALOGUE_BUCKETS,
-    BucketKeys,
-)
+from app.search.buckets import CATALOGUE_BUCKETS, BucketKeys
 from app.search.models import APISearchResponse
 from django.test import TestCase
 
