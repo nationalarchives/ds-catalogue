@@ -42,7 +42,7 @@ class CatalogueSearchViewTests(TestCase):
                         ],
                     },
                     {
-                        "name": "collection", 
+                        "name": "collection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
@@ -195,7 +195,7 @@ class CatalogueSearchViewTests(TestCase):
                 {"text": "Date (oldest first)", "value": "date:asc"},
                 {"text": "Title (A–Z)", "value": "title:asc"},
                 {"text": "Title (Z–A)", "value": "title:desc"},
-        ],
+            ],
         )
 
         self.assertEqual(
@@ -218,7 +218,7 @@ class CatalogueSearchViewTests(TestCase):
                 {"text": "Division (5)", "value": "Division"},
             ],
         )
-        
+
         self.assertEqual(
             self.response.context_data.get("form").fields["collection"].items,
             [
@@ -235,7 +235,8 @@ class CatalogueSearchViewTests(TestCase):
 
         # Test subjects field
         self.assertEqual(
-            self.response.context_data.get("form").fields["subjects"].name, "subjects"
+            self.response.context_data.get("form").fields["subjects"].name,
+            "subjects",
         )
         self.assertEqual(
             self.response.context_data.get("form").fields["subjects"].label,
@@ -245,7 +246,8 @@ class CatalogueSearchViewTests(TestCase):
             self.response.context_data.get("form").fields["subjects"].value, []
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["subjects"].cleaned, []
+            self.response.context_data.get("form").fields["subjects"].cleaned,
+            [],
         )
         self.assertEqual(
             self.response.context_data.get("form").fields["subjects"].items,
@@ -491,17 +493,19 @@ class CatalogueSearchViewTests(TestCase):
             status=HTTPStatus.OK,
         )
 
-        self.response = self.client.get("/catalogue/search/?subjects=2&subjects=6")
+        self.response = self.client.get(
+            "/catalogue/search/?subjects=2&subjects=6"
+        )
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
 
         # Test subjects field
         self.assertEqual(
             self.response.context_data.get("form").fields["subjects"].value,
-            ["2", "6"]
+            ["2", "6"],
         )
         self.assertEqual(
             self.response.context_data.get("form").fields["subjects"].cleaned,
-            ["2", "6"]
+            ["2", "6"],
         )
         self.assertEqual(
             self.response.context_data.get("form").fields["subjects"].items,
@@ -515,7 +519,10 @@ class CatalogueSearchViewTests(TestCase):
         self.assertEqual(
             len(self.response.context_data.get("selected_filters")), 2
         )
-        filter_labels = [f["label"] for f in self.response.context_data.get("selected_filters")]
+        filter_labels = [
+            f["label"]
+            for f in self.response.context_data.get("selected_filters")
+        ]
         self.assertIn("Subject: Army", filter_labels)
         self.assertIn("Subject: Navy", filter_labels)
 

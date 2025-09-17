@@ -244,7 +244,9 @@ class CatalogueSearchViewSubjectsIntegrationTests(TestCase):
         )
 
         # Test with nonTna group - subjects should not be processed from API
-        response = self.client.get("/catalogue/search/?group=nonTna&subjects=Army")
+        response = self.client.get(
+            "/catalogue/search/?group=nonTna&subjects=Army"
+        )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 

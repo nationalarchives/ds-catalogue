@@ -1,5 +1,5 @@
 from app.records.constants import TNA_SUBJECTS
-from app.search.buckets import CATALOGUE_BUCKETS, BucketKeys, Aggregation
+from app.search.buckets import CATALOGUE_BUCKETS, Aggregation, BucketKeys
 from app.search.forms import CatalogueSearchTnaForm, FieldsConstant
 from django.http import QueryDict
 from django.test import TestCase
