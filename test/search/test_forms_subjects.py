@@ -1,15 +1,16 @@
 from app.records.constants import TNA_SUBJECTS
-from app.search.forms import CatalogueSearchForm, FieldsConstant
+from app.search.buckets import CATALOGUE_BUCKETS, BucketKeys, Aggregation
+from app.search.forms import CatalogueSearchTnaForm, FieldsConstant
 from django.http import QueryDict
 from django.test import TestCase
 
 
 class CatalogueSearchFormSubjectsTests(TestCase):
-    """Tests for the subjects field in CatalogueSearchForm."""
+    """Tests for the subjects field in CatalogueSearchTnaForm."""
 
     def test_subjects_field_exists_in_form(self):
         """Test that subjects field is properly added to the form."""
-        form = CatalogueSearchForm()
+        form = CatalogueSearchTnaForm()
 
         self.assertIn(FieldsConstant.SUBJECTS, form.fields)
         self.assertEqual(form.fields[FieldsConstant.SUBJECTS].name, "subjects")
@@ -17,7 +18,7 @@ class CatalogueSearchFormSubjectsTests(TestCase):
 
     def test_subjects_field_has_correct_choices(self):
         """Test that subjects field has all TNA_SUBJECTS as choices."""
-        form = CatalogueSearchForm()
+        form = CatalogueSearchTnaForm()
         subjects_field = form.fields[FieldsConstant.SUBJECTS]
 
         # Check that configured choices match SUBJECT_CHOICES (which are sorted)
@@ -45,7 +46,7 @@ class CatalogueSearchFormSubjectsTests(TestCase):
 
     def test_subjects_field_validation_settings(self):
         """Test that subjects field has correct validation settings."""
-        form = CatalogueSearchForm()
+        form = CatalogueSearchTnaForm()
         subjects_field = form.fields[FieldsConstant.SUBJECTS]
 
         # Should not validate input since it's set to False
@@ -61,7 +62,7 @@ class CatalogueSearchFormSubjectsTests(TestCase):
         form_data["group"] = "tna"
         form_data["sort"] = ""
 
-        form = CatalogueSearchForm(data=form_data)
+        form = CatalogueSearchTnaForm(data=form_data)
         self.assertTrue(form.is_valid())
 
         subjects_field = form.fields[FieldsConstant.SUBJECTS]
@@ -76,7 +77,7 @@ class CatalogueSearchFormSubjectsTests(TestCase):
         form_data["group"] = "tna"
         form_data["sort"] = ""
 
-        form = CatalogueSearchForm(data=form_data)
+        form = CatalogueSearchTnaForm(data=form_data)
         self.assertTrue(form.is_valid())
 
         subjects_field = form.fields[FieldsConstant.SUBJECTS]
@@ -85,7 +86,7 @@ class CatalogueSearchFormSubjectsTests(TestCase):
 
     def test_subjects_field_configured_choice_labels(self):
         """Test that configured_choice_labels property works correctly."""
-        form = CatalogueSearchForm()
+        form = CatalogueSearchTnaForm()
         subjects_field = form.fields[FieldsConstant.SUBJECTS]
 
         choice_labels = subjects_field.configured_choice_labels
@@ -109,7 +110,7 @@ class CatalogueSearchFormSubjectsTests(TestCase):
         form_data["group"] = "tna"
         form_data["sort"] = ""
 
-        form = CatalogueSearchForm(data=form_data)
+        form = CatalogueSearchTnaForm(data=form_data)
         form.is_valid()
 
         subjects_field = form.fields[FieldsConstant.SUBJECTS]
@@ -137,7 +138,7 @@ class CatalogueSearchFormSubjectsTests(TestCase):
 
     def test_form_has_correct_number_of_fields(self):
         """Test that the form has the expected number of fields including subjects."""
-        form = CatalogueSearchForm()
+        form = CatalogueSearchTnaForm()
 
         # Should have: q, group, sort, level, collection, subjects, online
         self.assertEqual(len(form.fields), 7)

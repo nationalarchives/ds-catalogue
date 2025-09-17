@@ -127,16 +127,17 @@ class APIMixin:
 
         for aggregation in api_result.aggregations:
             field_name = camelcase_to_underscore(aggregation.get("name"))
-
+            
             if field_name in form.fields:
-                if isinstance(
-                    form.fields[field_name], DynamicMultipleChoiceField
-                ):
+                if isinstance(form.fields[field_name], DynamicMultipleChoiceField):
                     choice_api_data = aggregation.get("entries", ())
                     self.replace_api_data(field_name, choice_api_data)
                     form.fields[field_name].update_choices(
                         choice_api_data, form.fields[field_name].value
                     )
+                    
+                    # Add this debug line to see what choices look like after update
+                    logger.info(f"Updated choices for {field_name}: {form.fields[field_name].choices[:5]}")  # Show first 5 choices
 
     def replace_api_data(
         self, field_name, entries_data: list[dict[str, str | int]]

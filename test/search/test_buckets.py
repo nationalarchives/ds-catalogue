@@ -1,6 +1,6 @@
 import copy
 
-from app.search.buckets import CATALOGUE_BUCKETS, BucketKeys
+from app.search.buckets import CATALOGUE_BUCKETS, BucketKeys, Aggregation
 from app.search.models import APISearchResponse
 from django.test import TestCase
 
@@ -135,10 +135,10 @@ class SubjectsBucketsTests(TestCase):
 
     def test_non_tna_bucket_does_not_include_subjects(self):
         """Test that non-TNA bucket doesn't include subjects aggregation."""
-        non_tna_bucket = CATALOGUE_BUCKETS.get_bucket(BucketKeys.NONTNA.value)
+        non_tna_bucket = CATALOGUE_BUCKETS.get_bucket(BucketKeys.NON_TNA.value)
 
-        # Non-TNA bucket should not have any aggregations including subjects
-        self.assertEqual(non_tna_bucket.aggregations, [])
+        # Non-TNA bucket should not have any aggregations including subjects, except for heldBy
+        self.assertEqual(non_tna_bucket.aggregations, ['heldBy'])
 
     def test_all_aggregation_values_are_strings(self):
         """Test that all aggregation enum values are strings."""

@@ -244,21 +244,19 @@ class CatalogueSearchViewSubjectsIntegrationTests(TestCase):
         )
 
         # Test with nonTna group - subjects should not be processed from API
-        response = self.client.get("/catalogue/search/?group=nonTna&subjects=2")
+        response = self.client.get("/catalogue/search/?group=nonTna&subjects=Army")
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
-        # Subjects field should exist but without API updates
-        subjects_field = response.context_data.get("form").fields["subjects"]
-        self.assertEqual(subjects_field.value, ["2"])
+        # NonTNA form should not have subjects field at all
+        self.assertNotIn("subjects", response.context_data.get("form").fields)
 
-        # Should still show in selected filters even for nonTna
+        # The subjects parameter should be ignored - no selected filters for subjects
         selected_filters = response.context_data.get("selected_filters")
         subject_filters = [
             f for f in selected_filters if f["label"].startswith("Subject:")
         ]
-        self.assertEqual(len(subject_filters), 1)
-        self.assertEqual(subject_filters[0]["label"], "Subject: Army")
+        self.assertEqual(len(subject_filters), 0)
 
     @responses.activate
     def test_subjects_field_error_handling(self):
