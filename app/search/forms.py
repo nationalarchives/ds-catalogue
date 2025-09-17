@@ -62,7 +62,7 @@ class CatalogueSearchTnaForm(BaseForm):
                 active_filter_label="Online only",
             ),
             FieldsConstant.CLOSURE: DynamicMultipleChoiceField(
-                label="Filter by closure status",
+                label="Closure status",
                 choices=[],  # no initial choices as they are set dynamically
                 active_filter_label="Closure status",
             ),
