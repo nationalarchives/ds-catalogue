@@ -130,6 +130,11 @@ class Record(APIModel):
         return self.get("summary.title", "")
 
     @cached_property
+    def clean_summary_title(self) -> str:
+        """Returns the api value of the attr if found, empty str otherwise."""
+        return self.get("cleanSummaryTitle", "")
+
+    @cached_property
     def date_covering(self) -> str:
         """Returns the api value of the attr if found, empty str otherwise."""
         return self.get("dateCovering", "")
@@ -235,7 +240,7 @@ class Record(APIModel):
         count = self.get("heldByCount", None)
         if not count:
             # Handles missing value by logging the issue and continuing without user-facing impact.
-            message = f"held_by_count is missing for record {self.iaid}"
+            message = "held_by_count is missing for the record"
             logger.error(message)
             sentry_sdk.capture_message(message, level="error")
             return MISSING_COUNT_TEXT
@@ -326,6 +331,12 @@ class Record(APIModel):
         )
 
     @cached_property
+    def clean_description(self) -> str:
+        """Returns value for cleanDescription if found, empty str otherwise."""
+        if clean_description := self.get("cleanDescription", ""):
+            return clean_description
+
+    @cached_property
     def description(self) -> str:
         """Returns the api value of the attr if found, empty str otherwise."""
         if description := self.raw_description:
@@ -398,11 +409,13 @@ class Record(APIModel):
         count = self.get("count", None)
         if not count:
             # Handles missing value by logging the issue and continuing without user-facing impact.
-            message = (
-                f"hierarchy_count missing for hierarchy record {self.iaid}"
-            )
+            message = "hierarchy_count missing for hierarchy record"
             logger.error(message)
             sentry_sdk.capture_message(message, level="error")
+            # add context for debugging in Sentry
+            sentry_sdk.set_context(
+                "missing_info", {"hierarchy_record_id": {self.iaid}}
+            )
             return MISSING_COUNT_TEXT
         return format_number(count)
 

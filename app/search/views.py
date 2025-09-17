@@ -5,6 +5,7 @@ from typing import Any
 
 from app.errors import views as errors_view
 from app.lib.api import JSONAPIClient, ResourceNotFound
+from app.lib.fields import DynamicMultipleChoiceField
 from app.lib.pagination import pagination_object
 from app.records.constants import (
     CLOSURE_STATUSES,
@@ -27,8 +28,13 @@ from .constants import (
     RESULTS_PER_PAGE,
     Sort,
 )
-from .forms import CatalogueSearchForm, FieldsConstant
+from .forms import (
+    CatalogueSearchNonTnaForm,
+    CatalogueSearchTnaForm,
+    FieldsConstant,
+)
 from .models import APISearchResponse
+from .utils import camelcase_to_underscore, underscore_to_camelcase
 
 logger = logging.getLogger(__name__)
 
@@ -48,14 +54,14 @@ class APIMixin:
     ]
 
     def get_api_result(self, query, results_per_page, page, sort, params):
-        self.api_result = search_records(
+        api_result = search_records(
             query=query,
             results_per_page=results_per_page,
             page=page,
             sort=sort,
             params=params,
         )
-        return self.api_result
+        return api_result
 
     def get_api_params(self, form, current_bucket: Bucket) -> dict:
         """The API params
@@ -76,32 +82,27 @@ class APIMixin:
         add_filter(params, f"group:{current_bucket.key}")
 
         # applies to catalogue records to filter records with iaid in the results
-        if current_bucket.key == BucketKeys.NONTNA.value:
+        if current_bucket.key == BucketKeys.NON_TNA.value:
             add_filter(params, FILTER_DATATYPE_RECORD)
 
         # filter aggregations for each field
         filter_aggregations = []
-        for field_name in self.dynamic_choice_fields:
-            filter_name = field_name
-            selected_values = form.fields[field_name].cleaned
-            selected_values = self.replace_input_data(
-                field_name, selected_values
-            )
-            filter_aggregations.extend(
-                (f"{filter_name}:{value}" for value in selected_values)
-            )
-
-        # Add subjects filter if selected
-        if subjects := self.request.GET.getlist("subjects"):
-            filter_aggregations.extend(
-                (f"subjects:{subject}" for subject in subjects)
-            )
-
+        for field_name in form.fields:
+            if isinstance(form.fields[field_name], DynamicMultipleChoiceField):
+                filter_name = underscore_to_camelcase(field_name)
+                selected_values = form.fields[field_name].cleaned
+                selected_values = self.replace_input_data(
+                    field_name, selected_values
+                )
+                filter_aggregations.extend(
+                    (f"{filter_name}:{value}" for value in selected_values)
+                )
         if filter_aggregations:
             add_filter(params, filter_aggregations)
 
-        if form.fields[FieldsConstant.ONLINE].cleaned == "true":
-            add_filter(params, "digitised:true")
+        if current_bucket.key == BucketKeys.TNA.value:
+            if form.fields[FieldsConstant.ONLINE].cleaned == "true":
+                add_filter(params, "digitised:true")
 
         return params
 
@@ -117,19 +118,25 @@ class APIMixin:
         return selected_values
 
     def process_api_result(
-        self, form: CatalogueSearchForm, api_result: APISearchResponse
+        self,
+        form: CatalogueSearchTnaForm | CatalogueSearchNonTnaForm,
+        api_result: APISearchResponse,
     ):
-        """Update checkbox `choices` values on the form's `dynamic_choice_fields` to
+        """Update checkbox `choices` values on the form's `dynamic choice fields` to
         reflect data included in the API's `aggs` response."""
 
         for aggregation in api_result.aggregations:
-            field_name = aggregation.get("name")
-            if field_name in self.dynamic_choice_fields:
-                choice_api_data = aggregation.get("entries", ())
-                self.replace_api_data(field_name, choice_api_data)
-                form.fields[field_name].update_choices(
-                    choice_api_data, form.fields[field_name].value
-                )
+            field_name = camelcase_to_underscore(aggregation.get("name"))
+
+            if field_name in form.fields:
+                if isinstance(
+                    form.fields[field_name], DynamicMultipleChoiceField
+                ):
+                    choice_api_data = aggregation.get("entries", ())
+                    self.replace_api_data(field_name, choice_api_data)
+                    form.fields[field_name].update_choices(
+                        choice_api_data, form.fields[field_name].value
+                    )
 
     def replace_api_data(
         self, field_name, entries_data: list[dict[str, str | int]]
@@ -158,7 +165,7 @@ class APIMixin:
             {
                 "results": results,
                 "stats": stats,
-                "subjects": TNA_SUBJECTS,
+                "subjects_ctx": TNA_SUBJECTS,
             }
         )
 
@@ -175,7 +182,13 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         """Creates the form instance and some attributes"""
 
         super().setup(request, *args, **kwargs)
-        self.form = CatalogueSearchForm(**self.get_form_kwargs())
+        form_kwargs = self.get_form_kwargs()
+        # create two separate forms for TNA and NonTNA with different fields
+        if form_kwargs.get("data").get("group") == BucketKeys.TNA.value:
+            self.form = CatalogueSearchTnaForm(**form_kwargs)
+        else:
+            self.form = CatalogueSearchNonTnaForm(**form_kwargs)
+
         self.bucket_list: BucketList = copy.deepcopy(CATALOGUE_BUCKETS)
         self.current_bucket_key = self.form.fields[FieldsConstant.GROUP].value
         self.api_result = None
@@ -258,6 +271,12 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
     def form_invalid(self):
         """Renders invalid form, context."""
+        # keep current bucket in focus
+        self.bucket_list.update_buckets_for_display(
+            query="",
+            buckets={},
+            current_bucket_key=self.current_bucket_key,
+        )
 
         context = self.get_context_data(form=self.form)
         return self.render_to_response(context=context)
@@ -266,8 +285,9 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         context: dict = super().get_context_data(**kwargs)
 
         results_range = pagination = None
-        if self.api_result:
+        if self.api_result and self.api_result.stats_total > 0:
             results_range, pagination = self.paginate_api_result()
+        if self.api_result:
             self.bucket_list.update_buckets_for_display(
                 query=self.query,
                 buckets=self.api_result.buckets,
@@ -311,16 +331,9 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
 
         context.update(
             {
-                "closure_statuses": CLOSURE_STATUSES,
+                "closure_statuses_ctx": CLOSURE_STATUSES,
             }
         )
-
-        if self.api_result:
-            self.bucket_list.update_buckets_for_display(
-                query=self.query,
-                buckets=self.api_result.buckets,
-                current_bucket_key=self.current_bucket_key,
-            )
 
         selected_filters = self.build_selected_filters_list()
 
@@ -345,99 +358,86 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
         )
         return context
 
-    def _add_filter(self, selected_filters, label, href, title):
-        """Helper method to add a filter to the selected_filters list"""
-        selected_filters.append(
-            {
-                "label": label,
-                "href": href,
-                "title": title,
-            }
-        )
-
-    def _add_simple_filters(self, selected_filters):
-        """Add simple GET parameter based filters"""
-        simple_filters = [
-            ("search_within", "Sub query", "Remove search within"),
-            ("online", "Online only", "Remove online only"),
-            ("date_from", "Record date from", "Remove record from date"),
-            ("date_to", "Record date to", "Remove record to date"),
-        ]
-
-        for param, label_prefix, title in simple_filters:
-            if value := self.request.GET.get(param):
-                label = (
-                    f"{label_prefix}: {value}"
-                    if param.startswith("date_")
-                    else label_prefix
-                )
-                self._add_filter(
-                    selected_filters,
-                    label,
-                    f"?{qs_remove_value(self.request.GET, param)}",
-                    title,
-                )
-
-    def _add_form_field_filters(self, selected_filters):
-        """Add filters based on form fields"""
-        # Levels
-        if levels := self.form.fields[FieldsConstant.LEVEL].value:
-            levels_lookup = {v: v for _, v in TNA_LEVELS.items()}
-            for level in levels:
-                level_label = levels_lookup.get(level, level)
-                self._add_filter(
-                    selected_filters,
-                    f"Level: {level_label}",
-                    f"?{qs_toggle_value(self.request.GET, 'level', level)}",
-                    f"Remove {level_label} level",
-                )
-
-        # Collections
-        if collections := self.form.fields[FieldsConstant.COLLECTION].value:
-            choice_labels = self.form.fields[
-                FieldsConstant.COLLECTION
-            ].configured_choice_labels
-            for collection in collections:
-                collection_label = choice_labels.get(collection, collection)
-                self._add_filter(
-                    selected_filters,
-                    f"Collection: {collection_label}",
-                    f"?{qs_toggle_value(self.request.GET, 'collection', collection)}",
-                    f"Remove {collection_label} collection",
-                )
-
-        # Subjects
-        if subjects := self.form.fields[FieldsConstant.SUBJECTS].value:
-            choice_labels = self.form.fields[
-                FieldsConstant.SUBJECTS
-            ].configured_choice_labels
-            for subject in subjects:
-                subject_label = choice_labels.get(subject, subject)
-                self._add_filter(
-                    selected_filters,
-                    f"Subject: {subject_label}",
-                    f"?{qs_toggle_value(self.request.GET, 'subjects', subject)}",
-                    f"Remove {subject_label} subject",
-                )
-
-    def _add_closure_status_filters(self, selected_filters):
-        """Add closure status filters"""
-        if closure_statuses := self.request.GET.getlist("closure_status"):
-            for closure_status in closure_statuses:
-                status_label = CLOSURE_STATUSES.get(closure_status)
-                self._add_filter(
-                    selected_filters,
-                    f"Closure status: {status_label}",
-                    f"?{qs_toggle_value(self.request.GET, 'closure_status', closure_status)}",
-                    f"Remove {status_label} closure status",
-                )
-
     def build_selected_filters_list(self):
-        """Build a list of selected filters with their labels and removal URLs"""
         selected_filters = []
+        # TODO: commented code is retained from previous code, want to have q in filter?
+        # if request.GET.get("q", None):
+        #     selected_filters.append(
+        #         {
+        #             "label": f"\"{request.GET.get('q')}\"",
+        #             "href": f"?{qs_remove_value(request.GET, 'q')}",
+        #             "title": f"Remove query: \"{request.GET.get('q')}\"",
+        #         }
+        #     )
+        if self.request.GET.get("search_within", None):
+            selected_filters.append(
+                {
+                    "label": f"Sub query {self.request.GET.get('search_within')}",
+                    "href": f"?{qs_remove_value(self.request.GET, 'search_within')}",
+                    "title": "Remove search within",
+                }
+            )
+        if field := self.form.fields.get(FieldsConstant.ONLINE, None):
+            if field.cleaned:
+                selected_filters.append(
+                    {
+                        "label": field.active_filter_label,
+                        "href": f"?{qs_remove_value(self.request.GET, 'online')}",
+                        "title": f"Remove {field.active_filter_label.lower()}",
+                    }
+                )
+        if self.request.GET.get("date_from", None):
+            selected_filters.append(
+                {
+                    "label": f"Record date from: {self.request.GET.get('date_from')}",
+                    "href": f"?{qs_remove_value(self.request.GET, 'date_from')}",
+                    "title": "Remove record from date",
+                }
+            )
+        if self.request.GET.get("date_to", None):
+            selected_filters.append(
+                {
+                    "label": f"Record date to: {self.request.GET.get('date_to')}",
+                    "href": f"?{qs_remove_value(self.request.GET, 'date_to')}",
+                    "title": "Remove record to date",
+                }
+            )
 
-        self._add_simple_filters(selected_filters)
-        self._add_form_field_filters(selected_filters)
-        self._add_closure_status_filters(selected_filters)
+        if closure_statuses := self.request.GET.getlist("closure_status", None):
+            for closure_status in closure_statuses:
+                selected_filters.append(
+                    {
+                        "label": f"Closure status: {CLOSURE_STATUSES.get(closure_status)}",
+                        "href": f"?{qs_toggle_value(self.request.GET, 'closure_status', closure_status)}",
+                        "title": f"Remove {CLOSURE_STATUSES.get(closure_status)} closure status",
+                    }
+                )
+
+        self._build_dynamic_multiple_choice_field_filters(selected_filters)
 
         return selected_filters
+
+    def _build_dynamic_multiple_choice_field_filters(self, existing_filters):
+        """Appends selected filters for dynamic multiple choice fields."""
+        for field_name in self.form.fields:
+            if isinstance(
+                self.form.fields[field_name], DynamicMultipleChoiceField
+            ):
+                field = self.form.fields[field_name]
+                if field_name == FieldsConstant.LEVEL:
+                    choice_labels = {}
+                    for _, v in TNA_LEVELS.items():
+                        choice_labels.update({v: v})
+                else:
+                    choice_labels = self.form.fields[
+                        field_name
+                    ].configured_choice_labels
+
+                for item in field.value:
+                    existing_filters.append(
+                        {
+                            "label": f"{field.active_filter_label}: {choice_labels.get(item, item)}",
+                            "href": f"?{qs_toggle_value(self.request.GET, field.name, item)}",
+                            "title": f"Remove {choice_labels.get(item, item)} {field.active_filter_label.lower()}",
+                        }
+                    )
