@@ -444,7 +444,7 @@ class CatalogueSearchViewTests(TestCase):
 
 
 class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
-    """Tests API calls (url) made by the catalogue search view for CatalogueSearchTnaForm"""
+    """Tests API calls (url) made by the catalogue search view for tna bucket/group."""
 
     @patch("app.lib.api.logger")
     @responses.activate
@@ -536,8 +536,8 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
 
 
-class CatalogueSearchViewLoggerDebugAPITests(TestCase):
-    """Tests API calls (url) made by the catalogue search view."""
+class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
+    """Tests API calls (url) made by the catalogue search view for nonTna bucket/group."""
 
     @patch("app.lib.api.logger")
     @responses.activate
@@ -560,13 +560,7 @@ class CatalogueSearchViewLoggerDebugAPITests(TestCase):
                 # Note: api response is not checked for these values
                 "aggregations": [
                     {
-                        "name": "level",
-                        "entries": [
-                            {"value": "somevalue", "doc_count": 100},
-                        ],
-                    },
-                    {
-                        "name": "collection",
+                        "name": "heldBy",
                         "entries": [
                             {"value": "somevalue", "doc_count": 100},
                         ],
@@ -589,27 +583,11 @@ class CatalogueSearchViewLoggerDebugAPITests(TestCase):
             status=HTTPStatus.OK,
         )
 
-        # default query
-        self.response = self.client.get("/catalogue/search/")
+        # with nonTna group param
+        self.response = self.client.get("/catalogue/search/?group=nonTna")
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&filter=group%3Atna&q=%2A&size=20"
-        )
-
-        # with non default group=tna param
-        self.response = self.client.get("/catalogue/search/?group=tna")
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&filter=group%3Atna&q=%2A&size=20"
-        )
-
-        # with filter not belonging to tna group (should be ignored)
-        self.response = self.client.get(
-            "/catalogue/search/?group=tna&held_by=somearchive"
-        )
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&filter=group%3Atna&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=%2A&size=20"
         )
 
         # query with search term, non tna records
