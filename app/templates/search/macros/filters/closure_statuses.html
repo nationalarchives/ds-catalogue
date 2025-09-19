@@ -1,23 +1,15 @@
 {% from 'components/button/macro.html' import tnaButton %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 
-{% macro closure_statuses(request, statuses) %}
+{% macro closure_statuses(request, closure) %}
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
-  {% set closure_statuses = [] %}
-  {% for status_id, status in statuses.items() %}
-    {% set closure_statuses = closure_statuses.append({
-      'text': status,
-      'value': status_id,
-      'checked': qs_is_value_active(request.GET, 'closure_status', status_id)
-    }) %}
-  {% endfor %}
   {{ tnaCheckboxes({
-    'label': 'Closure status',
+    'label': closure.label,
     'headingLevel': 3,
     'headingSize': 'm',
-    'id': 'closure_status',
-    'name': 'closure_status',
-    'items': closure_statuses,
+    'id': 'closure',
+    'name': closure.name,
+    'items': closure.items,
     'small': True,
     'attributes': {
       'form': 'search-form'
