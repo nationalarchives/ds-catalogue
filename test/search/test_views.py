@@ -198,6 +198,12 @@ class CatalogueSearchViewTests(TestCase):
             "Filter by levels",
         )
         self.assertEqual(
+            self.response.context_data.get("form")
+            .fields["level"]
+            .active_filter_label,
+            "Level",
+        )
+        self.assertEqual(
             self.response.context_data.get("form").fields["level"].value, []
         )
         self.assertEqual(
@@ -209,6 +215,28 @@ class CatalogueSearchViewTests(TestCase):
                 {"text": "Item (100)", "value": "Item"},
                 {"text": "Division (5)", "value": "Division"},
             ],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["collection"].name,
+            "collection",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["collection"].label,
+            "Collections",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields["collection"]
+            .active_filter_label,
+            "Collection",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["collection"].value,
+            [],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["collection"].cleaned,
+            [],
         )
         self.assertEqual(
             self.response.context_data.get("form").fields["collection"].items,
