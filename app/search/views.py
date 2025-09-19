@@ -18,7 +18,9 @@ from django.conf import settings
 from django.http import (
     HttpRequest,
     HttpResponse,
+    QueryDict,
 )
+from django.shortcuts import redirect
 from django.views.generic import TemplateView
 
 from .buckets import CATALOGUE_BUCKETS, Bucket, BucketKeys, BucketList
@@ -96,6 +98,11 @@ class APIMixin:
         if current_bucket.key == BucketKeys.TNA.value:
             if form.fields[FieldsConstant.ONLINE].cleaned == "true":
                 add_filter(params, "digitised:true")
+
+        # Add date parameters for API
+        date_filters = form.get_api_date_params()
+        if date_filters:
+            add_filter(params, date_filters)
 
         return params
 
@@ -251,6 +258,38 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         """Gets the api result and processes it after the form and fields
         are cleaned and validated. Renders with form, context."""
 
+        # Check if any date fields were expanded and need URL update
+        should_redirect = False
+        updated_params = self.request.GET.copy()
+        
+        # Check each date field for expansion
+        date_fields = [
+            (FieldsConstant.RECORD_DATE_FROM, 'rd_from'),
+            (FieldsConstant.RECORD_DATE_TO, 'rd_to'),
+        ]
+        
+        # Add opening dates for TNA forms
+        if isinstance(self.form, CatalogueSearchTnaForm):
+            date_fields.extend([
+                (FieldsConstant.OPENING_DATE_FROM, 'od_from'),
+                (FieldsConstant.OPENING_DATE_TO, 'od_to'),
+            ])
+        
+        for field_constant, param_prefix in date_fields:
+            if field_constant in self.form.fields:
+                field = self.form.fields[field_constant]
+                if hasattr(field, 'was_expanded') and field.was_expanded:
+                    # Update the URL parameters with expanded values
+                    expanded_date = field.cleaned
+                    updated_params[f'{param_prefix}-day'] = str(expanded_date.day)
+                    updated_params[f'{param_prefix}-month'] = str(expanded_date.month)
+                    updated_params[f'{param_prefix}-year'] = str(expanded_date.year)
+                    should_redirect = True
+        
+        if should_redirect:
+            # Redirect to the same view with expanded parameters
+            return redirect(f"{self.request.path}?{updated_params.urlencode()}")
+            
         self.api_result = self.get_api_result(
             query=self.query,
             results_per_page=RESULTS_PER_PAGE,
@@ -351,6 +390,25 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
         )
         return context
 
+    def _remove_date_params(
+        self, query_dict: QueryDict, date_prefix: str
+    ) -> str:
+        """Remove date component parameters from query string"""
+        # Create a mutable copy of the QueryDict
+        data = query_dict.copy()
+
+        # Remove the component fields for this date
+        component_fields = [
+            f"{date_prefix}-day",
+            f"{date_prefix}-month",
+            f"{date_prefix}-year",
+        ]
+        for field in component_fields:
+            if field in data:
+                del data[field]
+
+        return data.urlencode()
+
     def build_selected_filters_list(self):
         selected_filters = []
         # TODO: commented code is retained from previous code, want to have q in filter?
@@ -379,22 +437,57 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "title": f"Remove {field.active_filter_label.lower()}",
                     }
                 )
-        if self.request.GET.get("date_from", None):
+
+        # Handle record dates using the form's cleaned date values
+        rd_from = self.form.fields[FieldsConstant.RECORD_DATE_FROM].cleaned
+        if rd_from:
+            # Format the date nicely for display
+            formatted_date = rd_from.strftime(
+                "%d %B %Y"
+            )  # e.g., "15 June 2023"
             selected_filters.append(
                 {
-                    "label": f"Record date from: {self.request.GET.get('date_from')}",
-                    "href": f"?{qs_remove_value(self.request.GET, 'date_from')}",
+                    "label": f"Record date from: {formatted_date}",
+                    "href": f"?{self._remove_date_params(self.request.GET, 'rd_from')}",
                     "title": "Remove record from date",
                 }
             )
-        if self.request.GET.get("date_to", None):
+
+        rd_to = self.form.fields[FieldsConstant.RECORD_DATE_TO].cleaned
+        if rd_to:
+            formatted_date = rd_to.strftime("%d %B %Y")
             selected_filters.append(
                 {
-                    "label": f"Record date to: {self.request.GET.get('date_to')}",
-                    "href": f"?{qs_remove_value(self.request.GET, 'date_to')}",
+                    "label": f"Record date to: {formatted_date}",
+                    "href": f"?{self._remove_date_params(self.request.GET, 'rd_to')}",
                     "title": "Remove record to date",
                 }
             )
+
+        # Handle opening dates - only for TNA forms
+        if FieldsConstant.OPENING_DATE_FROM in self.form.fields:
+            od_from = self.form.fields[FieldsConstant.OPENING_DATE_FROM].cleaned
+            if od_from:
+                formatted_date = od_from.strftime("%d %B %Y")
+                selected_filters.append(
+                    {
+                        "label": f"Opening date from: {formatted_date}",
+                        "href": f"?{self._remove_date_params(self.request.GET, 'od_from')}",
+                        "title": "Remove opening from date",
+                    }
+                )
+
+        if FieldsConstant.OPENING_DATE_TO in self.form.fields:
+            od_to = self.form.fields[FieldsConstant.OPENING_DATE_TO].cleaned
+            if od_to:
+                formatted_date = od_to.strftime("%d %B %Y")
+                selected_filters.append(
+                    {
+                        "label": f"Opening date to: {formatted_date}",
+                        "href": f"?{self._remove_date_params(self.request.GET, 'od_to')}",
+                        "title": "Remove opening to date",
+                    }
+                )
 
         if closure_statuses := self.request.GET.getlist("closure_status", None):
             for closure_status in closure_statuses:
