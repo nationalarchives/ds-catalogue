@@ -225,6 +225,15 @@ class RecordModelTests(SimpleTestCase):
             "PART I - ITEMS DISCUSSED AT THE MEETING1.",
         )
 
+    def test_clean_summary_title_fallback(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["summaryTitle"] = "FALLBACK summaryTitle"
+        self.assertEqual(
+            self.record.clean_summary_title,
+            "FALLBACK summaryTitle",
+        )
+
     def test_date_covering(self):
         self.record = Record(self.template_details)
         # patch raw data
