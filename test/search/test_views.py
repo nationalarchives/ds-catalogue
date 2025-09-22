@@ -261,6 +261,29 @@ class CatalogueSearchViewTests(TestCase):
                 },
             ],
         )
+
+        self.assertEqual(
+            self.response.context_data.get("form").fields["closure"].name,
+            "closure",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["closure"].label,
+            "Closure status",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields["closure"]
+            .active_filter_label,
+            "Closure status",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["closure"].value,
+            [],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["closure"].cleaned,
+            [],
+        )
         self.assertEqual(
             self.response.context_data.get("form").fields["closure"].items,
             [
