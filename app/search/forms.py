@@ -20,6 +20,7 @@ class FieldsConstant:
     COLLECTION = "collection"
     ONLINE = "online"
     HELD_BY = "held_by"
+    CLOSURE = "closure"
 
 
 class CatalogueSearchTnaForm(BaseForm):
@@ -59,6 +60,11 @@ class CatalogueSearchTnaForm(BaseForm):
                 ],
                 required=False,
                 active_filter_label="Online only",
+            ),
+            FieldsConstant.CLOSURE: DynamicMultipleChoiceField(
+                label="Closure status",
+                choices=[],  # no initial choices as they are set dynamically
+                active_filter_label="Closure status",
             ),
         }
 

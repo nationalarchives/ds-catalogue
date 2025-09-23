@@ -14,6 +14,7 @@ class Aggregation(StrEnum):
     LEVEL = "level"
     COLLECTION = "collection"
     HELD_BY = "heldBy"
+    CLOSURE = "closure"
 
 
 @dataclass
@@ -107,6 +108,7 @@ CATALOGUE_BUCKETS = BucketList(
             aggregations=[
                 Aggregation.LEVEL.value,
                 Aggregation.COLLECTION.value,
+                Aggregation.CLOSURE.value,
             ],
         ),
         Bucket(

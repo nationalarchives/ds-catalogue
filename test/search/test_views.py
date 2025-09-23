@@ -48,6 +48,15 @@ class CatalogueSearchViewTests(TestCase):
                             {"value": "WO", "doc_count": 35},
                         ],
                     },
+                    {
+                        "name": "closure",
+                        "entries": [
+                            {
+                                "value": "Open Document, Open Description",
+                                "doc_count": 150,
+                            },
+                        ],
+                    },
                 ],
                 "buckets": [
                     {
@@ -122,7 +131,7 @@ class CatalogueSearchViewTests(TestCase):
             self.response.context_data.get("form"), CatalogueSearchTnaForm
         )
         self.assertEqual(self.response.context_data.get("form").errors, {})
-        self.assertEqual(len(self.response.context_data.get("form").fields), 6)
+        self.assertEqual(len(self.response.context_data.get("form").fields), 7)
         tna_field_names = [
             FieldsConstant.GROUP,
             FieldsConstant.SORT,
@@ -130,6 +139,7 @@ class CatalogueSearchViewTests(TestCase):
             FieldsConstant.LEVEL,
             FieldsConstant.COLLECTION,
             FieldsConstant.ONLINE,
+            FieldsConstant.CLOSURE,
         ]
         tna_form_field_names = set(
             self.response.context_data.get("form").fields.keys()
@@ -248,6 +258,38 @@ class CatalogueSearchViewTests(TestCase):
                 {
                     "text": "WO - War Office, Armed Forces, Judge Advocate General, and related bodies (35)",
                     "value": "WO",
+                },
+            ],
+        )
+
+        self.assertEqual(
+            self.response.context_data.get("form").fields["closure"].name,
+            "closure",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["closure"].label,
+            "Closure status",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields["closure"]
+            .active_filter_label,
+            "Closure status",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["closure"].value,
+            [],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["closure"].cleaned,
+            [],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["closure"].items,
+            [
+                {
+                    "text": "Open Document, Open Description (150)",
+                    "value": "Open Document, Open Description",
                 },
             ],
         )
@@ -500,14 +542,14 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         self.response = self.client.get("/catalogue/search/")
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&filter=group%3Atna&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&filter=group%3Atna&q=%2A&size=20"
         )
 
         # with group=tna param
         self.response = self.client.get("/catalogue/search/?group=tna")
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&filter=group%3Atna&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&filter=group%3Atna&q=%2A&size=20"
         )
 
         # query with held_by param (should be ignored for tna group)
@@ -516,7 +558,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&filter=group%3Atna&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&filter=group%3Atna&q=%2A&size=20"
         )
 
         # query with search term, non tna records
