@@ -175,3 +175,18 @@ mark {
     display: block;
   }
 }
+
+.mobile-skip {
+  margin: -1em;
+
+  display: none;
+  @media only screen and (width <= 48em) {
+    display: block !important;
+  }
+}
+
+.tna-heading-l {
+  @media only screen and (width <= 48em) {
+    padding: 0;
+  }
+}
