@@ -8,7 +8,6 @@ from app.lib.api import JSONAPIClient, ResourceNotFound
 from app.lib.fields import DynamicMultipleChoiceField
 from app.lib.pagination import pagination_object
 from app.records.constants import (
-    CLOSURE_STATUSES,
     TNA_LEVELS,
     TNA_SUBJECTS,
 )
@@ -371,12 +370,6 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
 
     def get_context_data(self, **kwargs):
         context: dict = super().get_context_data(**kwargs)
-
-        context.update(
-            {
-                "closure_statuses_ctx": CLOSURE_STATUSES,
-            }
-        )
 
         selected_filters = self.build_selected_filters_list()
 

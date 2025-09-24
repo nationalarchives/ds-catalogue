@@ -22,6 +22,7 @@ class FieldsConstant:
     COLLECTION = "collection"
     ONLINE = "online"
     HELD_BY = "held_by"
+    CLOSURE = "closure"
     RECORD_DATE_FROM = "record_date_from"
     RECORD_DATE_TO = "record_date_to"
     OPENING_DATE_FROM = "opening_date_from"
@@ -169,6 +170,11 @@ class CatalogueSearchTnaForm(BaseCatalogueSearchForm):
                 ],
                 required=False,
                 active_filter_label="Online only",
+            ),
+            FieldsConstant.CLOSURE: DynamicMultipleChoiceField(
+                label="Closure status",
+                choices=[],  # no initial choices as they are set dynamically
+                active_filter_label="Closure status",
             ),
             # TNA-specific opening date fields
             FieldsConstant.OPENING_DATE_FROM: DateComponentField(
