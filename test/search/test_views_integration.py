@@ -101,8 +101,8 @@ class CatalogueSearchViewIntegrationTests(TestCase):
 
         # Test invalid date range
         response = self.client.get(
-            "/catalogue/search/?rd_from-year=2020&rd_from-month=6&rd_from-day=15"
-            "&rd_to-year=2019&rd_to-month=3&rd_to-day=10"
+            "/catalogue/search/?record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
+            "&record_date_to-year=2019&record_date_to-month=3&record_date_to-day=10"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -150,10 +150,10 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         # Test with both record and opening dates
         response = self.client.get(
             "/catalogue/search/?group=tna&q=test"
-            "&rd_from-year=2019&rd_from-month=1&rd_from-day=1"
-            "&rd_to-year=2020&rd_to-month=12&rd_to-day=31"
-            "&od_from-year=2019&od_from-month=6&od_from-day=1"
-            "&od_to-year=2020&od_to-month=6&od_to-day=30"
+            "&record_date_from-year=2019&record_date_from-month=1&record_date_from-day=1"
+            "&record_date_to-year=2020&record_date_to-month=12&record_date_to-day=31"
+            "&opening_date_from-year=2019&opening_date_from-month=6&opening_date_from-day=1"
+            "&opening_date_to-year=2020&opening_date_to-month=6&opening_date_to-day=30"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -166,10 +166,14 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         self.assertIn("Opening date to: 30 June 2020", html)
 
         # Check that removal links exist and don't include the date being removed
-        # Record from removal link should not include rd_from parameters
-        self.assertIn('href="?group=tna&amp;q=test&amp;rd_to-year=2020', html)
-        # Record to removal link should not include rd_to parameters
-        self.assertIn('href="?group=tna&amp;q=test&amp;rd_from-year=2019', html)
+        # Record from removal link should not include record_date_from parameters
+        self.assertIn(
+            'href="?group=tna&amp;q=test&amp;record_date_to-year=2020', html
+        )
+        # Record to removal link should not include record_date_to parameters
+        self.assertIn(
+            'href="?group=tna&amp;q=test&amp;record_date_from-year=2019', html
+        )
 
     @responses.activate
     def test_catalogue_search_date_api_parameters(self):
@@ -191,10 +195,10 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         # Submit form with date parameters
         response = self.client.get(
             "/catalogue/search/?group=tna"
-            "&rd_from-year=2019&rd_from-month=6&rd_from-day=15"
-            "&rd_to-year=2020&rd_to-month=6&rd_to-day=15"
-            "&od_from-year=2019&od_from-month=1&od_from-day=1"
-            "&od_to-year=2020&od_to-month=12&od_to-day=31"
+            "&record_date_from-year=2019&record_date_from-month=6&record_date_from-day=15"
+            "&record_date_to-year=2020&record_date_to-month=6&record_date_to-day=15"
+            "&opening_date_from-year=2019&opening_date_from-month=1&opening_date_from-day=1"
+            "&opening_date_to-year=2020&opening_date_to-month=12&opening_date_to-day=31"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -227,12 +231,12 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         html = force_str(response.content)
 
         # Should have record date fields
-        self.assertIn('name="rd_from-day"', html)
-        self.assertIn('name="rd_to-day"', html)
+        self.assertIn('name="record_date_from-day"', html)
+        self.assertIn('name="record_date_to-day"', html)
 
         # Should NOT have opening date fields
-        self.assertNotIn('name="od_from-day"', html)
-        self.assertNotIn('name="od_to-day"', html)
+        self.assertNotIn('name="opening_date_from-day"', html)
+        self.assertNotIn('name="opening_date_to-day"', html)
 
     @responses.activate
     def test_catalogue_search_date_field_persistence(self):
@@ -253,8 +257,8 @@ class CatalogueSearchViewIntegrationTests(TestCase):
 
         # Submit form with date values
         response = self.client.get(
-            "/catalogue/search/?rd_from-year=2019&rd_from-month=6&rd_from-day=15"
-            "&rd_to-year=2020&rd_to-month=8&rd_to-day=20"
+            "/catalogue/search/?record_date_from-year=2019&record_date_from-month=6&record_date_from-day=15"
+            "&record_date_to-year=2020&record_date_to-month=8&record_date_to-day=20"
         )
 
         html = force_str(response.content)
@@ -287,16 +291,16 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         html = force_str(response.content)
 
         # Check that date component fields are present
-        self.assertIn('name="rd_from-day"', html)
-        self.assertIn('name="rd_from-month"', html)
-        self.assertIn('name="rd_from-year"', html)
-        self.assertIn('name="rd_to-day"', html)
-        self.assertIn('name="rd_to-month"', html)
-        self.assertIn('name="rd_to-year"', html)
+        self.assertIn('name="record_date_from-day"', html)
+        self.assertIn('name="record_date_from-month"', html)
+        self.assertIn('name="record_date_from-year"', html)
+        self.assertIn('name="record_date_to-day"', html)
+        self.assertIn('name="record_date_to-month"', html)
+        self.assertIn('name="record_date_to-year"', html)
 
         # TNA form should also have opening date fields
-        self.assertIn('name="od_from-day"', html)
-        self.assertIn('name="od_to-day"', html)
+        self.assertIn('name="opening_date_from-day"', html)
+        self.assertIn('name="opening_date_to-day"', html)
 
     @responses.activate
     def test_date_validation_error_classes(self):
@@ -310,7 +314,7 @@ class CatalogueSearchViewIntegrationTests(TestCase):
 
         # Submit invalid date to trigger field-level error
         response = self.client.get(
-            "/catalogue/search/?rd_from-year=abc&rd_from-month=13"
+            "/catalogue/search/?record_date_from-year=abc&record_date_from-month=13"
         )
 
         html = force_str(response.content)

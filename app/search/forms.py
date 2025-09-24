@@ -22,10 +22,10 @@ class FieldsConstant:
     COLLECTION = "collection"
     ONLINE = "online"
     HELD_BY = "held_by"
-    RECORD_DATE_FROM = "rd_from"
-    RECORD_DATE_TO = "rd_to"
-    OPENING_DATE_FROM = "od_from"
-    OPENING_DATE_TO = "od_to"
+    RECORD_DATE_FROM = "record_date_from"
+    RECORD_DATE_TO = "record_date_to"
+    OPENING_DATE_FROM = "opening_date_from"
+    OPENING_DATE_TO = "opening_date_to"
 
 
 class BaseCatalogueSearchForm(BaseForm, ABC):
@@ -57,12 +57,12 @@ class BaseCatalogueSearchForm(BaseForm, ABC):
             FieldsConstant.Q: CharField(),
             FieldsConstant.RECORD_DATE_FROM: DateComponentField(
                 label="Record date from",
-                is_from_date=True,
+                padding_strategy=DateComponentField.start_of_period_strategy,
                 required=False,
             ),
             FieldsConstant.RECORD_DATE_TO: DateComponentField(
                 label="Record date to",
-                is_from_date=False,
+                padding_strategy=DateComponentField.end_of_period_strategy,
                 required=False,
             ),
         }
@@ -83,10 +83,14 @@ class BaseCatalogueSearchForm(BaseForm, ABC):
         errors = []
 
         # Validate record date range
-        rd_from = self.fields[FieldsConstant.RECORD_DATE_FROM].cleaned
-        rd_to = self.fields[FieldsConstant.RECORD_DATE_TO].cleaned
+        record_date_from = self.fields[FieldsConstant.RECORD_DATE_FROM].cleaned
+        record_date_to = self.fields[FieldsConstant.RECORD_DATE_TO].cleaned
 
-        if rd_from and rd_to and rd_from > rd_to:
+        if (
+            record_date_from
+            and record_date_to
+            and record_date_from > record_date_to
+        ):
             errors.append("Record date 'from' cannot be later than 'to' date")
 
         # Validate opening date range (only for TNA forms that have these fields)
@@ -95,10 +99,18 @@ class BaseCatalogueSearchForm(BaseForm, ABC):
             and FieldsConstant.OPENING_DATE_TO in self.fields
         ):
 
-            od_from = self.fields[FieldsConstant.OPENING_DATE_FROM].cleaned
-            od_to = self.fields[FieldsConstant.OPENING_DATE_TO].cleaned
+            opening_date_from = self.fields[
+                FieldsConstant.OPENING_DATE_FROM
+            ].cleaned
+            opening_date_to = self.fields[
+                FieldsConstant.OPENING_DATE_TO
+            ].cleaned
 
-            if od_from and od_to and od_from > od_to:
+            if (
+                opening_date_from
+                and opening_date_to
+                and opening_date_from > opening_date_to
+            ):
                 errors.append(
                     "Opening date 'from' cannot be later than 'to' date"
                 )
@@ -117,16 +129,18 @@ class BaseCatalogueSearchForm(BaseForm, ABC):
             return None
 
         # Record dates (common to all forms)
-        if rd_from := get_field_value(FieldsConstant.RECORD_DATE_FROM):
-            date_filters.append(f"coveringFromDate:(>={rd_from})")
-        if rd_to := get_field_value(FieldsConstant.RECORD_DATE_TO):
-            date_filters.append(f"coveringToDate:(<={rd_to})")
+        if record_date_from := get_field_value(FieldsConstant.RECORD_DATE_FROM):
+            date_filters.append(f"coveringFromDate:(>={record_date_from})")
+        if record_date_to := get_field_value(FieldsConstant.RECORD_DATE_TO):
+            date_filters.append(f"coveringToDate:(<={record_date_to})")
 
         # Opening dates (only for TNA forms - check if fields exist)
-        if od_from := get_field_value(FieldsConstant.OPENING_DATE_FROM):
-            date_filters.append(f"openingFromDate:(>={od_from})")
-        if od_to := get_field_value(FieldsConstant.OPENING_DATE_TO):
-            date_filters.append(f"openingToDate:(<={od_to})")
+        if opening_date_from := get_field_value(
+            FieldsConstant.OPENING_DATE_FROM
+        ):
+            date_filters.append(f"openingFromDate:(>={opening_date_from})")
+        if opening_date_to := get_field_value(FieldsConstant.OPENING_DATE_TO):
+            date_filters.append(f"openingToDate:(<={opening_date_to})")
 
         return date_filters
 
@@ -159,12 +173,12 @@ class CatalogueSearchTnaForm(BaseCatalogueSearchForm):
             # TNA-specific opening date fields
             FieldsConstant.OPENING_DATE_FROM: DateComponentField(
                 label="Opening date from",
-                is_from_date=True,
+                padding_strategy=DateComponentField.start_of_period_strategy,
                 required=False,
             ),
             FieldsConstant.OPENING_DATE_TO: DateComponentField(
                 label="Opening date to",
-                is_from_date=False,
+                padding_strategy=DateComponentField.end_of_period_strategy,
                 required=False,
             ),
         }

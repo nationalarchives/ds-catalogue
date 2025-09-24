@@ -35,8 +35,8 @@ class DateValidationTests(TestCase):
 
         # Submit form with invalid date range
         response = self.client.get(
-            "/catalogue/search/?rd_from-year=2020&rd_from-month=6&rd_from-day=15"
-            "&rd_to-year=2019&rd_to-month=3&rd_to-day=10"
+            "/catalogue/search/?record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
+            "&record_date_to-year=2019&record_date_to-month=3&record_date_to-day=10"
         )
 
         # Should still return 200 but with validation errors
@@ -66,8 +66,8 @@ class DateValidationTests(TestCase):
         # Submit TNA form with invalid opening date range
         response = self.client.get(
             "/catalogue/search/?group=tna"
-            "&od_from-year=2020&od_from-month=12&od_from-day=31"
-            "&od_to-year=2020&od_to-month=1&od_to-day=1"
+            "&opening_date_from-year=2020&opening_date_from-month=12&opening_date_from-day=31"
+            "&opening_date_to-year=2020&opening_date_to-month=1&opening_date_to-day=1"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -108,10 +108,10 @@ class DateValidationTests(TestCase):
         # Submit form with valid date ranges
         response = self.client.get(
             "/catalogue/search/?group=tna"
-            "&rd_from-year=2019&rd_from-month=1&rd_from-day=1"
-            "&rd_to-year=2020&rd_to-month=12&rd_to-day=31"
-            "&od_from-year=2019&od_from-month=6&od_from-day=1"
-            "&od_to-year=2020&od_to-month=6&od_to-day=30"
+            "&record_date_from-year=2019&record_date_from-month=1&record_date_from-day=1"
+            "&record_date_to-year=2020&record_date_to-month=12&record_date_to-day=31"
+            "&opening_date_from-year=2019&opening_date_from-month=6&opening_date_from-day=1"
+            "&opening_date_to-year=2020&opening_date_to-month=6&opening_date_to-day=30"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -131,8 +131,8 @@ class DateValidationTests(TestCase):
         )
 
         response = self.client.get(
-            "/catalogue/search/?rd_from-year=2020&rd_from-month=6&rd_from-day=15"
-            "&rd_to-year=2020&rd_to-month=6&rd_to-day=15"
+            "/catalogue/search/?record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
+            "&record_date_to-year=2020&record_date_to-month=6&record_date_to-day=15"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -153,7 +153,7 @@ class DateValidationTests(TestCase):
 
         # Test year-only dates: 2020 to 2019 should be invalid
         response = self.client.get(
-            "/catalogue/search/?rd_from-year=2020&rd_to-year=2019"
+            "/catalogue/search/?record_date_from-year=2020&record_date_to-year=2019"
         )
 
         form = response.context_data.get("form")
@@ -196,7 +196,7 @@ class DateValidationTests(TestCase):
 
         # Only 'from' date
         response = self.client.get(
-            "/catalogue/search/?rd_from-year=2020&rd_from-month=6&rd_from-day=15"
+            "/catalogue/search/?record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -205,7 +205,7 @@ class DateValidationTests(TestCase):
 
         # Only 'to' date
         response = self.client.get(
-            "/catalogue/search/?rd_to-year=2020&rd_to-month=6&rd_to-day=15"
+            "/catalogue/search/?record_date_to-year=2020&record_date_to-month=6&record_date_to-day=15"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -225,49 +225,54 @@ class DateValidationTests(TestCase):
         test_cases = [
             # (params, should_be_valid, expected_error_fragment, needs_redirect)
             (
-                "rd_from-year=2020&rd_from-month=2&rd_from-day=29"  # Valid leap year
-                "&rd_to-year=2020&rd_to-month=3&rd_to-day=1",
+                "record_date_from-year=2020&record_date_from-month=2&record_date_from-day=29"  # Valid leap year
+                "&record_date_to-year=2020&record_date_to-month=3&record_date_to-day=1",
                 True,
                 None,
                 False,  # Full dates don't redirect
             ),
             (
-                "rd_from-year=2021&rd_from-month=2&rd_from-day=29"  # Invalid non-leap year
-                "&rd_to-year=2021&rd_to-month=3&rd_to-day=1",
+                "record_date_from-year=2021&record_date_from-month=2&record_date_from-day=29"  # Invalid non-leap year
+                "&record_date_to-year=2021&record_date_to-month=3&record_date_to-day=1",
                 False,
                 "Invalid date",
                 False,  # Full dates don't redirect
             ),
             (
-                "rd_from-year=2020&rd_from-month=4&rd_from-day=31"  # April doesn't have 31 days
-                "&rd_to-year=2020&rd_to-month=5&rd_to-day=1",
+                "record_date_from-year=2020&record_date_from-month=4&record_date_from-day=31"  # April doesn't have 31 days
+                "&record_date_to-year=2020&record_date_to-month=5&record_date_to-day=1",
                 False,
                 "Invalid date",
                 False,  # Full dates don't redirect
             ),
             (
-                "rd_from-year=2020&rd_from-month=6"  # Year-month only, valid
-                "&rd_to-year=2020&rd_to-month=8",
+                "record_date_from-year=2020&record_date_from-month=6"  # Year-month only, valid
+                "&record_date_to-year=2020&record_date_to-month=8",
                 True,
                 None,
                 True,  # Partial dates will redirect
             ),
             (
-                "rd_from-year=2020&rd_from-month=8"  # Year-month only, invalid range
-                "&rd_to-year=2020&rd_to-month=6",
+                "record_date_from-year=2020&record_date_from-month=8"  # Year-month only, invalid range
+                "&record_date_to-year=2020&record_date_to-month=6",
                 False,
                 "cannot be later than",
                 True,  # Partial dates will redirect
             ),
         ]
 
-        for params, should_be_valid, expected_error, needs_redirect in test_cases:
+        for (
+            params,
+            should_be_valid,
+            expected_error,
+            needs_redirect,
+        ) in test_cases:
             with self.subTest(params=params):
                 response = self.client.get(
                     f"/catalogue/search/?{params}",
-                    follow=needs_redirect  # Follow redirect only for partial dates
+                    follow=needs_redirect,  # Follow redirect only for partial dates
                 )
-                
+
                 if needs_redirect:
                     # For redirected requests, check final status
                     self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -319,8 +324,8 @@ class DateValidationTests(TestCase):
             "&group=tna"
             "&level=Item"
             "&online=true"
-            "&rd_from-year=2020&rd_from-month=6&rd_from-day=15"
-            "&rd_to-year=2019&rd_to-month=3&rd_to-day=10"  # Invalid range
+            "&record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
+            "&record_date_to-year=2019&record_date_to-month=3&record_date_to-day=10"  # Invalid range
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -348,10 +353,10 @@ class DateValidationTests(TestCase):
         # Test with multiple date validation errors
         response = self.client.get(
             "/catalogue/search/?group=tna"
-            "&rd_from-year=2020&rd_from-month=6&rd_from-day=15"
-            "&rd_to-year=2019&rd_to-month=3&rd_to-day=10"  # Invalid record range
-            "&od_from-year=2020&od_from-month=12&od_from-day=31"
-            "&od_to-year=2020&od_to-month=1&od_to-day=1"  # Invalid opening range
+            "&record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
+            "&record_date_to-year=2019&record_date_to-month=3&record_date_to-day=10"  # Invalid record range
+            "&opening_date_from-year=2020&opening_date_from-month=12&opening_date_from-day=31"
+            "&opening_date_to-year=2020&opening_date_to-month=1&opening_date_to-day=1"  # Invalid opening range
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -403,10 +408,10 @@ class DateValidationTests(TestCase):
         for i in range(10):
             response = self.client.get(
                 f"/catalogue/search/?group=tna"
-                f"&rd_from-year=201{i % 10}&rd_from-month={(i % 12) + 1}&rd_from-day={(i % 28) + 1}"
-                f"&rd_to-year=202{i % 10}&rd_to-month={(i % 12) + 1}&rd_to-day={(i % 28) + 1}"
-                f"&od_from-year=201{i % 10}&od_from-month={(i % 12) + 1}&od_from-day={(i % 28) + 1}"
-                f"&od_to-year=202{i % 10}&od_to-month={(i % 12) + 1}&od_to-day={(i % 28) + 1}"
+                f"&record_date_from-year=201{i % 10}&record_date_from-month={(i % 12) + 1}&record_date_from-day={(i % 28) + 1}"
+                f"&record_date_to-year=202{i % 10}&record_date_to-month={(i % 12) + 1}&record_date_to-day={(i % 28) + 1}"
+                f"&opening_date_from-year=201{i % 10}&opening_date_from-month={(i % 12) + 1}&opening_date_from-day={(i % 28) + 1}"
+                f"&opening_date_to-year=202{i % 10}&opening_date_to-month={(i % 12) + 1}&opening_date_to-day={(i % 28) + 1}"
             )
             self.assertEqual(response.status_code, HTTPStatus.OK)
 
@@ -428,8 +433,8 @@ class DateValidationTests(TestCase):
 
         # Even with API errors, date validation should still work
         response = self.client.get(
-            "/catalogue/search/?rd_from-year=2020&rd_from-month=6&rd_from-day=15"
-            "&rd_to-year=2019&rd_to-month=3&rd_to-day=10"
+            "/catalogue/search/?record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
+            "&record_date_to-year=2019&record_date_to-month=3&record_date_to-day=10"
         )
 
         # May return 500 due to API error, but date validation should have run
@@ -457,9 +462,9 @@ class DateValidationTests(TestCase):
         # Test NonTNA form with invalid record date range
         response = self.client.get(
             "/catalogue/search/?group=nonTna"
-            "&rd_from-year=2020&rd_from-month=6&rd_from-day=15"
-            "&rd_to-year=2019&rd_to-month=3&rd_to-day=10"
-            "&od_from-year=2020&od_from-month=1&od_from-day=1"  # Should be ignored
+            "&record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
+            "&record_date_to-year=2019&record_date_to-month=3&record_date_to-day=10"
+            "&opening_date_from-year=2020&opening_date_from-month=1&opening_date_from-day=1"  # Should be ignored
         )
 
         form = response.context_data.get("form")
@@ -492,28 +497,28 @@ class DateValidationTests(TestCase):
             # (params, should_be_valid, needs_redirect)
             # December 31st to January 1st (next year) - should be valid
             (
-                "rd_from-year=2019&rd_from-month=12&rd_from-day=31"
-                "&rd_to-year=2020&rd_to-month=1&rd_to-day=1",
+                "record_date_from-year=2019&record_date_from-month=12&record_date_from-day=31"
+                "&record_date_to-year=2020&record_date_to-month=1&record_date_to-day=1",
                 True,
                 False,  # Full dates
             ),
             # Same day different years - from later year should be invalid
             (
-                "rd_from-year=2020&rd_from-month=6&rd_from-day=15"
-                "&rd_to-year=2019&rd_to-month=6&rd_to-day=15",
+                "record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
+                "&record_date_to-year=2019&record_date_to-month=6&record_date_to-day=15",
                 False,
                 False,  # Full dates
             ),
             # End of February leap year vs non-leap year
             (
-                "rd_from-year=2020&rd_from-month=2&rd_from-day=29"  # Leap year
-                "&rd_to-year=2021&rd_to-month=2&rd_to-day=28",  # Non-leap year
+                "record_date_from-year=2020&record_date_from-month=2&record_date_from-day=29"  # Leap year
+                "&record_date_to-year=2021&record_date_to-month=2&record_date_to-day=28",  # Non-leap year
                 True,
                 False,  # Full dates
             ),
             # Year-only with same year should be valid
             (
-                "rd_from-year=2020&rd_to-year=2020", 
+                "record_date_from-year=2020&record_date_to-year=2020",
                 True,
                 True,  # Year-only dates will redirect
             ),
@@ -523,7 +528,7 @@ class DateValidationTests(TestCase):
             with self.subTest(params=params):
                 response = self.client.get(
                     f"/catalogue/search/?{params}",
-                    follow=needs_redirect  # Follow redirect for partial dates
+                    follow=needs_redirect,  # Follow redirect for partial dates
                 )
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
@@ -550,7 +555,7 @@ class DateValidationTests(TestCase):
 
         # Submit form with validation errors
         response = self.client.get(
-            "/catalogue/search/?rd_from-year=invalid&rd_to-year=2020"
+            "/catalogue/search/?record_date_from-year=invalid&record_date_to-year=2020"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -572,10 +577,10 @@ class DateValidationTests(TestCase):
         # Create multiple validation errors
         response = self.client.get(
             "/catalogue/search/?group=tna"
-            "&rd_from-year=abc"  # Invalid year format
-            "&rd_to-year=2020&rd_to-month=13"  # Invalid month
-            "&od_from-year=2020&od_from-month=6&od_from-day=15"
-            "&od_to-year=2019&od_to-month=3&od_to-day=10"  # Invalid range
+            "&record_date_from-year=abc"  # Invalid year format
+            "&record_date_to-year=2020&record_date_to-month=13"  # Invalid month
+            "&opening_date_from-year=2020&opening_date_from-month=6&opening_date_from-day=15"
+            "&opening_date_to-year=2019&opening_date_to-month=3&opening_date_to-day=10"  # Invalid range
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -600,8 +605,8 @@ class DateValidationTests(TestCase):
 
         response = self.client.get(
             "/catalogue/search/?group=tna"
-            "&rd_from-year=2020&rd_from-month=6&rd_from-day=15"
-            "&rd_to-year=2021&rd_to-month=8&rd_to-day=20"
+            "&record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
+            "&record_date_to-year=2021&record_date_to-month=8&record_date_to-day=20"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -630,8 +635,8 @@ class DateValidationTests(TestCase):
 
         # TNA form should include opening date parameters
         tna_data = QueryDict(
-            "group=tna&od_from-year=2020&od_from-month=1&od_from-day=1"
-            "&od_to-year=2020&od_to-month=12&od_to-day=31"
+            "group=tna&opening_date_from-year=2020&opening_date_from-month=1&opening_date_from-day=1"
+            "&opening_date_to-year=2020&opening_date_to-month=12&opening_date_to-day=31"
         )
 
         from app.search.forms import CatalogueSearchTnaForm
@@ -666,21 +671,21 @@ class DateValidationTests(TestCase):
 
         error_cases = [
             # (query_params, expected_error_substring)
-            ("rd_from-year=abc", "valid 4-digit year"),
+            ("record_date_from-year=abc", "valid 4-digit year"),
             (
-                "rd_from-year=2020&rd_from-month=13",
+                "record_date_from-year=2020&record_date_from-month=13",
                 "Month must be between 1 and 12",
             ),
             (
-                "rd_from-year=2020&rd_from-month=2&rd_from-day=35",
+                "record_date_from-year=2020&record_date_from-month=2&record_date_from-day=35",
                 "Day must be between 1 and 31",
             ),
             (
-                "rd_from-year=2020&rd_from-day=15",
+                "record_date_from-year=2020&record_date_from-day=15",
                 "Month is required if day is provided",
             ),
             (
-                "rd_from-year=2020&rd_from-month=4&rd_from-day=31",
+                "record_date_from-year=2020&record_date_from-month=4&record_date_from-day=31",
                 "Invalid date",
             ),
         ]

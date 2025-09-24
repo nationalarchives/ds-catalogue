@@ -14,7 +14,7 @@ from django.test import TestCase
 
 class BaseFormWithDateComponentFieldTest(TestCase):
 
-    def get_form_with_date_field(self, data=None, is_from_date=True):
+    def get_form_with_date_field(self, data=None, padding_strategy=None):
 
         class MyTestForm(BaseForm):
             def __init__(self, data=None):
@@ -30,7 +30,7 @@ class BaseFormWithDateComponentFieldTest(TestCase):
                 return {
                     "date_field": DateComponentField(
                         label="Test Date",
-                        is_from_date=is_from_date,
+                        padding_strategy=padding_strategy,
                         required=False,
                     )
                 }
@@ -42,7 +42,7 @@ class BaseFormWithDateComponentFieldTest(TestCase):
         form = self.get_form_with_date_field()
         self.assertEqual(form.fields["date_field"].name, "date_field")
         self.assertEqual(form.fields["date_field"].label, "Test Date")
-        self.assertEqual(form.fields["date_field"].is_from_date, True)
+        self.assertIsNotNone(form.fields["date_field"].padding_strategy)
 
     def test_date_field_empty_is_valid(self):
         data = QueryDict("")
@@ -62,39 +62,71 @@ class BaseFormWithDateComponentFieldTest(TestCase):
         self.assertEqual(form.fields["date_field"].cleaned, date(2020, 6, 15))
         self.assertEqual(form.fields["date_field"].error, {})
 
-    def test_date_field_year_only_from_date(self):
+    def test_date_field_year_only_start_strategy(self):
         data = QueryDict("date_field-year=2020")
-        form = self.get_form_with_date_field(data, is_from_date=True)
+        form = self.get_form_with_date_field(
+            data, padding_strategy=DateComponentField.start_of_period_strategy
+        )
         valid_status = form.is_valid()
         self.assertTrue(valid_status)
-        # From date should default to January 1st
+        # Start strategy should default to January 1st
         self.assertEqual(form.fields["date_field"].cleaned, date(2020, 1, 1))
         self.assertEqual(form.fields["date_field"].error, {})
 
-    def test_date_field_year_only_to_date(self):
+    def test_date_field_year_only_end_strategy(self):
         data = QueryDict("date_field-year=2020")
-        form = self.get_form_with_date_field(data, is_from_date=False)
+        form = self.get_form_with_date_field(
+            data, padding_strategy=DateComponentField.end_of_period_strategy
+        )
         valid_status = form.is_valid()
         self.assertTrue(valid_status)
-        # To date should default to December 31st
+        # End strategy should default to December 31st
         self.assertEqual(form.fields["date_field"].cleaned, date(2020, 12, 31))
         self.assertEqual(form.fields["date_field"].error, {})
 
-    def test_date_field_year_month_from_date(self):
+    def test_date_field_year_month_start_strategy(self):
         data = QueryDict("date_field-year=2020&date_field-month=6")
-        form = self.get_form_with_date_field(data, is_from_date=True)
+        form = self.get_form_with_date_field(
+            data, padding_strategy=DateComponentField.start_of_period_strategy
+        )
         valid_status = form.is_valid()
         self.assertTrue(valid_status)
-        # From date should default to 1st of month
+        # Start strategy should default to 1st of month
         self.assertEqual(form.fields["date_field"].cleaned, date(2020, 6, 1))
 
-    def test_date_field_year_month_to_date(self):
+    def test_date_field_year_month_end_strategy(self):
         data = QueryDict("date_field-year=2020&date_field-month=6")
-        form = self.get_form_with_date_field(data, is_from_date=False)
+        form = self.get_form_with_date_field(
+            data, padding_strategy=DateComponentField.end_of_period_strategy
+        )
         valid_status = form.is_valid()
         self.assertTrue(valid_status)
-        # To date should default to last day of month (June has 30 days)
+        # End strategy should default to last day of month (June has 30 days)
         self.assertEqual(form.fields["date_field"].cleaned, date(2020, 6, 30))
+
+    def test_date_field_year_only_no_strategy_fails(self):
+        """Test that year-only input fails without a padding strategy"""
+        data = QueryDict("date_field-year=2020")
+        form = self.get_form_with_date_field(data)  # No strategy provided
+        valid_status = form.is_valid()
+        self.assertFalse(valid_status)
+        self.assertEqual(form.fields["date_field"].cleaned, None)
+        self.assertEqual(
+            form.fields["date_field"].error["text"],
+            "Month and day are required",
+        )
+
+    def test_date_field_year_month_no_strategy_fails(self):
+        """Test that year-month input fails without a padding strategy"""
+        data = QueryDict("date_field-year=2020&date_field-month=6")
+        form = self.get_form_with_date_field(data)  # No strategy provided
+        valid_status = form.is_valid()
+        self.assertFalse(valid_status)
+        self.assertEqual(form.fields["date_field"].cleaned, None)
+        self.assertEqual(
+            form.fields["date_field"].error["text"],
+            "Day is required",
+        )
 
     def test_date_field_invalid_year(self):
         data = QueryDict("date_field-year=abc")
@@ -239,12 +271,12 @@ class BaseFormWithCrossValidationDateTest(TestCase):
                 return {
                     "from_date": DateComponentField(
                         label="From Date",
-                        is_from_date=True,
+                        padding_strategy=DateComponentField.start_of_period_strategy,
                         required=False,
                     ),
                     "to_date": DateComponentField(
                         label="To Date",
-                        is_from_date=False,
+                        padding_strategy=DateComponentField.end_of_period_strategy,
                         required=False,
                     ),
                 }

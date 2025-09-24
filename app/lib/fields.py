@@ -313,20 +313,24 @@ class DynamicMultipleChoiceField(BaseField):
 class DateComponentField(BaseField):
     """Handles day/month/year components and validates them as a complete date"""
 
-    def __init__(self, is_from_date=True, **kwargs):
+    def __init__(self, padding_strategy=None, **kwargs):
         super().__init__(**kwargs)
         self.day = ""
         self.month = ""
         self.year = ""
-        self.is_from_date = is_from_date
+        self.padding_strategy = padding_strategy or self._no_padding
         self._form_data = None
         self._components_extracted = False
         self.was_expanded = False
 
+    def _no_padding(self, year, month=None):
+        """Default: require complete dates"""
+        if month is None:
+            raise CustomValidationError("Month and day are required")
+        raise CustomValidationError("Day is required")
+
     def bind(self, name, value: list | str) -> None:
         super().bind(name, "")
-        # Don't auto-detect is_from_date from field name in tests
-        # Let the constructor value take precedence
 
     def set_form_data(self, form_data):
         """Set form data and extract components immediately"""
@@ -363,25 +367,24 @@ class DateComponentField(BaseField):
         if not any([self.day, self.month, self.year]):
             return None
 
-        # Store original input state
-        original_has_day = bool(self.day)
-        original_has_month = bool(self.month)
-        original_has_year = bool(self.year)
-        
         # Validate and get the year first
         year = self._validate_year()
-        
+
         # Handle year-only input
         if not self.month and not self.day:
-            result = self._fill_year_only(year)
+            result = self.padding_strategy(year)
             if result:
+                print(f"DEBUG: Expanded {self.name} from year-only to {result}")
                 self.was_expanded = True  # Always expanded for year-only
             return result
-        
+
         # Handle year-month input (no day)
         if self.month and not self.day:
-            result = self._fill_year_month_only(year)
+            month = int(self.month)
+            self._validate_month(month)
+            result = self.padding_strategy(year, month)
             if result:
+                print(f"DEBUG: Expanded {self.name} from year-only to {result}")
                 self.was_expanded = True  # Always expanded for year-month
             return result
 
@@ -418,30 +421,6 @@ class DateComponentField(BaseField):
         if not (1 <= day <= 31):
             raise CustomValidationError("Day must be between 1 and 31")
 
-    def _fill_year_only(self, year):
-        """Fill in month and day for year-only dates"""
-        if self.is_from_date:
-            return date(year, 1, 1)  # January 1st
-        else:
-            return date(year, 12, 31)  # December 31st
-
-    def _fill_year_month_only(self, year):
-        """Fill in day for year-month dates"""
-        try:
-            month = int(self.month)
-        except ValueError:
-            raise CustomValidationError(
-                "Month must be a number between 1 and 12"
-            )
-
-        self._validate_month(month)
-
-        if self.is_from_date:
-            return date(year, month, 1)  # First day of month
-        else:
-            last_day = monthrange(year, month)[1]
-            return date(year, month, last_day)  # Last day of month
-
     def _fill_full_date(self, year):
         """Create date from full year-month-day input"""
         if not self.month:
@@ -463,9 +442,25 @@ class DateComponentField(BaseField):
                 "Invalid date - please check the day is valid for the given month"
             )
 
+    @classmethod
+    def start_of_period_strategy(cls, year, month=None):
+        """Pad partial dates to start of period"""
+        if month is None:
+            return date(year, 1, 1)
+        return date(year, month, 1)
+
+    @classmethod
+    def end_of_period_strategy(cls, year, month=None):
+        """Pad partial dates to end of period"""
+        if month is None:
+            return date(year, 12, 31)
+
+        last_day = monthrange(year, month)[1]
+        return date(year, month, last_day)
+
     @property
     def value(self):
-        """Return the current component values"""
+        """Return the current component values for template consumption"""
         return {
             "day": self.day,
             "month": self.month,

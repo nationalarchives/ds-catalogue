@@ -545,16 +545,20 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
 
         # Test with record date parameters
         response = self.client.get(
-            "/catalogue/search/?rd_from-year=2019&rd_from-month=1&rd_from-day=1"
-            "&rd_to-year=2020&rd_to-month=12&rd_to-day=31"
+            "/catalogue/search/?record_date_from-year=2019&record_date_from-month=1&record_date_from-day=1"
+            "&record_date_to-year=2020&record_date_to-month=12&record_date_to-day=31"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         form = response.context_data.get("form")
 
         # Check that date fields have cleaned values
-        self.assertEqual(form.fields["rd_from"].cleaned, date(2019, 1, 1))
-        self.assertEqual(form.fields["rd_to"].cleaned, date(2020, 12, 31))
+        self.assertEqual(
+            form.fields["record_date_from"].cleaned, date(2019, 1, 1)
+        )
+        self.assertEqual(
+            form.fields["record_date_to"].cleaned, date(2020, 12, 31)
+        )
 
         # Check that selected filters include date filters
         selected_filters = response.context_data.get("selected_filters")
@@ -583,18 +587,22 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         # Test TNA form with opening dates
         response = self.client.get(
             "/catalogue/search/?group=tna"
-            "&od_from-year=2019&od_from-month=6&od_from-day=1"
-            "&od_to-year=2020&od_to-month=6&od_to-day=30"
+            "&opening_date_from-year=2019&opening_date_from-month=6&opening_date_from-day=1"
+            "&opening_date_to-year=2020&opening_date_to-month=6&opening_date_to-day=30"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         form = response.context_data.get("form")
 
         # TNA form should have opening date fields
-        self.assertIn("od_from", form.fields)
-        self.assertIn("od_to", form.fields)
-        self.assertEqual(form.fields["od_from"].cleaned, date(2019, 6, 1))
-        self.assertEqual(form.fields["od_to"].cleaned, date(2020, 6, 30))
+        self.assertIn("opening_date_from", form.fields)
+        self.assertIn("opening_date_to", form.fields)
+        self.assertEqual(
+            form.fields["opening_date_from"].cleaned, date(2019, 6, 1)
+        )
+        self.assertEqual(
+            form.fields["opening_date_to"].cleaned, date(2020, 6, 30)
+        )
 
         # Test NonTNA form should not have opening date fields
         responses.add(
@@ -615,13 +623,13 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
 
         response_nontna = self.client.get(
             "/catalogue/search/?group=nonTna"
-            "&od_from-year=2019&od_from-month=6&od_from-day=1"
+            "&opening_date_from-year=2019&opening_date_from-month=6&opening_date_from-day=1"
         )
 
         form_nontna = response_nontna.context_data.get("form")
         # NonTNA form should not have opening date fields
-        self.assertNotIn("od_from", form_nontna.fields)
-        self.assertNotIn("od_to", form_nontna.fields)
+        self.assertNotIn("opening_date_from", form_nontna.fields)
+        self.assertNotIn("opening_date_to", form_nontna.fields)
 
     @responses.activate
     def test_catalogue_search_with_partial_dates(self):
@@ -642,29 +650,37 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
 
         # Test year-only dates - should redirect with expanded parameters
         response = self.client.get(
-            "/catalogue/search/?rd_from-year=2019&rd_to-year=2020",
-            follow=True  # Follow the redirect to get the final response
+            "/catalogue/search/?record_date_from-year=2019&record_date_to-year=2020",
+            follow=True,  # Follow the redirect to get the final response
         )
 
         # Now we can access context_data from the final response
         form = response.context_data.get("form")
         # Year-only from date should default to Jan 1
-        self.assertEqual(form.fields["rd_from"].cleaned, date(2019, 1, 1))
+        self.assertEqual(
+            form.fields["record_date_from"].cleaned, date(2019, 1, 1)
+        )
         # Year-only to date should default to Dec 31
-        self.assertEqual(form.fields["rd_to"].cleaned, date(2020, 12, 31))
+        self.assertEqual(
+            form.fields["record_date_to"].cleaned, date(2020, 12, 31)
+        )
 
         # Test year-month dates
         response = self.client.get(
-            "/catalogue/search/?rd_from-year=2019&rd_from-month=6"
-            "&rd_to-year=2020&rd_to-month=6",
-            follow=True  # Follow the redirect
+            "/catalogue/search/?record_date_from-year=2019&record_date_from-month=6"
+            "&record_date_to-year=2020&record_date_to-month=6",
+            follow=True,  # Follow the redirect
         )
 
         form = response.context_data.get("form")
         # Year-month from date should default to 1st of month
-        self.assertEqual(form.fields["rd_from"].cleaned, date(2019, 6, 1))
+        self.assertEqual(
+            form.fields["record_date_from"].cleaned, date(2019, 6, 1)
+        )
         # Year-month to date should default to last day of month
-        self.assertEqual(form.fields["rd_to"].cleaned, date(2020, 6, 30))
+        self.assertEqual(
+            form.fields["record_date_to"].cleaned, date(2020, 6, 30)
+        )
 
 
 class CatalogueSearchViewLoggerDebugAPITests(TestCase):
