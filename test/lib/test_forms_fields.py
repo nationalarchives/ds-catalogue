@@ -4,7 +4,7 @@ from app.lib.fields import (
     CharField,
     ChoiceField,
     CustomValidationError,
-    DateComponentField,
+    MultiPartDateField,
     DynamicMultipleChoiceField,
 )
 from app.lib.forms import BaseForm
@@ -23,12 +23,12 @@ class BaseFormWithDateComponentFieldTest(TestCase):
                 for field_name, field in self.fields.items():
                     if hasattr(
                         field, "set_form_data"
-                    ):  # Check if it's a DateComponentField
+                    ):  # Check if it's a MultiPartDateField
                         field.set_form_data(self.data if data else {})
 
             def add_fields(self):
                 return {
-                    "date_field": DateComponentField(
+                    "date_field": MultiPartDateField(
                         label="Test Date",
                         padding_strategy=padding_strategy,
                         required=False,
@@ -65,7 +65,7 @@ class BaseFormWithDateComponentFieldTest(TestCase):
     def test_date_field_year_only_start_strategy(self):
         data = QueryDict("date_field-year=2020")
         form = self.get_form_with_date_field(
-            data, padding_strategy=DateComponentField.start_of_period_strategy
+            data, padding_strategy=MultiPartDateField.start_of_period_strategy
         )
         valid_status = form.is_valid()
         self.assertTrue(valid_status)
@@ -76,7 +76,7 @@ class BaseFormWithDateComponentFieldTest(TestCase):
     def test_date_field_year_only_end_strategy(self):
         data = QueryDict("date_field-year=2020")
         form = self.get_form_with_date_field(
-            data, padding_strategy=DateComponentField.end_of_period_strategy
+            data, padding_strategy=MultiPartDateField.end_of_period_strategy
         )
         valid_status = form.is_valid()
         self.assertTrue(valid_status)
@@ -87,7 +87,7 @@ class BaseFormWithDateComponentFieldTest(TestCase):
     def test_date_field_year_month_start_strategy(self):
         data = QueryDict("date_field-year=2020&date_field-month=6")
         form = self.get_form_with_date_field(
-            data, padding_strategy=DateComponentField.start_of_period_strategy
+            data, padding_strategy=MultiPartDateField.start_of_period_strategy
         )
         valid_status = form.is_valid()
         self.assertTrue(valid_status)
@@ -97,7 +97,7 @@ class BaseFormWithDateComponentFieldTest(TestCase):
     def test_date_field_year_month_end_strategy(self):
         data = QueryDict("date_field-year=2020&date_field-month=6")
         form = self.get_form_with_date_field(
-            data, padding_strategy=DateComponentField.end_of_period_strategy
+            data, padding_strategy=MultiPartDateField.end_of_period_strategy
         )
         valid_status = form.is_valid()
         self.assertTrue(valid_status)
@@ -199,7 +199,7 @@ class BaseFormWithDateComponentFieldTest(TestCase):
         self.assertIsNone(form.fields["date_field"].format_for_api())
 
     def test_date_component_field_edge_cases(self):
-        """Test edge cases in DateComponentField validation"""
+        """Test edge cases in MultiPartDateField validation"""
 
         # Test boundary years
         data = QueryDict("date_field-year=999")  # Below minimum
@@ -269,14 +269,14 @@ class BaseFormWithCrossValidationDateTest(TestCase):
 
             def add_fields(self):
                 return {
-                    "from_date": DateComponentField(
+                    "from_date": MultiPartDateField(
                         label="From Date",
-                        padding_strategy=DateComponentField.start_of_period_strategy,
+                        padding_strategy=MultiPartDateField.start_of_period_strategy,
                         required=False,
                     ),
-                    "to_date": DateComponentField(
+                    "to_date": MultiPartDateField(
                         label="To Date",
-                        padding_strategy=DateComponentField.end_of_period_strategy,
+                        padding_strategy=MultiPartDateField.end_of_period_strategy,
                         required=False,
                     ),
                 }

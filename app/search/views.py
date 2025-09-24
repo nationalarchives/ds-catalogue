@@ -20,6 +20,7 @@ from django.http import (
     QueryDict,
 )
 from django.shortcuts import redirect
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import TemplateView
 
 from .buckets import CATALOGUE_BUCKETS, Bucket, BucketKeys, BucketList
@@ -208,6 +209,8 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             data.setdefault(k, v)
 
         kwargs["data"] = data
+
+        print(f"KWARGS: {kwargs}")
         return kwargs
 
     def get_defaults(self):
@@ -295,10 +298,11 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
         if should_redirect:
             # Redirect to the same view with expanded parameters
-            print(
-                f"DEBUG: Redirecting with params: {updated_params.urlencode()}"
-            )
-            return redirect(f"{self.request.path}?{updated_params.urlencode()}")
+            redirect_url = f"{self.request.path}?{updated_params.urlencode()}"
+            if url_has_allowed_host_and_scheme(redirect_url, allowed_hosts=None):
+                return redirect(redirect_url)
+            else:
+                return redirect("/")
 
         self.api_result = self.get_api_result(
             query=self.query,

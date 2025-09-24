@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from app.lib.fields import (
     CharField,
     ChoiceField,
-    DateComponentField,
+    MultiPartDateField,
     DynamicMultipleChoiceField,
 )
 from app.lib.forms import BaseForm
@@ -37,7 +37,7 @@ class BaseCatalogueSearchForm(BaseForm, ABC):
         # Pass form data to date fields so they can access components
         # This must happen after BaseForm.__init__ has called add_fields()
         for field_name, field in self.fields.items():
-            if isinstance(field, DateComponentField):
+            if isinstance(field, MultiPartDateField):
                 field.set_form_data(self.data if data else {})
 
     def get_common_fields(self):
@@ -56,14 +56,14 @@ class BaseCatalogueSearchForm(BaseForm, ABC):
                 ],
             ),
             FieldsConstant.Q: CharField(),
-            FieldsConstant.RECORD_DATE_FROM: DateComponentField(
+            FieldsConstant.RECORD_DATE_FROM: MultiPartDateField(
                 label="Record date from",
-                padding_strategy=DateComponentField.start_of_period_strategy,
+                padding_strategy=MultiPartDateField.start_of_period_strategy,
                 required=False,
             ),
-            FieldsConstant.RECORD_DATE_TO: DateComponentField(
+            FieldsConstant.RECORD_DATE_TO: MultiPartDateField(
                 label="Record date to",
-                padding_strategy=DateComponentField.end_of_period_strategy,
+                padding_strategy=MultiPartDateField.end_of_period_strategy,
                 required=False,
             ),
         }
@@ -177,14 +177,14 @@ class CatalogueSearchTnaForm(BaseCatalogueSearchForm):
                 active_filter_label="Closure status",
             ),
             # TNA-specific opening date fields
-            FieldsConstant.OPENING_DATE_FROM: DateComponentField(
+            FieldsConstant.OPENING_DATE_FROM: MultiPartDateField(
                 label="Opening date from",
-                padding_strategy=DateComponentField.start_of_period_strategy,
+                padding_strategy=MultiPartDateField.start_of_period_strategy,
                 required=False,
             ),
-            FieldsConstant.OPENING_DATE_TO: DateComponentField(
+            FieldsConstant.OPENING_DATE_TO: MultiPartDateField(
                 label="Opening date to",
-                padding_strategy=DateComponentField.end_of_period_strategy,
+                padding_strategy=MultiPartDateField.end_of_period_strategy,
                 required=False,
             ),
         }

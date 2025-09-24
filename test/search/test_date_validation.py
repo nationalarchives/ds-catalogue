@@ -2,7 +2,7 @@ from http import HTTPStatus
 from unittest.mock import patch
 
 import responses
-from app.lib.fields import DateComponentField
+from app.lib.fields import MultiPartDateField
 from app.lib.forms import BaseForm
 from django.conf import settings
 from django.http import QueryDict

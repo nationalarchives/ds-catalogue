@@ -310,7 +310,7 @@ class DynamicMultipleChoiceField(BaseField):
         self.choices_updated = True
 
 
-class DateComponentField(BaseField):
+class MultiPartDateField(BaseField):
     """Handles day/month/year components and validates them as a complete date"""
 
     def __init__(self, padding_strategy=None, **kwargs):
@@ -374,7 +374,6 @@ class DateComponentField(BaseField):
         if not self.month and not self.day:
             result = self.padding_strategy(year)
             if result:
-                print(f"DEBUG: Expanded {self.name} from year-only to {result}")
                 self.was_expanded = True  # Always expanded for year-only
             return result
 
@@ -384,7 +383,6 @@ class DateComponentField(BaseField):
             self._validate_month(month)
             result = self.padding_strategy(year, month)
             if result:
-                print(f"DEBUG: Expanded {self.name} from year-only to {result}")
                 self.was_expanded = True  # Always expanded for year-month
             return result
 
