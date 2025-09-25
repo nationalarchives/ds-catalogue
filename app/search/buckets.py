@@ -28,7 +28,7 @@ class Aggregation(MultiValueForAggregation):
 
     LEVEL = ("level", "")
     COLLECTION = ("collection", "longCollections")
-    HELD_BY = ("heldBy", "")  # TODO: long_aggs in another PR change to held_by
+    HELD_BY = ("heldBy", "")  # TODO: long_aggs in another PR change
     CLOSURE = ("closure", "")
 
 
