@@ -1,20 +1,35 @@
 import copy
 from dataclasses import dataclass, field
-from enum import StrEnum
+from enum import Enum, StrEnum
 
 from django.contrib.humanize.templatetags.humanize import intcomma
 
 
-class Aggregation(StrEnum):
+class MultiValueForAggregation(Enum):
+    def __new__(cls, aggs, long_aggs):
+        """Allows each enum member to have multiple values.
+        aggs: value used to request aggregation from API
+        long_aggs: value used to request extended aggregation from API"""
+
+        obj = object.__new__(cls)
+        obj._value_ = aggs  # Primary value used by Enum
+        obj.aggs = aggs
+        obj.long_aggs = long_aggs
+        return obj
+
+
+class Aggregation(MultiValueForAggregation):
     """Aggregated counts to include with response.
+    Enum value format (aggs, long_aggs)
+    When long_aggs is empty string, long aggregation is not supported.
 
     Supported by /search endpoint.
     """
 
-    LEVEL = "level"
-    COLLECTION = "collection"
-    HELD_BY = "heldBy"
-    CLOSURE = "closure"
+    LEVEL = ("level", "")
+    COLLECTION = ("collection", "longCollections")
+    HELD_BY = ("heldBy", "")  # TODO: long_aggs in another PR change to held_by
+    CLOSURE = ("closure", "")
 
 
 @dataclass
