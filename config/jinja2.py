@@ -157,6 +157,11 @@ def qs_remove_value(
         rtn_qs.pop(filter)
     return rtn_qs if return_object else rtn_qs.urlencode()
 
+def remove_string_case_insensitive(value: str, to_remove: str):
+    if not value or not to_remove:
+        return value
+    pattern = re.compile(re.escape(to_remove), re.IGNORECASE)
+    return pattern.sub("", value)
 
 def environment(**options):
     env = Environment(**options)
@@ -205,6 +210,7 @@ def environment(**options):
             "apply_generic_xsl": apply_generic_xsl,
             "parse_json": parse_json,
             "tna_html": tna_html,
+            "remove_string_case_insensitive": remove_string_case_insensitive,
         }
     )
     return env

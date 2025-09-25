@@ -8,6 +8,7 @@ from config.jinja2 import (
     qs_toggle_value,
     sanitise_record_field,
     slugify,
+    remove_string_case_insensitive,
 )
 from django.http import QueryDict
 from django.test import TestCase
@@ -153,3 +154,42 @@ class Jinja2TestCase(TestCase):
         self.assertEqual("a=1", qs_remove_value(TEST_QS.copy(), "b"))
         self.assertEqual("a=1&b=1&b=2", qs_remove_value(TEST_QS.copy(), "c"))
         self.assertEqual("a=1&b=1&b=2", qs_remove_value(TEST_QS.copy(), ""))
+
+    def test_remove_string_case_insensitive_single(self):
+        # Assumes function removes all case-insensitive occurrences without trimming surrounding whitespace.
+        self.assertEqual(
+            remove_string_case_insensitive("Hello World", "world"),
+            "Hello ",
+        )
+
+    def test_remove_string_case_insensitive_multiple(self):
+        self.assertEqual(
+            remove_string_case_insensitive("Foo foo FOO", "fOo"),
+            "  ",
+        )
+
+    def test_remove_string_case_insensitive_not_found(self):
+        self.assertEqual(
+            remove_string_case_insensitive("Sample Text", "absent"),
+            "Sample Text",
+        )
+
+    def test_remove_string_case_insensitive_empty_target(self):
+        # Expect no change if target empty.
+        self.assertEqual(
+            remove_string_case_insensitive("Nothing Changes", ""),
+            "Nothing Changes",
+        )
+
+    def test_remove_string_case_insensitive_empty_source(self):
+        self.assertEqual(
+            remove_string_case_insensitive("", "anything"),
+            "",
+        )
+
+    def test_remove_string_case_insensitive_substring(self):
+        # Ensure only full matches removed.
+        self.assertEqual(
+            remove_string_case_insensitive("fooffo", "foo"),
+            "ffo",
+        )
