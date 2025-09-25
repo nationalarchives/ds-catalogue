@@ -129,6 +129,9 @@ class APIMixin:
                     form.fields[field_name].update_choices(
                         choice_api_data, form.fields[field_name].value
                     )
+                    form.fields[field_name].more_filter_options_available = (
+                        bool(aggregation.get("other", 0))
+                    )
 
     def replace_api_data(
         self, field_name, entries_data: list[dict[str, str | int]]
