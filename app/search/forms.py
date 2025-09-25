@@ -5,7 +5,7 @@ from app.lib.fields import (
 )
 from app.lib.forms import BaseForm
 from app.records.constants import TNA_LEVELS
-from app.search.buckets import CATALOGUE_BUCKETS
+from app.search.buckets import CATALOGUE_BUCKETS, Aggregation
 from app.search.constants import Sort
 
 from .collection_names import COLLECTION_CHOICES
@@ -21,6 +21,7 @@ class FieldsConstant:
     ONLINE = "online"
     HELD_BY = "held_by"
     CLOSURE = "closure"
+    FILTER_LIST = "filter_list"
 
 
 class CatalogueSearchTnaForm(BaseForm):
@@ -66,6 +67,15 @@ class CatalogueSearchTnaForm(BaseForm):
                 choices=[],  # no initial choices as they are set dynamically
                 active_filter_label="Closure status",
             ),
+            FieldsConstant.FILTER_LIST: ChoiceField(
+                choices=[
+                    ("", "No filter"),
+                    (
+                        Aggregation.COLLECTION.long_aggs,
+                        FieldsConstant.COLLECTION,
+                    ),
+                ],
+            ),
         }
 
 
@@ -91,5 +101,21 @@ class CatalogueSearchNonTnaForm(BaseForm):
                 label="Held by",
                 choices=[],  # no initial choices as they are set dynamically
                 active_filter_label="Held by",
+            ),
+        }
+
+
+class CatalogueSearchLongFilterForm(BaseForm):
+
+    def add_fields(self):
+
+        return {
+            FieldsConstant.GROUP: ChoiceField(
+                choices=CATALOGUE_BUCKETS.as_choices(),
+            ),
+            FieldsConstant.LONG_FILTER: DynamicMultipleChoiceField(
+                label="Collections",
+                choices=[],  # no initial choices as they are set dynamically
+                validate_input=False,
             ),
         }
