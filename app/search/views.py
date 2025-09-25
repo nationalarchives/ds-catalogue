@@ -229,6 +229,12 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
                 self.current_bucket = self.bucket_list.get_bucket(
                     self.form.fields[FieldsConstant.GROUP].cleaned
                 )
+                # if filter_list is set, use the filter_list template
+                if (
+                    "filter_list" in self.form.fields
+                    and self.form.fields[FieldsConstant.FILTER_LIST].cleaned
+                ):
+                    self.template_name = self.templates.get("filter_list")
                 return self.form_valid()
             else:
                 return self.form_invalid()
@@ -319,7 +325,12 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
 class CatalogueSearchView(CatalogueSearchFormMixin):
 
-    template_name = "search/catalogue.html"
+    # templates for the view
+    templates = {
+        "default": "search/catalogue.html",
+        "filter_list": "search/filter_list.html",
+    }
+    template_name = templates.get("default")  # default template
 
     def get_context_data(self, **kwargs):
         context: dict = super().get_context_data(**kwargs)
