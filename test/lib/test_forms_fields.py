@@ -4,8 +4,8 @@ from app.lib.fields import (
     CharField,
     ChoiceField,
     CustomValidationError,
-    MultiPartDateField,
     DynamicMultipleChoiceField,
+    MultiPartDateField,
 )
 from app.lib.forms import BaseForm
 from django.http import QueryDict
@@ -14,17 +14,52 @@ from django.test import TestCase
 
 class BaseFormWithDateComponentFieldTest(TestCase):
 
+    def _process_date_components_for_form(self, query_dict):
+        """
+        Helper method to process date component data like the view's get_form_kwargs() does.
+        This simulates the view's data processing for direct form creation in tests.
+        """
+        # Create a mutable copy
+        processed_data = QueryDict(mutable=True)
+
+        # Copy all existing data
+        for key, values in query_dict.lists():
+            for value in values:
+                processed_data.appendlist(key, value)
+
+        # Process date component data for date fields
+        date_field_names = [
+            "date_field",
+            "from_date",
+            "to_date",  # Add field names used in tests
+        ]
+
+        for field_name in date_field_names:
+            day = processed_data.get(f"{field_name}-day", "")
+            month = processed_data.get(f"{field_name}-month", "")
+            year = processed_data.get(f"{field_name}-year", "")
+
+            if any([day, month, year]):  # If any component exists
+                # Set the field value as a dict of components
+                processed_data[field_name] = {
+                    "day": day,
+                    "month": month,
+                    "year": year,
+                }
+
+                # Remove the individual component params
+                for component in ["day", "month", "year"]:
+                    if f"{field_name}-{component}" in processed_data:
+                        del processed_data[f"{field_name}-{component}"]
+
+        return processed_data
+
     def get_form_with_date_field(self, data=None, padding_strategy=None):
 
         class MyTestForm(BaseForm):
             def __init__(self, data=None):
                 super().__init__(data)
-                # Pass form data to date fields so they can access components
-                for field_name, field in self.fields.items():
-                    if hasattr(
-                        field, "set_form_data"
-                    ):  # Check if it's a MultiPartDateField
-                        field.set_form_data(self.data if data else {})
+                # No longer need to call set_form_data() - refactored architecture handles this differently
 
             def add_fields(self):
                 return {
@@ -35,7 +70,12 @@ class BaseFormWithDateComponentFieldTest(TestCase):
                     )
                 }
 
-        form = MyTestForm(data)
+        # Process data if provided
+        processed_data = None
+        if data:
+            processed_data = self._process_date_components_for_form(data)
+
+        form = MyTestForm(processed_data)
         return form
 
     def test_date_field_initial_attrs(self):
@@ -235,8 +275,8 @@ class BaseFormWithDateComponentFieldTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("Invalid date", form.fields["date_field"].error["text"])
 
-    def test_date_component_field_get_computed_components(self):
-        """Test get_computed_components method"""
+    def test_date_field_component_properties(self):
+        """Test that component properties work correctly with dict values"""
         data = QueryDict(
             "date_field-year=2020&date_field-month=6&date_field-day=15"
         )
@@ -244,28 +284,55 @@ class BaseFormWithDateComponentFieldTest(TestCase):
         form.is_valid()
 
         field = form.fields["date_field"]
-        components = field.get_computed_components()
 
-        expected = {
-            "date_field-day": "15",
-            "date_field-month": "6",
-            "date_field-year": "2020",
-        }
-        self.assertEqual(components, expected)
+        # Test that the field value is a dict
+        self.assertEqual(
+            field.value, {"day": "15", "month": "6", "year": "2020"}
+        )
+
+        # Test that component properties work
+        self.assertEqual(field.day, "15")
+        self.assertEqual(field.month, "6")
+        self.assertEqual(field.year, "2020")
 
 
 class BaseFormWithCrossValidationDateTest(TestCase):
     """Test cross-validation between date fields"""
+
+    def _process_date_components_for_form(self, query_dict):
+        """Helper method to process date component data"""
+        processed_data = QueryDict(mutable=True)
+
+        for key, values in query_dict.lists():
+            for value in values:
+                processed_data.appendlist(key, value)
+
+        date_field_names = ["from_date", "to_date"]
+
+        for field_name in date_field_names:
+            day = processed_data.get(f"{field_name}-day", "")
+            month = processed_data.get(f"{field_name}-month", "")
+            year = processed_data.get(f"{field_name}-year", "")
+
+            if any([day, month, year]):
+                processed_data[field_name] = {
+                    "day": day,
+                    "month": month,
+                    "year": year,
+                }
+
+                for component in ["day", "month", "year"]:
+                    if f"{field_name}-{component}" in processed_data:
+                        del processed_data[f"{field_name}-{component}"]
+
+        return processed_data
 
     def get_form_with_date_range_fields(self, data=None):
 
         class MyTestForm(BaseForm):
             def __init__(self, data=None):
                 super().__init__(data)
-                # Pass form data to date fields so they can access components
-                for field_name, field in self.fields.items():
-                    if hasattr(field, "set_form_data"):
-                        field.set_form_data(self.data)
+                # No longer need special date field handling
 
             def add_fields(self):
                 return {
@@ -291,7 +358,12 @@ class BaseFormWithCrossValidationDateTest(TestCase):
 
                 return errors
 
-        form = MyTestForm(data)
+        # Process data if provided
+        processed_data = None
+        if data:
+            processed_data = self._process_date_components_for_form(data)
+
+        form = MyTestForm(processed_data)
         return form
 
     def test_valid_date_range_passes_validation(self):
@@ -324,6 +396,9 @@ class BaseFormWithCrossValidationDateTest(TestCase):
         form = self.get_form_with_date_range_fields(data)
         self.assertTrue(form.is_valid())
         self.assertEqual(len(form.non_field_errors), 0)
+
+
+# All other test classes remain exactly the same since they don't use MultiPartDateField
 
 
 class BaseFormWithCharFieldTest(TestCase):

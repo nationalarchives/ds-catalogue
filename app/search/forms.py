@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from app.lib.fields import (
     CharField,
     ChoiceField,
-    MultiPartDateField,
     DynamicMultipleChoiceField,
+    MultiPartDateField,
 )
 from app.lib.forms import BaseForm
 from app.records.constants import TNA_LEVELS
@@ -34,11 +34,6 @@ class BaseCatalogueSearchForm(BaseForm, ABC):
 
     def __init__(self, data=None):
         super().__init__(data)
-        # Pass form data to date fields so they can access components
-        # This must happen after BaseForm.__init__ has called add_fields()
-        for field_name, field in self.fields.items():
-            if isinstance(field, MultiPartDateField):
-                field.set_form_data(self.data if data else {})
 
     def get_common_fields(self):
         """Returns fields common to all catalogue search forms"""

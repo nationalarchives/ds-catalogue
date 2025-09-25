@@ -311,16 +311,11 @@ class DynamicMultipleChoiceField(BaseField):
 
 
 class MultiPartDateField(BaseField):
-    """Handles day/month/year components and validates them as a complete date"""
+    """Handles day/month/year components stored as a dict value"""
 
     def __init__(self, padding_strategy=None, **kwargs):
         super().__init__(**kwargs)
-        self.day = ""
-        self.month = ""
-        self.year = ""
         self.padding_strategy = padding_strategy or self._no_padding
-        self._form_data = None
-        self._components_extracted = False
         self.was_expanded = False
 
     def _no_padding(self, year, month=None):
@@ -329,41 +324,41 @@ class MultiPartDateField(BaseField):
             raise CustomValidationError("Month and day are required")
         raise CustomValidationError("Day is required")
 
-    def bind(self, name, value: list | str) -> None:
-        super().bind(name, "")
+    def bind(self, name, value):
+        """Bind with date component data as dict or list"""
+        super().bind(name, value)
 
-    def set_form_data(self, form_data):
-        """Set form data and extract components immediately"""
-        self._form_data = form_data
-        if self.name and form_data:
-            self._extract_components(form_data, self.name)
+        if isinstance(value, list) and len(value) > 0:
+            # If list, take the last value (like other fields do)
+            self._value = value[-1]
+        elif not value:
+            # Empty value
+            self._value = {}
 
-    def _extract_components(self, form_data, name):
-        """Extract day, month, year components from form data"""
-        if form_data:
-            self.day = str(form_data.get(f"{name}-day", "")).strip()
-            self.month = str(form_data.get(f"{name}-month", "")).strip()
-            self.year = str(form_data.get(f"{name}-year", "")).strip()
-            self._components_extracted = True
+    @property
+    def day(self):
+        """Get day component from bound value"""
+        if isinstance(self._value, dict):
+            return str(self._value.get("day", "")).strip()
+        return ""
 
-    def is_valid(self):
-        """Validate the date components and create cleaned date object"""
-        # If we haven't extracted components yet and we have form data, do it now
-        if not self._components_extracted and self._form_data and self.name:
-            self._extract_components(self._form_data, self.name)
+    @property
+    def month(self):
+        """Get month component from bound value"""
+        if isinstance(self._value, dict):
+            return str(self._value.get("month", "")).strip()
+        return ""
 
-        try:
-            self._cleaned = self.clean(None)
-        except CustomValidationError as e:
-            self.add_error(str(e))
-        except Exception as e:
-            self.add_error(f"Invalid date: {str(e)}")
-
-        return not bool(self._error)
+    @property
+    def year(self):
+        """Get year component from bound value"""
+        if isinstance(self._value, dict):
+            return str(self._value.get("year", "")).strip()
+        return ""
 
     def clean(self, value):
         """Convert components to date object or None, handling partial dates"""
-        # If no components are provided, return None (empty date)
+        # If no components are provided, return None
         if not any([self.day, self.month, self.year]):
             return None
 
@@ -374,7 +369,7 @@ class MultiPartDateField(BaseField):
         if not self.month and not self.day:
             result = self.padding_strategy(year)
             if result:
-                self.was_expanded = True  # Always expanded for year-only
+                self.was_expanded = True
             return result
 
         # Handle year-month input (no day)
@@ -383,7 +378,7 @@ class MultiPartDateField(BaseField):
             self._validate_month(month)
             result = self.padding_strategy(year, month)
             if result:
-                self.was_expanded = True  # Always expanded for year-month
+                self.was_expanded = True
             return result
 
         # Handle full date input
@@ -393,46 +388,36 @@ class MultiPartDateField(BaseField):
         raise CustomValidationError("Please enter a valid date")
 
     def _validate_year(self):
-        """Validate and return the year as an integer"""
         if not self.year:
             raise CustomValidationError(
                 "Year is required if any date component is provided"
             )
-
         try:
             year = int(self.year)
         except ValueError:
             raise CustomValidationError("Please enter a valid 4-digit year")
-
         if not (1000 <= year <= 9999):
             raise CustomValidationError("Please enter a valid 4-digit year")
-
         return year
 
     def _validate_month(self, month):
-        """Validate month is between 1 and 12"""
         if not (1 <= month <= 12):
             raise CustomValidationError("Month must be between 1 and 12")
 
     def _validate_day(self, day):
-        """Validate day is between 1 and 31"""
         if not (1 <= day <= 31):
             raise CustomValidationError("Day must be between 1 and 31")
 
     def _fill_full_date(self, year):
-        """Create date from full year-month-day input"""
         if not self.month:
             raise CustomValidationError("Month is required if day is provided")
-
         try:
             day = int(self.day)
             month = int(self.month)
         except ValueError:
             raise CustomValidationError("Day and month must be numbers")
-
         self._validate_month(month)
         self._validate_day(day)
-
         try:
             return date(year, month, day)
         except ValueError:
@@ -442,36 +427,16 @@ class MultiPartDateField(BaseField):
 
     @classmethod
     def start_of_period_strategy(cls, year, month=None):
-        """Pad partial dates to start of period"""
         if month is None:
             return date(year, 1, 1)
         return date(year, month, 1)
 
     @classmethod
     def end_of_period_strategy(cls, year, month=None):
-        """Pad partial dates to end of period"""
         if month is None:
             return date(year, 12, 31)
-
         last_day = monthrange(year, month)[1]
         return date(year, month, last_day)
-
-    @property
-    def value(self):
-        """Return the current component values for template consumption"""
-        return {
-            "day": self.day,
-            "month": self.month,
-            "year": self.year,
-        }
-
-    def get_computed_components(self) -> dict:
-        """Return components in the format expected by templates"""
-        return {
-            f"{self.name}-day": self.day,
-            f"{self.name}-month": self.month,
-            f"{self.name}-year": self.year,
-        }
 
     def format_for_api(self) -> str | None:
         """Format the cleaned date for API consumption"""

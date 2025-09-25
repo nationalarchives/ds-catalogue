@@ -634,10 +634,20 @@ class DateValidationTests(TestCase):
         )
 
         # TNA form should include opening date parameters
-        tna_data = QueryDict(
-            "group=tna&opening_date_from-year=2020&opening_date_from-month=1&opening_date_from-day=1"
-            "&opening_date_to-year=2020&opening_date_to-month=12&opening_date_to-day=31"
-        )
+        # Create mutable QueryDict and process the data as the view would
+        tna_data = QueryDict(mutable=True)
+        tna_data["group"] = "tna"
+        # Add the date data in the processed dict format that the view creates
+        tna_data["opening_date_from"] = {
+            "day": "1",
+            "month": "1",
+            "year": "2020",
+        }
+        tna_data["opening_date_to"] = {
+            "day": "31",
+            "month": "12",
+            "year": "2020",
+        }
 
         from app.search.forms import CatalogueSearchTnaForm
 
@@ -651,7 +661,8 @@ class DateValidationTests(TestCase):
         # NonTNA form should not include opening date parameters
         from app.search.forms import CatalogueSearchNonTnaForm
 
-        nontna_data = QueryDict("group=nonTna")
+        nontna_data = QueryDict(mutable=True)
+        nontna_data["group"] = "nonTna"
         nontna_form = CatalogueSearchNonTnaForm(data=nontna_data)
         self.assertTrue(nontna_form.is_valid())
 

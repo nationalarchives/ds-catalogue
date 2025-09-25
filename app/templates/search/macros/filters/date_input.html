@@ -3,7 +3,7 @@
 {% from "components/date-input/macro.html" import tnaDateInput %}
 
 
-{% macro date_input(request, name, id, title) %}
+{% macro date_input(request, form, name, id, title) %}
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
   <h3 class="tna-heading-m">{{ title }}</h3>
     {{ tnaDateInput({
@@ -13,9 +13,9 @@
     'id': id + '-from',
     'name': name + '_from',
     'value': {
-      'day': request.GET.get(name + '_from-day', ''),
-      'month': request.GET.get(name + '_from-month', ''),
-      'year': request.GET.get(name + '_from-year', '')
+      'day': form.fields[name + '_from'].day if (name + '_from') in form.fields else '',
+      'month': form.fields[name + '_from'].month if (name + '_from') in form.fields else '',
+      'year': form.fields[name + '_from'].year if (name + '_from') in form.fields else ''
     },
     'formGroupClasses': 'tna-!--margin-top-s',
     'progressive': true,
@@ -31,9 +31,9 @@
     'id': id + '-to',
     'name': name + '_to',
     'value': {
-      'day': request.GET.get(name + '_to-day', ''),
-      'month': request.GET.get(name + '_to-month', ''),
-      'year': request.GET.get(name + '_to-year', '')
+      'day': form.fields[name + '_to'].day if (name + '_to') in form.fields else '',
+      'month': form.fields[name + '_to'].month if (name + '_to') in form.fields else '',
+      'year': form.fields[name + '_to'].year if (name + '_to') in form.fields else ''
     },
     'formGroupClasses': 'tna-!--margin-top-s',
     'progressive': true,

@@ -204,13 +204,32 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             if all(value == "" for value in data.getlist(key)):
                 del data[key]
 
+        date_field_names = [
+            "record_date_from",
+            "record_date_to",
+            "opening_date_from",
+            "opening_date_to",
+        ]
+
+        for field_name in date_field_names:
+            day = data.get(f"{field_name}-day", "")
+            month = data.get(f"{field_name}-month", "")
+            year = data.get(f"{field_name}-year", "")
+
+            if any([day, month, year]):  # If any component exists
+                # Set the field value as a dict of components
+                data[field_name] = {"day": day, "month": month, "year": year}
+
+                # Remove the individual component params
+                for component in ["day", "month", "year"]:
+                    data.pop(f"{field_name}-{component}", None)
+
         # Add any default values
         for k, v in self.get_defaults().items():
             data.setdefault(k, v)
 
         kwargs["data"] = data
 
-        print(f"KWARGS: {kwargs}")
         return kwargs
 
     def get_defaults(self):
@@ -299,7 +318,9 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         if should_redirect:
             # Redirect to the same view with expanded parameters
             redirect_url = f"{self.request.path}?{updated_params.urlencode()}"
-            if url_has_allowed_host_and_scheme(redirect_url, allowed_hosts=None):
+            if url_has_allowed_host_and_scheme(
+                redirect_url, allowed_hosts=None
+            ):
                 return redirect(redirect_url)
             else:
                 return redirect("/")
@@ -500,16 +521,6 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "label": f"Opening date to: {formatted_date}",
                         "href": f"?{self._remove_date_params(self.request.GET, 'opening_date_to')}",
                         "title": "Remove opening to date",
-                    }
-                )
-
-        if closure_statuses := self.request.GET.getlist("closure_status", None):
-            for closure_status in closure_statuses:
-                selected_filters.append(
-                    {
-                        "label": f"Closure status: {CLOSURE_STATUSES.get(closure_status)}",
-                        "href": f"?{qs_toggle_value(self.request.GET, 'closure_status', closure_status)}",
-                        "title": f"Remove {CLOSURE_STATUSES.get(closure_status)} closure status",
                     }
                 )
 
