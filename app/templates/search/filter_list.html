@@ -12,16 +12,6 @@
   <link rel="stylesheet" href="{{ static('catalogue-results.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
 {% endblock %}
 
-{% block skipLink %}
-  {% if results %}
-    {{ tnaSkipLink({
-      'href': 'results',
-      'text': 'Skip to results'
-    }) }}
-  {% endif %}
-  {{ super() }}
-{% endblock %}
-
 {% block beforeContent %}
   <div class="tna-background-accent">
     <div class="tna-container">
