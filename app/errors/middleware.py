@@ -34,7 +34,7 @@ class CustomExceptionMiddleware:
 
         if isinstance(exception, SuspiciousOperation):
             return page_not_found_error_view(
-                request=request, status=HTTPStatus.BAD_REQUEST
+                request=request, status_code=HTTPStatus.BAD_REQUEST
             )
 
         # Exception() raised or Unhandled exceptions
