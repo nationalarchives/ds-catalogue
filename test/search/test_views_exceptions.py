@@ -30,7 +30,7 @@ class TestCatalogueSearchViewExceptions(TestCase):
         )
 
     @prevent_request_warnings
-    def test_choice_field_filer_list_multi_param(self):
+    def test_choice_field_filter_list_multi_param(self):
         """Simulate SuspiciousOperation from multiple filter_list params."""
 
         # test direct call to view raises SuspiciousOperation
