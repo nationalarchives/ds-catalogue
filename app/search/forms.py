@@ -103,19 +103,3 @@ class CatalogueSearchNonTnaForm(BaseForm):
                 active_filter_label="Held by",
             ),
         }
-
-
-class CatalogueSearchLongFilterForm(BaseForm):
-
-    def add_fields(self):
-
-        return {
-            FieldsConstant.GROUP: ChoiceField(
-                choices=CATALOGUE_BUCKETS.as_choices(),
-            ),
-            FieldsConstant.LONG_FILTER: DynamicMultipleChoiceField(
-                label="Collections",
-                choices=[],  # no initial choices as they are set dynamically
-                validate_input=False,
-            ),
-        }
