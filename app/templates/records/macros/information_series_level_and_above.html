@@ -1,6 +1,5 @@
-{% macro whats_it_about(record) %}
+{% macro information_series_level_and_above(record) %}
   {# TODO: Hard coding of levels to remove once we have content for whats_it_about block #}
-  {% if record.is_tna and record.level in ["Series", "Division", "Department"] %}
     <div class="tna-container tna-!--margin-top-m">
       <div class="tna-column tna-column--full">
         <div class="tna-!--padding-vertical-m tna-background-accent etna-rounded-corners">
@@ -23,5 +22,4 @@
         </div>
       </div>
     </div>
-  {% endif %}
 {% endmacro %}

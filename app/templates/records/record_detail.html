@@ -2,8 +2,8 @@
 
 {%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
 {% from 'records/macros/accordion.html' import etna_accordion %}
-{% from 'records/macros/whats_it_about.html' import whats_it_about %}
-{% from 'records/macros/information_boxes.html' import information_boxes %}
+{% from 'records/macros/information_series_level_and_above.html' import information_series_level_and_above %}
+{% from 'records/macros/information_below_series_level.html' import information_below_series_level %}
 {% from 'records/macros/detail_fields.html' import detail_fields %}
 {% from 'records/macros/hierarchy.html' import hierarchy %}
 {% from 'records/macros/how_to_order.html' import how_to_order %}
@@ -48,9 +48,11 @@
     </div>
   </div>
 
-  {{ whats_it_about(record) }}
-
-  {{ information_boxes(record) }}
+  {% if record.is_tna and record.level in ["Series", "Division", "Department"] %}
+    {{ information_series_level_and_above(record) }}
+  {% else %}
+    {{ information_below_series_level(record) }}
+  {% endif %}
 
   {{ detail_fields(record, field_labels, request) }}
 
