@@ -9,6 +9,7 @@ from config.jinja2 import (
     sanitise_record_field,
     slugify,
     remove_string_case_insensitive,
+    truncate_preserve_mark_tags,
 )
 from django.http import QueryDict
 from django.test import TestCase
@@ -192,4 +193,81 @@ class Jinja2TestCase(TestCase):
         self.assertEqual(
             remove_string_case_insensitive("fooffo", "foo"),
             "ffo",
+        )
+
+    def test_truncate_preserve_mark_tags_no_truncation(self):
+        self.assertEqual(
+            truncate_preserve_mark_tags("Hello world", 50),
+            "Hello world",
+        )
+
+    def test_truncate_preserve_mark_tags_simple_truncation(self):
+        self.assertEqual(
+            truncate_preserve_mark_tags("Hello world", 5),
+            "Hello…",
+        )
+
+    def test_truncate_preserve_mark_tags_with_mark_no_truncation(self):
+        self.assertEqual(
+            truncate_preserve_mark_tags(
+                "Hello <mark>world</mark>", 20
+            ),
+            "Hello <mark>world</mark>",
+        )
+
+    def test_truncate_preserve_mark_tags_truncate_after_mark(self):
+        self.assertEqual(
+            truncate_preserve_mark_tags(
+                "Hi <mark>there</mark> friend", 9
+            ),
+            "Hi <mark>there</mark> …",
+        )
+
+    def test_truncate_preserve_mark_tags_truncate_inside_mark_content(
+        self,
+    ):
+        self.assertEqual(
+            truncate_preserve_mark_tags("<mark>abcdefghij</mark>", 5),
+            "<mark>abcde</mark>…",
+        )
+
+    def test_truncate_preserve_mark_tags_multiple_marks(self):
+        self.assertEqual(
+            truncate_preserve_mark_tags(
+                "A <mark>quick</mark> brown <mark>fox</mark> jumps", 17
+            ),
+            "A <mark>quick</mark> brown <mark>fox</mark>…",
+        )
+
+    def test_truncate_preserve_mark_tags_adjacent_marks(self):
+        self.assertEqual(
+            truncate_preserve_mark_tags(
+                "<mark>alpha</mark><mark>beta</mark><mark>gamma</mark>", 12
+            ),
+            "<mark>alpha</mark><mark>beta</mark><mark>gam</mark>…",
+        )
+
+    def test_truncate_preserve_mark_tags_empty_string(self):
+        self.assertEqual(
+            truncate_preserve_mark_tags("", 10),
+            "",
+        )
+
+    def test_truncate_preserve_mark_tags_zero_length(self):
+        self.assertEqual(
+            truncate_preserve_mark_tags("Content", 0),
+            "",
+        )
+
+    def test_truncate_preserve_mark_tags_only_mark_tag(self):
+        self.assertEqual(
+            truncate_preserve_mark_tags("<mark>content</mark>", 7),
+            "<mark>content</mark>…",
+        )
+
+    def test_truncate_preserve_mark_tags_uses_default_max_length_when_omitted(self):
+        long_text = "a" * 300
+        self.assertEqual(
+            truncate_preserve_mark_tags(long_text),
+            "a" * 250 + "…",
         )

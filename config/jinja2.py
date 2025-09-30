@@ -157,11 +157,104 @@ def qs_remove_value(
         rtn_qs.pop(filter)
     return rtn_qs if return_object else rtn_qs.urlencode()
 
+
 def remove_string_case_insensitive(value: str, to_remove: str):
     if not value or not to_remove:
         return value
     pattern = re.compile(re.escape(to_remove), re.IGNORECASE)
     return pattern.sub("", value)
+
+
+def truncate_preserve_mark_tags(value, max_length=250):
+    """
+    Truncate text to `max_length` visible characters while:
+    - Keeping only <mark> tags (with their attributes) and stripping all other HTML.
+    - Counting only visible characters (HTML tags do not count).
+    - Auto-closing any still-open <mark> tags on truncation.
+    - Appending an ellipsis (… ) if truncation occurs.
+    """
+    if value is None:
+        return ""
+    try:
+        max_length = int(
+            max_length
+        )  # Here we're coercing to an integer, raising an exception if not possible.
+    except (TypeError, ValueError):
+        return value
+    # An obvious thing, but if max_length is zero or negative, return empty string.
+    if max_length <= 0 or value == "":
+        return ""
+
+    # Regex to isolate <mark> opening/closing tags as separate tokens (case-insensitive).
+    mark_tag_re = re.compile(r"(</?mark\b[^>]*>)", re.IGNORECASE)
+
+    # Split input into tokens: <mark> tags and everything else.
+    tokens = mark_tag_re.split(value)
+
+    output = []  # Will be used to accumulate output parts
+    visible = (
+        0  # Will be used to count visible (non-tag) characters emitted so far
+    )
+    truncated = False  # Flag once we hit the limit.
+    stack = []  # Tracks open <mark> tags for correct closing order.
+
+    """
+    Helper to append as much of `text` as fits within remaining visible character limit.
+    """
+
+    def append_text_chunk(text, remaining_visible):
+        nonlocal visible, truncated
+        if not text or remaining_visible <= 0:
+            return
+        if len(text) <= remaining_visible:
+            output.append(text)
+            visible += len(text)
+        else:
+            output.append(text[:remaining_visible])
+            visible += remaining_visible
+            truncated = True  # We had to slice the text.
+
+    for tok in tokens:
+        if truncated:
+            break
+        if mark_tag_re.fullmatch(tok):
+            # Current token is a <mark> tag (opening or closing).
+            if tok.startswith("</"):
+                # Only emit a closing tag if we have a corresponding opener.
+                if stack:
+                    stack.pop()
+                    output.append("</mark>")
+            else:
+                # Opening <mark>; only keep if we still can display characters.
+                if visible < max_length:
+                    output.append(tok)
+                    stack.append("mark")
+            continue
+
+        # Plain text or other HTML: strip any non-<mark> tags.
+        text_only = re.sub(r"<[^>]+>", "", tok)
+        if not text_only:
+            continue
+        remaining = max_length - visible
+        append_text_chunk(text_only, remaining)
+        if visible >= max_length:
+            truncated = True
+            break
+
+    if truncated:
+        # Ensure all open <mark> tags are closed before adding ellipsis.
+        while stack:
+            output.append("</mark>")
+            stack.pop()
+        output.append("…")
+    else:
+        # Not truncated: still close any dangling <mark> tags defensively.
+        while stack:
+            output.append("</mark>")
+            stack.pop()
+
+    return "".join(output)
+
 
 def environment(**options):
     env = Environment(**options)
@@ -211,6 +304,7 @@ def environment(**options):
             "parse_json": parse_json,
             "tna_html": tna_html,
             "remove_string_case_insensitive": remove_string_case_insensitive,
+            "truncate_preserve_mark_tags": truncate_preserve_mark_tags,
         }
     )
     return env
