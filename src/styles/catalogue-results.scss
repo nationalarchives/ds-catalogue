@@ -177,11 +177,14 @@ mark {
 }
 
 .mobile-skip {
-  margin: -1em;
-
-  display: none;
+  visibility: hidden;
+  margin-top:-5.4em;
+  
   @media only screen and (width <= 48em) {
-    display: block !important;
+    visibility: visible;
+    margin-top:0;
+    margin-bottom: -1em;
+    margin-left: -1em;
   }
 }
 
