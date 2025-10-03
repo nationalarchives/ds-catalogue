@@ -1,3 +1,4 @@
+from datetime import date
 from http import HTTPStatus
 from unittest.mock import patch
 
@@ -131,7 +132,7 @@ class CatalogueSearchViewTests(TestCase):
             self.response.context_data.get("form"), CatalogueSearchTnaForm
         )
         self.assertEqual(self.response.context_data.get("form").errors, {})
-        self.assertEqual(len(self.response.context_data.get("form").fields), 7)
+        self.assertEqual(len(self.response.context_data.get("form").fields), 11)
         tna_field_names = [
             FieldsConstant.GROUP,
             FieldsConstant.SORT,
@@ -140,6 +141,10 @@ class CatalogueSearchViewTests(TestCase):
             FieldsConstant.COLLECTION,
             FieldsConstant.ONLINE,
             FieldsConstant.CLOSURE,
+            FieldsConstant.COVERING_DATE_FROM,
+            FieldsConstant.COVERING_DATE_TO,
+            FieldsConstant.OPENING_DATE_FROM,
+            FieldsConstant.OPENING_DATE_TO,
         ]
         tna_form_field_names = set(
             self.response.context_data.get("form").fields.keys()
@@ -294,6 +299,37 @@ class CatalogueSearchViewTests(TestCase):
             ],
         )
 
+        # Test that empty date fields have empty dict values and no cleaned values
+        record_date_from_field = self.response.context_data.get("form").fields[
+            "covering_date_from"
+        ]
+        record_date_to_field = self.response.context_data.get("form").fields[
+            "covering_date_to"
+        ]
+        opening_date_from_field = self.response.context_data.get("form").fields[
+            "opening_date_from"
+        ]
+        opening_date_to_field = self.response.context_data.get("form").fields[
+            "opening_date_to"
+        ]
+
+        # Check that date fields have empty dict values when no components provided
+        self.assertEqual(record_date_from_field.value, {})
+        self.assertEqual(record_date_to_field.value, {})
+        self.assertEqual(opening_date_from_field.value, {})
+        self.assertEqual(opening_date_to_field.value, {})
+
+        # Check component properties return empty strings
+        self.assertEqual(record_date_from_field.day, "")
+        self.assertEqual(record_date_from_field.month, "")
+        self.assertEqual(record_date_from_field.year, "")
+
+        # Check cleaned values are None for empty dates
+        self.assertIsNone(record_date_from_field.cleaned)
+        self.assertIsNone(record_date_to_field.cleaned)
+        self.assertIsNone(opening_date_from_field.cleaned)
+        self.assertIsNone(opening_date_to_field.cleaned)
+
     @responses.activate
     def test_catalogue_search_context_with_query_param(self):
 
@@ -442,12 +478,14 @@ class CatalogueSearchViewTests(TestCase):
             self.response.context_data.get("form"), CatalogueSearchNonTnaForm
         )
         self.assertEqual(self.response.context_data.get("form").errors, {})
-        self.assertEqual(len(self.response.context_data.get("form").fields), 4)
+        self.assertEqual(len(self.response.context_data.get("form").fields), 6)
         non_tna_field_names = [
             FieldsConstant.GROUP,
             FieldsConstant.SORT,
             FieldsConstant.Q,
             FieldsConstant.HELD_BY,
+            FieldsConstant.COVERING_DATE_FROM,
+            FieldsConstant.COVERING_DATE_TO,
         ]
         non_tna_form_field_names = set(
             self.response.context_data.get("form").fields.keys()
@@ -576,6 +614,224 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         mock_logger.debug.assert_called_with(
             "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
         )
+
+    @responses.activate
+    def test_catalogue_search_context_with_record_date_params(self):
+        """Test that record date parameters are handled correctly"""
+
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "iaid": "C123456",
+                                "source": "CAT",
+                            }
+                        }
+                    }
+                ],
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [{"value": "tna", "count": 1}],
+                    }
+                ],
+                "stats": {"total": 1, "results": 1},
+            },
+            status=HTTPStatus.OK,
+        )
+
+        # Test with record date parameters
+        response = self.client.get(
+            "/catalogue/search/?covering_date_from-year=2019&covering_date_from-month=1&covering_date_from-day=1"
+            "&covering_date_to-year=2020&covering_date_to-month=12&covering_date_to-day=31"
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        form = response.context_data.get("form")
+
+        # Check that date fields have correct dict values with components
+        record_date_from_field = form.fields["covering_date_from"]
+        record_date_to_field = form.fields["covering_date_to"]
+
+        # Test the dict-based values
+        self.assertEqual(
+            record_date_from_field.value,
+            {"day": "1", "month": "1", "year": "2019"},
+        )
+        self.assertEqual(
+            record_date_to_field.value,
+            {"day": "31", "month": "12", "year": "2020"},
+        )
+
+        # Test component properties
+        self.assertEqual(record_date_from_field.day, "1")
+        self.assertEqual(record_date_from_field.month, "1")
+        self.assertEqual(record_date_from_field.year, "2019")
+        self.assertEqual(record_date_to_field.day, "31")
+        self.assertEqual(record_date_to_field.month, "12")
+        self.assertEqual(record_date_to_field.year, "2020")
+
+        # Check that date fields have cleaned values
+        self.assertEqual(record_date_from_field.cleaned, date(2019, 1, 1))
+        self.assertEqual(record_date_to_field.cleaned, date(2020, 12, 31))
+
+        # Check that selected filters include date filters
+        selected_filters = response.context_data.get("selected_filters")
+        filter_labels = [f["label"] for f in selected_filters]
+
+        self.assertIn("Covering date from: 01 January 2019", filter_labels)
+        self.assertIn("Covering date to: 31 December 2020", filter_labels)
+
+    @responses.activate
+    def test_catalogue_search_context_with_opening_date_params_tna_only(self):
+        """Test that opening date parameters only work for TNA forms"""
+
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [],
+                "buckets": [
+                    {"name": "group", "entries": [{"value": "tna", "count": 1}]}
+                ],
+                "stats": {"total": 0, "results": 0},
+            },
+            status=HTTPStatus.OK,
+        )
+
+        # Test TNA form with opening dates
+        response = self.client.get(
+            "/catalogue/search/?group=tna"
+            "&opening_date_from-year=2019&opening_date_from-month=6&opening_date_from-day=1"
+            "&opening_date_to-year=2020&opening_date_to-month=6&opening_date_to-day=30"
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        form = response.context_data.get("form")
+
+        # TNA form should have opening date fields
+        self.assertIn("opening_date_from", form.fields)
+        self.assertIn("opening_date_to", form.fields)
+
+        # Check dict values
+        opening_date_from_field = form.fields["opening_date_from"]
+        opening_date_to_field = form.fields["opening_date_to"]
+
+        self.assertEqual(
+            opening_date_from_field.value,
+            {"day": "1", "month": "6", "year": "2019"},
+        )
+        self.assertEqual(
+            opening_date_to_field.value,
+            {"day": "30", "month": "6", "year": "2020"},
+        )
+
+        # Check cleaned values
+        self.assertEqual(opening_date_from_field.cleaned, date(2019, 6, 1))
+        self.assertEqual(opening_date_to_field.cleaned, date(2020, 6, 30))
+
+        # Test NonTNA form should not have opening date fields
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [],
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [{"value": "nonTna", "count": 1}],
+                    }
+                ],
+                "stats": {"total": 0, "results": 0},
+            },
+            status=HTTPStatus.OK,
+        )
+
+        response_nontna = self.client.get(
+            "/catalogue/search/?group=nonTna"
+            "&opening_date_from-year=2019&opening_date_from-month=6&opening_date_from-day=1"
+        )
+
+        form_nontna = response_nontna.context_data.get("form")
+        # NonTNA form should not have opening date fields
+        self.assertNotIn("opening_date_from", form_nontna.fields)
+        self.assertNotIn("opening_date_to", form_nontna.fields)
+
+    @responses.activate
+    def test_catalogue_search_with_partial_dates(self):
+        """Test that partial dates (year-only, year-month) work correctly"""
+
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [],
+                "buckets": [
+                    {"name": "group", "entries": [{"value": "tna", "count": 1}]}
+                ],
+                "stats": {"total": 0, "results": 0},
+            },
+            status=HTTPStatus.OK,
+        )
+
+        # Test year-only dates - should redirect with expanded parameters
+        response = self.client.get(
+            "/catalogue/search/?covering_date_from-year=2019&covering_date_to-year=2020",
+            follow=True,  # Follow the redirect to get the final response
+        )
+
+        # The redirect should happen and we get the final response with expanded parameters
+        form = response.context_data.get("form")
+
+        # Check that fields now have dict values with all components filled
+        record_date_from_field = form.fields["covering_date_from"]
+        record_date_to_field = form.fields["covering_date_to"]
+
+        # After redirect, the fields should have complete component data
+        self.assertEqual(
+            record_date_from_field.value,
+            {"day": "1", "month": "1", "year": "2019"},
+        )
+        self.assertEqual(
+            record_date_to_field.value,
+            {"day": "31", "month": "12", "year": "2020"},
+        )
+
+        # Year-only from date should default to Jan 1
+        self.assertEqual(record_date_from_field.cleaned, date(2019, 1, 1))
+        # Year-only to date should default to Dec 31
+        self.assertEqual(record_date_to_field.cleaned, date(2020, 12, 31))
+
+        # Test year-month dates
+        response = self.client.get(
+            "/catalogue/search/?covering_date_from-year=2019&covering_date_from-month=6"
+            "&covering_date_to-year=2020&covering_date_to-month=6",
+            follow=True,  # Follow the redirect
+        )
+
+        form = response.context_data.get("form")
+
+        # Check dict values after redirect
+        record_date_from_field = form.fields["covering_date_from"]
+        record_date_to_field = form.fields["covering_date_to"]
+
+        self.assertEqual(
+            record_date_from_field.value,
+            {"day": "1", "month": "6", "year": "2019"},
+        )
+        self.assertEqual(
+            record_date_to_field.value,
+            {"day": "30", "month": "6", "year": "2020"},
+        )
+
+        # Year-month from date should default to 1st of month
+        self.assertEqual(record_date_from_field.cleaned, date(2019, 6, 1))
+        # Year-month to date should default to last day of month
+        self.assertEqual(record_date_to_field.cleaned, date(2020, 6, 30))
 
 
 class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):

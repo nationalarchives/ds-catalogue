@@ -1,9 +1,12 @@
 """Module for custom fields which interfaces with FE component attrs."""
 
+from calendar import monthrange
+from datetime import date
+
 from django.utils.functional import cached_property
 
 
-class ValidationError(Exception):
+class CustomValidationError(Exception):
     pass
 
 
@@ -40,12 +43,12 @@ class BaseField:
         self._value = value
 
     def is_valid(self):
-        """Runs cleaning and validation. Handles ValidationError.
+        """Runs cleaning and validation. Handles CustomValidationError.
         Stores cleaned value. Returns True if valid, False otherwise"""
 
         try:
             self._cleaned = self.clean(self.value)
-        except ValidationError as e:
+        except CustomValidationError as e:
             self.add_error(str(e))
 
         return not self._error
@@ -57,10 +60,10 @@ class BaseField:
         return value
 
     def validate(self, value):
-        """Basic validation. For more validation, Subclass and raise ValidationError"""
+        """Basic validation. For more validation, Subclass and raise CustomValidationError"""
 
         if self.required and not value:
-            raise ValidationError("Value is required.")
+            raise CustomValidationError("Value is required.")
 
     def add_error(self, message):
         """Stores error message in the format of FE component"""
@@ -136,7 +139,7 @@ class ChoiceField(BaseField):
 
         valid_choices = [value for value, _ in self.choices]
         if not self._has_match(value, valid_choices):
-            raise ValidationError(
+            raise CustomValidationError(
                 (
                     f"Enter a valid choice. [{value or 'Empty param value'}] is not one of the available choices. "
                     f"Valid choices are [{', '.join(valid_choices)}]"
@@ -204,7 +207,7 @@ class DynamicMultipleChoiceField(BaseField):
             super().validate(value)
             if self.validate_input:
                 if not self._has_match_all(value, self.valid_choices):
-                    raise ValidationError(
+                    raise CustomValidationError(
                         (
                             f"Enter a valid choice. Value(s) [{', '.join(value)}] do not belong "
                             f"to the available choices. Valid choices are [{', '.join(self.valid_choices)}]"
@@ -305,3 +308,138 @@ class DynamicMultipleChoiceField(BaseField):
         # Replace the field's attribute value
         self.choices = choices
         self.choices_updated = True
+
+
+class MultiPartDateField(BaseField):
+    """Handles day/month/year components stored as a dict value"""
+
+    def __init__(self, padding_strategy=None, **kwargs):
+        super().__init__(**kwargs)
+        self.padding_strategy = padding_strategy or self._no_padding
+        self.was_expanded = False
+
+    def _no_padding(self, year, month=None):
+        """Default: require complete dates"""
+        if month is None:
+            raise CustomValidationError("Month and day are required")
+        raise CustomValidationError("Day is required")
+
+    def bind(self, name, value):
+        """Bind with date component data as dict or list"""
+        super().bind(name, value)
+
+        if isinstance(value, list) and len(value) > 0:
+            # If list, take the last value (like other fields do)
+            self._value = value[-1]
+        elif not value:
+            # Empty value
+            self._value = {}
+
+    @property
+    def day(self):
+        """Get day component from bound value"""
+        if isinstance(self._value, dict):
+            return str(self._value.get("day", "")).strip()
+        return ""
+
+    @property
+    def month(self):
+        """Get month component from bound value"""
+        if isinstance(self._value, dict):
+            return str(self._value.get("month", "")).strip()
+        return ""
+
+    @property
+    def year(self):
+        """Get year component from bound value"""
+        if isinstance(self._value, dict):
+            return str(self._value.get("year", "")).strip()
+        return ""
+
+    def clean(self, value):
+        """Convert components to date object or None, handling partial dates"""
+        # If no components are provided, return None
+        if not any([self.day, self.month, self.year]):
+            return None
+
+        # Validate and get the year first
+        year = self._validate_year()
+
+        # Handle year-only input
+        if not self.month and not self.day:
+            result = self.padding_strategy(year)
+            if result:
+                self.was_expanded = True
+            return result
+
+        # Handle year-month input (no day)
+        if self.month and not self.day:
+            month = int(self.month)
+            self._validate_month(month)
+            result = self.padding_strategy(year, month)
+            if result:
+                self.was_expanded = True
+            return result
+
+        # Handle full date input
+        if self.day:
+            return self._fill_full_date(year)
+
+        raise CustomValidationError("Please enter a valid date")
+
+    def _validate_year(self):
+        if not self.year:
+            raise CustomValidationError(
+                "Year is required if any date component is provided"
+            )
+        try:
+            year = int(self.year)
+        except ValueError:
+            raise CustomValidationError("Please enter a valid 4-digit year")
+        if not (1000 <= year <= 9999):
+            raise CustomValidationError("Please enter a valid 4-digit year")
+        return year
+
+    def _validate_month(self, month):
+        if not (1 <= month <= 12):
+            raise CustomValidationError("Month must be between 1 and 12")
+
+    def _validate_day(self, day):
+        if not (1 <= day <= 31):
+            raise CustomValidationError("Day must be between 1 and 31")
+
+    def _fill_full_date(self, year):
+        if not self.month:
+            raise CustomValidationError("Month is required if day is provided")
+        try:
+            day = int(self.day)
+            month = int(self.month)
+        except ValueError:
+            raise CustomValidationError("Day and month must be numbers")
+        self._validate_month(month)
+        self._validate_day(day)
+        try:
+            return date(year, month, day)
+        except ValueError:
+            raise CustomValidationError(
+                "Invalid date - please check the day is valid for the given month"
+            )
+
+    @classmethod
+    def start_of_period_strategy(cls, year, month=None):
+        if month is None:
+            return date(year, 1, 1)
+        return date(year, month, 1)
+
+    @classmethod
+    def end_of_period_strategy(cls, year, month=None):
+        if month is None:
+            return date(year, 12, 31)
+        last_day = monthrange(year, month)[1]
+        return date(year, month, last_day)
+
+    def format_for_api(self) -> str | None:
+        """Format the cleaned date for API consumption"""
+        if self.cleaned:
+            return self.cleaned.strftime("%Y-%m-%d")
+        return None
