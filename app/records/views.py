@@ -7,6 +7,7 @@ from app.deliveryoptions.api import delivery_options_request_handler
 from app.deliveryoptions.delivery_options import (
     AvailabilityCondition,
     construct_delivery_options,
+    has_distressing_content,
 )
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
 from app.lib.api import JSONAPIClient, ResourceNotFound
@@ -185,6 +186,10 @@ def record_detail_view(request, id):
     #     )
 
     # context.update(delivery_options_context)
+
+    context["distressing_content"] = has_distressing_content(
+        record.reference_number
+    )
 
     return TemplateResponse(
         request=request, template=template_name, context=context

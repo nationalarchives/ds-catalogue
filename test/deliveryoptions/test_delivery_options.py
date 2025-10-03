@@ -230,7 +230,7 @@ class TestDeliveryOptionSubstitution(TestCase):
         }
 
         with patch(
-            "app.deliveryoptions.delivery_options.has_distressing_content_match",
+            "app.deliveryoptions.delivery_options.has_distressing_content",
             return_value=True,
         ):
             selected_description = next(
@@ -256,7 +256,7 @@ class TestDeliveryOptionSubstitution(TestCase):
         }
 
         with patch(
-            "app.deliveryoptions.delivery_options.has_distressing_content_match",
+            "app.deliveryoptions.delivery_options.has_distressing_content",
             return_value=False,
         ):
             selected_description = next(
