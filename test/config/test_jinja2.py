@@ -6,9 +6,9 @@ from config.jinja2 import (
     qs_remove_value,
     qs_replace_value,
     qs_toggle_value,
+    remove_string_case_insensitive,
     sanitise_record_field,
     slugify,
-    remove_string_case_insensitive,
     truncate_preserve_mark_tags,
 )
 from django.http import QueryDict
@@ -209,17 +209,13 @@ class Jinja2TestCase(TestCase):
 
     def test_truncate_preserve_mark_tags_with_mark_no_truncation(self):
         self.assertEqual(
-            truncate_preserve_mark_tags(
-                "Hello <mark>world</mark>", 20
-            ),
+            truncate_preserve_mark_tags("Hello <mark>world</mark>", 20),
             "Hello <mark>world</mark>",
         )
 
     def test_truncate_preserve_mark_tags_truncate_after_mark(self):
         self.assertEqual(
-            truncate_preserve_mark_tags(
-                "Hi <mark>there</mark> friend", 9
-            ),
+            truncate_preserve_mark_tags("Hi <mark>there</mark> friend", 9),
             "Hi <mark>there</mark> …",
         )
 
@@ -265,7 +261,9 @@ class Jinja2TestCase(TestCase):
             "<mark>content</mark>…",
         )
 
-    def test_truncate_preserve_mark_tags_uses_default_max_length_when_omitted(self):
+    def test_truncate_preserve_mark_tags_uses_default_max_length_when_omitted(
+        self,
+    ):
         long_text = "a" * 300
         self.assertEqual(
             truncate_preserve_mark_tags(long_text),
