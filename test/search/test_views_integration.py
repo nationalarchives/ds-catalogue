@@ -101,8 +101,8 @@ class CatalogueSearchViewIntegrationTests(TestCase):
 
         # Test invalid date range
         response = self.client.get(
-            "/catalogue/search/?record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
-            "&record_date_to-year=2019&record_date_to-month=3&record_date_to-day=10"
+            "/catalogue/search/?covering_date_from-year=2020&covering_date_from-month=6&covering_date_from-day=15"
+            "&covering_date_to-year=2019&covering_date_to-month=3&covering_date_to-day=10"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -150,8 +150,8 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         # Test with both record and opening dates
         response = self.client.get(
             "/catalogue/search/?group=tna&q=test"
-            "&record_date_from-year=2019&record_date_from-month=1&record_date_from-day=1"
-            "&record_date_to-year=2020&record_date_to-month=12&record_date_to-day=31"
+            "&covering_date_from-year=2019&covering_date_from-month=1&covering_date_from-day=1"
+            "&covering_date_to-year=2020&covering_date_to-month=12&covering_date_to-day=31"
             "&opening_date_from-year=2019&opening_date_from-month=6&opening_date_from-day=1"
             "&opening_date_to-year=2020&opening_date_to-month=6&opening_date_to-day=30"
         )
@@ -160,19 +160,19 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         html = force_str(response.content)
 
         # Check that date filters appear with removal links
-        self.assertIn("Record date from: 01 January 2019", html)
-        self.assertIn("Record date to: 31 December 2020", html)
+        self.assertIn("Covering date from: 01 January 2019", html)
+        self.assertIn("Covering date to: 31 December 2020", html)
         self.assertIn("Opening date from: 01 June 2019", html)
         self.assertIn("Opening date to: 30 June 2020", html)
 
         # Check that removal links exist and don't include the date being removed
-        # Record from removal link should not include record_date_from parameters
+        # Record from removal link should not include covering_date_from parameters
         self.assertIn(
-            'href="?group=tna&amp;q=test&amp;record_date_to-year=2020', html
+            'href="?group=tna&amp;q=test&amp;covering_date_to-year=2020', html
         )
-        # Record to removal link should not include record_date_to parameters
+        # Record to removal link should not include covering_date_to parameters
         self.assertIn(
-            'href="?group=tna&amp;q=test&amp;record_date_from-year=2019', html
+            'href="?group=tna&amp;q=test&amp;covering_date_from-year=2019', html
         )
 
     @responses.activate
@@ -195,8 +195,8 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         # Submit form with date parameters
         response = self.client.get(
             "/catalogue/search/?group=tna"
-            "&record_date_from-year=2019&record_date_from-month=6&record_date_from-day=15"
-            "&record_date_to-year=2020&record_date_to-month=6&record_date_to-day=15"
+            "&covering_date_from-year=2019&covering_date_from-month=6&covering_date_from-day=15"
+            "&covering_date_to-year=2020&covering_date_to-month=6&covering_date_to-day=15"
             "&opening_date_from-year=2019&opening_date_from-month=1&opening_date_from-day=1"
             "&opening_date_to-year=2020&opening_date_to-month=12&opening_date_to-day=31"
         )
@@ -231,8 +231,8 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         html = force_str(response.content)
 
         # Should have record date fields
-        self.assertIn('name="record_date_from-day"', html)
-        self.assertIn('name="record_date_to-day"', html)
+        self.assertIn('name="covering_date_from-day"', html)
+        self.assertIn('name="covering_date_to-day"', html)
 
         # Should NOT have opening date fields
         self.assertNotIn('name="opening_date_from-day"', html)
@@ -257,8 +257,8 @@ class CatalogueSearchViewIntegrationTests(TestCase):
 
         # Submit form with date values
         response = self.client.get(
-            "/catalogue/search/?record_date_from-year=2019&record_date_from-month=6&record_date_from-day=15"
-            "&record_date_to-year=2020&record_date_to-month=8&record_date_to-day=20"
+            "/catalogue/search/?covering_date_from-year=2019&covering_date_from-month=6&covering_date_from-day=15"
+            "&covering_date_to-year=2020&covering_date_to-month=8&covering_date_to-day=20"
         )
 
         html = force_str(response.content)
@@ -291,12 +291,12 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         html = force_str(response.content)
 
         # Check that date component fields are present
-        self.assertIn('name="record_date_from-day"', html)
-        self.assertIn('name="record_date_from-month"', html)
-        self.assertIn('name="record_date_from-year"', html)
-        self.assertIn('name="record_date_to-day"', html)
-        self.assertIn('name="record_date_to-month"', html)
-        self.assertIn('name="record_date_to-year"', html)
+        self.assertIn('name="covering_date_from-day"', html)
+        self.assertIn('name="covering_date_from-month"', html)
+        self.assertIn('name="covering_date_from-year"', html)
+        self.assertIn('name="covering_date_to-day"', html)
+        self.assertIn('name="covering_date_to-month"', html)
+        self.assertIn('name="covering_date_to-year"', html)
 
         # TNA form should also have opening date fields
         self.assertIn('name="opening_date_from-day"', html)
@@ -314,7 +314,7 @@ class CatalogueSearchViewIntegrationTests(TestCase):
 
         # Submit invalid date to trigger field-level error
         response = self.client.get(
-            "/catalogue/search/?record_date_from-year=abc&record_date_from-month=13"
+            "/catalogue/search/?covering_date_from-year=abc&covering_date_from-month=13"
         )
 
         html = force_str(response.content)

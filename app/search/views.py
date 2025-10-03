@@ -205,8 +205,8 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
                 del data[key]
 
         date_field_names = [
-            "record_date_from",
-            "record_date_to",
+            "covering_date_from",
+            "covering_date_to",
             "opening_date_from",
             "opening_date_to",
         ]
@@ -285,8 +285,8 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
         # Check each date field for expansion
         date_fields = [
-            (FieldsConstant.RECORD_DATE_FROM, "record_date_from"),
-            (FieldsConstant.RECORD_DATE_TO, "record_date_to"),
+            (FieldsConstant.COVERING_DATE_FROM, "covering_date_from"),
+            (FieldsConstant.COVERING_DATE_TO, "covering_date_to"),
         ]
 
         # Add opening dates for TNA forms
@@ -467,31 +467,33 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                     }
                 )
 
-        # Handle record dates using the form's cleaned date values
-        record_date_from = self.form.fields[
-            FieldsConstant.RECORD_DATE_FROM
+        # Handle covering dates using the form's cleaned date values
+        covering_date_from = self.form.fields[
+            FieldsConstant.COVERING_DATE_FROM
         ].cleaned
-        if record_date_from:
+        if covering_date_from:
             # Format the date nicely for display
-            formatted_date = record_date_from.strftime(
+            formatted_date = covering_date_from.strftime(
                 "%d %B %Y"
             )  # e.g., "15 June 2023"
             selected_filters.append(
                 {
-                    "label": f"Record date from: {formatted_date}",
-                    "href": f"?{self._remove_date_params(self.request.GET, 'record_date_from')}",
-                    "title": "Remove record from date",
+                    "label": f"Covering date from: {formatted_date}",
+                    "href": f"?{self._remove_date_params(self.request.GET, 'covering_date_from')}",
+                    "title": "Remove Covering from date",
                 }
             )
 
-        record_date_to = self.form.fields[FieldsConstant.RECORD_DATE_TO].cleaned
-        if record_date_to:
-            formatted_date = record_date_to.strftime("%d %B %Y")
+        covering_date_to = self.form.fields[
+            FieldsConstant.COVERING_DATE_TO
+        ].cleaned
+        if covering_date_to:
+            formatted_date = covering_date_to.strftime("%d %B %Y")
             selected_filters.append(
                 {
-                    "label": f"Record date to: {formatted_date}",
-                    "href": f"?{self._remove_date_params(self.request.GET, 'record_date_to')}",
-                    "title": "Remove record to date",
+                    "label": f"Covering date to: {formatted_date}",
+                    "href": f"?{self._remove_date_params(self.request.GET, 'covering_date_to')}",
+                    "title": "Remove covering to date",
                 }
             )
 

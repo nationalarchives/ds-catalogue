@@ -141,8 +141,8 @@ class CatalogueSearchViewTests(TestCase):
             FieldsConstant.COLLECTION,
             FieldsConstant.ONLINE,
             FieldsConstant.CLOSURE,
-            FieldsConstant.RECORD_DATE_FROM,
-            FieldsConstant.RECORD_DATE_TO,
+            FieldsConstant.COVERING_DATE_FROM,
+            FieldsConstant.COVERING_DATE_TO,
             FieldsConstant.OPENING_DATE_FROM,
             FieldsConstant.OPENING_DATE_TO,
         ]
@@ -301,10 +301,10 @@ class CatalogueSearchViewTests(TestCase):
 
         # Test that empty date fields have empty dict values and no cleaned values
         record_date_from_field = self.response.context_data.get("form").fields[
-            "record_date_from"
+            "covering_date_from"
         ]
         record_date_to_field = self.response.context_data.get("form").fields[
-            "record_date_to"
+            "covering_date_to"
         ]
         opening_date_from_field = self.response.context_data.get("form").fields[
             "opening_date_from"
@@ -484,8 +484,8 @@ class CatalogueSearchViewTests(TestCase):
             FieldsConstant.SORT,
             FieldsConstant.Q,
             FieldsConstant.HELD_BY,
-            FieldsConstant.RECORD_DATE_FROM,
-            FieldsConstant.RECORD_DATE_TO,
+            FieldsConstant.COVERING_DATE_FROM,
+            FieldsConstant.COVERING_DATE_TO,
         ]
         non_tna_form_field_names = set(
             self.response.context_data.get("form").fields.keys()
@@ -646,16 +646,16 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
 
         # Test with record date parameters
         response = self.client.get(
-            "/catalogue/search/?record_date_from-year=2019&record_date_from-month=1&record_date_from-day=1"
-            "&record_date_to-year=2020&record_date_to-month=12&record_date_to-day=31"
+            "/catalogue/search/?covering_date_from-year=2019&covering_date_from-month=1&covering_date_from-day=1"
+            "&covering_date_to-year=2020&covering_date_to-month=12&covering_date_to-day=31"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         form = response.context_data.get("form")
 
         # Check that date fields have correct dict values with components
-        record_date_from_field = form.fields["record_date_from"]
-        record_date_to_field = form.fields["record_date_to"]
+        record_date_from_field = form.fields["covering_date_from"]
+        record_date_to_field = form.fields["covering_date_to"]
 
         # Test the dict-based values
         self.assertEqual(
@@ -683,8 +683,8 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         selected_filters = response.context_data.get("selected_filters")
         filter_labels = [f["label"] for f in selected_filters]
 
-        self.assertIn("Record date from: 01 January 2019", filter_labels)
-        self.assertIn("Record date to: 31 December 2020", filter_labels)
+        self.assertIn("Covering date from: 01 January 2019", filter_labels)
+        self.assertIn("Covering date to: 31 December 2020", filter_labels)
 
     @responses.activate
     def test_catalogue_search_context_with_opening_date_params_tna_only(self):
@@ -780,7 +780,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
 
         # Test year-only dates - should redirect with expanded parameters
         response = self.client.get(
-            "/catalogue/search/?record_date_from-year=2019&record_date_to-year=2020",
+            "/catalogue/search/?covering_date_from-year=2019&covering_date_to-year=2020",
             follow=True,  # Follow the redirect to get the final response
         )
 
@@ -788,8 +788,8 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         form = response.context_data.get("form")
 
         # Check that fields now have dict values with all components filled
-        record_date_from_field = form.fields["record_date_from"]
-        record_date_to_field = form.fields["record_date_to"]
+        record_date_from_field = form.fields["covering_date_from"]
+        record_date_to_field = form.fields["covering_date_to"]
 
         # After redirect, the fields should have complete component data
         self.assertEqual(
@@ -808,16 +808,16 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
 
         # Test year-month dates
         response = self.client.get(
-            "/catalogue/search/?record_date_from-year=2019&record_date_from-month=6"
-            "&record_date_to-year=2020&record_date_to-month=6",
+            "/catalogue/search/?covering_date_from-year=2019&covering_date_from-month=6"
+            "&covering_date_to-year=2020&covering_date_to-month=6",
             follow=True,  # Follow the redirect
         )
 
         form = response.context_data.get("form")
 
         # Check dict values after redirect
-        record_date_from_field = form.fields["record_date_from"]
-        record_date_to_field = form.fields["record_date_to"]
+        record_date_from_field = form.fields["covering_date_from"]
+        record_date_to_field = form.fields["covering_date_to"]
 
         self.assertEqual(
             record_date_from_field.value,

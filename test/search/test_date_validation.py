@@ -35,8 +35,8 @@ class DateValidationTests(TestCase):
 
         # Submit form with invalid date range
         response = self.client.get(
-            "/catalogue/search/?record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
-            "&record_date_to-year=2019&record_date_to-month=3&record_date_to-day=10"
+            "/catalogue/search/?covering_date_from-year=2020&covering_date_from-month=6&covering_date_from-day=15"
+            "&covering_date_to-year=2019&covering_date_to-month=3&covering_date_to-day=10"
         )
 
         # Should still return 200 but with validation errors
@@ -108,8 +108,8 @@ class DateValidationTests(TestCase):
         # Submit form with valid date ranges
         response = self.client.get(
             "/catalogue/search/?group=tna"
-            "&record_date_from-year=2019&record_date_from-month=1&record_date_from-day=1"
-            "&record_date_to-year=2020&record_date_to-month=12&record_date_to-day=31"
+            "&covering_date_from-year=2019&covering_date_from-month=1&covering_date_from-day=1"
+            "&covering_date_to-year=2020&covering_date_to-month=12&covering_date_to-day=31"
             "&opening_date_from-year=2019&opening_date_from-month=6&opening_date_from-day=1"
             "&opening_date_to-year=2020&opening_date_to-month=6&opening_date_to-day=30"
         )
@@ -131,8 +131,8 @@ class DateValidationTests(TestCase):
         )
 
         response = self.client.get(
-            "/catalogue/search/?record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
-            "&record_date_to-year=2020&record_date_to-month=6&record_date_to-day=15"
+            "/catalogue/search/?covering_date_from-year=2020&covering_date_from-month=6&covering_date_from-day=15"
+            "&covering_date_to-year=2020&covering_date_to-month=6&covering_date_to-day=15"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -153,7 +153,7 @@ class DateValidationTests(TestCase):
 
         # Test year-only dates: 2020 to 2019 should be invalid
         response = self.client.get(
-            "/catalogue/search/?record_date_from-year=2020&record_date_to-year=2019"
+            "/catalogue/search/?covering_date_from-year=2020&covering_date_to-year=2019"
         )
 
         form = response.context_data.get("form")
@@ -196,7 +196,7 @@ class DateValidationTests(TestCase):
 
         # Only 'from' date
         response = self.client.get(
-            "/catalogue/search/?record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
+            "/catalogue/search/?covering_date_from-year=2020&covering_date_from-month=6&covering_date_from-day=15"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -205,7 +205,7 @@ class DateValidationTests(TestCase):
 
         # Only 'to' date
         response = self.client.get(
-            "/catalogue/search/?record_date_to-year=2020&record_date_to-month=6&record_date_to-day=15"
+            "/catalogue/search/?covering_date_to-year=2020&covering_date_to-month=6&covering_date_to-day=15"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -225,36 +225,36 @@ class DateValidationTests(TestCase):
         test_cases = [
             # (params, should_be_valid, expected_error_fragment, needs_redirect)
             (
-                "record_date_from-year=2020&record_date_from-month=2&record_date_from-day=29"  # Valid leap year
-                "&record_date_to-year=2020&record_date_to-month=3&record_date_to-day=1",
+                "covering_date_from-year=2020&covering_date_from-month=2&covering_date_from-day=29"  # Valid leap year
+                "&covering_date_to-year=2020&covering_date_to-month=3&covering_date_to-day=1",
                 True,
                 None,
                 False,  # Full dates don't redirect
             ),
             (
-                "record_date_from-year=2021&record_date_from-month=2&record_date_from-day=29"  # Invalid non-leap year
-                "&record_date_to-year=2021&record_date_to-month=3&record_date_to-day=1",
+                "covering_date_from-year=2021&covering_date_from-month=2&covering_date_from-day=29"  # Invalid non-leap year
+                "&covering_date_to-year=2021&covering_date_to-month=3&covering_date_to-day=1",
                 False,
                 "Invalid date",
                 False,  # Full dates don't redirect
             ),
             (
-                "record_date_from-year=2020&record_date_from-month=4&record_date_from-day=31"  # April doesn't have 31 days
-                "&record_date_to-year=2020&record_date_to-month=5&record_date_to-day=1",
+                "covering_date_from-year=2020&covering_date_from-month=4&covering_date_from-day=31"  # April doesn't have 31 days
+                "&covering_date_to-year=2020&covering_date_to-month=5&covering_date_to-day=1",
                 False,
                 "Invalid date",
                 False,  # Full dates don't redirect
             ),
             (
-                "record_date_from-year=2020&record_date_from-month=6"  # Year-month only, valid
-                "&record_date_to-year=2020&record_date_to-month=8",
+                "covering_date_from-year=2020&covering_date_from-month=6"  # Year-month only, valid
+                "&covering_date_to-year=2020&covering_date_to-month=8",
                 True,
                 None,
                 True,  # Partial dates will redirect
             ),
             (
-                "record_date_from-year=2020&record_date_from-month=8"  # Year-month only, invalid range
-                "&record_date_to-year=2020&record_date_to-month=6",
+                "covering_date_from-year=2020&covering_date_from-month=8"  # Year-month only, invalid range
+                "&covering_date_to-year=2020&covering_date_to-month=6",
                 False,
                 "cannot be later than",
                 True,  # Partial dates will redirect
@@ -324,8 +324,8 @@ class DateValidationTests(TestCase):
             "&group=tna"
             "&level=Item"
             "&online=true"
-            "&record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
-            "&record_date_to-year=2019&record_date_to-month=3&record_date_to-day=10"  # Invalid range
+            "&covering_date_from-year=2020&covering_date_from-month=6&covering_date_from-day=15"
+            "&covering_date_to-year=2019&covering_date_to-month=3&covering_date_to-day=10"  # Invalid range
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -353,8 +353,8 @@ class DateValidationTests(TestCase):
         # Test with multiple date validation errors
         response = self.client.get(
             "/catalogue/search/?group=tna"
-            "&record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
-            "&record_date_to-year=2019&record_date_to-month=3&record_date_to-day=10"  # Invalid record range
+            "&covering_date_from-year=2020&covering_date_from-month=6&covering_date_from-day=15"
+            "&covering_date_to-year=2019&covering_date_to-month=3&covering_date_to-day=10"  # Invalid record range
             "&opening_date_from-year=2020&opening_date_from-month=12&opening_date_from-day=31"
             "&opening_date_to-year=2020&opening_date_to-month=1&opening_date_to-day=1"  # Invalid opening range
         )
@@ -408,8 +408,8 @@ class DateValidationTests(TestCase):
         for i in range(10):
             response = self.client.get(
                 f"/catalogue/search/?group=tna"
-                f"&record_date_from-year=201{i % 10}&record_date_from-month={(i % 12) + 1}&record_date_from-day={(i % 28) + 1}"
-                f"&record_date_to-year=202{i % 10}&record_date_to-month={(i % 12) + 1}&record_date_to-day={(i % 28) + 1}"
+                f"&covering_date_from-year=201{i % 10}&covering_date_from-month={(i % 12) + 1}&covering_date_from-day={(i % 28) + 1}"
+                f"&covering_date_to-year=202{i % 10}&covering_date_to-month={(i % 12) + 1}&covering_date_to-day={(i % 28) + 1}"
                 f"&opening_date_from-year=201{i % 10}&opening_date_from-month={(i % 12) + 1}&opening_date_from-day={(i % 28) + 1}"
                 f"&opening_date_to-year=202{i % 10}&opening_date_to-month={(i % 12) + 1}&opening_date_to-day={(i % 28) + 1}"
             )
@@ -433,8 +433,8 @@ class DateValidationTests(TestCase):
 
         # Even with API errors, date validation should still work
         response = self.client.get(
-            "/catalogue/search/?record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
-            "&record_date_to-year=2019&record_date_to-month=3&record_date_to-day=10"
+            "/catalogue/search/?covering_date_from-year=2020&covering_date_from-month=6&covering_date_from-day=15"
+            "&covering_date_to-year=2019&covering_date_to-month=3&covering_date_to-day=10"
         )
 
         # May return 500 due to API error, but date validation should have run
@@ -462,8 +462,8 @@ class DateValidationTests(TestCase):
         # Test NonTNA form with invalid record date range
         response = self.client.get(
             "/catalogue/search/?group=nonTna"
-            "&record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
-            "&record_date_to-year=2019&record_date_to-month=3&record_date_to-day=10"
+            "&covering_date_from-year=2020&covering_date_from-month=6&covering_date_from-day=15"
+            "&covering_date_to-year=2019&covering_date_to-month=3&covering_date_to-day=10"
             "&opening_date_from-year=2020&opening_date_from-month=1&opening_date_from-day=1"  # Should be ignored
         )
 
@@ -497,28 +497,28 @@ class DateValidationTests(TestCase):
             # (params, should_be_valid, needs_redirect)
             # December 31st to January 1st (next year) - should be valid
             (
-                "record_date_from-year=2019&record_date_from-month=12&record_date_from-day=31"
-                "&record_date_to-year=2020&record_date_to-month=1&record_date_to-day=1",
+                "covering_date_from-year=2019&covering_date_from-month=12&covering_date_from-day=31"
+                "&covering_date_to-year=2020&covering_date_to-month=1&covering_date_to-day=1",
                 True,
                 False,  # Full dates
             ),
             # Same day different years - from later year should be invalid
             (
-                "record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
-                "&record_date_to-year=2019&record_date_to-month=6&record_date_to-day=15",
+                "covering_date_from-year=2020&covering_date_from-month=6&covering_date_from-day=15"
+                "&covering_date_to-year=2019&covering_date_to-month=6&covering_date_to-day=15",
                 False,
                 False,  # Full dates
             ),
             # End of February leap year vs non-leap year
             (
-                "record_date_from-year=2020&record_date_from-month=2&record_date_from-day=29"  # Leap year
-                "&record_date_to-year=2021&record_date_to-month=2&record_date_to-day=28",  # Non-leap year
+                "covering_date_from-year=2020&covering_date_from-month=2&covering_date_from-day=29"  # Leap year
+                "&covering_date_to-year=2021&covering_date_to-month=2&covering_date_to-day=28",  # Non-leap year
                 True,
                 False,  # Full dates
             ),
             # Year-only with same year should be valid
             (
-                "record_date_from-year=2020&record_date_to-year=2020",
+                "covering_date_from-year=2020&covering_date_to-year=2020",
                 True,
                 True,  # Year-only dates will redirect
             ),
@@ -555,7 +555,7 @@ class DateValidationTests(TestCase):
 
         # Submit form with validation errors
         response = self.client.get(
-            "/catalogue/search/?record_date_from-year=invalid&record_date_to-year=2020"
+            "/catalogue/search/?covering_date_from-year=invalid&covering_date_to-year=2020"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -577,8 +577,8 @@ class DateValidationTests(TestCase):
         # Create multiple validation errors
         response = self.client.get(
             "/catalogue/search/?group=tna"
-            "&record_date_from-year=abc"  # Invalid year format
-            "&record_date_to-year=2020&record_date_to-month=13"  # Invalid month
+            "&covering_date_from-year=abc"  # Invalid year format
+            "&covering_date_to-year=2020&covering_date_to-month=13"  # Invalid month
             "&opening_date_from-year=2020&opening_date_from-month=6&opening_date_from-day=15"
             "&opening_date_to-year=2019&opening_date_to-month=3&opening_date_to-day=10"  # Invalid range
         )
@@ -605,8 +605,8 @@ class DateValidationTests(TestCase):
 
         response = self.client.get(
             "/catalogue/search/?group=tna"
-            "&record_date_from-year=2020&record_date_from-month=6&record_date_from-day=15"
-            "&record_date_to-year=2021&record_date_to-month=8&record_date_to-day=20"
+            "&covering_date_from-year=2020&covering_date_from-month=6&covering_date_from-day=15"
+            "&covering_date_to-year=2021&covering_date_to-month=8&covering_date_to-day=20"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -682,21 +682,21 @@ class DateValidationTests(TestCase):
 
         error_cases = [
             # (query_params, expected_error_substring)
-            ("record_date_from-year=abc", "valid 4-digit year"),
+            ("covering_date_from-year=abc", "valid 4-digit year"),
             (
-                "record_date_from-year=2020&record_date_from-month=13",
+                "covering_date_from-year=2020&covering_date_from-month=13",
                 "Month must be between 1 and 12",
             ),
             (
-                "record_date_from-year=2020&record_date_from-month=2&record_date_from-day=35",
+                "covering_date_from-year=2020&covering_date_from-month=2&covering_date_from-day=35",
                 "Day must be between 1 and 31",
             ),
             (
-                "record_date_from-year=2020&record_date_from-day=15",
+                "covering_date_from-year=2020&covering_date_from-day=15",
                 "Month is required if day is provided",
             ),
             (
-                "record_date_from-year=2020&record_date_from-month=4&record_date_from-day=31",
+                "covering_date_from-year=2020&covering_date_from-month=4&covering_date_from-day=31",
                 "Invalid date",
             ),
         ]
