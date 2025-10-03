@@ -2,6 +2,7 @@
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 
 {% macro collections(request, collection) %}
+
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
   {{ tnaCheckboxes({
     'label': 'Collections',
@@ -15,7 +16,8 @@
       'form': 'search-form'
     }
   }) }}
-  <div class="tna-button-group tna-!--margin-top-s">
+
+  <div class="tna-button-group tna-button-group--small tna-!--margin-top-s">
     {{ tnaButton({
       'text': 'Update',
       'buttonElement': True,
@@ -25,6 +27,15 @@
         'form': 'search-form'
       }
     }) }}
+
+    {% if collection.more_filter_options_available %}
+      {{ tnaButton({
+        'text': 'See more collections',
+        'href': '?' + qs_replace_value(request.GET, 'filter_list', 'longCollections'),
+        'plain': True,
+        'small': True
+      }) }}
+    {% endif %}
   </div>
 </div>
 {% endmacro %}
