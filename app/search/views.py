@@ -360,11 +360,15 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
                 buckets=self.api_result.buckets,
                 current_bucket_key=self.current_bucket_key,
             )
+
+        selected_filters = self.build_selected_filters_list()
+
         context.update(
             {
                 "bucket_list": self.bucket_list,
                 "results_range": results_range,
                 "pagination": pagination,
+                "selected_filters": selected_filters,
             }
         )
         return context
@@ -387,37 +391,6 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         pagination = pagination_object(self.page, pages, self.request.GET)
 
         return (results_range, pagination)
-
-
-class CatalogueSearchView(CatalogueSearchFormMixin):
-
-    template_name = "search/catalogue.html"
-
-    def get_context_data(self, **kwargs):
-        context: dict = super().get_context_data(**kwargs)
-
-        selected_filters = self.build_selected_filters_list()
-
-        global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
-        global_alerts_client.add_parameters(
-            {"fields": "_,global_alert,mourning_notice"}
-        )
-        try:
-            context["global_alert"] = global_alerts_client.get(
-                f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}"
-            )
-        except Exception as e:
-            logger.error(e)
-            context["global_alert"] = {}
-
-        context.update(
-            {
-                "bucket_list": self.bucket_list,
-                "selected_filters": selected_filters,
-                "bucket_keys": BucketKeys,
-            }
-        )
-        return context
 
     def _remove_date_params(
         self, query_dict: QueryDict, date_prefix: str
@@ -554,3 +527,30 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                             "title": f"Remove {choice_labels.get(item, item)} {field.active_filter_label.lower()}",
                         }
                     )
+
+
+class CatalogueSearchView(CatalogueSearchFormMixin):
+
+    template_name = "search/catalogue.html"
+
+    def get_context_data(self, **kwargs):
+        context: dict = super().get_context_data(**kwargs)
+
+        global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
+        global_alerts_client.add_parameters(
+            {"fields": "_,global_alert,mourning_notice"}
+        )
+        try:
+            context["global_alert"] = global_alerts_client.get(
+                f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}"
+            )
+        except Exception as e:
+            logger.error(e)
+            context["global_alert"] = {}
+
+        context.update(
+            {
+                "bucket_keys": BucketKeys,
+            }
+        )
+        return context
