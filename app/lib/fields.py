@@ -324,13 +324,15 @@ class MultiPartDateField(BaseField):
             raise CustomValidationError("Month and day are required")
         raise CustomValidationError("Day is required")
 
-    def bind(self, name, value):
+    def bind(self, name, value: list | dict | str) -> None:
         """Bind with date component data as dict or list"""
         super().bind(name, value)
 
         if isinstance(value, list) and len(value) > 0:
-            # If list, take the last value (like other fields do)
             self._value = value[-1]
+        elif isinstance(value, dict):
+            # Direct dict binding
+            self._value = value
         elif not value:
             # Empty value
             self._value = {}

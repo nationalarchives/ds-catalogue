@@ -1,5 +1,3 @@
-from abc import ABC, abstractmethod
-
 from app.lib.fields import (
     CharField,
     ChoiceField,
@@ -29,13 +27,10 @@ class FieldsConstant:
     OPENING_DATE_TO = "opening_date_to"
 
 
-class CatalogueSearchBaseForm(BaseForm, ABC):
-    """Abstract base class for catalogue search forms with common functionality"""
+class CatalogueSearchBaseForm(BaseForm):
+    """Base class for catalogue search forms with common functionality"""
 
-    def __init__(self, data=None):
-        super().__init__(data)
-
-    def get_common_fields(self):
+    def add_fields(self):
         """Returns fields common to all catalogue search forms"""
         return {
             FieldsConstant.GROUP: ChoiceField(
@@ -62,17 +57,6 @@ class CatalogueSearchBaseForm(BaseForm, ABC):
                 required=False,
             ),
         }
-
-    @abstractmethod
-    def get_specific_fields(self):
-        """Returns fields specific to the form subclass"""
-        pass
-
-    def add_fields(self):
-        """Combines common and specific fields - called by BaseForm.__init__"""
-        fields = self.get_common_fields()
-        fields.update(self.get_specific_fields())
-        return fields
 
     def cross_validate(self) -> list[str]:
         """Validate date ranges - from dates should not be later than to dates"""
@@ -148,55 +132,65 @@ class CatalogueSearchBaseForm(BaseForm, ABC):
 class CatalogueSearchTnaForm(CatalogueSearchBaseForm):
     """TNA-specific search form with opening dates and other TNA-only fields"""
 
-    def get_specific_fields(self):
-        return {
-            FieldsConstant.LEVEL: DynamicMultipleChoiceField(
-                label="Filter by levels",
-                choices=list((level, level) for level in TNA_LEVELS.values()),
-                validate_input=True,
-                active_filter_label="Level",
-            ),
-            FieldsConstant.COLLECTION: DynamicMultipleChoiceField(
-                label="Collections",
-                choices=COLLECTION_CHOICES,
-                validate_input=False,
-                active_filter_label="Collection",
-            ),
-            FieldsConstant.ONLINE: ChoiceField(
-                choices=[
-                    ("", "All records"),
-                    ("true", "Available online only"),
-                ],
-                required=False,
-                active_filter_label="Online only",
-            ),
-            FieldsConstant.CLOSURE: DynamicMultipleChoiceField(
-                label="Closure status",
-                choices=[],  # no initial choices as they are set dynamically
-                active_filter_label="Closure status",
-            ),
-            # TNA-specific opening date fields
-            FieldsConstant.OPENING_DATE_FROM: MultiPartDateField(
-                label="Opening date from",
-                padding_strategy=MultiPartDateField.start_of_period_strategy,
-                required=False,
-            ),
-            FieldsConstant.OPENING_DATE_TO: MultiPartDateField(
-                label="Opening date to",
-                padding_strategy=MultiPartDateField.end_of_period_strategy,
-                required=False,
-            ),
-        }
+    def add_fields(self):
+        fields = super().add_fields()
+        fields.update(
+            {
+                FieldsConstant.LEVEL: DynamicMultipleChoiceField(
+                    label="Filter by levels",
+                    choices=list(
+                        (level, level) for level in TNA_LEVELS.values()
+                    ),
+                    validate_input=True,
+                    active_filter_label="Level",
+                ),
+                FieldsConstant.COLLECTION: DynamicMultipleChoiceField(
+                    label="Collections",
+                    choices=COLLECTION_CHOICES,
+                    validate_input=False,
+                    active_filter_label="Collection",
+                ),
+                FieldsConstant.ONLINE: ChoiceField(
+                    choices=[
+                        ("", "All records"),
+                        ("true", "Available online only"),
+                    ],
+                    required=False,
+                    active_filter_label="Online only",
+                ),
+                FieldsConstant.CLOSURE: DynamicMultipleChoiceField(
+                    label="Closure status",
+                    choices=[],  # no initial choices as they are set dynamically
+                    active_filter_label="Closure status",
+                ),
+                # TNA-specific opening date fields
+                FieldsConstant.OPENING_DATE_FROM: MultiPartDateField(
+                    label="Opening date from",
+                    padding_strategy=MultiPartDateField.start_of_period_strategy,
+                    required=False,
+                ),
+                FieldsConstant.OPENING_DATE_TO: MultiPartDateField(
+                    label="Opening date to",
+                    padding_strategy=MultiPartDateField.end_of_period_strategy,
+                    required=False,
+                ),
+            }
+        )
+        return fields
 
 
 class CatalogueSearchNonTnaForm(CatalogueSearchBaseForm):
     """Non-TNA search form without opening dates"""
 
-    def get_specific_fields(self):
-        return {
-            FieldsConstant.HELD_BY: DynamicMultipleChoiceField(
-                label="Held by",
-                choices=[],
-                active_filter_label="Held by",
-            ),
-        }
+    def add_fields(self):
+        fields = super().add_fields()
+        fields.update(
+            {
+                FieldsConstant.HELD_BY: DynamicMultipleChoiceField(
+                    label="Held by",
+                    choices=[],
+                    active_filter_label="Held by",
+                ),
+            }
+        )
+        return fields
