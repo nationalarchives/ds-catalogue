@@ -617,7 +617,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
 
     @responses.activate
     def test_catalogue_search_context_with_record_date_params(self):
-        """Test that record date parameters are handled correctly"""
+        """Test that covering date parameters are handled correctly"""
 
         responses.add(
             responses.GET,
@@ -644,7 +644,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             status=HTTPStatus.OK,
         )
 
-        # Test with record date parameters
+        # Test with covering date parameters
         response = self.client.get(
             "/catalogue/search/?covering_date_from-year=2019&covering_date_from-month=1&covering_date_from-day=1"
             "&covering_date_to-year=2020&covering_date_to-month=12&covering_date_to-day=31"
