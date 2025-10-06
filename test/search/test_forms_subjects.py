@@ -141,7 +141,7 @@ class CatalogueSearchFormSubjectsTests(TestCase):
         form = CatalogueSearchTnaForm()
 
         # Should have: q, group, sort, level, collection, subjects, online
-        self.assertEqual(len(form.fields), 7)
+        self.assertEqual(len(form.fields), 8)
 
         expected_fields = [
             FieldsConstant.Q,

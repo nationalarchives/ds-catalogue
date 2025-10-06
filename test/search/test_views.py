@@ -138,7 +138,7 @@ class CatalogueSearchViewTests(TestCase):
             self.response.context_data.get("form"), CatalogueSearchTnaForm
         )
         self.assertEqual(self.response.context_data.get("form").errors, {})
-        self.assertEqual(len(self.response.context_data.get("form").fields), 7)
+        self.assertEqual(len(self.response.context_data.get("form").fields), 8)
         tna_field_names = [
             FieldsConstant.GROUP,
             FieldsConstant.SORT,
@@ -700,7 +700,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=subjects&filter=group%3Atna&filter=subjects%3A2&filter=subjects%3A6&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subjects&filter=group%3Atna&filter=subjects%3A2&filter=subjects%3A6&q=%2A&size=20"
         )
 
 

@@ -154,6 +154,6 @@ class SubjectsBucketsTests(TestCase):
         """Test that aggregations are in expected order."""
         tna_bucket = CATALOGUE_BUCKETS.get_bucket(BucketKeys.TNA.value)
 
-        expected_order = ["level", "collection", "subjects"]
+        expected_order = ["level", "collection", "closure", "subjects"]
 
         self.assertEqual(tna_bucket.aggregations, expected_order)
