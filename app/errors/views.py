@@ -10,7 +10,9 @@ from .constants import PAGE_NOT_FOUND_TEMPLATE, SERVER_ERROR_TEMPLATE
 logger = logging.getLogger(__name__)
 
 
-def page_not_found_error_view(request, exception=None):
+def page_not_found_error_view(
+    request, exception=None, status_code=HTTPStatus.NOT_FOUND
+):
     try:
         response = render(request, PAGE_NOT_FOUND_TEMPLATE)
     except TemplateDoesNotExist as e:
@@ -18,7 +20,7 @@ def page_not_found_error_view(request, exception=None):
         return HttpResponseServerError(
             "Internal Server Error: Template not found."
         )
-    response.status_code = HTTPStatus.NOT_FOUND
+    response.status_code = status_code
     return response
 
 

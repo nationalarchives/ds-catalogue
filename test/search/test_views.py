@@ -131,7 +131,7 @@ class CatalogueSearchViewTests(TestCase):
             self.response.context_data.get("form"), CatalogueSearchTnaForm
         )
         self.assertEqual(self.response.context_data.get("form").errors, {})
-        self.assertEqual(len(self.response.context_data.get("form").fields), 7)
+        self.assertEqual(len(self.response.context_data.get("form").fields), 8)
         tna_field_names = [
             FieldsConstant.GROUP,
             FieldsConstant.SORT,
@@ -140,6 +140,7 @@ class CatalogueSearchViewTests(TestCase):
             FieldsConstant.COLLECTION,
             FieldsConstant.ONLINE,
             FieldsConstant.CLOSURE,
+            FieldsConstant.FILTER_LIST,
         ]
         tna_form_field_names = set(
             self.response.context_data.get("form").fields.keys()
