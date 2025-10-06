@@ -148,6 +148,7 @@ class CatalogueSearchViewTests(TestCase):
             FieldsConstant.SUBJECTS,
             FieldsConstant.ONLINE,
             FieldsConstant.CLOSURE,
+            FieldsConstant.FILTER_LIST,
         ]
         tna_form_field_names = set(
             self.response.context_data.get("form").fields.keys()

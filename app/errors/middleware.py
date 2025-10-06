@@ -1,8 +1,10 @@
 import logging
+from http import HTTPStatus
 
 import sentry_sdk
 from app.lib.api import ResourceNotFound
 from django.conf import settings
+from django.core.exceptions import SuspiciousOperation
 
 from .views import page_not_found_error_view, server_error_view
 
@@ -29,6 +31,11 @@ class CustomExceptionMiddleware:
 
         if isinstance(exception, ResourceNotFound):
             return page_not_found_error_view(request=request)
+
+        if isinstance(exception, SuspiciousOperation):
+            return page_not_found_error_view(
+                request=request, status_code=HTTPStatus.BAD_REQUEST
+            )
 
         # Exception() raised or Unhandled exceptions
 

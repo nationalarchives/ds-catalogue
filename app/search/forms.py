@@ -5,7 +5,7 @@ from app.lib.fields import (
 )
 from app.lib.forms import BaseForm
 from app.records.constants import SUBJECT_CHOICES, TNA_LEVELS
-from app.search.buckets import CATALOGUE_BUCKETS
+from app.search.buckets import CATALOGUE_BUCKETS, Aggregation
 from app.search.constants import Sort
 
 from .collection_names import COLLECTION_CHOICES
@@ -22,6 +22,7 @@ class FieldsConstant:
     SUBJECTS = "subjects"
     HELD_BY = "held_by"
     CLOSURE = "closure"
+    FILTER_LIST = "filter_list"
 
 
 class CatalogueSearchTnaForm(BaseForm):
@@ -72,6 +73,15 @@ class CatalogueSearchTnaForm(BaseForm):
                 label="Closure status",
                 choices=[],  # no initial choices as they are set dynamically
                 active_filter_label="Closure status",
+            ),
+            FieldsConstant.FILTER_LIST: ChoiceField(
+                choices=[
+                    ("", "No filter"),
+                    (
+                        Aggregation.COLLECTION.long_aggs,
+                        FieldsConstant.COLLECTION,
+                    ),
+                ],
             ),
         }
 
