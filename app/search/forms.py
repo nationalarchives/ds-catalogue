@@ -6,7 +6,7 @@ from app.lib.fields import (
 )
 from app.lib.forms import BaseForm
 from app.records.constants import TNA_LEVELS
-from app.search.buckets import CATALOGUE_BUCKETS
+from app.search.buckets import CATALOGUE_BUCKETS, Aggregation
 from app.search.constants import Sort
 
 from .collection_names import COLLECTION_CHOICES
@@ -21,6 +21,7 @@ class FieldsConstant:
     ONLINE = "online"
     HELD_BY = "held_by"
     CLOSURE = "closure"
+    FILTER_LIST = "filter_list"
     COVERING_DATE_FROM = "covering_date_from"
     COVERING_DATE_TO = "covering_date_to"
     OPENING_DATE_FROM = "opening_date_from"
@@ -110,7 +111,7 @@ class CatalogueSearchBaseForm(BaseForm):
                 return self.fields[field_name].format_for_api()
             return None
 
-        # Record dates (common to all forms)
+        # Covering dates (common to all forms)
         if covering_date_from := get_field_value(
             FieldsConstant.COVERING_DATE_FROM
         ):
@@ -163,6 +164,15 @@ class CatalogueSearchTnaForm(CatalogueSearchBaseForm):
                     choices=[],  # no initial choices as they are set dynamically
                     active_filter_label="Closure status",
                 ),
+            FieldsConstant.FILTER_LIST: ChoiceField(
+                choices=[
+                    ("", "No filter"),
+                    (
+                        Aggregation.COLLECTION.long_aggs,
+                        FieldsConstant.COLLECTION,
+                    ),
+                ],
+            ),
                 # TNA-specific opening date fields
                 FieldsConstant.OPENING_DATE_FROM: MultiPartDateField(
                     label="Opening date from",

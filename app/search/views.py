@@ -5,7 +5,7 @@ from typing import Any
 
 from app.errors import views as errors_view
 from app.lib.api import JSONAPIClient, ResourceNotFound
-from app.lib.fields import DynamicMultipleChoiceField
+from app.lib.fields import ChoiceField, DynamicMultipleChoiceField
 from app.lib.pagination import pagination_object
 from app.records.constants import (
     TNA_LEVELS,
@@ -14,6 +14,7 @@ from app.records.constants import (
 from app.search.api import search_records
 from config.jinja2 import qs_remove_value, qs_toggle_value
 from django.conf import settings
+from django.core.exceptions import SuspiciousOperation
 from django.http import (
     HttpRequest,
     HttpResponse,
@@ -137,6 +138,9 @@ class APIMixin:
                     form.fields[field_name].update_choices(
                         choice_api_data, form.fields[field_name].value
                     )
+                    form.fields[field_name].more_filter_options_available = (
+                        bool(aggregation.get("other", 0))
+                    )
 
     def replace_api_data(
         self, field_name, entries_data: list[dict[str, str | int]]
@@ -186,6 +190,18 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         # create two separate forms for TNA and NonTNA with different fields
         if form_kwargs.get("data").get("group") == BucketKeys.TNA.value:
             self.form = CatalogueSearchTnaForm(**form_kwargs)
+
+            # ensure only single value is bound to ChoiceFields
+            for field_name, field in self.form.fields.items():
+                if isinstance(field, ChoiceField):
+                    if len(form_kwargs.get("data").getlist(field_name)) > 1:
+                        logger.info(
+                            f"ChoiceField {field_name} can only bind to single value"
+                        )
+                        raise SuspiciousOperation(
+                            f"ChoiceField {field_name} can only bind to single value"
+                        )
+
         else:
             self.form = CatalogueSearchNonTnaForm(**form_kwargs)
 
@@ -255,6 +271,12 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
                 self.current_bucket = self.bucket_list.get_bucket(
                     self.form.fields[FieldsConstant.GROUP].cleaned
                 )
+                # if filter_list is set, use the filter_list template
+                if (
+                    "filter_list" in self.form.fields
+                    and self.form.fields[FieldsConstant.FILTER_LIST].cleaned
+                ):
+                    self.template_name = self.templates.get("filter_list")
                 return self.form_valid()
             else:
                 return self.form_invalid()

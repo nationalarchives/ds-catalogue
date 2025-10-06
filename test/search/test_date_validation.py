@@ -446,7 +446,7 @@ class DateValidationTests(TestCase):
 
     @responses.activate
     def test_non_tna_form_date_validation(self):
-        """Test that NonTNA forms validate record dates but not opening dates"""
+        """Test that NonTNA forms validate covering dates but not opening dates"""
         non_tna_response = self.mock_api_response.copy()
         non_tna_response["buckets"] = [
             {"name": "group", "entries": [{"value": "nonTna", "count": 1}]}
