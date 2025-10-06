@@ -49,6 +49,15 @@ class CatalogueSearchViewTests(TestCase):
                         ],
                     },
                     {
+                        "name": "closure",
+                        "entries": [
+                            {
+                                "value": "Open Document, Open Description",
+                                "doc_count": 150,
+                            },
+                        ],
+                    },
+                    {
                         "name": "subjects",
                         "entries": [
                             {"value": "2", "doc_count": 25},
@@ -138,6 +147,7 @@ class CatalogueSearchViewTests(TestCase):
             FieldsConstant.COLLECTION,
             FieldsConstant.SUBJECTS,
             FieldsConstant.ONLINE,
+            FieldsConstant.CLOSURE,
         ]
         tna_form_field_names = set(
             self.response.context_data.get("form").fields.keys()
@@ -206,6 +216,12 @@ class CatalogueSearchViewTests(TestCase):
             "Filter by levels",
         )
         self.assertEqual(
+            self.response.context_data.get("form")
+            .fields["level"]
+            .active_filter_label,
+            "Level",
+        )
+        self.assertEqual(
             self.response.context_data.get("form").fields["level"].value, []
         )
         self.assertEqual(
@@ -218,7 +234,28 @@ class CatalogueSearchViewTests(TestCase):
                 {"text": "Division (5)", "value": "Division"},
             ],
         )
-
+        self.assertEqual(
+            self.response.context_data.get("form").fields["collection"].name,
+            "collection",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["collection"].label,
+            "Collections",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields["collection"]
+            .active_filter_label,
+            "Collection",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["collection"].value,
+            [],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["collection"].cleaned,
+            [],
+        )
         self.assertEqual(
             self.response.context_data.get("form").fields["collection"].items,
             [
@@ -229,6 +266,38 @@ class CatalogueSearchViewTests(TestCase):
                 {
                     "text": "WO - War Office, Armed Forces, Judge Advocate General, and related bodies (35)",
                     "value": "WO",
+                },
+            ],
+        )
+
+        self.assertEqual(
+            self.response.context_data.get("form").fields["closure"].name,
+            "closure",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["closure"].label,
+            "Closure status",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields["closure"]
+            .active_filter_label,
+            "Closure status",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["closure"].value,
+            [],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["closure"].cleaned,
+            [],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["closure"].items,
+            [
+                {
+                    "text": "Open Document, Open Description (150)",
+                    "value": "Open Document, Open Description",
                 },
             ],
         )
@@ -528,7 +597,7 @@ class CatalogueSearchViewTests(TestCase):
 
 
 class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
-    """Tests API calls (url) made by the catalogue search view for CatalogueSearchTnaForm"""
+    """Tests API calls (url) made by the catalogue search view for tna bucket/group."""
 
     @patch("app.lib.api.logger")
     @responses.activate
@@ -590,14 +659,14 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         self.response = self.client.get("/catalogue/search/")
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=subjects&filter=group%3Atna&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subjects&filter=group%3Atna&q=%2A&size=20"
         )
 
         # with group=tna param
         self.response = self.client.get("/catalogue/search/?group=tna")
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=subjects&filter=group%3Atna&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subjects&filter=group%3Atna&q=%2A&size=20"
         )
 
         # query with held_by param (should be ignored for tna group)
@@ -606,7 +675,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=subjects&filter=group%3Atna&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subjects&filter=group%3Atna&q=%2A&size=20"
         )
 
         # query with search term, non tna records
@@ -636,7 +705,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
 
 
 class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
-    """Tests API calls (url) made by the catalogue search view for CatalogueSearchNonTnaForm"""
+    """Tests API calls (url) made by the catalogue search view for for nonTna bucket/group."""
 
     @patch("app.lib.api.logger")
     @responses.activate
@@ -682,7 +751,7 @@ class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
             status=HTTPStatus.OK,
         )
 
-        # default query for nonTna
+        # with nonTna group param
         self.response = self.client.get("/catalogue/search/?group=nonTna")
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(

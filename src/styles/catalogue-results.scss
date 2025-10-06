@@ -175,3 +175,23 @@ mark {
     display: block;
   }
 }
+
+.mobile-skip {
+  margin-top: -5.4em;
+
+  visibility: hidden;
+
+  @media only screen and (width <= 48em) {
+    margin-top: 0;
+    margin-bottom: -1em;
+    margin-left: -1em;
+
+    visibility: visible;
+  }
+}
+
+.tna-heading-l {
+  @media only screen and (width <= 48em) {
+    padding: 0;
+  }
+}
