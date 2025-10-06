@@ -111,9 +111,9 @@ class CatalogueSearchViewIntegrationTests(TestCase):
 
         # Check for various possible error message formats
         possible_error_messages = [
-            "Record date 'from' cannot be later than 'to' date",
-            "Record date &#x27;from&#x27; cannot be later than &#x27;to&#x27; date",
-            "Record date &#39;from&#39; cannot be later than &#39;to&#39; date",
+            "Covering date 'from' cannot be later than 'to' date",
+            "Covering date &#x27;from&#x27; cannot be later than &#x27;to&#x27; date",
+            "Covering date &#39;from&#39; cannot be later than &#39;to&#39; date",
             "from&#x27; cannot be later than &#x27;to",
             "cannot be later than",
         ]

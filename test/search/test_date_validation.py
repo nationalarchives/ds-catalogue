@@ -49,7 +49,7 @@ class DateValidationTests(TestCase):
         # Check for cross-validation error
         error_messages = [error["text"] for error in form.non_field_errors]
         self.assertIn(
-            "Record date 'from' cannot be later than 'to' date",
+            "Covering date 'from' cannot be later than 'to' date",
             error_messages,
         )
 
@@ -160,7 +160,7 @@ class DateValidationTests(TestCase):
         self.assertFalse(form.is_valid())
         error_messages = [error["text"] for error in form.non_field_errors]
         self.assertIn(
-            "Record date 'from' cannot be later than 'to' date",
+            "Covering date 'from' cannot be later than 'to' date",
             error_messages,
         )
 
@@ -364,9 +364,9 @@ class DateValidationTests(TestCase):
 
         # Should display both error messages
         possible_record_errors = [
-            "Record date 'from' cannot be later than 'to' date",
-            "Record date &#x27;from&#x27; cannot be later than &#x27;to&#x27; date",
-            "Record date &#39;from&#39; cannot be later than &#39;to&#39; date",
+            "Covering date 'from' cannot be later than 'to' date",
+            "Covering date &#x27;from&#x27; cannot be later than &#x27;to&#x27; date",
+            "Covering date &#39;from&#39; cannot be later than &#39;to&#39; date",
         ]
 
         possible_opening_errors = [
@@ -383,7 +383,7 @@ class DateValidationTests(TestCase):
         )
 
         self.assertTrue(
-            record_error_found, "Record date validation error not found in HTML"
+            record_error_found, "Covering date validation error not found in HTML"
         )
         self.assertTrue(
             opening_error_found,
