@@ -230,7 +230,7 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         response = self.client.get("/catalogue/search/?group=nonTna")
         html = force_str(response.content)
 
-        # Should have record date fields
+        # Should have covering date fields
         self.assertIn('name="covering_date_from-day"', html)
         self.assertIn('name="covering_date_to-day"', html)
 

@@ -62,7 +62,7 @@ class CatalogueSearchBaseForm(BaseForm):
         """Validate date ranges - from dates should not be later than to dates"""
         errors = []
 
-        # Validate record date range
+        # Validate covering date range
         covering_date_from = self.fields[
             FieldsConstant.COVERING_DATE_FROM
         ].cleaned
@@ -73,7 +73,7 @@ class CatalogueSearchBaseForm(BaseForm):
             and covering_date_to
             and covering_date_from > covering_date_to
         ):
-            errors.append("Record date 'from' cannot be later than 'to' date")
+            errors.append("Covering date 'from' cannot be later than 'to' date")
 
         # Validate opening date range (only for TNA forms that have these fields)
         if (

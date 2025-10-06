@@ -459,7 +459,7 @@ class DateValidationTests(TestCase):
             status=HTTPStatus.OK,
         )
 
-        # Test NonTNA form with invalid record date range
+        # Test NonTNA form with invalid covering date range
         response = self.client.get(
             "/catalogue/search/?group=nonTna"
             "&covering_date_from-year=2020&covering_date_from-month=6&covering_date_from-day=15"
@@ -470,10 +470,10 @@ class DateValidationTests(TestCase):
         form = response.context_data.get("form")
         self.assertFalse(form.is_valid())
 
-        # Should have record date error
+        # Should have covering date error
         error_messages = [error["text"] for error in form.non_field_errors]
         self.assertIn(
-            "Record date 'from' cannot be later than 'to' date",
+            "Covering date 'from' cannot be later than 'to' date",
             error_messages,
         )
 
