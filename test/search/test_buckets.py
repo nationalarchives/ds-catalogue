@@ -114,8 +114,8 @@ class SubjectsBucketsTests(TestCase):
 
     def test_subjects_aggregation_exists(self):
         """Test that SUBJECTS aggregation is defined."""
-        self.assertEqual(Aggregation.SUBJECTS, "subjects")
-        self.assertIn("subjects", [agg.value for agg in Aggregation])
+        self.assertEqual(Aggregation.SUBJECTS.value, "subjects")
+        self.assertIn(Aggregation.SUBJECTS, list(Aggregation))
 
     def test_tna_bucket_includes_subjects_aggregation(self):
         """Test that TNA bucket includes subjects in its aggregations."""

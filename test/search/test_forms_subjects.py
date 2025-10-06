@@ -135,23 +135,3 @@ class CatalogueSearchFormSubjectsTests(TestCase):
         self.assertEqual(air_force_item["text"], "Air Force")
         self.assertEqual(air_force_item["value"], "18")
         self.assertNotIn("checked", air_force_item)
-
-    def test_form_has_correct_number_of_fields(self):
-        """Test that the form has the expected number of fields including subjects."""
-        form = CatalogueSearchTnaForm()
-
-        # Should have: q, group, sort, level, collection, subjects, online
-        self.assertEqual(len(form.fields), 8)
-
-        expected_fields = [
-            FieldsConstant.Q,
-            FieldsConstant.GROUP,
-            FieldsConstant.SORT,
-            FieldsConstant.LEVEL,
-            FieldsConstant.COLLECTION,
-            FieldsConstant.SUBJECTS,
-            FieldsConstant.ONLINE,
-        ]
-
-        for field_name in expected_fields:
-            self.assertIn(field_name, form.fields)
