@@ -191,6 +191,11 @@ def record_detail_view(request, id):
         record.reference_number
     )
 
+    if context["distressing_content"]:
+        logger.info(
+            f"Document {record.reference_number} has a sensitive content warning"
+        )
+
     return TemplateResponse(
         request=request, template=template_name, context=context
     )
