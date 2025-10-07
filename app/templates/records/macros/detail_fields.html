@@ -70,14 +70,14 @@
         {% for field in fields %}
           {% if record[field] %}
             <dt>
-              <span class="record-details__label">
+              <div class="record-details__label">
                 {{ field_labels[field].title }}
                 {% if field_labels[field].description %}
                   <span class="record-details__description" hidden>
                     <span class="tna-visually-hidden">(</span>{{ field_labels[field].description }}<span class="tna-visually-hidden">)</span>
                   </span>
                 {% endif %}
-              </span>
+              </div>
             </dt>
             <dd>
               {% if field == 'held_by' %}
