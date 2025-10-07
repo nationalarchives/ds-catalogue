@@ -324,6 +324,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
                 "bucket_list": self.bucket_list,
                 "results_range": results_range,
                 "pagination": pagination,
+                "page": self.page,
             }
         )
         return context

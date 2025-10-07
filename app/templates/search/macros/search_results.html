@@ -19,13 +19,15 @@
         </li>
       {% else %}
         <li>
-          <dl class="etna-dl-chips">
+          <dl class="tna-dl-chips">
             <dt>Catalogue level</dt>
             <dd>
-              Item
+              <span class="tna-dl-chips__item">
+                Item
+              </span>
             </dd>
           </dl>
-          <h3><a href="{{ details_url }}">{{ result.summary_title | safe }}</a></h3>
+          <h3 class="tna-heading-m tna-!--no-margin-top tna-!--no-padding-top"><a href="{{ details_url }}">{{ result.summary_title | safe }}</a></h3>
           <p>{{ result.clean_description | truncate_preserve_mark_tags() | remove_string_case_insensitive('scope and content') | safe }}</p>
           <dl class="etna-result-attributes etna-result-attributes--list">
             <dt>Held by</dt>
