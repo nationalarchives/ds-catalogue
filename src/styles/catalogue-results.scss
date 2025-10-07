@@ -195,3 +195,12 @@ mark {
     padding: 0;
   }
 }
+
+
+//
+ .tna-checkboxes--grid {
+  display:grid;
+  gap: 16px 32px;
+  grid-template-columns: 1fr 1fr;
+
+ }

@@ -1,47 +1,116 @@
 {% extends 'base.html' %}
-
 {% from 'components/breadcrumbs/macro.html' import tnaBreadcrumbs %}
 {% from 'components/button/macro.html' import tnaButton %}
-
+{% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 {%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
-
 {%- set pageTitle = 'More filter options' -%}
-
 {% block stylesheets %}
-  {{ super() }}
-  <link rel="stylesheet" href="{{ static('catalogue-results.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
+{{ super() }}
+<link rel="stylesheet" href="{{ static('catalogue-results.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
 {% endblock %}
-
 {% block beforeContent %}
-  <div class="tna-background-accent">
-    <div class="tna-container">
+<div class="tna-background-accent">
+   <div class="tna-container">
       <div class="tna-column tna-column--full">
-        {{ tnaBreadcrumbs({
-          'items': [
-            {
-              'text': 'Home',
-              'href': '/'
-            },
-            {
-              'text': 'Catalogue',
-              'href': url('main:catalogue')
-            }
-          ],
-          'structuredData': True,
-          'classes': 'tna-!--padding-vertical-s'
-        }) }}
+         {{ tnaBreadcrumbs({
+         'items': [
+         {
+         'text': 'Home',
+         'href': '/'
+         },
+         {
+         'text': 'Catalogue',
+         'href': url('main:catalogue')
+         }
+         ],
+         'structuredData': True,
+         'classes': 'tna-!--padding-vertical-s'
+         }) }}
       </div>
-    </div>
-  </div>
+   </div>
+   <div class="tna-container">
+      <h2 class="tna-heading-l">Select filters to apply to your results</h2>
+   </div>
+</div>
+<div class="tna-container">
+   <div id="filter-panel" class="tna-column tna-column--width-1-3 tna-column--width-1-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-l">
+      <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s tna-background-accent-light" style="display: block;">
+         <div class="tna-form__group " data-module="tna-text-input">
+            <div class="tna-form__group-contents">
+               <h3 class="tna-form__heading tna-form__heading--s">
+                  <label class="tna-form__label" for="search-within">
+                  Search within filters
+                  </label>
+               </h3>
+            </div>
+            <input id="search-within" class="tna-text-input " name="search_within" value="" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" form="search-form">
+            <p>Already selected filters will remain active.</p>
+         </div>
+      </div>
+   </div>
+   <div id="results" class="tna-column tna-column--width-2-3 tna-!--margin-top-l">
+      <div class="tna-fieldset tna-fieldset--small-hint">
+         <fieldset class="tna-fieldset__inner">
+            <div class="tna-fieldset__body">
+               <div class="tna-checkboxes tna-checkboxes--grid" id="categories">
+                  <div class="tna-checkboxes__item">
+                     <input type="checkbox" id="categories-alpha" value="alpha" name="categories">
+                     <label for="categories-alpha" class="tna-checkboxes__item-label">
+                     ADM - Admiralty, Navy, Royal Marines, and Castguard (713,881)
+                     </label>
+                  </div>
+                  <div class="tna-checkboxes__item">
+                     <input type="checkbox" id="categories-beta" value="beta" name="categories">
+                     <label for="categories-beta" class="tna-checkboxes__item-label">
+                     BT - Board of Trade and successors (2,539,478)
+                     </label>
+                  </div>
+                  <div class="tna-checkboxes__item">
+                     <input type="checkbox" id="categories-gamma" value="gamma" name="categories">
+                     <label for="categories-gamma" class="tna-checkboxes__item-label">
+                     CUST - Boards of Customs, Excise, and Customs and Excise, and HM Revenue and Customs (1,440,321)
+                     </label>
+                  </div>
+                  <div class="tna-checkboxes__item">
+                     <input type="checkbox" id="categories-gamma" value="gamma" name="categories">
+                     <label for="categories-gamma" class="tna-checkboxes__item-label">
+                     FO - Foreign Office (685,022)
+                     </label>
+                  </div>
+                  <div class="tna-checkboxes__item">
+                     <input type="checkbox" id="categories-gamma" value="gamma" name="categories">
+                     <label for="categories-gamma" class="tna-checkboxes__item-label">
+                     HMC 1 - Royal Commision on Historical Manuscripts: Correespondence and Papers (1,330)
+                     </label>
+                  </div>
+                  <div class="tna-checkboxes__item">
+                     <input type="checkbox" id="categories-gamma" value="gamma" name="categories">
+                     <label for="categories-gamma" class="tna-checkboxes__item-label">
+                     PROB - Prerogative Court of Cantebury (1,265,613)
+                     </label>
+                  </div>
+               </div>
+            </div>
+         </fieldset>
+      </div>
+      <!--third col---->
+      
+</div>
+<div class="tna-container tna-section">
+   <a href="#" class="tna-button">
+   Apply Filters
+   </a>
+   <a href="#" class="tna-column tna-column--width-1-4 tna-column--width-1-3-medium tna-column--width-1-2-small tna-column--full-tiny">
+   Cancel and return to results
+   </a>
+</div>
 {% endblock %}
-
 {% block content %}
-  <div class="tna-background-accent">
-    {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
-  </div>
+<div class="tna-background-accent">
+   {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
+</div>
 {% endblock %}
-
 {% block bodyEnd %}
-  {{ super() }}
-  <script src="{{ static('catalogue-results.min.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
+{{ super() }}
+<script src="{{ static('catalogue-results.min.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
 {% endblock %}
