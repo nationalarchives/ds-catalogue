@@ -4,8 +4,8 @@ from http import HTTPStatus
 
 import requests
 from app.deliveryoptions.api import delivery_options_request_handler
+from app.deliveryoptions.constants import AvailabilityCondition
 from app.deliveryoptions.delivery_options import (
-    AvailabilityCondition,
     construct_delivery_options,
 )
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
@@ -148,11 +148,22 @@ def record_detail_view(request, id):
 
     # Separated from above if statement because this is permanent logic
     if determine_delivery_options:
-        delivery_option = delivery_options_request_handler(
-             iaid=record.iaid
-        )
+        availability_condition = None
 
-        logger.info(f"Delivery option {delivery_option} found for {record.iaid}")
+        try:
+            delivery_result = delivery_options_request_handler(record.iaid)
+
+            if delivery_result and len(delivery_result) > 0:
+                options_value = delivery_result[0].get('options')
+                if options_value is not None:
+                # Convert the integer to the enum
+                    availability_condition = AvailabilityCondition(options_value)
+
+                logger.info(f"Delivery option {availability_condition} found for {record.iaid}")
+
+        except Exception as e:
+            logger.error(f"Failed to get delivery options for iaid {iaid}: {str(e)}")
+
 
     # if determine_delivery_options:
     # TODO: Temporarily commented out delivery options functionality
