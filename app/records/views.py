@@ -146,6 +146,14 @@ def record_detail_view(request, id):
         }
         context.update(delivery_options_context)
 
+    # Separated from above if statement because this is permanent logic
+    if determine_delivery_options:
+        delivery_option = delivery_options_request_handler(
+             iaid=record.iaid
+        )
+
+        logger.info(f"Delivery option {delivery_option} found for {record.iaid}")
+
     # if determine_delivery_options:
     # TODO: Temporarily commented out delivery options functionality
     # # Only get the delivery options if we are looking at records
