@@ -165,7 +165,8 @@ def remove_string_case_insensitive(value: str, to_remove: str):
     return pattern.sub("", value)
 
 
-def truncate_preserve_mark_tags(value, max_length=250):
+# TODO: Simplify this function - it has high cyclomatic complexity
+def truncate_preserve_mark_tags(value, max_length=250):  # noqa: C901
     """
     Truncate text to `max_length` visible characters while:
     - Keeping only <mark> tags (with their attributes) and stripping all other HTML.
