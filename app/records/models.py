@@ -220,6 +220,8 @@ class Record(APIModel):
     def held_by_url(self) -> str:
         """Returns url path if the id is found, empty str otherwise."""
         if self.held_by_id:
+            # TODO: Temporary link to Discovery until archon template is ready
+            return f"https://discovery.nationalarchives.gov.uk/details/a/{self.held_by_id}"
             try:
                 return reverse(
                     "records:details",
