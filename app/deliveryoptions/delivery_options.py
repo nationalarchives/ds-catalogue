@@ -12,6 +12,7 @@ import inspect
 import json
 import logging
 import re
+from functools import lru_cache
 from ipaddress import ip_address
 from typing import Any, Dict, List, Optional, Union
 
@@ -63,7 +64,17 @@ def read_delivery_options(file_path: str) -> Dict:
     return file_cache[file_path]
 
 
-def has_distressing_content_match(reference: str) -> bool:
+@lru_cache(maxsize=1)
+def _get_dcs_prefix_variants():
+    """Build and cache exact and slash variants of all prefixes."""
+    variants = set()
+    for prefix in settings.DCS_PREFIXES:
+        variants.add(prefix)  # Exact match
+        variants.add(f"{prefix}/")  # With slash
+    return variants
+
+
+def has_distressing_content(reference: str) -> bool:
     """
     Check if a reference number matches any of the distressing content prefixes.
 
@@ -73,8 +84,18 @@ def has_distressing_content_match(reference: str) -> bool:
     Returns:
         True if the reference number starts with any distressing content prefix
     """
+    variants = _get_dcs_prefix_variants()
 
-    return list(filter(reference.startswith, settings.DCS_PREFIXES)) != []
+    # Check exact match first (fastest)
+    if reference in variants:
+        return True
+
+    # Check if starts with any slash variant
+    for variant in variants:
+        if variant.endswith("/") and reference.startswith(variant):
+            return True
+
+    return False
 
 
 def get_delivery_option_dict(
@@ -255,7 +276,7 @@ def generic_builder(
     """
     # Handle special case for distressing content
     dcs_flag = False
-    if builder_type == "description" and has_distressing_content_match(
+    if builder_type == "description" and has_distressing_content(
         record_data.reference_number
     ):
         dcs_flag = True
