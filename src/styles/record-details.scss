@@ -176,6 +176,8 @@
 
   box-sizing: border-box;
 
+  @include borders.rounded-border;
+
   text-align: center;
 }
 
@@ -186,12 +188,6 @@
 
 .record-hierarchy {
   padding-top: spacing.space(0.75);
-
-  overflow: hidden;
-
-  @include borders.rounded-border;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
 
   &__count {
     padding-top: spacing.space(0.125);
@@ -204,11 +200,9 @@
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
-}
 
-.record-hierarchy-this {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+  &--this {
+  }
 }
 
 .large-icon {

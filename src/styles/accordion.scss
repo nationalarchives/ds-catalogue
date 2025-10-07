@@ -1,7 +1,10 @@
 @use "sass:math";
 @use "@nationalarchives/frontend/nationalarchives/tools/colour";
+@use "@nationalarchives/frontend/nationalarchives/tools/borders";
 @use "@nationalarchives/frontend/nationalarchives/tools/spacing";
 @use "@nationalarchives/frontend/nationalarchives/tools/typography";
+@use "@nationalarchives/frontend/nationalarchives/utilities/typography" as
+  typographyUtils;
 
 .etna-accordion {
   @include spacing.space-above;
@@ -19,13 +22,14 @@
   }
 
   &__details {
-    @include colour.colour-border("keyline", 1px, solid, bottom);
+    @include colour.tint;
+    @include borders.rounded-border;
 
     position: relative;
     z-index: 1;
 
-    &:first-child {
-      @include colour.colour-border("keyline", 1px, solid, top);
+    & + & {
+      margin-top: spacing.space(1);
     }
   }
 
@@ -56,9 +60,7 @@
 
     cursor: pointer;
 
-    @include colour.colour-font("font-dark");
-    @include typography.font-size(18);
-    @include typography.main-font(true);
+    @extend %heading-m;
 
     * {
       font-size: inherit;
@@ -111,7 +113,7 @@
   }
 
   &__content {
-    padding: spacing.space(1);
+    padding: 0 spacing.space(1) spacing.space(1) spacing.space(1);
 
     position: relative;
 
