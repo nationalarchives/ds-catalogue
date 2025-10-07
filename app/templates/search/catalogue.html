@@ -148,7 +148,7 @@
 
     {% if form.fields.group.value==bucket_keys.TNA %}
       {{ online(request) }}
-      {{ search_within(request) }}
+      {# {{ search_within(request) }} #}
       {{ date_input(request, 'date', 'date', 'Filter by record date') }}
       {{ collections(request, form.fields['collection']) }}
       {{ subjects(request, subjects_ctx) }}
