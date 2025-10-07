@@ -36,15 +36,16 @@
 
 {% block skipLink %}
 {% if results %}
-<a href="#results" class="tna-skip-link" data-module="tna-skip-link">
-  Skip to results
-</a>
+  {{ tnaSkipLink({
+    'href': 'results',
+    'text': 'Skip to results'
+  }) }}
 
 
-{{ tnaSkipLink({
-  'href': 'results',
-  'text': 'Skip to results'
-}) }}
+  {{ tnaSkipLink({
+    'href': 'filter-panel',
+    'text': 'Skip to search filters'
+  }) }}
 {% endif %}
 {{ super() }}
 {% endblock %}
