@@ -7,6 +7,7 @@ from app.deliveryoptions.api import delivery_options_request_handler
 from app.deliveryoptions.constants import AvailabilityCondition
 from app.deliveryoptions.delivery_options import (
     construct_delivery_options,
+    get_availability_condition_group,
 )
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
 from app.lib.api import JSONAPIClient, ResourceNotFound
@@ -84,6 +85,44 @@ def get_subjects_enrichment(subjects_list: list[str], limit: int = 10) -> dict:
         return {}
 
 
+def get_delivery_options_context(iaid) -> dict:
+    """
+    Fetch and process delivery options for a record.
+    
+    Args:
+        iaid: The document iaid
+        
+    Returns:
+        Dictionary with delivery options context (may be empty)
+    """
+    context = {}
+    
+    try:
+        delivery_result = delivery_options_request_handler(iaid)
+
+        if delivery_result and len(delivery_result) > 0:
+            options_value = delivery_result[0].get('options')
+            if options_value is not None:
+                # Convert the integer to the enum
+                availability_condition = AvailabilityCondition(options_value)
+                
+                # Get the availability group
+                availability_group = get_availability_condition_group(options_value)
+                
+                logger.info(
+                    f"Availability condition {availability_condition} "
+                    f"(group: {availability_group.name if availability_group else 'UNKNOWN'}) "
+                    f"found for {iaid}"
+                )
+                
+                if availability_group:
+                    context['availability_group'] = availability_group.name
+
+    except Exception as e:
+        logger.error(f"Failed to get delivery options for iaid {iaid}: {str(e)}")
+    
+    return context
+
 def record_detail_view(request, id):
     """
     View for rendering a record's details page.
@@ -148,22 +187,7 @@ def record_detail_view(request, id):
 
     # Separated from above if statement because this is permanent logic
     if determine_delivery_options:
-        availability_condition = None
-
-        try:
-            delivery_result = delivery_options_request_handler(record.iaid)
-
-            if delivery_result and len(delivery_result) > 0:
-                options_value = delivery_result[0].get('options')
-                if options_value is not None:
-                # Convert the integer to the enum
-                    availability_condition = AvailabilityCondition(options_value)
-
-                logger.info(f"Delivery option {availability_condition} found for {record.iaid}")
-
-        except Exception as e:
-            logger.error(f"Failed to get delivery options for iaid {iaid}: {str(e)}")
-
+        context.update(get_delivery_options_context(record.iaid))
 
     # if determine_delivery_options:
     # TODO: Temporarily commented out delivery options functionality

@@ -18,6 +18,8 @@ from typing import Any, Dict, List, Optional, Union
 from app.deliveryoptions.constants import (
     DELIVERY_OPTIONS_CONFIG,
     AvailabilityCondition,
+    AvailabilityGroup,
+    AVAILABILITY_CONDITION_STATE_TO_GROUP,
     delivery_option_tags,
 )
 from app.deliveryoptions.departments import DEPARTMENT_DETAILS
@@ -34,6 +36,11 @@ logger = logging.getLogger(__name__)
 # TODO: To be replaced by templating
 file_cache = {}
 
+
+def get_availability_condition_group(state_number: int) -> AvailabilityGroup | None:
+    """Return the DocumentStateGroup for a given state number."""
+    return AVAILABILITY_CONDITION_STATE_TO_GROUP.get(state_number)
+    
 
 def read_delivery_options(file_path: str) -> Dict:
     """
