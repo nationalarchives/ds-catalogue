@@ -56,7 +56,7 @@
     background: transparent;
 
     border: none;
-    border-radius: 0.1px;
+    @include borders.rounded-border;
 
     cursor: pointer;
 
@@ -84,7 +84,7 @@
     &:hover,
     &:focus-visible {
       @include typography.interacted-text-decoration;
-      @include colour.colour-background("background-tint");
+      // @include colour.colour-background("background-tint");
 
       &::before {
         border-color: colour.colour-var("font-dark") transparent;
