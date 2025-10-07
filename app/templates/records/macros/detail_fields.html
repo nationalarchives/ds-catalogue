@@ -10,7 +10,6 @@
     <div class="tna-column tna-column--full-small tna-column--full-tiny tna-column--align-centre tna-!--margin-top-s">
       {{ tnaCheckboxes({
         'label': 'Record details',
-        'headingLevel': 3,
         'headingSize': 's',
         'id': 'field-descriptions',
         'name': 'field_descriptions',
@@ -22,8 +21,9 @@
           }
         ],
         'inline': True,
-        'formGroupAttributes': {
-          'hidden': 'true'
+        'formItemAttributes': {
+          'hidden': 'true',
+          'id': 'field-descriptions-container'
         }
       }) }}
     </div>

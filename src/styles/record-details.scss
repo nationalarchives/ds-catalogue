@@ -121,6 +121,16 @@
   }
 }
 
+#field-descriptions-container {
+  .tna-form-item__label {
+    font-size: 0 !important;
+  }
+
+  .tna-form-item__body {
+    margin-top: 0;
+  }
+}
+
 .record-details {
   &__label {
     position: sticky;
