@@ -1,6 +1,6 @@
 import json
 import os
-from enum import IntEnum, Enum
+from enum import Enum, IntEnum
 
 import app.deliveryoptions.helpers as h
 
@@ -66,50 +66,51 @@ class AvailabilityCondition(IntEnum):
     AdvanceOrderOnly = 33  # Available for advance order only
     Relocation = 34  # Record is being relocated
 
+
 class AvailabilityGroup(Enum):
     """
     Groups availability conditions into broader categories for filtering and display.
     Based on how records are made available to users.
     """
-    
+
     AVAILABLE_ONLINE_TNA_ONLY = {
         AvailabilityCondition.DigitizedDiscovery,
         AvailabilityCondition.DigitizedPartiallyOpened,
     }
-    
+
     AVAILABLE_ONLINE_THIRD_PARTY_ONLY = {
         AvailabilityCondition.DigitizedLia,
         AvailabilityCondition.DigitizedOther,
         AvailabilityCondition.AV_Media,
     }
-    
+
     AVAILABLE_IN_PERSON_NO_COPYING = {
         AvailabilityCondition.TooLargeToCopySurrogate,
         AvailabilityCondition.TooLargeToCopyOriginal,
         AvailabilityCondition.InvigilationSafeRoom,
         AvailabilityCondition.CollectionCare,
     }
-    
+
     AVAILABLE_IN_PERSON_WITH_COPYING = {
         AvailabilityCondition.OrderOriginal,
         AvailabilityCondition.Surrogate,
         AvailabilityCondition.Offsite,
         AvailabilityCondition.TooLargeToCopyOffsite,
     }
-    
+
     NOT_AVAILABLE = {
         AvailabilityCondition.MissingLost,
         AvailabilityCondition.UnAvailable,
         AvailabilityCondition.Unfit,
         AvailabilityCondition.MouldTreatment,
     }
-    
+
     RECORDS_AT_OTHER_ARCHIVES = {
         AvailabilityCondition.LocalArchive,
         AvailabilityCondition.Onloan,
         AvailabilityCondition.DisplayAtMuseum,
     }
-    
+
     CLOSED_TNA_OR_PA = {
         AvailabilityCondition.ClosedFOIReview,
         AvailabilityCondition.ClosedRetainedDeptKnown,
@@ -117,7 +118,7 @@ class AvailabilityGroup(Enum):
         AvailabilityCondition.AccessUnderReview,
         AvailabilityCondition.PaidSearch,
     }
-    
+
     SPECIAL_CASES = {
         AvailabilityCondition.InUse,
         AvailabilityCondition.Relocation,
@@ -131,10 +132,9 @@ class AvailabilityGroup(Enum):
         AvailabilityCondition.DigitizedAvailableButNotDownloadableAtItemLevel,
     }
 
+
 AVAILABILITY_CONDITION_STATE_TO_GROUP = {
-    state: group
-    for group in AvailabilityGroup
-    for state in group.value
+    state: group for group in AvailabilityGroup for state in group.value
 }
 
 # TODO: This is a temporary constant and will be removed when the templating solution is implemented
