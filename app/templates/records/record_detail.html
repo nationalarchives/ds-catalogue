@@ -11,6 +11,7 @@
 {% from 'records/macros/top_navigation.html' import top_navigation %}
 {% from 'records/macros/related_records_block.html' import related_records_block %}
 {% from 'records/macros/related_content_block.html' import related_content_block %}
+{% from 'records/macros/content_warning.html' import content_warning %}
 
 {%- set pageTitle = (record.summary_title or '[No title]') | striptags -%}
 
@@ -32,9 +33,13 @@
 <div class="tna-background-accent-">
   {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
 </div>
-<div class="tna-section">
+<div class="tna-section tna-!--padding-top-{{ 's' if distressing_content else 'l' }}">
   <div class="tna-container">
-    <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
+    {{ content_warning(
+        distressing_content,
+        "This record may include content that reflects the trauma and distress experienced by those present during or affected by the event of the time"
+      ) }}
+    <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny tna-!--padding-top-xs">
       <hgroup class="tna-hgroup-xl">
         <p class="tna-hgroup__supertitle">{{ record.level }}</p>
         <h1 class="tna-hgroup__title">{{ pageTitle }}</h1>
