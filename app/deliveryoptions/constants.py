@@ -75,40 +75,43 @@ class AvailabilityGroup(Enum):
 
     AVAILABLE_ONLINE_TNA_ONLY = {
         AvailabilityCondition.DigitizedDiscovery,
-        AvailabilityCondition.DigitizedPartiallyOpened,
     }
 
     AVAILABLE_ONLINE_THIRD_PARTY_ONLY = {
         AvailabilityCondition.DigitizedLia,
         AvailabilityCondition.DigitizedOther,
-        AvailabilityCondition.AV_Media,
+        AvailabilityCondition.AcademicSubscription,
     }
 
     AVAILABLE_IN_PERSON_NO_COPYING = {
-        AvailabilityCondition.TooLargeToCopySurrogate,
+        AvailabilityCondition.TooLargeToCopyOffsite,
         AvailabilityCondition.TooLargeToCopyOriginal,
-        AvailabilityCondition.InvigilationSafeRoom,
+        AvailabilityCondition.TooLargeToCopySurrogate,
         AvailabilityCondition.CollectionCare,
     }
 
     AVAILABLE_IN_PERSON_WITH_COPYING = {
+        AvailabilityCondition.InvigilationSafeRoom,
         AvailabilityCondition.OrderOriginal,
         AvailabilityCondition.Surrogate,
         AvailabilityCondition.Offsite,
-        AvailabilityCondition.TooLargeToCopyOffsite,
+        AvailabilityCondition.AdvanceOrderOnly,
     }
 
     NOT_AVAILABLE = {
+        AvailabilityCondition.InUse,
         AvailabilityCondition.MissingLost,
         AvailabilityCondition.UnAvailable,
         AvailabilityCondition.Unfit,
         AvailabilityCondition.MouldTreatment,
+        AvailabilityCondition.DisplayAtMuseum,
+        AvailabilityCondition.Relocation,
     }
 
     RECORDS_AT_OTHER_ARCHIVES = {
         AvailabilityCondition.LocalArchive,
         AvailabilityCondition.Onloan,
-        AvailabilityCondition.DisplayAtMuseum,
+        AvailabilityCondition.GovtWebArchive,
     }
 
     CLOSED_TNA_OR_PA = {
@@ -120,14 +123,6 @@ class AvailabilityGroup(Enum):
     }
 
     SPECIAL_CASES = {
-        AvailabilityCondition.InUse,
-        AvailabilityCondition.Relocation,
-        AvailabilityCondition.OrderException,
-        AvailabilityCondition.FileAuthority,
-        AvailabilityCondition.ImageLibrary,
-        AvailabilityCondition.AdvanceOrderOnly,
-        AvailabilityCondition.AcademicSubscription,
-        AvailabilityCondition.GovtWebArchive,
         AvailabilityCondition.DigitizedAvailableButNotDownloadableAtPieceLevel,
         AvailabilityCondition.DigitizedAvailableButNotDownloadableAtItemLevel,
     }
