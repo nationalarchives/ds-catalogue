@@ -281,3 +281,58 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
 
         # No subject filters should be in selected filters
         self.assertEqual(response.context_data.get("selected_filters"), [])
+
+    @responses.activate
+    def test_catalogue_search_context_with_subjects_param(self):
+        """Test that subjects parameters are processed correctly."""
+
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "iaid": "C123456",
+                                "source": "CAT",
+                            }
+                        }
+                    }
+                ],
+                "aggregations": [
+                    {
+                        "name": "subjects",
+                        "entries": [
+                            {"value": "Army", "doc_count": 150},
+                            {"value": "Navy", "doc_count": 75},
+                        ],
+                    }
+                ],
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "tna", "count": 1},
+                        ],
+                    }
+                ],
+                "stats": {
+                    "total": 26008838,
+                    "results": 20,
+                },
+            },
+            status=HTTPStatus.OK,
+        )
+
+        self.response = self.client.get(
+            "/catalogue/search/?subjects=Army&subjects=Navy"
+        )
+        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+
+        filter_labels = [
+            f["label"]
+            for f in self.response.context_data.get("selected_filters")
+        ]
+        self.assertIn("Subject: Army", filter_labels)
+        self.assertIn("Subject: Navy", filter_labels)

@@ -1,7 +1,7 @@
 {% from 'components/button/macro.html' import tnaButton %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 
-{% macro subjects(request, subjects, number_of_subjects_to_show=10) %}
+{% macro subjects(request, subjects) %}
   <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
     {{ tnaCheckboxes({
       'label': 'Subjects',
