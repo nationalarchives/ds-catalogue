@@ -46,13 +46,6 @@ class PageNotFound(Exception):
 class APIMixin:
     """A mixin to get the api result, processes api result, sets the context."""
 
-    # fields used to extract aggregation entries from the api result
-    dynamic_choice_fields = [
-        FieldsConstant.LEVEL,
-        FieldsConstant.COLLECTION,
-        FieldsConstant.SUBJECTS,
-    ]
-
     def get_api_result(self, query, results_per_page, page, sort, params):
         api_result = search_records(
             query=query,
@@ -140,11 +133,6 @@ class APIMixin:
                     form.fields[field_name].more_filter_options_available = (
                         bool(aggregation.get("other", 0))
                     )
-
-                    # Add this debug line to see what choices look like after update
-                    logger.info(
-                        f"Updated choices for {field_name}: {form.fields[field_name].choices[:5]}"
-                    )  # Show first 5 choices
 
     def replace_api_data(
         self, field_name, entries_data: list[dict[str, str | int]]

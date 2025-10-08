@@ -1,15 +1,15 @@
 {% from 'components/button/macro.html' import tnaButton %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 
-{% macro subjects(request, subjects_field, number_of_subjects_to_show=10) %}
+{% macro subjects(request, subjects, number_of_subjects_to_show=10) %}
   <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
     {{ tnaCheckboxes({
       'label': 'Subjects',
       'headingLevel': 3,
       'headingSize': 'm',
       'id': 'subjects',
-      'name': subjects_field.name,
-      'items': subjects_field.items[:number_of_subjects_to_show],
+      'name': subjects.name,
+      'items': subjects.items,
       'small': True,
       'attributes': {
         'form': 'search-form'
@@ -25,7 +25,7 @@
         }
       }) }}
 
-      {% if subjects_field.items | length > number_of_subjects_to_show %}
+      {% if subjects.more_filter_options_available %}
         {{ tnaButton({
           'text': 'See more subjects',
           'href': '?' + qs_replace_value(request.GET, 'filter_list', 'subjects'),

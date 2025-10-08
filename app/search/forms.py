@@ -58,7 +58,7 @@ class CatalogueSearchTnaForm(BaseForm):
             FieldsConstant.SUBJECTS: DynamicMultipleChoiceField(
                 label="Subjects",
                 choices=SUBJECT_CHOICES,
-                validate_input=False,  # validate input with static choices
+                validate_input=False,  # do not validate input with static choices
                 active_filter_label="Subject",
             ),
             FieldsConstant.ONLINE: ChoiceField(
