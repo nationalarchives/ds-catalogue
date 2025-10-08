@@ -157,7 +157,7 @@
       {{ date_input(request, 'date', 'date', 'Filter by record opening date') }}
       {{ closure_statuses(request, form.fields['closure']) }}
     {% elif form.fields.group.value==bucket_keys.NON_TNA %}
-      {{ search_within(request) }}
+      {# {{ search_within(request) }} #}
       {{ date_input(request, 'date', 'date', 'Filter by record date') }}
       {{ held_by(request, form.fields['held_by']) }}
     {% endif %}
