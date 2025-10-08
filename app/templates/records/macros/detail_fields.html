@@ -134,12 +134,12 @@
                   <dt>Topics</dt>
                   {% for item in record[field] %}
                     <dd>
-                      <a href="#" class="tna-dl-chips__item">
+                      <a href="{{ url('search:catalogue') }}?subjects={{ item|urlencode }}" class="tna-dl-chips__item">
                         {{ item }}
                       </a>
                     </dd>
                   {% endfor %}
-                </dl> 
+                </dl>
               {% else %}
                 {# Apply apply_generic_xsl for other values #}
                 {% if field in ['location_of_originals'] %}
