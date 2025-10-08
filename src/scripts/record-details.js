@@ -6,7 +6,7 @@ class toggleDetailsListDescriptions {
     this.cookies = cookies;
 
     this.checkbox = checkbox;
-    this.formGroup = this.checkbox.closest(".tna-form__group");
+    this.formItem = this.checkbox.closest(".tna-form-item");
 
     this.detailsList = detailsList;
     this.detailsListItems = this.detailsList.querySelectorAll(
@@ -17,16 +17,16 @@ class toggleDetailsListDescriptions {
       return;
     }
 
-    if (this.formGroup) {
-      this.showFormGroup();
+    if (this.formItem) {
+      this.showFormItem();
     }
 
     this.setUpCheckbox();
   }
 
-  showFormGroup() {
-    this.formGroup.removeAttribute("hidden");
-    this.formGroup
+  showFormItem() {
+    this.formItem.removeAttribute("hidden");
+    this.formItem
       .querySelector(".tna-form__legend")
       ?.classList.add("tna-visually-hidden");
   }
@@ -66,7 +66,7 @@ class toggleDetailsListDescriptions {
 
 const cookies = new Cookies();
 
-const checkbox = document.getElementById("field-descriptions-hide");
+const checkbox = document.getElementById("field-descriptions");
 const detailsList = document.getElementById("record-details-list");
 if (checkbox && detailsList) {
   new toggleDetailsListDescriptions(checkbox, detailsList, cookies);

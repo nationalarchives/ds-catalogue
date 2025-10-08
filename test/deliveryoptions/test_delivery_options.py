@@ -108,7 +108,9 @@ class TestDeliveryOptionSubstitution(TestCase):
             "{AddedToBasketText}": "Add to basket",
             "{AdvancedOrdersEmailAddress}": settings.ADVANCED_DOCUMENT_ORDER_EMAIL,
             "{AdvanceOrderInformationUrl}": "https://tnabase.test.url/about/visit-us/",
-            "{ArchiveLink}": "/catalogue/id/A13530124/",
+            # TODO: Temporary link to Discovery until archon template is ready
+            # "{ArchiveLink}": "/catalogue/id/A13530124/",
+            "{ArchiveLink}": "https://discovery.nationalarchives.gov.uk/details/a/A13530124",
             "{ArchiveName}": "The National Archives, Kew",
             "{BasketType}": "Digital Downloads",
             "{BasketUrl}": "https://tnabase.test.url/basket/",
@@ -230,7 +232,7 @@ class TestDeliveryOptionSubstitution(TestCase):
         }
 
         with patch(
-            "app.deliveryoptions.delivery_options.has_distressing_content_match",
+            "app.deliveryoptions.delivery_options.has_distressing_content",
             return_value=True,
         ):
             selected_description = next(
@@ -256,7 +258,7 @@ class TestDeliveryOptionSubstitution(TestCase):
         }
 
         with patch(
-            "app.deliveryoptions.delivery_options.has_distressing_content_match",
+            "app.deliveryoptions.delivery_options.has_distressing_content",
             return_value=False,
         ):
             selected_description = next(
