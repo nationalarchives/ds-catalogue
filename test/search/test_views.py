@@ -60,8 +60,8 @@ class CatalogueSearchViewTests(TestCase):
                     {
                         "name": "subjects",
                         "entries": [
-                            {"value": "2", "doc_count": 25},
-                            {"value": "6", "doc_count": 15},
+                            {"value": "Army", "doc_count": 25},
+                            {"value": "Navy", "doc_count": 15},
                         ],
                     },
                 ],
@@ -322,8 +322,8 @@ class CatalogueSearchViewTests(TestCase):
         self.assertEqual(
             self.response.context_data.get("form").fields["subjects"].items,
             [
-                {"text": "Army (25)", "value": "2"},
-                {"text": "Navy (15)", "value": "6"},
+                {"text": "Army (25)", "value": "Army"},
+                {"text": "Navy (15)", "value": "Navy"},
             ],
         )
 
@@ -542,8 +542,8 @@ class CatalogueSearchViewTests(TestCase):
                     {
                         "name": "subjects",
                         "entries": [
-                            {"value": "2", "doc_count": 150},
-                            {"value": "6", "doc_count": 75},
+                            {"value": "Army", "doc_count": 150},
+                            {"value": "Navy", "doc_count": 75},
                         ],
                     }
                 ],
@@ -564,24 +564,24 @@ class CatalogueSearchViewTests(TestCase):
         )
 
         self.response = self.client.get(
-            "/catalogue/search/?subjects=2&subjects=6"
+            "/catalogue/search/?subjects=Army&subjects=Navy"
         )
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
 
         # Test subjects field
         self.assertEqual(
             self.response.context_data.get("form").fields["subjects"].value,
-            ["2", "6"],
+            ["Army", "Navy"],
         )
         self.assertEqual(
             self.response.context_data.get("form").fields["subjects"].cleaned,
-            ["2", "6"],
+            ["Army", "Navy"],
         )
         self.assertEqual(
             self.response.context_data.get("form").fields["subjects"].items,
             [
-                {"text": "Army (150)", "value": "2", "checked": True},
-                {"text": "Navy (75)", "value": "6", "checked": True},
+                {"text": "Army (150)", "value": "Army", "checked": True},
+                {"text": "Navy (75)", "value": "Navy", "checked": True},
             ],
         )
 
@@ -697,11 +697,11 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
 
         # Test subjects filter for TNA group
         self.response = self.client.get(
-            "/catalogue/search/?group=tna&subjects=2&subjects=6"
+            "/catalogue/search/?group=tna&subjects=Army&subjects=Navy"
         )
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subjects&filter=group%3Atna&filter=subjects%3A2&filter=subjects%3A6&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subjects&filter=group%3Atna&filter=subjects%3AArmy&filter=subjects%3ANavy&q=%2A&size=20"
         )
 
 
@@ -768,7 +768,7 @@ class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
 
         # with filter not belonging to nontna group (should be ignored)
         self.response = self.client.get(
-            "/catalogue/search/?group=nonTna&q=ufo&collection=somecollection&online=true&level=somelevel&subjects=2"
+            "/catalogue/search/?group=nonTna&q=ufo&collection=somecollection&online=true&level=somelevel&subjects=Army"
         )
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(

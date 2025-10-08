@@ -126,10 +126,6 @@ TNA_SUBJECTS = {
     "100": "Disarmament",
 }
 
-SUBJECT_CHOICES = tuple(
-    (k, v) for k, v in sorted(TNA_SUBJECTS.items(), key=lambda x: int(x[0]))
-)
-
 SUBJECTS_LIMIT = 20
 
 MISSING_COUNT_TEXT = "Unknown number of"

@@ -4,7 +4,7 @@ from app.lib.fields import (
     DynamicMultipleChoiceField,
 )
 from app.lib.forms import BaseForm
-from app.records.constants import SUBJECT_CHOICES, TNA_LEVELS
+from app.records.constants import TNA_LEVELS
 from app.search.buckets import CATALOGUE_BUCKETS, Aggregation
 from app.search.constants import Sort
 
@@ -57,7 +57,7 @@ class CatalogueSearchTnaForm(BaseForm):
             ),
             FieldsConstant.SUBJECTS: DynamicMultipleChoiceField(
                 label="Subjects",
-                choices=SUBJECT_CHOICES,
+                choices=[],
                 validate_input=False,  # do not validate input with static choices
                 active_filter_label="Subject",
             ),
@@ -80,6 +80,10 @@ class CatalogueSearchTnaForm(BaseForm):
                     (
                         Aggregation.COLLECTION.long_aggs,
                         FieldsConstant.COLLECTION,
+                    ),
+                    (
+                        Aggregation.SUBJECTS.long_aggs,
+                        FieldsConstant.SUBJECTS,
                     ),
                 ],
             ),
