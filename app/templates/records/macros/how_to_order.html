@@ -2,28 +2,23 @@
 {# {% from 'components/button/macro.html' import tnaButton %} #}
 
 {% macro how_to_order(delivery_instructions, tna_discovery_link) %}
-<div class="tna-container tna-container--nested">
-  <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
-    
-    {# TODO: This template will be replaced by a hierarchical set of templates, one per DO #}
-    {% include "records/delivery_options.html" %}
+  {# TODO: This template will be replaced by a hierarchical set of templates, one per DO #}
+  {% include "records/delivery_options.html" %}
 
-    {# TODO: Temporarily commented out - this is due to be replaced with hierarchical templates #}
-    {#
-    <p>This record has not been digitised and cannot be downloaded.</p>
-    <p>You can <a href="#">order records in advance</a> to be ready when you <a href="#">visit Kew</a>. You will need a <a href="#">reader's ticket</a> to do this. Or, you can request a quotation for a copy to be sent to you.</p>
-    <p>Note: Not all documents are available and options will vary.</p>
-    <div class="tna-button-group">
-      {{ tnaButton({
-        'text': 'Book a visit',
-        'href': '#'
-      }) }}
-      {{ tnaButton({
-        'text': 'Request a copy',
-        'href': '#'
-      }) }}
-    </div>
-    #}
+  {# TODO: Temporarily commented out - this is due to be replaced with hierarchical templates #}
+  {#
+  <p>This record has not been digitised and cannot be downloaded.</p>
+  <p>You can <a href="#">order records in advance</a> to be ready when you <a href="#">visit Kew</a>. You will need a <a href="#">reader's ticket</a> to do this. Or, you can request a quotation for a copy to be sent to you.</p>
+  <p>Note: Not all documents are available and options will vary.</p>
+  <div class="tna-button-group">
+    {{ tnaButton({
+      'text': 'Book a visit',
+      'href': '#'
+    }) }}
+    {{ tnaButton({
+      'text': 'Request a copy',
+      'href': '#'
+    }) }}
   </div>
-</div>
+  #}
 {% endmacro %}

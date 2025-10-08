@@ -26,14 +26,14 @@
 }
 
 .etna-results-sort-by {
-  padding-bottom: spacing.space(0.5);
-
+  display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: end;
+  gap: spacing.space(0.5);
 
-  .tna-form__group-contents {
-    flex: none;
+  .tna-form-item__body {
+    margin-top: 0;
   }
 }
 
@@ -57,14 +57,6 @@
 
   &--list {
     border-radius: 4px;
-
-    h3 {
-      margin-top: spacing.space(1);
-
-      line-height: initial;
-      @include typography.heading-font;
-      @include typography.font-size(30);
-    }
   }
 
   > li {
@@ -104,31 +96,6 @@
         @include a11y.focus-outline;
       }
     }
-  }
-}
-
-.etna-dl-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: spacing.space(0.75) spacing.space(0.2);
-
-  list-style: none;
-
-  dt {
-    @include a11y.visually-hidden;
-  }
-
-  dd {
-    margin-right: spacing.space(0.5);
-
-    padding: spacing.space(0.35) spacing.space(0.25);
-
-    color: colour.brand-colour("white");
-
-    background-color: colour.brand-colour("forest");
-
-    border-radius: 4px;
-    @include typography.detail-font-small;
   }
 }
 

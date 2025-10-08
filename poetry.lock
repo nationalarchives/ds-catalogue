@@ -722,14 +722,14 @@ tests = ["coverage (>=6.0.0)", "flake8", "mypy", "pytest (>=7.0.0)", "pytest-asy
 
 [[package]]
 name = "sentry-sdk"
-version = "2.39.0"
+version = "2.40.0"
 description = "Python client for Sentry (https://sentry.io)"
 optional = false
 python-versions = ">=3.6"
 groups = ["main"]
 files = [
-    {file = "sentry_sdk-2.39.0-py2.py3-none-any.whl", hash = "sha256:ba655ca5e57b41569b18e2a5552cb3375209760a5d332cdd87c6c3f28f729602"},
-    {file = "sentry_sdk-2.39.0.tar.gz", hash = "sha256:8c185854d111f47f329ab6bc35993f28f7a6b7114db64aa426b326998cfa14e9"},
+    {file = "sentry_sdk-2.40.0-py2.py3-none-any.whl", hash = "sha256:d5f6ae0f27ea73e7b09c70ad7d42242326eb44765e87a15d8c5aab96b80013e6"},
+    {file = "sentry_sdk-2.40.0.tar.gz", hash = "sha256:b9c4672fb2cafabcc28586ab8fd0ceeff9b2352afcf2b936e13d5ba06d141b9f"},
 ]
 
 [package.dependencies]
@@ -759,6 +759,7 @@ huggingface-hub = ["huggingface_hub (>=0.22)"]
 langchain = ["langchain (>=0.0.210)"]
 langgraph = ["langgraph (>=0.6.6)"]
 launchdarkly = ["launchdarkly-server-sdk (>=9.8.0)"]
+litellm = ["litellm (>=1.77.5)"]
 litestar = ["litestar (>=2.0.0)"]
 loguru = ["loguru (>=0.5)"]
 openai = ["openai (>=1.0.0)", "tiktoken (>=0.3.0)"]
@@ -796,14 +797,14 @@ doc = ["sphinx"]
 
 [[package]]
 name = "tna-frontend-jinja"
-version = "0.21.0"
+version = "0.26.0"
 description = "TNA Frontend Jinja templates"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "tna_frontend_jinja-0.21.0-py3-none-any.whl", hash = "sha256:4ad5e8e14a53698eb6d4e215c90d2559fd5e9796d5aeddeb117ae0f933b8945b"},
-    {file = "tna_frontend_jinja-0.21.0.tar.gz", hash = "sha256:ac3a972b6c7d695f2433a4ecada67d985399b37c632172462224f7f78efb5a91"},
+    {file = "tna_frontend_jinja-0.26.0-py3-none-any.whl", hash = "sha256:334fd2550cbf7ac12d05e5a682e047130b6cfd8e8f5654efd3b1930fc1ecec70"},
+    {file = "tna_frontend_jinja-0.26.0.tar.gz", hash = "sha256:f076ff159fbc5bfe5d122f9f720f42bb503e9710a40e4f230a94d7e611457fe3"},
 ]
 
 [package.dependencies]
@@ -858,4 +859,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "09aefd73c3af29bf8f26766a2085a3d4f07f9bef81eea728a9a9dbb35d94791c"
+content-hash = "8fc8f3978364f190f3e03695fca101ee26b636c3fa267c9a53a48b425e459d06"

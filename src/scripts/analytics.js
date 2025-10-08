@@ -21,11 +21,11 @@ if (ga4Id) {
   ]);
 
   analytics.addListeners(
-    "#field-descriptions",
+    "#field-descriptions-container",
     "field_descriptions",
     [
       {
-        targetElement: "#field-descriptions-hide",
+        targetElement: "#field-descriptions",
         on: "change",
         data: {
           state: helpers.valueGetters.checked,
