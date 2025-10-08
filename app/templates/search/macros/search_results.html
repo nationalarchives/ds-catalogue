@@ -6,7 +6,7 @@
       {% set details_url = url('records:details', kwargs={'id': result.iaid}) + '?search=' + encodedQuery %}
 
       {% if display_mode == 'grid' %}
-        <li>
+        <li id="record-{{ result.iaid }}">
           <h3 class="tna-heading-s"><a href="{{ details_url }}">{{ result.summary_title | safe }}</a></h3>
           <dl class="etna-result-attributes etna-result-attributes--grid">
             <dt>Held by</dt>
@@ -18,7 +18,7 @@
           </dl>
         </li>
       {% else %}
-        <li>
+        <li id="record-{{ result.iaid }}">
           <dl class="tna-dl-chips">
             <dt>Catalogue level</dt>
             <dd>

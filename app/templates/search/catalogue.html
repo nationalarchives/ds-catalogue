@@ -157,7 +157,7 @@
       {{ date_input(request, 'date', 'date', 'Filter by record opening date') }}
       {{ closure_statuses(request, form.fields['closure']) }}
     {% elif form.fields.group.value==bucket_keys.NON_TNA %}
-      {{ search_within(request) }}
+      {# {{ search_within(request) }} #}
       {{ date_input(request, 'date', 'date', 'Filter by record date') }}
       {{ held_by(request, form.fields['held_by']) }}
     {% endif %}
@@ -166,11 +166,11 @@
   </div>
   {% if results %}
   <div id="results" class="tna-column tna-column--width-3-4 tna-column--width-2-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-l">
-    <div class="tna-container tna-container--nested">
+    <div class="tna-container tna-container--nested tna-!--padding-bottom-s">
       {% if stats %}
-      <div class="tna-column tna-column--flex-1 tna-column--full-tiny">Showing results {{ results_range.from | format_number }}–{{ results_range.to | format_number }} of {{ stats.total | format_number }}</div>
+      <div class="tna-column tna-column--flex-1 tna-column--full-tiny tna-column--align-centre">Showing results {{ results_range.from | format_number }}–{{ results_range.to | format_number }} of {{ stats.total | format_number }}</div>
       {% endif %}
-      <div class="tna-column tna-column--flex-1 tna-column--full-tiny">
+      <div class="tna-column tna-column--full-tiny tna-column--align-centre">
         {{ tnaSelect({
           'label': 'Sort by',
           'headingLevel': 2,
@@ -179,8 +179,8 @@
           'name': form.fields.sort.name,
           'items': form.fields.sort.items,
           'selected': form.fields.sort.value,
-          'formGroupClasses': 'etna-results-sort-by',
-          'formGroupAttributes': {
+          'formItemClasses': 'etna-results-sort-by',
+          'formItemAttributes': {
             'id': 'sort-form-group'
           },
           'attributes': {
@@ -199,20 +199,18 @@
           }) }}
         </div>
       </div>
-      <div class="tna-column tna-column--full-tiny etna-results-layout">
+      <div class="tna-column tna-column--full-tiny etna-results-layout tna-column--align-centre">
         <h2 class="tna-visually-hidden">Results layout</h2>
         <div class="tna-button-group tna-button-group--small tna-!--no-margin-top">
           {{ tnaButton({
             'text': 'Display as list',
             'href': '?' + qs_replace_value(request.GET, 'display', 'list'),
-            'small': True,
             'icon': 'list',
             'iconOnly': True
           }) }}
           {{ tnaButton({
             'text': 'Display as grid',
             'href': '?' + qs_replace_value(request.GET, 'display', 'grid'),
-            'small': True,
             'icon': 'grip',
             'iconOnly': True
           }) }}

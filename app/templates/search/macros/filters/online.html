@@ -1,33 +1,34 @@
 {% from 'components/button/macro.html' import tnaButton %}
-{% from 'components/checkboxes/macro.html' import tnaCheckboxesElement %}
+{% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 
 {% macro online(request) %}
   <div class="tna-aside tna-aside--tight tna-background-accent-light tna-!--margin-top-s">
-    {{ tnaCheckboxesElement({
-          'id': 'online',
-          'name': 'online',
-          'items': [
-            {
-              'text': 'Show only records available online',
-              'value': 'true',
-              'checked': request.GET.get('online') == 'true'
-            }
-          ],
-          'small': True,
-          'attributes': {
-            'form': 'search-form'
-          }
-        }) }}
+    {{ tnaCheckboxes({
+      'label': 'Online records',
+      'id': 'online',
+      'name': 'online',
+      'items': [
+        {
+          'text': 'Show only records available online',
+          'value': 'true',
+          'checked': request.GET.get('online') == 'true'
+        }
+      ],
+      'small': True,
+      'attributes': {
+        'form': 'search-form'
+      }
+    }) }}
     <div class="tna-button-group tna-!--margin-top-s">
       {{ tnaButton({
-            'text': 'Update',
-            'buttonElement': True,
-            'buttonType': 'submit',
-            'small': True,
-            'attributes': {
-              'form': 'search-form'
-            }
-          }) }}
+        'text': 'Update',
+        'buttonElement': True,
+        'buttonType': 'submit',
+        'small': True,
+        'attributes': {
+          'form': 'search-form'
+        }
+      }) }}
     </div>
   </div>
 {% endmacro %}
