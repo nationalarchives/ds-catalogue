@@ -121,14 +121,26 @@
   }
 }
 
+#field-descriptions-container {
+  .tna-form-item__label {
+    font-size: 0 !important;
+  }
+
+  .tna-form-item__body {
+    margin-top: 0;
+  }
+}
+
 .record-details {
   &__label {
     position: sticky;
     top: spacing.space(0.5);
+
+    line-height: 1.35;
   }
 
   &__description {
-    padding-top: spacing.space(0.25);
+    padding-top: spacing.space(0.5);
     padding-bottom: spacing.space(0.25);
 
     display: block;
