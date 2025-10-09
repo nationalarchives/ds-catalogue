@@ -1,0 +1,12 @@
+{%- from 'components/warning/macro.html' import tnaWarning -%}
+
+{% macro content_warning(has_content_warning, warning_text="") %}
+  {% if has_content_warning %}
+    <div class="tna-column tna-column-full tna-!--margin-bottom-s">
+      {{ tnaWarning({
+          "headingLevel": "2",
+          "body": warning_text
+        }) }}
+    </div>
+  {% endif %}
+{% endmacro %}
