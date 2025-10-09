@@ -74,7 +74,8 @@
 }) | indent(6) }}
 {% endif %}
 {{ tnaGlobalHeader({
-  'defaultContent': True
+  'defaultContent': True,
+  'defaultContentBaseURL': 'https://www.nationalarchives.gov.uk'
 }) | indent(6) }}
 {% endblock %}
 
@@ -96,6 +97,7 @@
   'themeSelector': False,
   'currentTheme': theme,
   'defaultContent': True,
+  'defaultContentBaseURL': 'https://www.nationalarchives.gov.uk',
   'classes': 'tna-!--margin-top-l'
 }) | indent(4) }}
 {% endblock %}
