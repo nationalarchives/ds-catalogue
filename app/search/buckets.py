@@ -30,7 +30,10 @@ class Aggregation(MultiValueForAggregation):
     COLLECTION = ("collection", "longCollections")
     HELD_BY = ("heldBy", "")  # TODO: long_aggs in another PR change
     CLOSURE = ("closure", "")
-    SUBJECTS = ("subjects", "longSubjects") # TODO: in line with COLLECTION and LEVEL, make SUBJECTS singular - requires Rosetta/CIIM work
+    SUBJECTS = (
+        "subjects",
+        "longSubjects",
+    )  # TODO: in line with COLLECTION and LEVEL, make SUBJECTS singular - requires Rosetta/CIIM work
 
 
 @dataclass

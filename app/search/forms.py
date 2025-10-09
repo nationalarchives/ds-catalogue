@@ -19,7 +19,7 @@ class FieldsConstant:
     GROUP = "group"
     COLLECTION = "collection"
     ONLINE = "online"
-    SUBJECTS = "subjects"   # TODO:  may prefer to use singular form as with COLLECTION & LEVEL etc ...
+    SUBJECTS = "subjects"  # TODO:  may prefer to use singular form as with COLLECTION & LEVEL etc ...
     HELD_BY = "held_by"
     CLOSURE = "closure"
     FILTER_LIST = "filter_list"
