@@ -162,3 +162,7 @@ mark {
     padding: 0;
   }
 }
+
+.skip-from-filters-to-results:has(a:focus) {
+  margin-top: spacing.space(1);
+}
