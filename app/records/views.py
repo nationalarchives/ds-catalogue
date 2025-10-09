@@ -7,7 +7,7 @@ from app.deliveryoptions.api import delivery_options_request_handler
 from app.deliveryoptions.constants import AvailabilityCondition
 from app.deliveryoptions.delivery_options import (
     construct_delivery_options,
-    get_availability_condition_group,
+    get_availability_group,
     has_distressing_content,
 )
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
@@ -107,7 +107,7 @@ def get_delivery_options_context(iaid: str) -> dict:
         if options_value is None:
             return {}
 
-        availability_group = get_availability_condition_group(options_value)
+        availability_group = get_availability_group(options_value)
 
         if availability_group:
             return {"availability_group": availability_group.name}

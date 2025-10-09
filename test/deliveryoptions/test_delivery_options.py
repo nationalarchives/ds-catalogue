@@ -338,7 +338,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
     """Tests for the new get_delivery_options_context helper function."""
 
     @patch("app.records.views.delivery_options_request_handler")
-    @patch("app.records.views.get_availability_condition_group")
+    @patch("app.records.views.get_availability_group")
     def test_successful_delivery_options_fetch(
         self, mock_get_group, mock_api_handler
     ):
@@ -394,7 +394,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
         self.assertEqual(result, {})
 
     @patch("app.records.views.delivery_options_request_handler")
-    @patch("app.records.views.get_availability_condition_group")
+    @patch("app.records.views.get_availability_group")
     def test_missing_options_value(self, mock_get_group, mock_api_handler):
         """Test handling when options value is missing from response."""
         # Arrange
@@ -411,7 +411,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
         mock_get_group.assert_not_called()
 
     @patch("app.records.views.delivery_options_request_handler")
-    @patch("app.records.views.get_availability_condition_group")
+    @patch("app.records.views.get_availability_group")
     def test_none_options_value(self, mock_get_group, mock_api_handler):
         """Test handling when options value is explicitly None."""
         # Arrange
@@ -432,7 +432,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
         mock_get_group.assert_not_called()
 
     @patch("app.records.views.delivery_options_request_handler")
-    @patch("app.records.views.get_availability_condition_group")
+    @patch("app.records.views.get_availability_group")
     def test_none_availability_group(self, mock_get_group, mock_api_handler):
         """Test handling when availability group cannot be determined."""
         # Arrange
@@ -469,7 +469,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
         self.assertIn("Failed to get delivery options", error_call_args)
 
     @patch("app.records.views.delivery_options_request_handler")
-    @patch("app.records.views.get_availability_condition_group")
+    @patch("app.records.views.get_availability_group")
     def test_multiple_availability_conditions(
         self, mock_get_group, mock_api_handler
     ):

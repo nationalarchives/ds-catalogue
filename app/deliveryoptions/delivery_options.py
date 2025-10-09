@@ -38,11 +38,11 @@ logger = logging.getLogger(__name__)
 file_cache = {}
 
 
-def get_availability_condition_group(
-    state_number: int,
+def get_availability_group(
+    delivery_option: int,
 ) -> AvailabilityGroup | None:
     """Return the DocumentStateGroup for a given state number."""
-    return AVAILABILITY_CONDITION_STATE_TO_GROUP.get(state_number)
+    return AVAILABILITY_CONDITION_STATE_TO_GROUP.get(delivery_option)
 
 
 def read_delivery_options(file_path: str) -> Dict:
