@@ -4,9 +4,10 @@ from http import HTTPStatus
 
 import requests
 from app.deliveryoptions.api import delivery_options_request_handler
+from app.deliveryoptions.constants import AvailabilityCondition
 from app.deliveryoptions.delivery_options import (
-    AvailabilityCondition,
     construct_delivery_options,
+    get_availability_group,
     has_distressing_content,
 )
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
@@ -85,6 +86,41 @@ def get_subjects_enrichment(subjects_list: list[str], limit: int = 10) -> dict:
         return {}
 
 
+def get_delivery_options_context(iaid: str) -> dict:
+    """
+    Fetch and process delivery options for a record.
+
+    Args:
+        iaid: The document iaid
+
+    Returns:
+        Dictionary with delivery options context (may be empty)
+    """
+    try:
+        delivery_result = delivery_options_request_handler(iaid)
+
+        if not delivery_result:
+            return {}
+
+        options_value = delivery_result[0].get("options")
+
+        if options_value is None:
+            return {}
+
+        availability_group = get_availability_group(options_value)
+
+        if availability_group:
+            return {"availability_group": availability_group.name}
+
+        return {}
+
+    except Exception as e:
+        logger.error(
+            f"Failed to get delivery options for iaid {iaid}: {str(e)}"
+        )
+        return {}
+
+
 def record_detail_view(request, id):
     """
     View for rendering a record's details page.
@@ -146,6 +182,10 @@ def record_detail_view(request, id):
             "tna_discovery_link": f"{BASE_TNA_DISCOVERY_URL}/details/r/{record.iaid}",
         }
         context.update(delivery_options_context)
+
+    # Separated from above if statement because this is permanent logic
+    if determine_delivery_options:
+        context.update(get_delivery_options_context(record.iaid))
 
     # if determine_delivery_options:
     # TODO: Temporarily commented out delivery options functionality
