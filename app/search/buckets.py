@@ -30,6 +30,10 @@ class Aggregation(MultiValueForAggregation):
     COLLECTION = ("collection", "longCollections")
     HELD_BY = ("heldBy", "")  # TODO: long_aggs in another PR change
     CLOSURE = ("closure", "")
+    SUBJECTS = (
+        "subjects",
+        "longSubjects",
+    )  # TODO: in line with COLLECTION and LEVEL, make SUBJECTS singular - requires Rosetta/CIIM work
 
 
 @dataclass
@@ -124,6 +128,7 @@ CATALOGUE_BUCKETS = BucketList(
                 Aggregation.LEVEL.value,
                 Aggregation.COLLECTION.value,
                 Aggregation.CLOSURE.value,
+                Aggregation.SUBJECTS.value,
             ],
         ),
         Bucket(
