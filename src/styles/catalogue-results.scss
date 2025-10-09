@@ -163,7 +163,6 @@ mark {
   }
 }
 
-
 #filter-panel {
   padding-left: 0;
 }
@@ -191,5 +190,5 @@ mark {
 }
 
 .skip-from-filters-to-results:has(a:focus) {
-  margin-top: spacing.space(1)
+  margin-top: spacing.space(1);
 }
