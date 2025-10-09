@@ -43,7 +43,7 @@
 
 
   {{ tnaSkipLink({
-    'href': 'filter-panel',
+    'href': 'skip-from-filters-to-results',
     'text': 'Skip to search filters'
   }) }}
 {% endif %}
@@ -121,9 +121,19 @@
         <a href="#results" class="tna-button tna-button--medium tna-button--plain"><i class="fa-solid fa-arrow-down" aria-hidden="true"></i>Skip to search results</a>
     </div>
 
-
     <h2 class="tna-heading-l">Filters</h2>
-    
+
+    {# This skip link is revealed on focus, including where a user has landed on it by using the 'Skip to search filters' link #}
+    <div class="skip-from-filters-to-results">
+      {{ tnaSkipLink({
+        'href': 'results',
+        'text': 'This is the search filters section. Skip to search results section.',
+        'attributes': {
+          'id': 'skip-from-filters-to-results'
+        }
+      }) }}
+    </div>
+
     <div class="tna-button-group tna-!--margin-top-xs">
       {{ tnaButton({
         'text': 'Add Filters',
