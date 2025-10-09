@@ -1,47 +1,34 @@
 {% from 'components/button/macro.html' import tnaButton %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 
-{% macro subjects(request, subjects_ctx, number_of_subjects_to_show=10) %}
+{% macro subjects(request, subjects) %}
   <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
-    {% set show_more_link = subjects_ctx.items() | length > number_of_subjects_to_show %}
-    {% set subjects = [] %}
-    {% for subject_id, subject in subjects_ctx.items() %}
-      {% if loop.index <= number_of_subjects_to_show %}
-        {% set subjects = subjects.append({
-        'text': subject,
-        'value': subject_id,
-        'checked': qs_is_value_active(request.GET, 'subjects', subject_id)
-      }) %}
-      {% elif loop.index > number_of_subjects_to_show %}
-        {% set show_more_link = true %}
-      {% endif %}
-    {% endfor %}
     {{ tnaCheckboxes({
-          'label': 'Subjects',
-          'headingLevel': 3,
-          'headingSize': 'm',
-          'id': 'subjects',
-          'name': 'subjects',
-          'items': subjects,
-          'small': True,
-          'attributes': {
-            'form': 'search-form'
-          }
-        }) }}
+      'label': 'Subjects',
+      'headingLevel': 3,
+      'headingSize': 'm',
+      'id': 'subjects',
+      'name': subjects.name,
+      'items': subjects.items,
+      'small': True,
+      'attributes': {
+        'form': 'search-form'
+      }
+    }) }}
     <div class="tna-button-group tna-button-group--small tna-!--margin-top-s">
       {{ tnaButton({
-            'text': 'Update',
-            'buttonElement': True,
-            'buttonType': 'submit',
-            'attributes': {
-              'form': 'search-form'
-            }
-          }) }}
+        'text': 'Update',
+        'buttonElement': True,
+        'buttonType': 'submit',
+        'attributes': {
+          'form': 'search-form'
+        }
+      }) }}
 
-      {% if show_more_link is true %}
+      {% if subjects.more_filter_options_available %}
         {{ tnaButton({
           'text': 'See more subjects',
-          'href': '?' + qs_replace_value(request.GET, 'filter_list', 'subjects'),
+          'href': '?' + qs_replace_value(request.GET, 'filter_list', 'longSubjects'),
           'plain': True,
           'small': True
         }) }}
