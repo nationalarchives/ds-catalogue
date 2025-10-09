@@ -162,7 +162,7 @@
       {# {{ search_within(request) }} #}
       {{ date_input(request, 'date', 'date', 'Filter by record date') }}
       {{ collections(request, form.fields['collection']) }}
-      {{ subjects(request, subjects_ctx) }}
+      {{ subjects(request, form.fields['subjects']) }}
       {{ levels(request, form.fields['level']) }}
       {{ date_input(request, 'date', 'date', 'Filter by record opening date') }}
       {{ closure_statuses(request, form.fields['closure']) }}
