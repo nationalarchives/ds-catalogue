@@ -57,6 +57,13 @@ class CatalogueSearchViewTests(TestCase):
                             },
                         ],
                     },
+                    {
+                        "name": "subjects",
+                        "entries": [
+                            {"value": "Army", "doc_count": 25},
+                            {"value": "Navy", "doc_count": 15},
+                        ],
+                    },
                 ],
                 "buckets": [
                     {
@@ -131,13 +138,14 @@ class CatalogueSearchViewTests(TestCase):
             self.response.context_data.get("form"), CatalogueSearchTnaForm
         )
         self.assertEqual(self.response.context_data.get("form").errors, {})
-        self.assertEqual(len(self.response.context_data.get("form").fields), 8)
+        self.assertEqual(len(self.response.context_data.get("form").fields), 9)
         tna_field_names = [
             FieldsConstant.GROUP,
             FieldsConstant.SORT,
             FieldsConstant.Q,
             FieldsConstant.LEVEL,
             FieldsConstant.COLLECTION,
+            FieldsConstant.SUBJECTS,
             FieldsConstant.ONLINE,
             FieldsConstant.CLOSURE,
             FieldsConstant.FILTER_LIST,
@@ -295,6 +303,30 @@ class CatalogueSearchViewTests(TestCase):
             ],
         )
 
+        # Test subjects field
+        self.assertEqual(
+            self.response.context_data.get("form").fields["subjects"].name,
+            "subjects",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["subjects"].label,
+            "Subjects",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["subjects"].value, []
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["subjects"].cleaned,
+            [],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form").fields["subjects"].items,
+            [
+                {"text": "Army (25)", "value": "Army"},
+                {"text": "Navy (15)", "value": "Navy"},
+            ],
+        )
+
     @responses.activate
     def test_catalogue_search_context_with_query_param(self):
 
@@ -312,6 +344,7 @@ class CatalogueSearchViewTests(TestCase):
                         }
                     }
                 ],
+                "aggregations": [],
                 "buckets": [
                     {
                         "name": "group",
@@ -356,6 +389,7 @@ class CatalogueSearchViewTests(TestCase):
                         }
                     }
                 ],
+                "aggregations": [],
                 "buckets": [
                     {
                         "name": "group",
@@ -420,6 +454,7 @@ class CatalogueSearchViewTests(TestCase):
                         }
                     }
                 ],
+                "aggregations": [],
                 "buckets": [
                     {
                         "name": "group",
@@ -521,6 +556,12 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
                             {"value": "somevalue", "doc_count": 100},
                         ],
                     },
+                    {
+                        "name": "subjects",
+                        "entries": [
+                            {"value": "somevalue", "doc_count": 100},
+                        ],
+                    },
                 ],
                 "buckets": [
                     {
@@ -543,14 +584,14 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         self.response = self.client.get("/catalogue/search/")
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&filter=group%3Atna&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subjects&filter=group%3Atna&q=%2A&size=20"
         )
 
         # with group=tna param
         self.response = self.client.get("/catalogue/search/?group=tna")
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&filter=group%3Atna&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subjects&filter=group%3Atna&q=%2A&size=20"
         )
 
         # query with held_by param (should be ignored for tna group)
@@ -559,7 +600,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&filter=group%3Atna&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subjects&filter=group%3Atna&q=%2A&size=20"
         )
 
         # query with search term, non tna records
@@ -569,7 +610,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
         )
 
-        #
+        # with collection param for nonTna group
         self.response = self.client.get(
             "/catalogue/search/?group=nonTna&q=ufo&collection=BT"
         )
@@ -578,13 +619,22 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
         )
 
+        # Test subjects filter for TNA group
+        self.response = self.client.get(
+            "/catalogue/search/?group=tna&subjects=Army&subjects=Navy"
+        )
+        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+        mock_logger.debug.assert_called_with(
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subjects&filter=group%3Atna&filter=subjects%3AArmy&filter=subjects%3ANavy&q=%2A&size=20"
+        )
+
 
 class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
-    """Tests API calls (url) made by the catalogue search view for nonTna bucket/group."""
+    """Tests API calls (url) made by the catalogue search view for for nonTna bucket/group."""
 
     @patch("app.lib.api.logger")
     @responses.activate
-    def test_catalogue_debug_api(self, mock_logger):
+    def test_catalogue_debug_api_non_tna(self, mock_logger):
 
         responses.add(
             responses.GET,
@@ -633,7 +683,7 @@ class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
             "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=%2A&size=20"
         )
 
-        # query with search term, non tna records
+        # with search term, non tna records
         self.response = self.client.get("/catalogue/search/?group=nonTna&q=ufo")
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
@@ -642,7 +692,7 @@ class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
 
         # with filter not belonging to nontna group (should be ignored)
         self.response = self.client.get(
-            "/catalogue/search/?group=nonTna&q=ufo&collection=somcollection&online=true&level=somelevel"
+            "/catalogue/search/?group=nonTna&q=ufo&collection=somecollection&online=true&level=somelevel&subjects=Army"
         )
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
