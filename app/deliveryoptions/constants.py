@@ -122,7 +122,7 @@ class AvailabilityGroup(Enum):
         AvailabilityCondition.PaidSearch,
     }
 
-    SPECIAL_CASES = {
+    UNKNOWN = {
         AvailabilityCondition.DigitizedAvailableButNotDownloadableAtPieceLevel,
         AvailabilityCondition.DigitizedAvailableButNotDownloadableAtItemLevel,
     }

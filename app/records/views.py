@@ -86,7 +86,7 @@ def get_subjects_enrichment(subjects_list: list[str], limit: int = 10) -> dict:
         return {}
 
 
-def get_delivery_options_context(iaid) -> dict:
+def get_delivery_options_context(iaid: str) -> dict:
     """
     Fetch and process delivery options for a record.
 
@@ -96,37 +96,29 @@ def get_delivery_options_context(iaid) -> dict:
     Returns:
         Dictionary with delivery options context (may be empty)
     """
-    context = {}
-
     try:
         delivery_result = delivery_options_request_handler(iaid)
 
-        if delivery_result and len(delivery_result) > 0:
-            options_value = delivery_result[0].get("options")
-            if options_value is not None:
-                # Convert the integer to the enum
-                availability_condition = AvailabilityCondition(options_value)
+        if not delivery_result:
+            return {}
 
-                # Get the availability group
-                availability_group = get_availability_condition_group(
-                    options_value
-                )
+        options_value = delivery_result[0].get("options")
 
-                logger.info(
-                    f"Availability condition {availability_condition} "
-                    f"(group: {availability_group.name if availability_group else 'UNKNOWN'}) "
-                    f"found for {iaid}"
-                )
+        if options_value is None:
+            return {}
 
-                if availability_group:
-                    context["availability_group"] = availability_group.name
+        availability_group = get_availability_condition_group(options_value)
+
+        if availability_group:
+            return {"availability_group": availability_group.name}
+
+        return {}
 
     except Exception as e:
         logger.error(
             f"Failed to get delivery options for iaid {iaid}: {str(e)}"
         )
-
-    return context
+        return {}
 
 
 def record_detail_view(request, id):
