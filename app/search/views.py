@@ -7,10 +7,7 @@ from app.errors import views as errors_view
 from app.lib.api import JSONAPIClient, ResourceNotFound
 from app.lib.fields import ChoiceField, DynamicMultipleChoiceField
 from app.lib.pagination import pagination_object
-from app.records.constants import (
-    TNA_LEVELS,
-    TNA_SUBJECTS,
-)
+from app.records.constants import TNA_LEVELS
 from app.search.api import search_records
 from config.jinja2 import qs_remove_value, qs_toggle_value
 from django.conf import settings
@@ -169,7 +166,6 @@ class APIMixin:
             {
                 "results": results,
                 "stats": stats,
-                "subjects_ctx": TNA_SUBJECTS,
             }
         )
 
