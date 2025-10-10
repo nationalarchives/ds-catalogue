@@ -15,7 +15,10 @@ from django.core.exceptions import SuspiciousOperation
 from django.http import (
     HttpRequest,
     HttpResponse,
+    QueryDict,
 )
+from django.shortcuts import redirect
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import TemplateView
 
 from .buckets import CATALOGUE_BUCKETS, Bucket, BucketKeys, BucketList
@@ -93,6 +96,11 @@ class APIMixin:
         if current_bucket.key == BucketKeys.TNA.value:
             if form.fields[FieldsConstant.ONLINE].cleaned == "true":
                 add_filter(params, "digitised:true")
+
+        # Add date parameters for API
+        date_filters = form.get_api_date_params()
+        if date_filters:
+            add_filter(params, date_filters)
 
         return params
 
@@ -208,11 +216,32 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             if all(value == "" for value in data.getlist(key)):
                 del data[key]
 
+        date_field_names = [
+            "covering_date_from",
+            "covering_date_to",
+            "opening_date_from",
+            "opening_date_to",
+        ]
+
+        for field_name in date_field_names:
+            day = data.get(f"{field_name}-day", "")
+            month = data.get(f"{field_name}-month", "")
+            year = data.get(f"{field_name}-year", "")
+
+            if any([day, month, year]):  # If any component exists
+                # Set the field value as a dict of components
+                data[field_name] = {"day": day, "month": month, "year": year}
+
+                # Remove the individual component params
+                for component in ["day", "month", "year"]:
+                    data.pop(f"{field_name}-{component}", None)
+
         # Add any default values
         for k, v in self.get_defaults().items():
             data.setdefault(k, v)
 
         kwargs["data"] = data
+
         return kwargs
 
     def get_defaults(self):
@@ -268,6 +297,52 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         """Gets the api result and processes it after the form and fields
         are cleaned and validated. Renders with form, context."""
 
+        # Check if any date fields were expanded and need URL update
+        should_redirect = False
+        updated_params = self.request.GET.copy()
+
+        # Check each date field for expansion
+        date_fields = [
+            (FieldsConstant.COVERING_DATE_FROM, "covering_date_from"),
+            (FieldsConstant.COVERING_DATE_TO, "covering_date_to"),
+        ]
+
+        # Add opening dates for TNA forms
+        if isinstance(self.form, CatalogueSearchTnaForm):
+            date_fields.extend(
+                [
+                    (FieldsConstant.OPENING_DATE_FROM, "opening_date_from"),
+                    (FieldsConstant.OPENING_DATE_TO, "opening_date_to"),
+                ]
+            )
+
+        for field_constant, param_prefix in date_fields:
+            if field_constant in self.form.fields:
+                field = self.form.fields[field_constant]
+                if hasattr(field, "was_expanded") and field.was_expanded:
+                    # Update the URL parameters with expanded values
+                    expanded_date = field.cleaned
+                    updated_params[f"{param_prefix}-day"] = str(
+                        expanded_date.day
+                    )
+                    updated_params[f"{param_prefix}-month"] = str(
+                        expanded_date.month
+                    )
+                    updated_params[f"{param_prefix}-year"] = str(
+                        expanded_date.year
+                    )
+                    should_redirect = True
+
+        if should_redirect:
+            # Redirect to the same view with expanded parameters
+            redirect_url = f"{self.request.path}?{updated_params.urlencode()}"
+            if url_has_allowed_host_and_scheme(
+                redirect_url, allowed_hosts=None
+            ):
+                return redirect(redirect_url)
+            else:
+                return redirect("/")
+
         self.api_result = self.get_api_result(
             query=self.query,
             results_per_page=RESULTS_PER_PAGE,
@@ -303,12 +378,16 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
                 buckets=self.api_result.buckets,
                 current_bucket_key=self.current_bucket_key,
             )
+
+        selected_filters = self.build_selected_filters_list()
+
         context.update(
             {
                 "bucket_list": self.bucket_list,
                 "results_range": results_range,
                 "pagination": pagination,
                 "page": self.page,
+                "selected_filters": selected_filters,
             }
         )
         return context
@@ -332,41 +411,24 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
         return (results_range, pagination)
 
+    def _remove_date_params(
+        self, query_dict: QueryDict, date_prefix: str
+    ) -> str:
+        """Remove date component parameters from query string"""
+        # Create a mutable copy of the QueryDict
+        data = query_dict.copy()
 
-class CatalogueSearchView(CatalogueSearchFormMixin):
+        # Remove the component fields for this date
+        component_fields = [
+            f"{date_prefix}-day",
+            f"{date_prefix}-month",
+            f"{date_prefix}-year",
+        ]
+        for field in component_fields:
+            if field in data:
+                del data[field]
 
-    # templates for the view
-    templates = {
-        "default": "search/catalogue.html",
-        "filter_list": "search/filter_list.html",
-    }
-    template_name = templates.get("default")  # default template
-
-    def get_context_data(self, **kwargs):
-        context: dict = super().get_context_data(**kwargs)
-
-        selected_filters = self.build_selected_filters_list()
-
-        global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
-        global_alerts_client.add_parameters(
-            {"fields": "_,global_alert,mourning_notice"}
-        )
-        try:
-            context["global_alert"] = global_alerts_client.get(
-                f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}"
-            )
-        except Exception as e:
-            logger.error(e)
-            context["global_alert"] = {}
-
-        context.update(
-            {
-                "bucket_list": self.bucket_list,
-                "selected_filters": selected_filters,
-                "bucket_keys": BucketKeys,
-            }
-        )
-        return context
+        return data.urlencode()
 
     def build_selected_filters_list(self):
         selected_filters = []
@@ -396,22 +458,65 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "title": f"Remove {field.active_filter_label.lower()}",
                     }
                 )
-        if self.request.GET.get("date_from", None):
+
+        # Handle covering dates using the form's cleaned date values
+        covering_date_from = self.form.fields[
+            FieldsConstant.COVERING_DATE_FROM
+        ].cleaned
+        if covering_date_from:
+            # Format the date nicely for display
+            formatted_date = covering_date_from.strftime(
+                "%d %B %Y"
+            )  # e.g., "15 June 2023"
             selected_filters.append(
                 {
-                    "label": f"Record date from: {self.request.GET.get('date_from')}",
-                    "href": f"?{qs_remove_value(self.request.GET, 'date_from')}",
-                    "title": "Remove record from date",
+                    "label": f"Covering date from: {formatted_date}",
+                    "href": f"?{self._remove_date_params(self.request.GET, 'covering_date_from')}",
+                    "title": "Remove Covering from date",
                 }
             )
-        if self.request.GET.get("date_to", None):
+
+        covering_date_to = self.form.fields[
+            FieldsConstant.COVERING_DATE_TO
+        ].cleaned
+        if covering_date_to:
+            formatted_date = covering_date_to.strftime("%d %B %Y")
             selected_filters.append(
                 {
-                    "label": f"Record date to: {self.request.GET.get('date_to')}",
-                    "href": f"?{qs_remove_value(self.request.GET, 'date_to')}",
-                    "title": "Remove record to date",
+                    "label": f"Covering date to: {formatted_date}",
+                    "href": f"?{self._remove_date_params(self.request.GET, 'covering_date_to')}",
+                    "title": "Remove covering to date",
                 }
             )
+
+        # Handle opening dates - only for TNA forms
+        if FieldsConstant.OPENING_DATE_FROM in self.form.fields:
+            opening_date_from = self.form.fields[
+                FieldsConstant.OPENING_DATE_FROM
+            ].cleaned
+            if opening_date_from:
+                formatted_date = opening_date_from.strftime("%d %B %Y")
+                selected_filters.append(
+                    {
+                        "label": f"Opening date from: {formatted_date}",
+                        "href": f"?{self._remove_date_params(self.request.GET, 'opening_date_from')}",
+                        "title": "Remove opening from date",
+                    }
+                )
+
+        if FieldsConstant.OPENING_DATE_TO in self.form.fields:
+            opening_date_to = self.form.fields[
+                FieldsConstant.OPENING_DATE_TO
+            ].cleaned
+            if opening_date_to:
+                formatted_date = opening_date_to.strftime("%d %B %Y")
+                selected_filters.append(
+                    {
+                        "label": f"Opening date to: {formatted_date}",
+                        "href": f"?{self._remove_date_params(self.request.GET, 'opening_date_to')}",
+                        "title": "Remove opening to date",
+                    }
+                )
 
         self._build_dynamic_multiple_choice_field_filters(selected_filters)
 
@@ -441,3 +546,30 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                             "title": f"Remove {choice_labels.get(item, item)} {field.active_filter_label.lower()}",
                         }
                     )
+
+
+class CatalogueSearchView(CatalogueSearchFormMixin):
+
+    template_name = "search/catalogue.html"
+
+    def get_context_data(self, **kwargs):
+        context: dict = super().get_context_data(**kwargs)
+
+        global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
+        global_alerts_client.add_parameters(
+            {"fields": "_,global_alert,mourning_notice"}
+        )
+        try:
+            context["global_alert"] = global_alerts_client.get(
+                f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}"
+            )
+        except Exception as e:
+            logger.error(e)
+            context["global_alert"] = {}
+
+        context.update(
+            {
+                "bucket_keys": BucketKeys,
+            }
+        )
+        return context
