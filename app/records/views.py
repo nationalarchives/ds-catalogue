@@ -11,7 +11,12 @@ from app.deliveryoptions.delivery_options import (
 )
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
 from app.lib.api import JSONAPIClient, ResourceNotFound
-from app.records.api import record_details_by_id, wagtail_request_handler
+from app.records.api import (
+    get_related_records_by_subjects,
+    get_related_records_by_series,
+    record_details_by_id,
+    wagtail_request_handler,
+)
 from app.records.labels import FIELD_LABELS
 from django.conf import settings
 from django.template.response import TemplateResponse
@@ -119,8 +124,25 @@ def record_detail_view(request, id):
     else:
         record._subjects_enrichment = {}
 
+    related_records = []
+    
+    if record.is_tna and record.subjects:
+        print("Trying subjects")
+        related_records = get_related_records_by_subjects(record, limit=3)
+        if related_records:
+            logger.info(
+                f"Found {len(related_records)} related records for {record.iaid}"
+            )
+
+    if record.is_tna and not related_records and record.hierarchy_series:
+        print("Trying Series")
+        related_records = get_related_records_by_series(record, limit=3)
+        if related_records:
+            logger.info(f"Found {len(related_records)} related records...")
+            
     context.update(
         record=record,
+        related_records=related_records,
     )
 
     determine_delivery_options = True

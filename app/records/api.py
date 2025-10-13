@@ -1,3 +1,5 @@
+import logging
+
 from app.lib.api import JSONAPIClient, ResourceNotFound, rosetta_request_handler
 from app.records.models import APIResponse, Record
 from app.search.api import search_records
@@ -41,6 +43,7 @@ def get_related_records_by_subjects(
 ) -> list[Record]:
     """
     Fetches related records that share subjects with the current record.
+    Only applies to TNA records (Non-TNA records don't have subjects).
 
     Args:
         current_record: The record to find relations for
@@ -49,14 +52,17 @@ def get_related_records_by_subjects(
     Returns:
         List of related Record objects, or empty list if none found
     """
-    # Only proceed if record has subjects
-    if not current_record.subjects:
+    logger = logging.getLogger(__name__)
+
+    # Only proceed if record is TNA and has subjects
+    if not current_record.is_tna or not current_record.subjects:
         return []
 
     # Build subject filters for the API
-    # Format: ["subject:Art", "subject:Photography", ...]
+    # Format: ["subjects:Art", "subjects:Photography", ...]
+    # Note: The API uses "subjects" (plural) not "subject"
     subject_filters = [
-        f"subject:{subject}" for subject in current_record.subjects
+        f"subjects:{subject}" for subject in current_record.subjects
     ]
 
     # Determine the group filter (TNA vs Non-TNA)
@@ -91,10 +97,72 @@ def get_related_records_by_subjects(
 
     except Exception as e:
         # Log the error but don't break the page
-        import logging
-
-        logger = logging.getLogger(__name__)
         logger.warning(
             f"Failed to fetch related records for {current_record.iaid}: {e}"
+        )
+        return []
+
+def get_related_records_by_series(
+    current_record: Record, limit: int = 3
+) -> list[Record]:
+    """
+    Fetches related records in the same Series as the current record.
+    
+    Args:
+        current_record: The record to find relations for
+        limit: Maximum number of related records to return (default 3)
+    
+    Returns:
+        List of related Record objects, or empty list if none found
+    """
+
+    logger = logging.getLogger(__name__)
+    
+    # Only proceed if record is TNA and has a series
+    print(f"Hierarchy series: {current_record.hierarchy_series}")
+    if not current_record.is_tna or not current_record.hierarchy_series:
+        return []
+    
+    # Get the series reference number
+    print(f"Series reference: {current_record.hierarchy_series.reference_number}")
+    series_ref = current_record.hierarchy_series.reference_number
+    
+    # Filter by series reference
+    group_filter = "group:tna"
+    reference_filter = f"reference:{series_ref}"
+    
+    # Build API parameters
+    params = {
+        "filter": [group_filter, reference_filter],
+        "aggs": [],
+    }
+    
+    try:
+        # Search for related records in the same series
+        # Request limit + 1 in case current record is in results
+        api_result = search_records(
+            query="*",
+            results_per_page=limit + 1,
+            page=1,
+            sort="",
+            params=params,
+        )
+        
+        # Filter out the current record from results
+        related_records = [
+            record for record in api_result.records 
+            if record.iaid != current_record.iaid
+        ]
+        
+        if related_records:
+            logger.info(
+                f"Found {len(related_records[:limit])} related records for {current_record.iaid} by series {series_ref}"
+            )
+        
+        return related_records[:limit]
+        
+    except Exception as e:
+        logger.warning(
+            f"Failed to fetch related records by series for {current_record.iaid}: {e}"
         )
         return []
