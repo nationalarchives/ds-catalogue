@@ -1,14 +1,404 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from app.lib.fields import (
     CharField,
     ChoiceField,
+    CustomValidationError,
     DynamicMultipleChoiceField,
-    ValidationError,
+    MultiPartDateField,
 )
 from app.lib.forms import BaseForm
 from django.http import QueryDict
 from django.test import TestCase
+
+
+class BaseFormWithDateComponentFieldTest(TestCase):
+
+    def _process_date_components_for_form(self, query_dict):
+        """
+        Helper method to process date component data like the view's get_form_kwargs() does.
+        This simulates the view's data processing for direct form creation in tests.
+        """
+        # Create a mutable copy
+        processed_data = QueryDict(mutable=True)
+
+        # Copy all existing data
+        for key, values in query_dict.lists():
+            for value in values:
+                processed_data.appendlist(key, value)
+
+        # Process date component data for date fields
+        date_field_names = [
+            "date_field",
+            "from_date",
+            "to_date",  # Add field names used in tests
+        ]
+
+        for field_name in date_field_names:
+            day = processed_data.get(f"{field_name}-day", "")
+            month = processed_data.get(f"{field_name}-month", "")
+            year = processed_data.get(f"{field_name}-year", "")
+
+            if any([day, month, year]):  # If any component exists
+                # Set the field value as a dict of components
+                processed_data[field_name] = {
+                    "day": day,
+                    "month": month,
+                    "year": year,
+                }
+
+                # Remove the individual component params
+                for component in ["day", "month", "year"]:
+                    if f"{field_name}-{component}" in processed_data:
+                        del processed_data[f"{field_name}-{component}"]
+
+        return processed_data
+
+    def get_form_with_date_field(self, data=None, padding_strategy=None):
+
+        class MyTestForm(BaseForm):
+            def __init__(self, data=None):
+                super().__init__(data)
+                # No longer need to call set_form_data() - refactored architecture handles this differently
+
+            def add_fields(self):
+                return {
+                    "date_field": MultiPartDateField(
+                        label="Test Date",
+                        padding_strategy=padding_strategy,
+                        required=False,
+                    )
+                }
+
+        # Process data if provided
+        processed_data = None
+        if data:
+            processed_data = self._process_date_components_for_form(data)
+
+        form = MyTestForm(processed_data)
+        return form
+
+    def test_date_field_initial_attrs(self):
+        form = self.get_form_with_date_field()
+        self.assertEqual(form.fields["date_field"].name, "date_field")
+        self.assertEqual(form.fields["date_field"].label, "Test Date")
+        self.assertIsNotNone(form.fields["date_field"].padding_strategy)
+
+    def test_date_field_empty_is_valid(self):
+        data = QueryDict("")
+        form = self.get_form_with_date_field(data)
+        valid_status = form.is_valid()
+        self.assertTrue(valid_status)
+        self.assertEqual(form.fields["date_field"].cleaned, None)
+        self.assertEqual(form.fields["date_field"].error, {})
+
+    def test_date_field_full_date_valid(self):
+        data = QueryDict(
+            "date_field-year=2020&date_field-month=6&date_field-day=15"
+        )
+        form = self.get_form_with_date_field(data)
+        valid_status = form.is_valid()
+        self.assertTrue(valid_status)
+        self.assertEqual(form.fields["date_field"].cleaned, date(2020, 6, 15))
+        self.assertEqual(form.fields["date_field"].error, {})
+
+    def test_date_field_year_only_start_strategy(self):
+        data = QueryDict("date_field-year=2020")
+        form = self.get_form_with_date_field(
+            data, padding_strategy=MultiPartDateField.start_of_period_strategy
+        )
+        valid_status = form.is_valid()
+        self.assertTrue(valid_status)
+        # Start strategy should default to January 1st
+        self.assertEqual(form.fields["date_field"].cleaned, date(2020, 1, 1))
+        self.assertEqual(form.fields["date_field"].error, {})
+
+    def test_date_field_year_only_end_strategy(self):
+        data = QueryDict("date_field-year=2020")
+        form = self.get_form_with_date_field(
+            data, padding_strategy=MultiPartDateField.end_of_period_strategy
+        )
+        valid_status = form.is_valid()
+        self.assertTrue(valid_status)
+        # End strategy should default to December 31st
+        self.assertEqual(form.fields["date_field"].cleaned, date(2020, 12, 31))
+        self.assertEqual(form.fields["date_field"].error, {})
+
+    def test_date_field_year_month_start_strategy(self):
+        data = QueryDict("date_field-year=2020&date_field-month=6")
+        form = self.get_form_with_date_field(
+            data, padding_strategy=MultiPartDateField.start_of_period_strategy
+        )
+        valid_status = form.is_valid()
+        self.assertTrue(valid_status)
+        # Start strategy should default to 1st of month
+        self.assertEqual(form.fields["date_field"].cleaned, date(2020, 6, 1))
+
+    def test_date_field_year_month_end_strategy(self):
+        data = QueryDict("date_field-year=2020&date_field-month=6")
+        form = self.get_form_with_date_field(
+            data, padding_strategy=MultiPartDateField.end_of_period_strategy
+        )
+        valid_status = form.is_valid()
+        self.assertTrue(valid_status)
+        # End strategy should default to last day of month (June has 30 days)
+        self.assertEqual(form.fields["date_field"].cleaned, date(2020, 6, 30))
+
+    def test_date_field_year_only_no_strategy_fails(self):
+        """Test that year-only input fails without a padding strategy"""
+        data = QueryDict("date_field-year=2020")
+        form = self.get_form_with_date_field(data)  # No strategy provided
+        valid_status = form.is_valid()
+        self.assertFalse(valid_status)
+        self.assertEqual(form.fields["date_field"].cleaned, None)
+        self.assertEqual(
+            form.fields["date_field"].error["text"],
+            "Month and day are required",
+        )
+
+    def test_date_field_year_month_no_strategy_fails(self):
+        """Test that year-month input fails without a padding strategy"""
+        data = QueryDict("date_field-year=2020&date_field-month=6")
+        form = self.get_form_with_date_field(data)  # No strategy provided
+        valid_status = form.is_valid()
+        self.assertFalse(valid_status)
+        self.assertEqual(form.fields["date_field"].cleaned, None)
+        self.assertEqual(
+            form.fields["date_field"].error["text"],
+            "Day is required",
+        )
+
+    def test_date_field_invalid_year(self):
+        data = QueryDict("date_field-year=abc")
+        form = self.get_form_with_date_field(data)
+        valid_status = form.is_valid()
+        self.assertFalse(valid_status)
+        self.assertEqual(form.fields["date_field"].cleaned, None)
+        self.assertEqual(
+            form.fields["date_field"].error["text"],
+            "Please enter a valid 4-digit year",
+        )
+
+    def test_date_field_invalid_month(self):
+        data = QueryDict(
+            "date_field-year=2020&date_field-month=13&date_field-day=1"
+        )
+        form = self.get_form_with_date_field(data)
+
+        # First check the components are extracted correctly
+        field = form.fields["date_field"]
+        self.assertEqual(field.month, "13")  # Should be extracted as string
+
+        valid_status = form.is_valid()
+
+        self.assertFalse(valid_status)
+        self.assertIsNone(field.cleaned)
+        self.assertEqual(
+            form.fields["date_field"].error["text"],
+            "Month must be between 1 and 12",
+        )
+
+    def test_date_field_invalid_day_for_month(self):
+        # February doesn't have 30 days
+        data = QueryDict(
+            "date_field-year=2020&date_field-month=2&date_field-day=30"
+        )
+        form = self.get_form_with_date_field(data)
+        valid_status = form.is_valid()
+        self.assertFalse(valid_status)
+        self.assertEqual(
+            form.fields["date_field"].error["text"],
+            "Invalid date - please check the day is valid for the given month",
+        )
+
+    def test_date_field_day_without_month_invalid(self):
+        data = QueryDict("date_field-year=2020&date_field-day=15")
+        form = self.get_form_with_date_field(data)
+        valid_status = form.is_valid()
+        self.assertFalse(valid_status)
+        self.assertEqual(
+            form.fields["date_field"].error["text"],
+            "Month is required if day is provided",
+        )
+
+    def test_date_field_format_for_api(self):
+        data = QueryDict(
+            "date_field-year=2020&date_field-month=6&date_field-day=15"
+        )
+        form = self.get_form_with_date_field(data)
+        form.is_valid()
+        # Should format as ISO date string
+        self.assertEqual(
+            form.fields["date_field"].format_for_api(), "2020-06-15"
+        )
+
+    def test_date_field_format_for_api_none_when_empty(self):
+        data = QueryDict("")
+        form = self.get_form_with_date_field(data)
+        form.is_valid()
+        self.assertIsNone(form.fields["date_field"].format_for_api())
+
+    def test_date_component_field_edge_cases(self):
+        """Test edge cases in MultiPartDateField validation"""
+
+        # Test boundary years
+        data = QueryDict("date_field-year=999")  # Below minimum
+        form = self.get_form_with_date_field(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "valid 4-digit year", form.fields["date_field"].error["text"]
+        )
+
+        data = QueryDict("date_field-year=10000")  # Above maximum
+        form = self.get_form_with_date_field(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "valid 4-digit year", form.fields["date_field"].error["text"]
+        )
+
+    def test_date_component_field_february_edge_cases(self):
+        """Test February edge cases including leap years"""
+
+        # Valid leap year Feb 29
+        data = QueryDict(
+            "date_field-year=2020&date_field-month=2&date_field-day=29"
+        )
+        form = self.get_form_with_date_field(data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.fields["date_field"].cleaned, date(2020, 2, 29))
+
+        # Invalid non-leap year Feb 29
+        data = QueryDict(
+            "date_field-year=2021&date_field-month=2&date_field-day=29"
+        )
+        form = self.get_form_with_date_field(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("Invalid date", form.fields["date_field"].error["text"])
+
+    def test_date_field_component_properties(self):
+        """Test that component properties work correctly with dict values"""
+        data = QueryDict(
+            "date_field-year=2020&date_field-month=6&date_field-day=15"
+        )
+        form = self.get_form_with_date_field(data)
+        form.is_valid()
+
+        field = form.fields["date_field"]
+
+        # Test that the field value is a dict
+        self.assertEqual(
+            field.value, {"day": "15", "month": "6", "year": "2020"}
+        )
+
+        # Test that component properties work
+        self.assertEqual(field.day, "15")
+        self.assertEqual(field.month, "6")
+        self.assertEqual(field.year, "2020")
+
+
+class BaseFormWithCrossValidationDateTest(TestCase):
+    """Test cross-validation between date fields"""
+
+    def _process_date_components_for_form(self, query_dict):
+        """Helper method to process date component data"""
+        processed_data = QueryDict(mutable=True)
+
+        for key, values in query_dict.lists():
+            for value in values:
+                processed_data.appendlist(key, value)
+
+        date_field_names = ["from_date", "to_date"]
+
+        for field_name in date_field_names:
+            day = processed_data.get(f"{field_name}-day", "")
+            month = processed_data.get(f"{field_name}-month", "")
+            year = processed_data.get(f"{field_name}-year", "")
+
+            if any([day, month, year]):
+                processed_data[field_name] = {
+                    "day": day,
+                    "month": month,
+                    "year": year,
+                }
+
+                for component in ["day", "month", "year"]:
+                    if f"{field_name}-{component}" in processed_data:
+                        del processed_data[f"{field_name}-{component}"]
+
+        return processed_data
+
+    def get_form_with_date_range_fields(self, data=None):
+
+        class MyTestForm(BaseForm):
+            def __init__(self, data=None):
+                super().__init__(data)
+                # No longer need special date field handling
+
+            def add_fields(self):
+                return {
+                    "from_date": MultiPartDateField(
+                        label="From Date",
+                        padding_strategy=MultiPartDateField.start_of_period_strategy,
+                        required=False,
+                    ),
+                    "to_date": MultiPartDateField(
+                        label="To Date",
+                        padding_strategy=MultiPartDateField.end_of_period_strategy,
+                        required=False,
+                    ),
+                }
+
+            def cross_validate(self) -> list[str]:
+                errors = []
+                from_date = self.fields["from_date"].cleaned
+                to_date = self.fields["to_date"].cleaned
+
+                if from_date and to_date and from_date > to_date:
+                    errors.append("From date cannot be later than to date")
+
+                return errors
+
+        # Process data if provided
+        processed_data = None
+        if data:
+            processed_data = self._process_date_components_for_form(data)
+
+        form = MyTestForm(processed_data)
+        return form
+
+    def test_valid_date_range_passes_validation(self):
+        data = QueryDict(
+            "from_date-year=2019&from_date-month=6&from_date-day=15"
+            "&to_date-year=2020&to_date-month=6&to_date-day=15"
+        )
+        form = self.get_form_with_date_range_fields(data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(len(form.non_field_errors), 0)
+
+    def test_invalid_date_range_fails_validation(self):
+        data = QueryDict(
+            "from_date-year=2020&from_date-month=6&from_date-day=15"
+            "&to_date-year=2019&to_date-month=6&to_date-day=15"
+        )
+        form = self.get_form_with_date_range_fields(data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(len(form.non_field_errors), 1)
+        self.assertEqual(
+            form.non_field_errors[0]["text"],
+            "From date cannot be later than to date",
+        )
+
+    def test_same_dates_are_valid(self):
+        data = QueryDict(
+            "from_date-year=2020&from_date-month=6&from_date-day=15"
+            "&to_date-year=2020&to_date-month=6&to_date-day=15"
+        )
+        form = self.get_form_with_date_range_fields(data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(len(form.non_field_errors), 0)
+
+
+# All other test classes remain exactly the same since they don't use MultiPartDateField
 
 
 class BaseFormWithCharFieldTest(TestCase):
@@ -405,7 +795,7 @@ class NewFieldWithRaiseValidationTest(TestCase):
                     try:
                         datetime.strptime(value, "%Y-%m-%d")
                     except ValueError:
-                        raise ValidationError(
+                        raise CustomValidationError(
                             "Value is not in format YYYY-MM-DD"
                         )
                     super().validate(value)
