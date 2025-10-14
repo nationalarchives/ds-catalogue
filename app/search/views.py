@@ -107,6 +107,13 @@ class APIMixin:
         """Returns date related API params."""
 
         filter_list = []
+        # map field name to filter value format
+        filter_map = {
+            FieldsConstant.COVERING_DATE_FROM: "coveringFromDate:(>={year}-{month}-{day})",
+            FieldsConstant.COVERING_DATE_TO: "coveringToDate:(<={year}-{month}-{day})",
+            FieldsConstant.OPENING_DATE_FROM: "openingFromDate:(>={year}-{month}-{day})",
+            FieldsConstant.OPENING_DATE_TO: "openingToDate:(<={year}-{month}-{day})",
+        }
         for field_name in form.fields:
             if isinstance(
                 form.fields[field_name], (FromDateField, ToDateField)
@@ -117,21 +124,11 @@ class APIMixin:
                         cleaned_date.month,
                         cleaned_date.day,
                     )
-                    if field_name == FieldsConstant.COVERING_DATE_FROM:
+                    if field_name in filter_map:
                         filter_list.append(
-                            f"coveringFromDate:(>={year}-{month}-{day})"
-                        )
-                    if field_name == FieldsConstant.COVERING_DATE_TO:
-                        filter_list.append(
-                            f"coveringToDate:(<={year}-{month}-{day})"
-                        )
-                    if field_name == FieldsConstant.OPENING_DATE_FROM:
-                        filter_list.append(
-                            f"openingFromDate:(>={year}-{month}-{day})"
-                        )
-                    if field_name == FieldsConstant.OPENING_DATE_TO:
-                        filter_list.append(
-                            f"openingToDate:(<={year}-{month}-{day})"
+                            filter_map[field_name].format(
+                                year=year, month=month, day=day
+                            )
                         )
         return filter_list
 
@@ -325,6 +322,8 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
     def form_invalid(self):
         """Renders invalid form, context."""
         # keep current bucket in focus
+        print(f"invalid form................... {self.form.errors}")
+        print(self.form.fields[FieldsConstant.LEVEL].items)
         self.bucket_list.update_buckets_for_display(
             query="",
             buckets={},
