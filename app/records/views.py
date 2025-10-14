@@ -95,29 +95,60 @@ def get_delivery_options_context(iaid: str) -> dict:
         iaid: The document iaid
 
     Returns:
-        Dictionary with delivery options context (may be empty)
+        Dictionary with delivery options context containing:
+        - delivery_option: The AvailabilityCondition name as string (if valid)
+        - availability_group: The availability group name (if mapped to a group)
+        May return empty dict if unavailable or on error.
     """
     try:
         delivery_result = delivery_options_request_handler(iaid)
 
-        if not delivery_result:
+        # Validate we got results and it's a list
+        if not delivery_result or not isinstance(delivery_result, list):
+            logger.info(f"No delivery options available for iaid {iaid}")
             return {}
 
-        options_value = delivery_result[0].get("options")
-
-        if options_value is None:
+        # Check list is not empty before accessing first element
+        if len(delivery_result) == 0:
+            logger.info(f"Empty delivery options list for iaid {iaid}")
             return {}
 
-        availability_group = get_availability_group(options_value)
+        # Extract the delivery option value
+        first_result = delivery_result[0]
+        delivery_option_value = first_result.get("options")
 
-        if availability_group:
-            return {"availability_group": availability_group.name}
+        if delivery_option_value is None:
+            logger.warning(
+                f"No 'options' value in delivery result for iaid {iaid}"
+            )
+            return {}
 
-        return {}
+        # Convert to AvailabilityCondition enum and get name
+        try:
+            delivery_option_enum = AvailabilityCondition(delivery_option_value)
+            delivery_option_name = delivery_option_enum.name
+        except ValueError:
+            logger.warning(
+                f"Unknown delivery option value {delivery_option_value} for iaid {iaid}"
+            )
+            return {}
+
+        # Build context with the delivery option name
+        context = {"delivery_option": delivery_option_name}
+
+        # Get the availability group for this delivery option
+        availability_group = get_availability_group(delivery_option_value)
+
+        # Add availability group to context if it exists
+        if availability_group is not None:
+            context["availability_group"] = availability_group.name
+
+        return context
 
     except Exception as e:
         logger.error(
-            f"Failed to get delivery options for iaid {iaid}: {str(e)}"
+            f"Failed to get delivery options for iaid {iaid}: {str(e)}",
+            exc_info=True,
         )
         return {}
 
