@@ -58,6 +58,7 @@ from sentry_sdk import capture_message
 logger = logging.getLogger(__name__)
 
 
+# TODO: reimplement these views as classed based as they are starting to get more complex.
 def get_subjects_enrichment(subjects_list: list[str], limit: int = 10) -> dict:
     """
     Makes API call to enrich subjects data for a single record.
