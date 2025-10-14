@@ -5,17 +5,20 @@ from typing import Any
 
 from app.errors import views as errors_view
 from app.lib.api import JSONAPIClient, ResourceNotFound
-from app.lib.fields import ChoiceField, DynamicMultipleChoiceField
+from app.lib.fields import (
+    ChoiceField,
+    DateKeys,
+    DynamicMultipleChoiceField,
+    FromDateField,
+    ToDateField,
+)
 from app.lib.pagination import pagination_object
 from app.records.constants import TNA_LEVELS
 from app.search.api import search_records
 from config.jinja2 import qs_remove_value, qs_toggle_value
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
-from django.http import (
-    HttpRequest,
-    HttpResponse,
-)
+from django.http import HttpRequest, HttpResponse, QueryDict
 from django.views.generic import TemplateView
 
 from .buckets import CATALOGUE_BUCKETS, Bucket, BucketKeys, BucketList
@@ -55,7 +58,7 @@ class APIMixin:
 
     def get_api_params(self, form, current_bucket: Bucket) -> dict:
         """The API params
-        filter: for querying buckets, aggs
+        filter: for querying buckets, aggs, dates
         aggs: for checkbox items with counts."""
 
         def add_filter(params: dict, value):
@@ -75,6 +78,9 @@ class APIMixin:
         if current_bucket.key == BucketKeys.NON_TNA.value:
             add_filter(params, FILTER_DATATYPE_RECORD)
 
+        # date related filters
+        add_filter(params, self._get_date_api_params(form))
+
         # filter aggregations for each field
         filter_aggregations = []
         for field_name in form.fields:
@@ -90,11 +96,44 @@ class APIMixin:
         if filter_aggregations:
             add_filter(params, filter_aggregations)
 
+        # online filter for TNA bucket
         if current_bucket.key == BucketKeys.TNA.value:
             if form.fields[FieldsConstant.ONLINE].cleaned == "true":
                 add_filter(params, "digitised:true")
 
         return params
+
+    def _get_date_api_params(self, form) -> list:
+        """Returns date related API params."""
+
+        filter_list = []
+        for field_name in form.fields:
+            if isinstance(
+                form.fields[field_name], (FromDateField, ToDateField)
+            ):
+                if cleaned_date := form.fields[field_name].cleaned:
+                    year, month, day = (
+                        cleaned_date.year,
+                        cleaned_date.month,
+                        cleaned_date.day,
+                    )
+                    if field_name == FieldsConstant.COVERING_DATE_FROM:
+                        filter_list.append(
+                            f"coveringFromDate:(>={year}-{month}-{day})"
+                        )
+                    if field_name == FieldsConstant.COVERING_DATE_TO:
+                        filter_list.append(
+                            f"coveringToDate:(<={year}-{month}-{day})"
+                        )
+                    if field_name == FieldsConstant.OPENING_DATE_FROM:
+                        filter_list.append(
+                            f"openingFromDate:(>={year}-{month}-{day})"
+                        )
+                    if field_name == FieldsConstant.OPENING_DATE_TO:
+                        filter_list.append(
+                            f"openingToDate:(<={year}-{month}-{day})"
+                        )
+        return filter_list
 
     def replace_input_data(self, field_name, selected_values: list[str]):
         """Updates user input/represented data for API querying."""
@@ -174,15 +213,19 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         """Creates the form instance and some attributes"""
 
         super().setup(request, *args, **kwargs)
-        form_kwargs = self.get_form_kwargs()
+        self.form_kwargs = self.get_form_kwargs()
+
         # create two separate forms for TNA and NonTNA with different fields
-        if form_kwargs.get("data").get("group") == BucketKeys.TNA.value:
-            self.form = CatalogueSearchTnaForm(**form_kwargs)
+        if self.form_kwargs.get("data").get("group") == BucketKeys.TNA.value:
+            self.form = CatalogueSearchTnaForm(**self.form_kwargs)
 
             # ensure only single value is bound to ChoiceFields
             for field_name, field in self.form.fields.items():
                 if isinstance(field, ChoiceField):
-                    if len(form_kwargs.get("data").getlist(field_name)) > 1:
+                    if (
+                        len(self.form_kwargs.get("data").getlist(field_name))
+                        > 1
+                    ):
                         logger.info(
                             f"ChoiceField {field_name} can only bind to single value"
                         )
@@ -191,7 +234,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
                         )
 
         else:
-            self.form = CatalogueSearchNonTnaForm(**form_kwargs)
+            self.form = CatalogueSearchNonTnaForm(**self.form_kwargs)
 
         self.bucket_list: BucketList = copy.deepcopy(CATALOGUE_BUCKETS)
         self.current_bucket_key = self.form.fields[FieldsConstant.GROUP].value
@@ -396,24 +439,30 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "title": f"Remove {field.active_filter_label.lower()}",
                     }
                 )
-        if self.request.GET.get("date_from", None):
-            selected_filters.append(
-                {
-                    "label": f"Record date from: {self.request.GET.get('date_from')}",
-                    "href": f"?{qs_remove_value(self.request.GET, 'date_from')}",
-                    "title": "Remove record from date",
-                }
-            )
-        if self.request.GET.get("date_to", None):
-            selected_filters.append(
-                {
-                    "label": f"Record date to: {self.request.GET.get('date_to')}",
-                    "href": f"?{qs_remove_value(self.request.GET, 'date_to')}",
-                    "title": "Remove record to date",
-                }
-            )
 
         self._build_dynamic_multiple_choice_field_filters(selected_filters)
+
+        if isinstance(
+            self.form, (CatalogueSearchTnaForm, CatalogueSearchNonTnaForm)
+        ):
+            self._build_date_filters(
+                existing_filters=selected_filters,
+                form_kwargs=self.form_kwargs,
+                from_field=self.form.fields.get(
+                    FieldsConstant.COVERING_DATE_FROM
+                ),
+                to_field=self.form.fields.get(FieldsConstant.COVERING_DATE_TO),
+            )
+
+        if isinstance(self.form, CatalogueSearchTnaForm):
+            self._build_date_filters(
+                existing_filters=selected_filters,
+                form_kwargs=self.form_kwargs,
+                from_field=self.form.fields.get(
+                    FieldsConstant.OPENING_DATE_FROM
+                ),
+                to_field=self.form.fields.get(FieldsConstant.OPENING_DATE_TO),
+            )
 
         return selected_filters
 
@@ -441,3 +490,69 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                             "title": f"Remove {choice_labels.get(item, item)} {field.active_filter_label.lower()}",
                         }
                     )
+
+    def _build_date_filters(
+        self,
+        existing_filters: list,
+        form_kwargs: QueryDict,
+        from_field: FromDateField,
+        to_field: ToDateField,
+    ):
+        """Appends selected filters for date fields."""
+
+        C_DATE_FORMAT = "%d-%m-%Y"  # dd-mm-yyyy
+        for field in (from_field, to_field):
+            if field.cleaned:
+                year, month, day = (
+                    field.value.get(date_key)
+                    for date_key in (
+                        DateKeys.YEAR.value,
+                        DateKeys.MONTH.value,
+                        DateKeys.DAY.value,
+                    )
+                )
+                label_value = ""
+                filter_name = ""
+                qs_value = ""
+
+                if year:
+                    date_key = DateKeys.YEAR.value
+                    filter_name = f"{field.name}-{date_key}"
+                    return_object = bool(year and month)
+                    qs_value = qs_toggle_value(
+                        existing_qs=form_kwargs.get("data"),
+                        filter=filter_name,
+                        by=year,
+                        return_object=return_object,
+                    )
+
+                    if month:
+                        date_key = DateKeys.MONTH.value
+                        filter_name = f"{field.name}-{date_key}"
+                        return_object = bool(month and day)
+                        qs_value = qs_toggle_value(
+                            existing_qs=qs_value,
+                            filter=filter_name,
+                            by=month,
+                            return_object=return_object,
+                        )
+
+                        if day:
+                            date_key = DateKeys.DAY.value
+                            filter_name = f"{field.name}-{date_key}"
+                            qs_value = qs_toggle_value(
+                                existing_qs=qs_value,
+                                filter=filter_name,
+                                by=day,
+                                return_object=False,
+                            )
+
+                label_value = field.cleaned.strftime(C_DATE_FORMAT)
+
+                existing_filters.append(
+                    {
+                        "label": f"{field.active_filter_label}: {label_value}",
+                        "href": f"?{qs_value}",
+                        "title": f"Remove {label_value} {field.active_filter_label.lower()}",
+                    }
+                )
