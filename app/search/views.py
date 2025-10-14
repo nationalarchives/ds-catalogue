@@ -322,8 +322,6 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
     def form_invalid(self):
         """Renders invalid form, context."""
         # keep current bucket in focus
-        print(f"invalid form................... {self.form.errors}")
-        print(self.form.fields[FieldsConstant.LEVEL].items)
         self.bucket_list.update_buckets_for_display(
             query="",
             buckets={},
