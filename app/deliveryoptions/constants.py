@@ -81,6 +81,7 @@ class AvailabilityGroup(Enum):
         AvailabilityCondition.DigitizedLia,
         AvailabilityCondition.DigitizedOther,
         AvailabilityCondition.AcademicSubscription,
+        AvailabilityCondition.AV_Media,
     }
 
     AVAILABLE_IN_PERSON_NO_COPYING = {
@@ -122,9 +123,18 @@ class AvailabilityGroup(Enum):
         AvailabilityCondition.PaidSearch,
     }
 
-    UNKNOWN = {
+    # The remaining groups do not fit in with those above and are not part of the
+    # grouping system
+    PENDING_CLASSIFICATION = {
         AvailabilityCondition.DigitizedAvailableButNotDownloadableAtPieceLevel,
         AvailabilityCondition.DigitizedAvailableButNotDownloadableAtItemLevel,
+    }
+
+    REDUNDANT_OR_IRRELEVANT = {
+        AvailabilityCondition.DigitizedPartiallyOpened,
+        AvailabilityCondition.ImageLibrary,
+        AvailabilityCondition.FileAuthority,
+        AvailabilityCondition.OrderException,
     }
 
 
