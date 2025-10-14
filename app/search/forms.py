@@ -52,31 +52,40 @@ class CatalogueSearchBaseForm(BaseForm):
         }
 
     def cross_validate(self) -> list[str]:
-
         error_messages = super().cross_validate()
+        date_range_message = self.validate_date_range(
+            self.fields.get(FieldsConstant.COVERING_DATE_FROM),
+            self.fields.get(FieldsConstant.COVERING_DATE_TO),
+            "Record dates",
+        )
+        error_messages.extend(date_range_message)
+        return error_messages
 
-        for date_from, date_to in (
-            (
-                self.fields.get(FieldsConstant.COVERING_DATE_FROM),
-                self.fields.get(FieldsConstant.COVERING_DATE_TO),
-            ),
+    def validate_date_range(
+        self, date_from: FromDateField, date_to: ToDateField, prefix_text: str
+    ) -> list[str]:
+        """Validate that date_from is earlier than or equal to date_to.
+        Subclass and call from cross_validate() to add error messages to form.
+        """
+
+        error_messages = []
+        if (
+            date_from.cleaned
+            and date_to.cleaned
+            and date_from.cleaned > date_to.cleaned
         ):
+            # add error at field and form level
 
-            if (
-                date_from.cleaned
-                and date_to.cleaned
-                and date_from.cleaned > date_to.cleaned
-            ):
+            # add field error to first date field
+            field_message = (
+                "This date must be earlier than or equal to the 'to' date."
+            )
+            date_from.add_error(field_message)
 
-                # add error at field and form level
-                if date_from.name == FieldsConstant.COVERING_DATE_FROM:
-                    # add field error to first date field
-                    field_message = "This date must be earlier than or equal to the 'to' date."
-                    date_from.add_error(field_message)
-                    # add cross field error message (not derived from field)
-                    # use _cleaned since an error has been added to the field and cleaned is now None
-                    cross_field_message = f"Record dates: {date_from._cleaned.strftime("%d-%m-%Y")} must be earlier than or equal to the {date_to._cleaned.strftime("%d-%m-%Y")}."
-                    error_messages.append(cross_field_message)
+            # add cross field error message (not derived from field)
+            # use _cleaned since an error has been added to the field and cleaned is now None
+            cross_field_message = f"{prefix_text}: {date_from._cleaned.strftime("%d-%m-%Y")} must be earlier than or equal to the {date_to._cleaned.strftime("%d-%m-%Y")}."
+            error_messages.append(cross_field_message)
 
         return error_messages
 
@@ -158,32 +167,13 @@ class CatalogueSearchTnaForm(CatalogueSearchBaseForm):
         }
 
     def cross_validate(self) -> list[str]:
-
         error_messages = super().cross_validate()
-
-        for date_from, date_to in (
-            (
-                self.fields.get(FieldsConstant.OPENING_DATE_FROM),
-                self.fields.get(FieldsConstant.OPENING_DATE_TO),
-            ),
-        ):
-
-            if (
-                date_from.cleaned
-                and date_to.cleaned
-                and date_from.cleaned > date_to.cleaned
-            ):
-
-                # add error at field and form level
-                if date_from.name == FieldsConstant.OPENING_DATE_FROM:
-                    # add field error to first date field
-                    field_message = "This date must be earlier than or equal to the 'to' date."
-                    date_from.add_error(field_message)
-                    # add cross field error message (not derived from field)
-                    # use _cleaned since an error has been added to the field and cleaned is now None
-                    cross_field_message = f"Record opening dates: {date_from._cleaned.strftime("%d-%m-%Y")} must be earlier than or equal to the {date_to._cleaned.strftime("%d-%m-%Y")}."
-                    error_messages.append(cross_field_message)
-
+        date_range_message = self.validate_date_range(
+            self.fields.get(FieldsConstant.OPENING_DATE_FROM),
+            self.fields.get(FieldsConstant.OPENING_DATE_TO),
+            "Record opening dates",
+        )
+        error_messages.extend(date_range_message)
         return error_messages
 
 
