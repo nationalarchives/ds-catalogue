@@ -160,15 +160,15 @@
     {% if form.fields.group.value==bucket_keys.TNA %}
       {{ online(request) }}
       {# {{ search_within(request) }} #}
-      {{ date_input(request, 'date', 'date', 'Filter by record date') }}
+      {{ date_input(request, 'covering_date_from', form.fields.covering_date_from, 'covering_date_to', form.fields.covering_date_to, 'Filter by record date') }}
       {{ collections(request, form.fields['collection']) }}
       {{ subjects(request, form.fields['subjects']) }}
       {{ levels(request, form.fields['level']) }}
-      {{ date_input(request, 'date', 'date', 'Filter by record opening date') }}
+      {{ date_input(request, 'opening_date_from', form.fields.opening_date_from, 'opening_date_to',form.fields.opening_date_to, 'Filter by record opening date') }}
       {{ closure_statuses(request, form.fields['closure']) }}
     {% elif form.fields.group.value==bucket_keys.NON_TNA %}
       {# {{ search_within(request) }} #}
-      {{ date_input(request, 'date', 'date', 'Filter by record date') }}
+      {{ date_input(request, 'covering_date_from', form.fields.covering_date_from, 'covering_date_to', form.fields.covering_date_to, 'Filter by record date') }}
       {{ held_by(request, form.fields['held_by']) }}
     {% endif %}
     
