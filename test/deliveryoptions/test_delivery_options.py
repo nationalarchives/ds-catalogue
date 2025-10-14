@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 from app.deliveryoptions.constants import (
     DELIVERY_OPTIONS_CONFIG,
+    AvailabilityCondition,
     AvailabilityGroup,
     delivery_option_tags,
 )
@@ -343,7 +344,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
         self, mock_get_group, mock_api_handler
     ):
         """Test successfully fetching and processing delivery options."""
-        # Arrange
+
         iaid = "C123456"
 
         mock_api_handler.return_value = [
@@ -357,12 +358,14 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
             AvailabilityGroup.AVAILABLE_ONLINE_TNA_ONLY
         )
 
-        # Act
         result = get_delivery_options_context(iaid)
 
-        # Assert
         self.assertEqual(
-            result, {"availability_group": "AVAILABLE_ONLINE_TNA_ONLY"}
+            result,
+            {
+                "delivery_option": "DigitizedDiscovery",
+                "availability_group": "AVAILABLE_ONLINE_TNA_ONLY",
+            },
         )
         mock_api_handler.assert_called_once_with("C123456")
         mock_get_group.assert_called_once_with(3)
@@ -370,43 +373,37 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
     @patch("app.records.views.delivery_options_request_handler")
     def test_empty_delivery_result(self, mock_api_handler):
         """Test handling of empty delivery options result."""
-        # Arrange
+
         iaid = "C123456"
         mock_api_handler.return_value = []
 
-        # Act
         result = get_delivery_options_context(iaid)
 
-        # Assert
         self.assertEqual(result, {})
 
     @patch("app.records.views.delivery_options_request_handler")
     def test_none_delivery_result(self, mock_api_handler):
         """Test handling of None delivery options result."""
-        # Arrange
+
         iaid = "C123456"
         mock_api_handler.return_value = None
 
-        # Act
         result = get_delivery_options_context(iaid)
 
-        # Assert
         self.assertEqual(result, {})
 
     @patch("app.records.views.delivery_options_request_handler")
     @patch("app.records.views.get_availability_group")
     def test_missing_options_value(self, mock_get_group, mock_api_handler):
         """Test handling when options value is missing from response."""
-        # Arrange
+
         iaid = "C123456"
         mock_api_handler.return_value = [
             {"surrogateLinks": [], "advancedOrderUrlParameters": None}
         ]
 
-        # Act
         result = get_delivery_options_context(iaid)
 
-        # Assert
         self.assertEqual(result, {})
         mock_get_group.assert_not_called()
 
@@ -414,7 +411,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
     @patch("app.records.views.get_availability_group")
     def test_none_options_value(self, mock_get_group, mock_api_handler):
         """Test handling when options value is explicitly None."""
-        # Arrange
+
         iaid = "C123456"
         mock_api_handler.return_value = [
             {
@@ -424,49 +421,58 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
             }
         ]
 
-        # Act
         result = get_delivery_options_context(iaid)
 
-        # Assert
         self.assertEqual(result, {})
         mock_get_group.assert_not_called()
 
     @patch("app.records.views.delivery_options_request_handler")
     @patch("app.records.views.get_availability_group")
-    def test_none_availability_group(self, mock_get_group, mock_api_handler):
-        """Test handling when availability group cannot be determined."""
-        # Arrange
+    def test_invalid_availability_condition(
+        self, mock_get_group, mock_api_handler
+    ):
+        """Test handling when options value is not a valid AvailabilityCondition enum value."""
         iaid = "C123456"
         mock_api_handler.return_value = [
             {
-                "options": 99,  # Invalid/unknown option
+                "options": 999,  # Not a valid AvailabilityCondition enum value
                 "surrogateLinks": [],
             }
         ]
-        mock_get_group.return_value = None
 
-        # Act
         result = get_delivery_options_context(iaid)
 
-        # Assert
+        # Should return empty dict because enum conversion will fail
         self.assertEqual(result, {})
+        # get_availability_group should not be called because enum conversion failed
+        mock_get_group.assert_not_called()
 
     @patch("app.records.views.delivery_options_request_handler")
-    @patch("app.records.views.logger")
-    def test_api_exception_handling(self, mock_logger, mock_api_handler):
-        """Test exception handling when API call fails."""
-        # Arrange
+    @patch("app.records.views.get_availability_group")
+    def test_valid_condition_with_pending_classification_group(
+        self, mock_get_group, mock_api_handler
+    ):
+        """Test handling a valid availability condition in the PENDING_CLASSIFICATION group."""
         iaid = "C123456"
-        mock_api_handler.side_effect = Exception("API connection error")
+        # Use AvailabilityCondition enum value
+        mock_api_handler.return_value = [
+            {
+                "options": AvailabilityCondition.DigitizedAvailableButNotDownloadableAtPieceLevel,
+                "surrogateLinks": [],
+            }
+        ]
+        mock_get_group.return_value = AvailabilityGroup.PENDING_CLASSIFICATION
 
-        # Act
         result = get_delivery_options_context(iaid)
 
-        # Assert
-        self.assertEqual(result, {})
-        mock_logger.error.assert_called_once()
-        error_call_args = str(mock_logger.error.call_args)
-        self.assertIn("Failed to get delivery options", error_call_args)
+        # Should return both delivery_option and availability_group
+        self.assertEqual(
+            result,
+            {
+                "delivery_option": "DigitizedAvailableButNotDownloadableAtPieceLevel",
+                "availability_group": "PENDING_CLASSIFICATION",
+            },
+        )
 
     @patch("app.records.views.delivery_options_request_handler")
     @patch("app.records.views.get_availability_group")
@@ -475,15 +481,31 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
     ):
         """Test different availability conditions map to correct groups."""
         test_cases = [
-            (3, AvailabilityGroup.AVAILABLE_ONLINE_TNA_ONLY),
-            (4, AvailabilityGroup.AVAILABLE_ONLINE_THIRD_PARTY_ONLY),
-            (26, AvailabilityGroup.AVAILABLE_IN_PERSON_WITH_COPYING),
-            (14, AvailabilityGroup.CLOSED_TNA_OR_PA),
+            (
+                3,
+                "DigitizedDiscovery",
+                AvailabilityGroup.AVAILABLE_ONLINE_TNA_ONLY,
+            ),
+            (
+                4,
+                "DigitizedLia",
+                AvailabilityGroup.AVAILABLE_ONLINE_THIRD_PARTY_ONLY,
+            ),
+            (
+                26,
+                "OrderOriginal",
+                AvailabilityGroup.AVAILABLE_IN_PERSON_WITH_COPYING,
+            ),
+            (14, "ClosedRetainedDeptKnown", AvailabilityGroup.CLOSED_TNA_OR_PA),
         ]
 
-        for options_value, expected_group in test_cases:
+        for (
+            options_value,
+            expected_delivery_option,
+            expected_group,
+        ) in test_cases:
             with self.subTest(options_value=options_value):
-                # Arrange
+
                 iaid = f"C{options_value}"
                 mock_api_handler.return_value = [
                     {
@@ -494,12 +516,14 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
                 ]
                 mock_get_group.return_value = expected_group
 
-                # Act
                 result = get_delivery_options_context(iaid)
 
-                # Assert
                 self.assertEqual(
-                    result, {"availability_group": expected_group.name}
+                    result,
+                    {
+                        "delivery_option": expected_delivery_option,
+                        "availability_group": expected_group.name,
+                    },
                 )
 
 
@@ -518,7 +542,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_distressing,
     ):
         """Test that delivery options are added to context for standard records."""
-        # Arrange
+
         mock_record = Mock()
         mock_record.iaid = "C123456"
         mock_record.reference_number = "TEST 123"
@@ -531,17 +555,14 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         }
         mock_distressing.return_value = False
 
-        # Mock the global alerts client
         mock_client_instance = Mock()
         mock_client_instance.get.return_value = {}
         mock_client.return_value = mock_client_instance
 
         request = Mock()
 
-        # Act
         response = record_detail_view(request, id="C123456")
 
-        # Assert
         mock_delivery_options.assert_called_once_with("C123456")
         self.assertIn("availability_group", response.context_data)
         self.assertEqual(
@@ -561,7 +582,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_distressing,
     ):
         """Test that delivery options are not fetched for ARCHON records."""
-        # Arrange
+
         mock_record = Mock()
         mock_record.iaid = "C123456"
         mock_record.reference_number = "TEST 123"
@@ -571,17 +592,14 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
 
         mock_distressing.return_value = False
 
-        # Mock the global alerts client
         mock_client_instance = Mock()
         mock_client_instance.get.return_value = {}
         mock_client.return_value = mock_client_instance
 
         request = Mock()
 
-        # Act
         response = record_detail_view(request, id="C123456")
 
-        # Assert
         mock_delivery_options.assert_not_called()
         self.assertNotIn("availability_group", response.context_data)
 
@@ -597,7 +615,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_distressing,
     ):
         """Test that delivery options are not fetched for CREATORS records."""
-        # Arrange
+
         mock_record = Mock()
         mock_record.iaid = "C123456"
         mock_record.reference_number = "TEST 123"
@@ -607,17 +625,14 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
 
         mock_distressing.return_value = False
 
-        # Mock the global alerts client
         mock_client_instance = Mock()
         mock_client_instance.get.return_value = {}
         mock_client.return_value = mock_client_instance
 
         request = Mock()
 
-        # Act
         response = record_detail_view(request, id="C123456")
 
-        # Assert
         mock_delivery_options.assert_not_called()
         self.assertNotIn("availability_group", response.context_data)
 
@@ -633,7 +648,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_distressing,
     ):
         """Test that empty availability group is not added to context."""
-        # Arrange
+
         mock_record = Mock()
         mock_record.iaid = "C123456"
         mock_record.reference_number = "TEST 123"
@@ -644,17 +659,14 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_delivery_options.return_value = {}  # Empty result
         mock_distressing.return_value = False
 
-        # Mock the global alerts client
         mock_client_instance = Mock()
         mock_client_instance.get.return_value = {}
         mock_client.return_value = mock_client_instance
 
         request = Mock()
 
-        # Act
         response = record_detail_view(request, id="C123456")
 
-        # Assert
         mock_delivery_options.assert_called_once_with("C123456")
         self.assertNotIn("availability_group", response.context_data)
 
@@ -670,7 +682,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_distressing,
     ):
         """Test that distressing content flag is added to context."""
-        # Arrange
+
         mock_record = Mock()
         mock_record.iaid = "C123456"
         mock_record.reference_number = "HO 616/123"
@@ -681,17 +693,14 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_delivery_options.return_value = {}
         mock_distressing.return_value = True
 
-        # Mock the global alerts client
         mock_client_instance = Mock()
         mock_client_instance.get.return_value = {}
         mock_client.return_value = mock_client_instance
 
         request = Mock()
 
-        # Act
         response = record_detail_view(request, id="C123456")
 
-        # Assert
         self.assertIn("distressing_content", response.context_data)
         self.assertTrue(response.context_data["distressing_content"])
         mock_distressing.assert_called_once_with("HO 616/123")
