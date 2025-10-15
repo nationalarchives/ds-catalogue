@@ -15,6 +15,7 @@ from app.lib.api import JSONAPIClient, ResourceNotFound
 from app.records.api import record_details_by_id, wagtail_request_handler
 from app.records.labels import FIELD_LABELS
 from django.conf import settings
+from django.http import HttpRequest
 from django.template.response import TemplateResponse
 from django.utils.text import slugify
 from sentry_sdk import capture_message
@@ -62,7 +63,17 @@ logger = logging.getLogger(__name__)
 def get_subjects_enrichment(subjects_list: list[str], limit: int = 10) -> dict:
     """
     Makes API call to enrich subjects data for a single record.
-    Returns enrichment data or empty dict on failure.
+
+    Fetches additional article/content data associated with the provided subject tags
+    from the Wagtail CMS article_tags endpoint.
+
+    Args:
+        subjects_list: List of subject strings to enrich
+        limit: Maximum number of enrichment items to return (default: 10)
+
+    Returns:
+        Dictionary containing enrichment data with articles/content related to the subjects,
+        or empty dict on failure or if no subjects provided.
     """
     if not subjects_list:
         return {}
@@ -91,36 +102,31 @@ def get_delivery_options_context(iaid: str) -> dict:
     """
     Fetch and process delivery options for a record.
 
+    Calls the delivery options API to determine how a record can be accessed
+    (e.g., available online, orderable, closed, etc.) and maps the result to
+    an availability group for display purposes.
+
     Args:
-        iaid: The document iaid
+        iaid: The document IAID (Information Asset Identifier)
 
     Returns:
         Dictionary with delivery options context containing:
         - delivery_option: The AvailabilityCondition name as string (if valid)
         - availability_group: The availability group name (if mapped to a group)
-        May return empty dict if unavailable or on error.
+        Returns empty dict if unavailable or on error.
     """
     try:
         delivery_result = delivery_options_request_handler(iaid)
 
-        # Validate we got results and it's a list
-        if not delivery_result or not isinstance(delivery_result, list):
-            logger.info(f"No delivery options available for iaid {iaid}")
+        # Ensure we have at least one delivery_result in the returned list
+        if not isinstance(delivery_result, list) or not delivery_result:
             return {}
 
-        # Check list is not empty before accessing first element
-        if len(delivery_result) == 0:
-            logger.info(f"Empty delivery options list for iaid {iaid}")
-            return {}
-
-        # Extract the delivery option value
+        # Extract the delivery option value - we know there is at least 1 record and we are only interested in the first
         first_result = delivery_result[0]
         delivery_option_value = first_result.get("options")
 
         if delivery_option_value is None:
-            logger.warning(
-                f"No 'options' value in delivery result for iaid {iaid}"
-            )
             return {}
 
         # Convert to AvailabilityCondition enum and get name
@@ -141,8 +147,9 @@ def get_delivery_options_context(iaid: str) -> dict:
 
         # Add availability group to context if it exists
         if availability_group is not None:
-            context["availability_group"] = availability_group.name
+            context["do_availability_group"] = availability_group.name
 
+        print(f"Context: {context}")
         return context
 
     except Exception as e:
@@ -153,9 +160,20 @@ def get_delivery_options_context(iaid: str) -> dict:
         return {}
 
 
-def record_detail_view(request, id):
+def record_detail_view(request: HttpRequest, id: str) -> TemplateResponse:
     """
-    View for rendering a record's details page.
+    View for rendering an individual archive record's details page.
+
+    Fetches record data by ID, enriches it with subjects data and delivery options,
+    checks for sensitive content warnings, and renders the appropriate template
+    based on the record type (standard, ARCHON, or CREATORS).
+
+    Args:
+        request: The Django HTTP request object
+        id: The record IAID (Information Asset Identifier)
+
+    Returns:
+        TemplateResponse with rendered record detail page
     """
     template_name = "records/record_detail.html"
     context: dict = {
@@ -273,7 +291,20 @@ def record_detail_view(request, id):
     )
 
 
-def related_records_view(request, id):
+def related_records_view(request: HttpRequest, id: str) -> TemplateResponse:
+    """
+    View for rendering a record's related records page.
+
+    Displays records that are related to the specified record through
+    hierarchical or associative relationships.
+
+    Args:
+        request: The Django HTTP request object
+        id: The record IAID (Information Asset Identifier)
+
+    Returns:
+        TemplateResponse with rendered related records page
+    """
     template_name = "records/related_records.html"
     context: dict = {}
 
@@ -288,7 +319,20 @@ def related_records_view(request, id):
     )
 
 
-def records_help_view(request, id):
+def records_help_view(request: HttpRequest, id: str) -> TemplateResponse:
+    """
+    View for rendering help/guidance for users new to archives.
+
+    Provides contextual help information about understanding and using
+    archive records for the specified record.
+
+    Args:
+        request: The Django HTTP request object
+        id: The record IAID (Information Asset Identifier)
+
+    Returns:
+        TemplateResponse with rendered help page
+    """
     template_name = "records/new_to_archives.html"
     context: dict = {}
 
