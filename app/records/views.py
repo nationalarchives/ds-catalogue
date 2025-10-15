@@ -112,7 +112,7 @@ def get_delivery_options_context(iaid: str) -> dict:
     Returns:
         Dictionary with delivery options context containing:
         - delivery_option: The AvailabilityCondition name as string (if valid)
-        - availability_group: The availability group name (if mapped to a group)
+        - do_availability_group: The availability group name (if mapped to a group)
         Returns empty dict if unavailable or on error.
     """
     try:
@@ -143,11 +143,11 @@ def get_delivery_options_context(iaid: str) -> dict:
         context = {"delivery_option": delivery_option_name}
 
         # Get the availability group for this delivery option
-        availability_group = get_availability_group(delivery_option_value)
+        do_availability_group = get_availability_group(delivery_option_value)
 
         # Add availability group to context if it exists
-        if availability_group is not None:
-            context["do_availability_group"] = availability_group.name
+        if do_availability_group is not None:
+            context["do_availability_group"] = do_availability_group.name
 
         print(f"Context: {context}")
         return context

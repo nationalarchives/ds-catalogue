@@ -364,7 +364,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
             result,
             {
                 "delivery_option": "DigitizedDiscovery",
-                "availability_group": "AVAILABLE_ONLINE_TNA_ONLY",
+                "do_availability_group": "AVAILABLE_ONLINE_TNA_ONLY",
             },
         )
         mock_api_handler.assert_called_once_with("C123456")
@@ -465,12 +465,12 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
 
         result = get_delivery_options_context(iaid)
 
-        # Should return both delivery_option and availability_group
+        # Should return both delivery_option and do_availability_group
         self.assertEqual(
             result,
             {
                 "delivery_option": "DigitizedAvailableButNotDownloadableAtPieceLevel",
-                "availability_group": "PENDING_CLASSIFICATION",
+                "do_availability_group": "PENDING_CLASSIFICATION",
             },
         )
 
@@ -522,7 +522,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
                     result,
                     {
                         "delivery_option": expected_delivery_option,
-                        "availability_group": expected_group.name,
+                        "do_availability_group": expected_group.name,
                     },
                 )
 
@@ -551,7 +551,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_record_details.return_value = mock_record
 
         mock_delivery_options.return_value = {
-            "availability_group": "AVAILABLE_ONLINE_TNA_ONLY"
+            "do_availability_group": "AVAILABLE_ONLINE_TNA_ONLY"
         }
         mock_distressing.return_value = False
 
@@ -564,9 +564,9 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         response = record_detail_view(request, id="C123456")
 
         mock_delivery_options.assert_called_once_with("C123456")
-        self.assertIn("availability_group", response.context_data)
+        self.assertIn("do_availability_group", response.context_data)
         self.assertEqual(
-            response.context_data["availability_group"],
+            response.context_data["do_availability_group"],
             "AVAILABLE_ONLINE_TNA_ONLY",
         )
 
@@ -601,7 +601,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         response = record_detail_view(request, id="C123456")
 
         mock_delivery_options.assert_not_called()
-        self.assertNotIn("availability_group", response.context_data)
+        self.assertNotIn("do_availability_group", response.context_data)
 
     @patch("app.records.views.has_distressing_content")
     @patch("app.records.views.get_delivery_options_context")
@@ -634,7 +634,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         response = record_detail_view(request, id="C123456")
 
         mock_delivery_options.assert_not_called()
-        self.assertNotIn("availability_group", response.context_data)
+        self.assertNotIn("do_availability_group", response.context_data)
 
     @patch("app.records.views.has_distressing_content")
     @patch("app.records.views.get_delivery_options_context")
@@ -668,7 +668,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         response = record_detail_view(request, id="C123456")
 
         mock_delivery_options.assert_called_once_with("C123456")
-        self.assertNotIn("availability_group", response.context_data)
+        self.assertNotIn("do_availability_group", response.context_data)
 
     @patch("app.records.views.has_distressing_content")
     @patch("app.records.views.get_delivery_options_context")
