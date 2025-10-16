@@ -162,7 +162,7 @@
       {# {{ search_within(request) }} #}
       {{ date_input(request, 'covering_date_from', form.fields.covering_date_from, 'covering_date_to', form.fields.covering_date_to, 'Filter by record date') }}
       {{ collections(request, form.fields['collection']) }}
-      {{ subjects(request, form.fields['subjects']) }}
+      {{ subjects(request, form.fields['subject']) }}
       {{ levels(request, form.fields['level']) }}
       {{ date_input(request, 'opening_date_from', form.fields.opening_date_from, 'opening_date_to',form.fields.opening_date_to, 'Filter by record opening date') }}
       {{ closure_statuses(request, form.fields['closure']) }}
