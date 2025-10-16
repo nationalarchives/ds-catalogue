@@ -627,7 +627,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
                         ],
                     },
                     {
-                        "name": "subjects",
+                        "name": "subject",
                         "entries": [
                             {"value": "somevalue", "doc_count": 100},
                         ],
@@ -689,7 +689,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
         )
 
-        # Test subjects filter for TNA group
+        # Test subject filter for TNA group
         self.response = self.client.get(
             "/catalogue/search/?group=tna&subject=Army&subject=Navy"
         )
@@ -704,7 +704,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subjects&filter=group%3Atna&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29&filter=coveringToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29&filter=coveringToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
         )
 
         # Test opening date filters
@@ -713,7 +713,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subjects&filter=group%3Atna&filter=openingFromDate%3A%28%3E%3D2000-12-1%29&filter=openingToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&filter=openingFromDate%3A%28%3E%3D2000-12-1%29&filter=openingToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
         )
 
 
