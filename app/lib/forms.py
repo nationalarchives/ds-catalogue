@@ -4,7 +4,7 @@ from typing import Any
 
 from django.http import QueryDict
 
-from .fields import BaseField
+from .fields import BaseField, MultiPartDateField
 
 
 class BaseForm:
@@ -47,7 +47,14 @@ class BaseForm:
         Binding list or string value is handled at the field."""
 
         for name, field in self.fields.items():
-            field.bind(name, self.data.getlist(name))
+            if isinstance(field, MultiPartDateField):
+                # for multi part date field, send the whole QueryDict
+                # to allow binding in the field class
+                value = self.data
+            else:
+                value = self.data.getlist(name)
+
+            field.bind(name, value)
 
     def is_valid(self) -> bool:
         """Returns True when fields are cleaned and validated without errors and stores cleaned data.

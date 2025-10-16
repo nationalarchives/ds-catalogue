@@ -3,32 +3,32 @@
 {% from "components/date-input/macro.html" import tnaDateInput %}
 
 
-{% macro date_input(request, name, id, title) %}
+{% macro date_input(request, date_from_id, date_from, date_to_id, date_to, title) %}
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
   <h3 class="tna-heading-m">{{ title }}</h3>
     {{ tnaDateInput({
-    'label': "From",
+    'label': date_from.label,
     'headingLevel': 4,
     'headingSize': "s",
-    'id': id + '-from',
-    'name': name + '_from',
-    'value': request.GET.get(name + '_from', ''),
-    'formItemClasses': 'tna-!--margin-top-s',
-    'progressive': true,
+    'id': date_from_id,
+    'name': date_from.name,
+    'value': date_from.value,
+    'formGroupClasses': 'tna-!--margin-top-s',
+    'progressive': date_from.progressive,
     'attributes': {
       'form': 'search-form'
     }
     }) }}
 
     {{ tnaDateInput({
-    'label': "To",
+    'label': date_to.label,
     'headingLevel': 4,
     'headingSize': "s",
-    'id': id + '-to',
-    'name': name + '_to',
-    'value': request.GET.get(name + '_to', ''),
-    'formItemClasses': 'tna-!--margin-top-s',
-    'progressive': true,
+    'id': date_to_id,
+    'name': date_to.name,
+    'value': date_to.value,
+    'formGroupClasses': 'tna-!--margin-top-s',
+    'progressive': date_to.progressive,
     'attributes': {
       'form': 'search-form'
     }
