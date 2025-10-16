@@ -19,7 +19,7 @@ class FieldsConstant:
     GROUP = "group"
     COLLECTION = "collection"
     ONLINE = "online"
-    SUBJECTS = "subjects"  # TODO:  may prefer to use singular form as with COLLECTION & LEVEL etc ...
+    SUBJECT = "subject"
     HELD_BY = "held_by"
     CLOSURE = "closure"
     FILTER_LIST = "filter_list"
@@ -55,7 +55,7 @@ class CatalogueSearchTnaForm(BaseForm):
                 validate_input=False,  # do not validate input COLLECTION_CHOICES fixed or dynamic
                 active_filter_label="Collection",
             ),
-            FieldsConstant.SUBJECTS: DynamicMultipleChoiceField(
+            FieldsConstant.SUBJECT: DynamicMultipleChoiceField(
                 label="Subjects",
                 choices=[],  # no initial choices as they are set dynamically
                 active_filter_label="Subject",
@@ -81,8 +81,8 @@ class CatalogueSearchTnaForm(BaseForm):
                         FieldsConstant.COLLECTION,
                     ),
                     (
-                        Aggregation.SUBJECTS.long_aggs,
-                        FieldsConstant.SUBJECTS,
+                        Aggregation.SUBJECT.long_aggs,
+                        FieldsConstant.SUBJECT,
                     ),
                 ],
             ),
