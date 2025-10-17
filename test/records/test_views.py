@@ -112,12 +112,12 @@ class TestSubjectLinks(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Check that subject links exist (using %20 for spaces, not +)
-        self.assertContains(response, 'href="/catalogue/search/?subjects=Army"')
+        self.assertContains(response, 'href="/catalogue/search/?subject=Army"')
         self.assertContains(
-            response, 'href="/catalogue/search/?subjects=Europe%20and%20Russia"'
+            response, 'href="/catalogue/search/?subject=Europe%20and%20Russia"'
         )
         self.assertContains(
-            response, 'href="/catalogue/search/?subjects=Conflict"'
+            response, 'href="/catalogue/search/?subject=Conflict"'
         )
 
     @responses.activate
@@ -153,11 +153,11 @@ class TestSubjectLinks(TestCase):
         # Check that spaces and special characters are encoded
         # urlencode uses %20 for spaces, not +
         self.assertContains(
-            response, 'href="/catalogue/search/?subjects=Sex%20and%20gender"'
+            response, 'href="/catalogue/search/?subject=Sex%20and%20gender"'
         )
         self.assertContains(
             response,
-            'href="/catalogue/search/?subjects=Art%2C%20architecture%20and%20design"',
+            'href="/catalogue/search/?subject=Art%2C%20architecture%20and%20design"',
         )
 
     @responses.activate
