@@ -3,7 +3,13 @@
 import logging
 from http import HTTPStatus
 
-from app.deliveryoptions.delivery_options import has_distressing_content
+from app.deliveryoptions.api import delivery_options_request_handler
+from app.deliveryoptions.constants import AvailabilityCondition
+from app.deliveryoptions.delivery_options import (
+    construct_delivery_options,
+    get_availability_group,
+    has_distressing_content,
+)
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
 from app.lib.api import JSONAPIClient
 from app.records.api import (
@@ -226,6 +232,8 @@ def record_detail_view(request: HttpRequest, id: str) -> TemplateResponse:
 
     # Check for distressing content
     context["distressing_content"] = _check_distressing_content(record)
+
+    print(f"Context: {context}")
 
     return TemplateResponse(
         request=request, template=template_name, context=context

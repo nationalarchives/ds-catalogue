@@ -23,7 +23,7 @@ from app.deliveryoptions.helpers import (
     get_dept,
 )
 from app.records.models import APIResponse
-from app.records.views import get_delivery_options_context, record_detail_view
+from app.records.views import _get_delivery_options_context, record_detail_view
 from django.conf import settings
 from django.test import TestCase
 
@@ -336,7 +336,7 @@ class TestSurrogateReferences(TestCase):
 
 
 class TestGetDeliveryOptionsContext(unittest.TestCase):
-    """Tests for the new get_delivery_options_context helper function."""
+    """Tests for the new _get_delivery_options_context helper function."""
 
     @patch("app.records.views.delivery_options_request_handler")
     @patch("app.records.views.get_availability_group")
@@ -358,7 +358,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
             AvailabilityGroup.AVAILABLE_ONLINE_TNA_ONLY
         )
 
-        result = get_delivery_options_context(iaid)
+        result = _get_delivery_options_context(iaid)
 
         self.assertEqual(
             result,
@@ -377,7 +377,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
         iaid = "C123456"
         mock_api_handler.return_value = []
 
-        result = get_delivery_options_context(iaid)
+        result = _get_delivery_options_context(iaid)
 
         self.assertEqual(result, {})
 
@@ -388,7 +388,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
         iaid = "C123456"
         mock_api_handler.return_value = None
 
-        result = get_delivery_options_context(iaid)
+        result = _get_delivery_options_context(iaid)
 
         self.assertEqual(result, {})
 
@@ -402,7 +402,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
             {"surrogateLinks": [], "advancedOrderUrlParameters": None}
         ]
 
-        result = get_delivery_options_context(iaid)
+        result = _get_delivery_options_context(iaid)
 
         self.assertEqual(result, {})
         mock_get_group.assert_not_called()
@@ -421,7 +421,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
             }
         ]
 
-        result = get_delivery_options_context(iaid)
+        result = _get_delivery_options_context(iaid)
 
         self.assertEqual(result, {})
         mock_get_group.assert_not_called()
@@ -440,7 +440,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
             }
         ]
 
-        result = get_delivery_options_context(iaid)
+        result = _get_delivery_options_context(iaid)
 
         # Should return empty dict because enum conversion will fail
         self.assertEqual(result, {})
@@ -463,7 +463,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
         ]
         mock_get_group.return_value = AvailabilityGroup.PENDING_CLASSIFICATION
 
-        result = get_delivery_options_context(iaid)
+        result = _get_delivery_options_context(iaid)
 
         # Should return both delivery_option and do_availability_group
         self.assertEqual(
@@ -516,7 +516,7 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
                 ]
                 mock_get_group.return_value = expected_group
 
-                result = get_delivery_options_context(iaid)
+                result = _get_delivery_options_context(iaid)
 
                 self.assertEqual(
                     result,
@@ -531,7 +531,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     """Tests for delivery options integration in record_detail_view."""
 
     @patch("app.records.views.has_distressing_content")
-    @patch("app.records.views.get_delivery_options_context")
+    @patch("app.records.views._get_delivery_options_context")
     @patch("app.records.views.record_details_by_id")
     @patch("app.records.views.JSONAPIClient")
     def test_delivery_options_added_to_context(
@@ -571,7 +571,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         )
 
     @patch("app.records.views.has_distressing_content")
-    @patch("app.records.views.get_delivery_options_context")
+    @patch("app.records.views._get_delivery_options_context")
     @patch("app.records.views.record_details_by_id")
     @patch("app.records.views.JSONAPIClient")
     def test_no_delivery_options_for_archon_records(
@@ -604,7 +604,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         self.assertNotIn("do_availability_group", response.context_data)
 
     @patch("app.records.views.has_distressing_content")
-    @patch("app.records.views.get_delivery_options_context")
+    @patch("app.records.views._get_delivery_options_context")
     @patch("app.records.views.record_details_by_id")
     @patch("app.records.views.JSONAPIClient")
     def test_no_delivery_options_for_creators_records(
@@ -637,7 +637,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         self.assertNotIn("do_availability_group", response.context_data)
 
     @patch("app.records.views.has_distressing_content")
-    @patch("app.records.views.get_delivery_options_context")
+    @patch("app.records.views._get_delivery_options_context")
     @patch("app.records.views.record_details_by_id")
     @patch("app.records.views.JSONAPIClient")
     def test_empty_availability_group_not_added_to_context(
@@ -671,7 +671,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         self.assertNotIn("do_availability_group", response.context_data)
 
     @patch("app.records.views.has_distressing_content")
-    @patch("app.records.views.get_delivery_options_context")
+    @patch("app.records.views._get_delivery_options_context")
     @patch("app.records.views.record_details_by_id")
     @patch("app.records.views.JSONAPIClient")
     def test_distressing_content_flag_added_to_context(

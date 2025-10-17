@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 import responses
 from app.deliveryoptions.constants import AvailabilityCondition
 from app.records.models import Record
-from app.records.views import get_delivery_options_context
+from app.records.views import _get_delivery_options_context
 from django.conf import settings
 from django.template.response import TemplateResponse
 from django.test import RequestFactory, TestCase
@@ -268,7 +268,7 @@ class DoAvailabilityGroupTestCase(TestCase):
             ),
         ):
 
-            context = get_delivery_options_context("TEST123")
+            context = _get_delivery_options_context("TEST123")
 
             self.assertIn("delivery_option", context)
             self.assertEqual(context["delivery_option"], "DigitizedDiscovery")
@@ -298,7 +298,7 @@ class DoAvailabilityGroupTestCase(TestCase):
             ),
         ):
 
-            context = get_delivery_options_context("TEST123")
+            context = _get_delivery_options_context("TEST123")
 
             self.assertIn("delivery_option", context)
             self.assertEqual(context["delivery_option"], "OrderException")
@@ -325,13 +325,13 @@ class DoAvailabilityGroupTestCase(TestCase):
                         "app.records.views.delivery_options_request_handler",
                         side_effect=mock_response,
                     ):
-                        context = get_delivery_options_context("TEST123")
+                        context = _get_delivery_options_context("TEST123")
                 else:
                     with patch(
                         "app.records.views.delivery_options_request_handler",
                         return_value=mock_response,
                     ):
-                        context = get_delivery_options_context("TEST123")
+                        context = _get_delivery_options_context("TEST123")
 
                 self.assertEqual(context, {})
                 self.assertNotIn("do_availability_group", context)

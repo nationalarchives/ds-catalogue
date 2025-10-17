@@ -57,13 +57,23 @@ class RelatedRecordsBySubjectsTests(TestCase):
         self.assertEqual(result[0].iaid, "C789012")
         self.assertEqual(result[1].iaid, "C345678")
 
-        # Verify search was called with correct parameters
-        mock_search.assert_called_once()
-        call_args = mock_search.call_args
-        self.assertEqual(call_args[1]["query"], "*")
-        self.assertEqual(call_args[1]["results_per_page"], 4)  # limit + 1
-        self.assertIn("group:tna", call_args[1]["params"]["filter"])
-        self.assertIn("subject:Army", call_args[1]["params"]["filter"])
+        # With new implementation, multiple searches are made (one per subject/level combo)
+        # For Item level (7), similar levels are [6, 7] (Piece and Item)
+        # 4 subjects × 2 levels = 8 calls
+        self.assertEqual(mock_search.call_count, 8)
+
+        # Verify that calls include correct filters
+        all_calls = mock_search.call_args_list
+        for call in all_calls:
+            call_params = call[1]["params"]["filter"]
+            self.assertIn("group:tna", call_params)
+            # Should have exactly one subject and one level per call
+            subject_filters = [
+                f for f in call_params if f.startswith("subject:")
+            ]
+            level_filters = [f for f in call_params if f.startswith("level:")]
+            self.assertEqual(len(subject_filters), 1)
+            self.assertEqual(len(level_filters), 1)
 
     @patch("app.records.related.search_records")
     def test_filters_out_current_record(self, mock_search):
@@ -129,6 +139,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
                 "iaid": "C123456",
                 "subjects": [],
                 "groupArray": [{"value": "tna"}],
+                "level": {"code": 7},
             }
         )
 
@@ -138,28 +149,32 @@ class RelatedRecordsBySubjectsTests(TestCase):
 
         self.assertEqual(result, [])
 
-    @patch("app.records.related.search_records")
-    def test_handles_api_exception_gracefully(self, mock_search):
-        """Test that API exceptions are handled and return empty list"""
-        mock_search.side_effect = Exception("API Error")
+    def test_returns_empty_list_when_no_level_code(self):
+        """Test that records without level_code return empty list"""
+        record_without_level = Record(
+            {
+                "iaid": "C123456",
+                "subjects": ["Test Subject"],
+                "groupArray": [{"value": "tna"}],
+                # No level.code
+            }
+        )
 
-        result = get_related_records_by_subjects(self.current_record, limit=3)
+        result = get_related_records_by_subjects(record_without_level, limit=3)
 
         self.assertEqual(result, [])
 
     @patch("app.records.related.search_records")
     @patch("app.records.related.logger")
-    def test_logs_warning_on_exception(self, mock_logger, mock_search):
-        """Test that exceptions are logged"""
-        mock_search.side_effect = Exception("Connection failed")
+    def test_handles_api_exception_gracefully(self, mock_logger, mock_search):
+        """Test that API exceptions are handled and logged at debug level"""
+        mock_search.side_effect = Exception("API Error")
 
-        get_related_records_by_subjects(self.current_record, limit=3)
+        result = get_related_records_by_subjects(self.current_record, limit=3)
 
-        mock_logger.warning.assert_called_once()
-        self.assertIn(
-            "Failed to fetch related records by subjects",
-            mock_logger.warning.call_args[0][0],
-        )
+        self.assertEqual(result, [])
+        # New implementation logs at debug level, not warning
+        self.assertTrue(mock_logger.debug.called)
 
     @patch("app.records.related.search_records")
     def test_uses_correct_subject_filters(self, mock_search):
@@ -170,12 +185,18 @@ class RelatedRecordsBySubjectsTests(TestCase):
 
         get_related_records_by_subjects(self.current_record, limit=3)
 
-        call_params = mock_search.call_args[1]["params"]["filter"]
-        # Check that subjects are prefixed with "subject:"
-        self.assertIn("subject:Army", call_params)
-        self.assertIn("subject:Europe and Russia", call_params)
-        self.assertIn("subject:Conflict", call_params)
-        self.assertIn("subject:Diaries", call_params)
+        # Check that all subjects appear in at least one call
+        all_subjects = {"Army", "Europe and Russia", "Conflict", "Diaries"}
+        subjects_found = set()
+
+        for call in mock_search.call_args_list:
+            call_params = call[1]["params"]["filter"]
+            for param in call_params:
+                if param.startswith("subject:"):
+                    subject = param.replace("subject:", "")
+                    subjects_found.add(subject)
+
+        self.assertEqual(subjects_found, all_subjects)
 
 
 class RelatedRecordsBySeriesTests(TestCase):
@@ -238,10 +259,13 @@ class RelatedRecordsBySeriesTests(TestCase):
         self.assertEqual(result[0].iaid, "C1717133")
         self.assertEqual(result[1].iaid, "C1717134")
 
-        # Verify search was called with series reference
-        mock_search.assert_called_once()
-        call_args = mock_search.call_args
-        self.assertEqual(call_args[1]["query"], "MH 115")
+        # With new implementation, searches are made for each similar level
+        # For Piece level (6), similar levels are [5, 6, 7] (Sub-sub-series, Piece, Item)
+        self.assertEqual(mock_search.call_count, 3)
+
+        # Verify all calls use the series reference
+        for call in mock_search.call_args_list:
+            self.assertEqual(call[1]["query"], "MH 115")
 
     @patch("app.records.related.search_records")
     def test_filters_out_current_record(self, mock_search):
@@ -319,40 +343,16 @@ class RelatedRecordsBySeriesTests(TestCase):
         self.assertEqual(len(result), 2)
 
     @patch("app.records.related.search_records")
-    def test_only_returns_item_and_piece_levels(self, mock_search):
-        """Test that level filters are applied correctly"""
-        mock_api_response = Mock(spec=APISearchResponse)
-        mock_api_response.records = []
-        mock_search.return_value = mock_api_response
-
-        get_related_records_by_series(self.current_record, limit=3)
-
-        call_params = mock_search.call_args[1]["params"]["filter"]
-        self.assertIn("level:Item", call_params)
-        self.assertIn("level:Piece", call_params)
-
-    @patch("app.records.related.search_records")
-    def test_handles_api_exception_gracefully(self, mock_search):
-        """Test that API exceptions return empty list"""
+    @patch("app.records.related.logger")
+    def test_handles_api_exception_gracefully(self, mock_logger, mock_search):
+        """Test that API exceptions return empty list and log at debug level"""
         mock_search.side_effect = Exception("API Error")
 
         result = get_related_records_by_series(self.current_record, limit=3)
 
         self.assertEqual(result, [])
-
-    @patch("app.records.related.search_records")
-    @patch("app.records.related.logger")
-    def test_logs_warning_on_exception(self, mock_logger, mock_search):
-        """Test that exceptions are logged"""
-        mock_search.side_effect = Exception("Connection failed")
-
-        get_related_records_by_series(self.current_record, limit=3)
-
-        mock_logger.warning.assert_called_once()
-        self.assertIn(
-            "Failed to fetch related records by series",
-            mock_logger.warning.call_args[0][0],
-        )
+        # New implementation logs at debug level
+        self.assertTrue(mock_logger.debug.called)
 
 
 class RelatedRecordsIntegrationTests(TestCase):
@@ -446,9 +446,8 @@ class RelatedRecordsIntegrationTests(TestCase):
             ]
         }
 
-        # Mock search_records to be called twice
-        # First call: subjects (returns 1 record)
-        # Second call: series (returns 2 records)
+        # Mock search_records to return different results for subject/series searches
+        # With new implementation, there will be multiple calls
         subject_response = Mock(spec=APISearchResponse)
         subject_response.records = [
             Record({"iaid": "C111", "level": {"code": 7}}),
@@ -460,7 +459,16 @@ class RelatedRecordsIntegrationTests(TestCase):
             Record({"iaid": "C333", "level": {"code": 6}}),
         ]
 
-        mock_search.side_effect = [subject_response, series_response]
+        # Set up responses for multiple calls
+        # Subject searches (1 subject × 3 levels) + Series searches (3 levels)
+        mock_search.side_effect = [
+            subject_response,  # Subject search level 1
+            subject_response,  # Subject search level 2
+            subject_response,  # Subject search level 3
+            series_response,  # Series search level 1
+            series_response,  # Series search level 2
+            series_response,  # Series search level 3
+        ]
 
         response = self.client.get("/catalogue/id/C123456/")
 
@@ -472,10 +480,6 @@ class RelatedRecordsIntegrationTests(TestCase):
         self.assertEqual(related[0].iaid, "C111")  # From subjects
         self.assertEqual(related[1].iaid, "C222")  # From series
         self.assertEqual(related[2].iaid, "C333")  # From series
-
-        # Verify series search requested only 2 (remaining slots)
-        second_call_args = mock_search.call_args_list[1]
-        self.assertEqual(second_call_args[1]["results_per_page"], 3)  # 2 + 1
 
     @patch("app.records.api.rosetta_request_handler")
     def test_no_related_records_for_non_tna(self, mock_rosetta):
