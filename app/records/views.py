@@ -93,28 +93,65 @@ def _get_related_records(record: Record, limit: int = 3) -> list[Record]:
     return related_records
 
 
-def _get_delivery_options_context(record: Record) -> dict:
+def _get_delivery_options_context(iaid: str) -> dict:
     """
-    Builds delivery options context for a record.
+    Fetch and process delivery options for a record.
 
-    Creates the temporary delivery options context with instructions
-    and a link to the Discovery catalogue page.
+    Calls the delivery options API to determine how a record can be accessed
+    (e.g., available online, orderable, closed, etc.) and maps the result to
+    an availability group for display purposes.
 
     Args:
-        record: The record to build context for
+        iaid: The document IAID (Information Asset Identifier)
 
     Returns:
-        Dictionary with delivery options data
+        Dictionary with delivery options context containing:
+        - delivery_option: The AvailabilityCondition name as string (if valid)
+        - do_availability_group: The availability group name (if mapped to a group)
+        Returns empty dict if unavailable or on error.
     """
-    return {
-        "delivery_options_heading": "How to order it",
-        "delivery_instructions": [
-            "View this record page in our current catalogue",
-            "Check viewing and downloading options",
-            "Select an option and follow instructions",
-        ],
-        "tna_discovery_link": f"{BASE_TNA_DISCOVERY_URL}/details/r/{record.iaid}",
-    }
+    try:
+        delivery_result = delivery_options_request_handler(iaid)
+
+        # Ensure we have at least one delivery_result in the returned list
+        if not isinstance(delivery_result, list) or not delivery_result:
+            return {}
+
+        # Extract the delivery option value - we know there is at least 1 record and we are only interested in the first
+        first_result = delivery_result[0]
+        delivery_option_value = first_result.get("options")
+
+        if delivery_option_value is None:
+            return {}
+
+        # Convert to AvailabilityCondition enum and get name
+        try:
+            delivery_option_enum = AvailabilityCondition(delivery_option_value)
+            delivery_option_name = delivery_option_enum.name
+        except ValueError:
+            logger.warning(
+                f"Unknown delivery option value {delivery_option_value} for iaid {iaid}"
+            )
+            return {}
+
+        # Build context with the delivery option name
+        context = {"delivery_option": delivery_option_name}
+
+        # Get the availability group for this delivery option
+        do_availability_group = get_availability_group(delivery_option_value)
+
+        # Add availability group to context if it exists
+        if do_availability_group is not None:
+            context["do_availability_group"] = do_availability_group.name
+
+        return context
+
+    except Exception as e:
+        logger.error(
+            f"Failed to get delivery options for iaid {iaid}: {str(e)}",
+            exc_info=True,
+        )
+        return {}
 
 
 def _check_distressing_content(record: Record) -> bool:
@@ -183,14 +220,12 @@ def record_detail_view(request: HttpRequest, id: str) -> TemplateResponse:
         template_name = "records/creator_detail.html"
         determine_delivery_options = False
 
-    # Add delivery options if applicable
+    # Separated from above if statement because this is permanent logic
     if determine_delivery_options:
-        context.update(_get_delivery_options_context(record))
+        context.update(_get_delivery_options_context(record.iaid))
 
     # Check for distressing content
     context["distressing_content"] = _check_distressing_content(record)
-
-    print(f"Context: {context}")
 
     return TemplateResponse(
         request=request, template=template_name, context=context

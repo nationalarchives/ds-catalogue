@@ -17,8 +17,10 @@ from ipaddress import ip_address
 from typing import Any, Dict, List, Optional, Union
 
 from app.deliveryoptions.constants import (
+    AVAILABILITY_CONDITION_STATE_TO_GROUP,
     DELIVERY_OPTIONS_CONFIG,
     AvailabilityCondition,
+    AvailabilityGroup,
     delivery_option_tags,
 )
 from app.deliveryoptions.departments import DEPARTMENT_DETAILS
@@ -34,6 +36,13 @@ logger = logging.getLogger(__name__)
 # Dictionary to serve as a cache for file contents, preventing redundant file reads
 # TODO: To be replaced by templating
 file_cache = {}
+
+
+def get_availability_group(
+    delivery_option: int,
+) -> AvailabilityGroup | None:
+    """Return the DocumentStateGroup for a given state number."""
+    return AVAILABILITY_CONDITION_STATE_TO_GROUP.get(delivery_option)
 
 
 def read_delivery_options(file_path: str) -> Dict:
