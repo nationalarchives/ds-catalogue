@@ -190,6 +190,8 @@ def record_detail_view(request: HttpRequest, id: str) -> TemplateResponse:
     # Check for distressing content
     context["distressing_content"] = _check_distressing_content(record)
 
+    print(f"Context: {context}")
+
     return TemplateResponse(
         request=request, template=template_name, context=context
     )
