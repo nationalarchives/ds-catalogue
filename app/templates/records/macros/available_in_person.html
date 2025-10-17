@@ -1,0 +1,27 @@
+{% macro available_in_person(record) %}
+  <div class="tna-column tna-column--width-1-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
+    <div class="tna-aside tna-aside--tight tna-background-accent full-height-aside">
+      <h2 class="tna-heading-m">What to do next</h2>
+      {# if - Available online with us only #}
+      <p>No, this record is not available to see in person at The National Archives. <a href="#record-extended-details-heading-1">Other ways to view
+        it</a>.</p>
+      {# if - Available online with a third-party only #}
+      <p>No, this record is not available to see in person at The National Archives. <a href="#record-extended-details-heading-1">Other ways to view
+        it</a>.</p>
+      {# if - Available in person at TNA only (no record copying available) #}
+      <p>Yes, this record is held at The National Archives and is available to see in person. <a href="#record-extended-details-heading-1">How to view
+        it</a>.</p>
+      {# if - Available in person at TNA only but record copying is available #}
+      <p>Yes, this record is held at The National Archives and is available to see in person. <a href="#record-extended-details-heading-1">How to view
+        it</a>.</p>
+      {# if - Not available at all #}
+      <p>No, this record is not available to see in person at The National Archives. <a href="#record-extended-details-heading-1">Find out more</a>.</p>
+      {# if - Records at other archives #}
+      <p>Not at The National Archives, but you may be able to view it in person at [archive]. <a href="#record-extended-details-heading-1">How to view
+        it</a>.</p>
+      {# if - Closed TNA or PA #}
+      <p>No, this record is closed and not available to see in person at the National Archives. <a href="#record-extended-details-heading-1">Find out
+        more about how you might access this record</a>.</p>
+    </div>
+  </div>
+{% endmacro %}
