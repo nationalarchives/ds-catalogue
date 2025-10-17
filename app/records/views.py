@@ -1,253 +1,241 @@
+"""Views for displaying archive records."""
+
 import logging
-import os
 from http import HTTPStatus
 
-import requests
-from app.deliveryoptions.api import delivery_options_request_handler
-from app.deliveryoptions.delivery_options import (
-    AvailabilityCondition,
-    construct_delivery_options,
-    has_distressing_content,
-)
+from app.deliveryoptions.delivery_options import has_distressing_content
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
-from app.lib.api import JSONAPIClient, ResourceNotFound
+from app.lib.api import JSONAPIClient
 from app.records.api import (
-    get_related_records_by_subjects,
-    get_related_records_by_series,
+    get_subjects_enrichment,
     record_details_by_id,
-    wagtail_request_handler,
 )
 from app.records.labels import FIELD_LABELS
+from app.records.models import Record
+from app.records.related import (
+    get_related_records_by_series,
+    get_related_records_by_subjects,
+)
 from django.conf import settings
+from django.http import HttpRequest
 from django.template.response import TemplateResponse
-from django.utils.text import slugify
-from sentry_sdk import capture_message
-
-# TODO: Implement record_detail_by_reference once Rosetta has support
-# from app.records.api import record_details_by_ref
-# from django.template.loader import get_template
-# from django.urls import reverse
-# def record_detail_by_reference(request, reference):
-#     """
-#     View for rendering a record's details page.
-#     """
-#     template_name = "records/record_detail.html"
-#     context = {"field_labels": FIELD_LABELS, "level_labels": LEVEL_LABELS, "non_tna_level_labels": NON_TNA_LEVEL_LABELS}
-
-#     try:
-#         # record = record_details_by_ref(id=reference)
-#         record = record_details_by_id(id="D4664016")
-#     except ResourceNotFound:
-#         raise Http404
-#     except Exception:
-#         raise HttpResponseServerError
-
-#     context.update(
-#         record=record,
-#         canonical=reverse(
-#             "details-page-machine-readable", kwargs={"id": record.id}
-#         ),
-#     )
-
-#     if record.custom_record_type:
-#         if record.custom_record_type == "ARCHON":
-#             template_name = "records/archon_detail.html"
-#         if record.custom_record_type == "CREATORS":
-#             template_name = "records/creator_detail.html"
-
-#     return TemplateResponse(
-#         request=request, template=template_name, context=context
-#     )
 
 logger = logging.getLogger(__name__)
 
 
-def get_subjects_enrichment(subjects_list: list[str], limit: int = 10) -> dict:
+# Helper functions (will become mixin methods when converting to CBVs)
+
+
+def _get_global_alerts() -> dict:
     """
-    Makes API call to enrich subjects data for a single record.
-    Returns enrichment data or empty dict on failure.
+    Fetches global alerts and mourning notices from Wagtail.
+
+    Returns:
+        Dictionary containing global_alert data, or empty dict on error
     """
-    if not subjects_list:
-        return {}
-
-    slugified_subjects = [slugify(subject) for subject in subjects_list]
-    subjects_param = ",".join(slugified_subjects)
-
-    try:
-        params = {"tags": subjects_param, "limit": limit}
-        results = wagtail_request_handler("/article_tags", params)
-        logger.info(
-            f"Successfully fetched subjects enrichment for: {subjects_param}"
-        )
-        return results
-    except ResourceNotFound:
-        logger.warning(f"No subjects enrichment found for {subjects_param}")
-        return {}
-    except Exception as e:
-        logger.warning(
-            f"Failed to fetch subjects enrichment for {subjects_param}: {e}"
-        )
-        return {}
-
-
-def record_detail_view(request, id):
-    """
-    View for rendering a record's details page.
-    """
-    template_name = "records/record_detail.html"
-    context: dict = {
-        "field_labels": FIELD_LABELS,
-    }
-
     global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
     global_alerts_client.add_parameters(
         {"fields": "_,global_alert,mourning_notice"}
     )
     try:
-        context["global_alert"] = global_alerts_client.get(
+        return global_alerts_client.get(
             f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}"
         )
     except Exception as e:
-        logger.error(e)
-        context["global_alert"] = {}
+        logger.error(f"Failed to fetch global alerts: {e}")
+        return {}
 
-    record = record_details_by_id(id=id)
 
+def _enrich_record_subjects(record: Record) -> None:
+    """
+    Enriches a record with subjects data in-place.
+
+    Fetches related articles and content for the record's subject tags
+    from the Wagtail CMS and attaches them to the record object.
+
+    Args:
+        record: The record to enrich (modified in-place)
+    """
     if record.subjects:
         subjects_enrichment = get_subjects_enrichment(
             record.subjects, limit=settings.MAX_SUBJECTS_PER_RECORD
         )
         record._subjects_enrichment = subjects_enrichment
-        logger.info(
-            f"Enriched record {record.iaid} with {len(subjects_enrichment)} subject items"
-        )
     else:
         record._subjects_enrichment = {}
 
-    related_records = []
-    
-    if record.is_tna and record.subjects:
-        print("Trying subjects")
-        related_records = get_related_records_by_subjects(record, limit=3)
-        if related_records:
-            logger.info(
-                f"Found {len(related_records)} related records for {record.iaid}"
-            )
 
-    if record.is_tna and not related_records and record.hierarchy_series:
-        print("Trying Series")
-        related_records = get_related_records_by_series(record, limit=3)
-        if related_records:
-            logger.info(f"Found {len(related_records)} related records...")
-            
-    context.update(
-        record=record,
-        related_records=related_records,
-    )
+def _get_related_records(record: Record, limit: int = 3) -> list[Record]:
+    """
+    Fetches related records using subjects first, then series as fallback.
 
-    determine_delivery_options = True
+    Attempts to find related records by shared subjects. If fewer than the
+    requested limit are found, backfills the remaining slots with records
+    from the same archival series.
 
-    if record.custom_record_type:
-        if record.custom_record_type == "ARCHON":
-            determine_delivery_options = False
-            template_name = "records/archon_detail.html"
-        elif record.custom_record_type == "CREATORS":
-            template_name = "records/creator_detail.html"
-            determine_delivery_options = False
+    Args:
+        record: The record to find relations for
+        limit: Maximum number of related records to return (default: 3)
 
-    # TODO: This is an alternative action on delivery options while we wait on decisions on how we are going to present it.
-    if determine_delivery_options:
-        # Add temporary delivery options context
-        delivery_options_context = {
-            "delivery_options_heading": "How to order it",
-            "delivery_instructions": [
-                "View this record page in our current catalogue",
-                "Check viewing and downloading options",
-                "Select an option and follow instructions",
-            ],
-            "tna_discovery_link": f"{BASE_TNA_DISCOVERY_URL}/details/r/{record.iaid}",
-        }
-        context.update(delivery_options_context)
+    Returns:
+        List of related Record objects (up to limit)
+    """
+    related_records = get_related_records_by_subjects(record, limit=limit)
 
-    # if determine_delivery_options:
-    # TODO: Temporarily commented out delivery options functionality
-    # # Only get the delivery options if we are looking at records
-    # # Get the delivery options for the iaid
-    # delivery_options_context = {}
+    # Backfill from series if needed
+    if len(related_records) < limit:
+        remaining_slots = limit - len(related_records)
+        series_records = get_related_records_by_series(
+            record, limit=remaining_slots
+        )
+        related_records.extend(series_records)
 
-    # try:
-    #     delivery_options = delivery_options_request_handler(
-    #         iaid=record.iaid
-    #     )
+    return related_records
 
-    #     delivery_options_context = construct_delivery_options(
-    #         delivery_options, record, request
-    #     )
 
-    # except Exception as e:
-    #     # Built in order exception option
-    #     error_message = f"DORIS Connection error using url '{os.getenv("DELIVERY_OPTIONS_API_URL", "")}' - returning OrderException from Availability Conditions {str(e)}"
+def _get_delivery_options_context(record: Record) -> dict:
+    """
+    Builds delivery options context for a record.
 
-    #     # Sentry notification
-    #     logger.error(error_message)
-    #     capture_message(error_message)
+    Creates the temporary delivery options context with instructions
+    and a link to the Discovery catalogue page.
 
-    #     # The delivery options include a special case called OrderException which has nothing to do with
-    #     # python exceptions. It is the message to be displayed when the connection is down or there is no
-    #     # match for the given iaid. So, we don't treat it as a python exception beyond this point.
-    #     delivery_options_context = construct_delivery_options(
-    #         [
-    #             {
-    #                 "options": AvailabilityCondition.OrderException,
-    #                 "surrogateLinks": [],
-    #                 "advancedOrderUrlParameters": "",
-    #             }
-    #         ],
-    #         record,
-    #         request,
-    #     )
+    Args:
+        record: The record to build context for
 
-    # context.update(delivery_options_context)
+    Returns:
+        Dictionary with delivery options data
+    """
+    return {
+        "delivery_options_heading": "How to order it",
+        "delivery_instructions": [
+            "View this record page in our current catalogue",
+            "Check viewing and downloading options",
+            "Select an option and follow instructions",
+        ],
+        "tna_discovery_link": f"{BASE_TNA_DISCOVERY_URL}/details/r/{record.iaid}",
+    }
 
-    context["distressing_content"] = has_distressing_content(
-        record.reference_number
-    )
 
-    if context["distressing_content"]:
+def _check_distressing_content(record: Record) -> bool:
+    """
+    Checks if record has distressing/sensitive content.
+
+    Logs an info message if a content warning is found for the record.
+
+    Args:
+        record: The record to check
+
+    Returns:
+        True if distressing content warning exists, False otherwise
+    """
+    has_warning = has_distressing_content(record.reference_number)
+
+    if has_warning:
         logger.info(
             f"Document {record.reference_number} has a sensitive content warning"
         )
 
-    return TemplateResponse(
-        request=request, template=template_name, context=context
-    )
+    return has_warning
 
 
-def related_records_view(request, id):
-    template_name = "records/related_records.html"
-    context: dict = {}
+# Views
 
+
+def record_detail_view(request: HttpRequest, id: str) -> TemplateResponse:
+    """
+    View for rendering an individual archive record's details page.
+
+    Fetches record data by ID, enriches it with subjects data, finds related records,
+    checks for sensitive content warnings, and renders the appropriate template
+    based on the record type (standard, ARCHON, or CREATORS).
+
+    Args:
+        request: The Django HTTP request object
+        id: The record IAID (Information Asset Identifier)
+
+    Returns:
+        TemplateResponse with rendered record detail page
+    """
+    # Fetch record and build base context
     record = record_details_by_id(id=id)
 
-    context.update(
-        record=record,
-    )
+    context = {
+        "field_labels": FIELD_LABELS,
+        "global_alert": _get_global_alerts(),
+        "record": record,
+    }
+
+    # Enrich record with subjects
+    _enrich_record_subjects(record)
+
+    # Fetch related records
+    context["related_records"] = _get_related_records(record, limit=3)
+
+    # Determine template based on record type
+    template_name = "records/record_detail.html"
+    determine_delivery_options = True
+
+    if record.custom_record_type == "ARCHON":
+        template_name = "records/archon_detail.html"
+        determine_delivery_options = False
+    elif record.custom_record_type == "CREATORS":
+        template_name = "records/creator_detail.html"
+        determine_delivery_options = False
+
+    # Add delivery options if applicable
+    if determine_delivery_options:
+        context.update(_get_delivery_options_context(record))
+
+    # Check for distressing content
+    context["distressing_content"] = _check_distressing_content(record)
 
     return TemplateResponse(
         request=request, template=template_name, context=context
     )
 
 
-def records_help_view(request, id):
-    template_name = "records/new_to_archives.html"
-    context: dict = {}
+def related_records_view(request: HttpRequest, id: str) -> TemplateResponse:
+    """
+    View for rendering a record's related records page.
 
-    record = record_details_by_id(id=id)
+    Displays records that are related to the specified record through
+    hierarchical or associative relationships.
 
-    context.update(
-        record=record,
+    Args:
+        request: The Django HTTP request object
+        id: The record IAID (Information Asset Identifier)
+
+    Returns:
+        TemplateResponse with rendered related records page
+    """
+    return TemplateResponse(
+        request=request,
+        template="records/related_records.html",
+        context={
+            "record": record_details_by_id(id=id),
+        },
     )
 
+
+def records_help_view(request: HttpRequest, id: str) -> TemplateResponse:
+    """
+    View for rendering help/guidance for users new to archives.
+
+    Provides contextual help information about understanding and using
+    archive records for the specified record.
+
+    Args:
+        request: The Django HTTP request object
+        id: The record IAID (Information Asset Identifier)
+
+    Returns:
+        TemplateResponse with rendered help page
+    """
     return TemplateResponse(
-        request=request, template=template_name, context=context
+        request=request,
+        template="records/new_to_archives.html",
+        context={
+            "record": record_details_by_id(id=id),
+        },
     )
