@@ -149,7 +149,6 @@ def get_delivery_options_context(iaid: str) -> dict:
         if do_availability_group is not None:
             context["do_availability_group"] = do_availability_group.name
 
-        print(f"Context: {context}")
         return context
 
     except Exception as e:
