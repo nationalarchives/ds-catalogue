@@ -1,6 +1,6 @@
 import json
 import os
-from enum import IntEnum
+from enum import Enum, IntEnum
 
 import app.deliveryoptions.helpers as h
 
@@ -66,6 +66,81 @@ class AvailabilityCondition(IntEnum):
     AdvanceOrderOnly = 33  # Available for advance order only
     Relocation = 34  # Record is being relocated
 
+
+class AvailabilityGroup(Enum):
+    """
+    Groups availability conditions into broader categories for filtering and display.
+    Based on how records are made available to users.
+    """
+
+    AVAILABLE_ONLINE_TNA_ONLY = {
+        AvailabilityCondition.DigitizedDiscovery,
+    }
+
+    AVAILABLE_ONLINE_THIRD_PARTY_ONLY = {
+        AvailabilityCondition.DigitizedLia,
+        AvailabilityCondition.DigitizedOther,
+        AvailabilityCondition.AcademicSubscription,
+        AvailabilityCondition.AV_Media,
+    }
+
+    AVAILABLE_IN_PERSON_NO_COPYING = {
+        AvailabilityCondition.TooLargeToCopyOffsite,
+        AvailabilityCondition.TooLargeToCopyOriginal,
+        AvailabilityCondition.TooLargeToCopySurrogate,
+        AvailabilityCondition.CollectionCare,
+    }
+
+    AVAILABLE_IN_PERSON_WITH_COPYING = {
+        AvailabilityCondition.InvigilationSafeRoom,
+        AvailabilityCondition.OrderOriginal,
+        AvailabilityCondition.Surrogate,
+        AvailabilityCondition.Offsite,
+        AvailabilityCondition.AdvanceOrderOnly,
+    }
+
+    NOT_AVAILABLE = {
+        AvailabilityCondition.InUse,
+        AvailabilityCondition.MissingLost,
+        AvailabilityCondition.UnAvailable,
+        AvailabilityCondition.Unfit,
+        AvailabilityCondition.MouldTreatment,
+        AvailabilityCondition.DisplayAtMuseum,
+        AvailabilityCondition.Relocation,
+    }
+
+    RECORDS_AT_OTHER_ARCHIVES = {
+        AvailabilityCondition.LocalArchive,
+        AvailabilityCondition.Onloan,
+        AvailabilityCondition.GovtWebArchive,
+    }
+
+    CLOSED_TNA_OR_PA = {
+        AvailabilityCondition.ClosedFOIReview,
+        AvailabilityCondition.ClosedRetainedDeptKnown,
+        AvailabilityCondition.ClosedRetainedDeptUnKnown,
+        AvailabilityCondition.AccessUnderReview,
+        AvailabilityCondition.PaidSearch,
+    }
+
+    # The remaining groups do not fit in with those above and are not part of the
+    # grouping system
+    PENDING_CLASSIFICATION = {
+        AvailabilityCondition.DigitizedAvailableButNotDownloadableAtPieceLevel,
+        AvailabilityCondition.DigitizedAvailableButNotDownloadableAtItemLevel,
+    }
+
+    REDUNDANT_OR_IRRELEVANT = {
+        AvailabilityCondition.DigitizedPartiallyOpened,
+        AvailabilityCondition.ImageLibrary,
+        AvailabilityCondition.FileAuthority,
+        AvailabilityCondition.OrderException,
+    }
+
+
+AVAILABILITY_CONDITION_STATE_TO_GROUP = {
+    state: group for group in AvailabilityGroup for state in group.value
+}
 
 # TODO: This is a temporary constant and will be removed when the templating solution is implemented
 DELIVERY_OPTIONS_CONFIG = "app/deliveryoptions/delivery_options.json"
