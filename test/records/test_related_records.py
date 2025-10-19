@@ -450,7 +450,13 @@ class RelatedRecordsIntegrationTests(TestCase):
         # With new implementation, there will be multiple calls
         subject_response = Mock(spec=APISearchResponse)
         subject_response.records = [
-            Record({"iaid": "C111", "level": {"code": 7}}),
+            Record(
+                {
+                    "iaid": "C111",
+                    "level": {"code": 7},
+                    "groupArray": [{"value": "tna"}],  # Add this!
+                }
+            ),
         ]
 
         series_response = Mock(spec=APISearchResponse)
@@ -462,12 +468,15 @@ class RelatedRecordsIntegrationTests(TestCase):
         # Set up responses for multiple calls
         # Subject searches (1 subject × 3 levels) + Series searches (3 levels)
         mock_search.side_effect = [
-            subject_response,  # Subject search level 1
-            subject_response,  # Subject search level 2
-            subject_response,  # Subject search level 3
-            series_response,  # Series search level 1
-            series_response,  # Series search level 2
-            series_response,  # Series search level 3
+            subject_response,  # Strategy 1: Subject search level 1 (Sub-sub-series)
+            subject_response,  # Strategy 1: Subject search level 2 (Piece)
+            subject_response,  # Strategy 1: Subject search level 3 (Item)
+            subject_response,  # Strategy 2: Subject search Sub-sub-series + Army
+            subject_response,  # Strategy 2: Subject search Piece + Army
+            subject_response,  # Strategy 2: Subject search Item + Army
+            series_response,  # Series search level 1 (Sub-sub-series)
+            series_response,  # Series search level 2 (Piece)
+            series_response,  # Series search level 3 (Item)
         ]
 
         response = self.client.get("/catalogue/id/C123456/")
@@ -476,6 +485,8 @@ class RelatedRecordsIntegrationTests(TestCase):
 
         # Should have 3 related records total (1 from subjects + 2 from series)
         related = response.context_data["related_records"]
+
+        self.assertEqual(len(related), 3)
         self.assertEqual(len(related), 3)
         self.assertEqual(related[0].iaid, "C111")  # From subjects
         self.assertEqual(related[1].iaid, "C222")  # From series

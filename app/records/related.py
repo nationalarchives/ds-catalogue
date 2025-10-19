@@ -52,7 +52,7 @@ def get_related_records_by_subjects(
 ) -> list[Record]:
     """
     Fetches related records that share subjects with the current record.
-    Prioritizes records at similar levels and with more matching subjects.
+    Prioritises records at similar levels and with more matching subjects.
     Only applies to TNA records (Non-TNA records don't have subjects).
 
     Args:
@@ -158,10 +158,10 @@ def _search_with_all_subjects(
                     if len(all_results) >= limit:
                         return all_results
 
-        except Exception as e:
+        except Exception:
             logger.debug(
                 f"No TNA records with all subjects at level '{level}' "
-                f"found for {current_record.iaid}: {e}"
+                f"found for {current_record.iaid}"
             )
             continue
 
@@ -260,7 +260,7 @@ def get_related_records_by_series(
 ) -> list[Record]:
     """
     Fetches related records from the same series as the current record.
-    For TNA records, prioritizes records at similar levels.
+    For TNA records, prioritises records at similar levels.
     This is a fallback when subject-based relations aren't available.
 
     Args:
@@ -291,6 +291,11 @@ def get_related_records_by_series(
         # Fallback to Item/Piece if no level code
         logger.warning(f"TNA record {current_record.iaid} has no level_code")
         similar_levels = ["Item", "Piece"]
+
+    logger.debug(
+        f"Searching for related records from series '{series_ref}' "
+        f"at levels: {similar_levels}"
+    )
 
     # Since multiple level filters use AND logic, search each level separately
     all_results = []
@@ -328,13 +333,18 @@ def get_related_records_by_series(
                     all_results.append((level_distance, record))
                     seen_iaids.add(record.iaid)
 
-        except Exception as e:
-            logger.debug(
-                f"Failed to fetch related records by series at level '{level}' "
-                f"for {current_record.iaid}: {e}"
-            )
+        except Exception:
+            # Silently ignore search failures for individual levels
             continue
 
     # Sort by level distance and return top results
     all_results.sort(key=lambda x: x[0])
-    return [record for _, record in all_results[:limit]]
+    final_results = [record for _, record in all_results[:limit]]
+
+    if final_results:
+        logger.debug(
+            f"Found {len(final_results)} related records from series '{series_ref}' "
+            f"for {current_record.iaid}"
+        )
+
+    return final_results

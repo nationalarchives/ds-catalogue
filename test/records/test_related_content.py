@@ -432,11 +432,6 @@ class SubjectsEnrichmentTests(TestCase):
 
         get_subjects_enrichment(self.sample_record_data["subjects"])
 
-        # Check that success is NOT logged anymore (we removed that logger.info)
-        # mock_logger.info.assert_called_with(
-        #     "Successfully fetched subjects enrichment for: world-war-1939-1945,aviation,royal-air-force,military-operations"
-        # )
-
         # Test failure logging
         mock_wagtail_handler.side_effect = Exception("API Error")
 
