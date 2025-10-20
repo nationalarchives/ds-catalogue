@@ -1,10 +1,13 @@
 import inspect
 import json
+import unittest
 from copy import deepcopy
 from unittest.mock import Mock, patch
 
 from app.deliveryoptions.constants import (
     DELIVERY_OPTIONS_CONFIG,
+    AvailabilityCondition,
+    AvailabilityGroup,
     delivery_option_tags,
 )
 from app.deliveryoptions.delivery_options import (
@@ -20,6 +23,7 @@ from app.deliveryoptions.helpers import (
     get_dept,
 )
 from app.records.models import APIResponse
+from app.records.views import get_delivery_options_context, record_detail_view
 from django.conf import settings
 from django.test import TestCase
 
@@ -329,3 +333,374 @@ class TestSurrogateReferences(TestCase):
         ]
         surrogate_list = surrogate_link_builder(reference_list)
         self.assertEqual(surrogate_list, ["https://example.com/1"])
+
+
+class TestGetDeliveryOptionsContext(unittest.TestCase):
+    """Tests for the new get_delivery_options_context helper function."""
+
+    @patch("app.records.views.delivery_options_request_handler")
+    @patch("app.records.views.get_availability_group")
+    def test_successful_delivery_options_fetch(
+        self, mock_get_group, mock_api_handler
+    ):
+        """Test successfully fetching and processing delivery options."""
+
+        iaid = "C123456"
+
+        mock_api_handler.return_value = [
+            {
+                "options": 3,
+                "surrogateLinks": [],
+                "advancedOrderUrlParameters": None,
+            }
+        ]
+        mock_get_group.return_value = (
+            AvailabilityGroup.AVAILABLE_ONLINE_TNA_ONLY
+        )
+
+        result = get_delivery_options_context(iaid)
+
+        self.assertEqual(
+            result,
+            {
+                "delivery_option": "DigitizedDiscovery",
+                "do_availability_group": "AVAILABLE_ONLINE_TNA_ONLY",
+            },
+        )
+        mock_api_handler.assert_called_once_with("C123456")
+        mock_get_group.assert_called_once_with(3)
+
+    @patch("app.records.views.delivery_options_request_handler")
+    def test_empty_delivery_result(self, mock_api_handler):
+        """Test handling of empty delivery options result."""
+
+        iaid = "C123456"
+        mock_api_handler.return_value = []
+
+        result = get_delivery_options_context(iaid)
+
+        self.assertEqual(result, {})
+
+    @patch("app.records.views.delivery_options_request_handler")
+    def test_none_delivery_result(self, mock_api_handler):
+        """Test handling of None delivery options result."""
+
+        iaid = "C123456"
+        mock_api_handler.return_value = None
+
+        result = get_delivery_options_context(iaid)
+
+        self.assertEqual(result, {})
+
+    @patch("app.records.views.delivery_options_request_handler")
+    @patch("app.records.views.get_availability_group")
+    def test_missing_options_value(self, mock_get_group, mock_api_handler):
+        """Test handling when options value is missing from response."""
+
+        iaid = "C123456"
+        mock_api_handler.return_value = [
+            {"surrogateLinks": [], "advancedOrderUrlParameters": None}
+        ]
+
+        result = get_delivery_options_context(iaid)
+
+        self.assertEqual(result, {})
+        mock_get_group.assert_not_called()
+
+    @patch("app.records.views.delivery_options_request_handler")
+    @patch("app.records.views.get_availability_group")
+    def test_none_options_value(self, mock_get_group, mock_api_handler):
+        """Test handling when options value is explicitly None."""
+
+        iaid = "C123456"
+        mock_api_handler.return_value = [
+            {
+                "options": None,
+                "surrogateLinks": [],
+                "advancedOrderUrlParameters": None,
+            }
+        ]
+
+        result = get_delivery_options_context(iaid)
+
+        self.assertEqual(result, {})
+        mock_get_group.assert_not_called()
+
+    @patch("app.records.views.delivery_options_request_handler")
+    @patch("app.records.views.get_availability_group")
+    def test_invalid_availability_condition(
+        self, mock_get_group, mock_api_handler
+    ):
+        """Test handling when options value is not a valid AvailabilityCondition enum value."""
+        iaid = "C123456"
+        mock_api_handler.return_value = [
+            {
+                "options": 999,  # Not a valid AvailabilityCondition enum value
+                "surrogateLinks": [],
+            }
+        ]
+
+        result = get_delivery_options_context(iaid)
+
+        # Should return empty dict because enum conversion will fail
+        self.assertEqual(result, {})
+        # get_availability_group should not be called because enum conversion failed
+        mock_get_group.assert_not_called()
+
+    @patch("app.records.views.delivery_options_request_handler")
+    @patch("app.records.views.get_availability_group")
+    def test_valid_condition_with_pending_classification_group(
+        self, mock_get_group, mock_api_handler
+    ):
+        """Test handling a valid availability condition in the PENDING_CLASSIFICATION group."""
+        iaid = "C123456"
+        # Use AvailabilityCondition enum value
+        mock_api_handler.return_value = [
+            {
+                "options": AvailabilityCondition.DigitizedAvailableButNotDownloadableAtPieceLevel,
+                "surrogateLinks": [],
+            }
+        ]
+        mock_get_group.return_value = AvailabilityGroup.PENDING_CLASSIFICATION
+
+        result = get_delivery_options_context(iaid)
+
+        # Should return both delivery_option and do_availability_group
+        self.assertEqual(
+            result,
+            {
+                "delivery_option": "DigitizedAvailableButNotDownloadableAtPieceLevel",
+                "do_availability_group": "PENDING_CLASSIFICATION",
+            },
+        )
+
+    @patch("app.records.views.delivery_options_request_handler")
+    @patch("app.records.views.get_availability_group")
+    def test_multiple_availability_conditions(
+        self, mock_get_group, mock_api_handler
+    ):
+        """Test different availability conditions map to correct groups."""
+        test_cases = [
+            (
+                3,
+                "DigitizedDiscovery",
+                AvailabilityGroup.AVAILABLE_ONLINE_TNA_ONLY,
+            ),
+            (
+                4,
+                "DigitizedLia",
+                AvailabilityGroup.AVAILABLE_ONLINE_THIRD_PARTY_ONLY,
+            ),
+            (
+                26,
+                "OrderOriginal",
+                AvailabilityGroup.AVAILABLE_IN_PERSON_WITH_COPYING,
+            ),
+            (14, "ClosedRetainedDeptKnown", AvailabilityGroup.CLOSED_TNA_OR_PA),
+        ]
+
+        for (
+            options_value,
+            expected_delivery_option,
+            expected_group,
+        ) in test_cases:
+            with self.subTest(options_value=options_value):
+
+                iaid = f"C{options_value}"
+                mock_api_handler.return_value = [
+                    {
+                        "options": options_value,
+                        "surrogateLinks": [],
+                        "advancedOrderUrlParameters": None,
+                    }
+                ]
+                mock_get_group.return_value = expected_group
+
+                result = get_delivery_options_context(iaid)
+
+                self.assertEqual(
+                    result,
+                    {
+                        "delivery_option": expected_delivery_option,
+                        "do_availability_group": expected_group.name,
+                    },
+                )
+
+
+class TestRecordDetailViewDeliveryOptions(TestCase):
+    """Tests for delivery options integration in record_detail_view."""
+
+    @patch("app.records.views.has_distressing_content")
+    @patch("app.records.views.get_delivery_options_context")
+    @patch("app.records.views.record_details_by_id")
+    @patch("app.records.views.JSONAPIClient")
+    def test_delivery_options_added_to_context(
+        self,
+        mock_client,
+        mock_record_details,
+        mock_delivery_options,
+        mock_distressing,
+    ):
+        """Test that delivery options are added to context for standard records."""
+
+        mock_record = Mock()
+        mock_record.iaid = "C123456"
+        mock_record.reference_number = "TEST 123"
+        mock_record.custom_record_type = None
+        mock_record.subjects = None
+        mock_record_details.return_value = mock_record
+
+        mock_delivery_options.return_value = {
+            "do_availability_group": "AVAILABLE_ONLINE_TNA_ONLY"
+        }
+        mock_distressing.return_value = False
+
+        mock_client_instance = Mock()
+        mock_client_instance.get.return_value = {}
+        mock_client.return_value = mock_client_instance
+
+        request = Mock()
+
+        response = record_detail_view(request, id="C123456")
+
+        mock_delivery_options.assert_called_once_with("C123456")
+        self.assertIn("do_availability_group", response.context_data)
+        self.assertEqual(
+            response.context_data["do_availability_group"],
+            "AVAILABLE_ONLINE_TNA_ONLY",
+        )
+
+    @patch("app.records.views.has_distressing_content")
+    @patch("app.records.views.get_delivery_options_context")
+    @patch("app.records.views.record_details_by_id")
+    @patch("app.records.views.JSONAPIClient")
+    def test_no_delivery_options_for_archon_records(
+        self,
+        mock_client,
+        mock_record_details,
+        mock_delivery_options,
+        mock_distressing,
+    ):
+        """Test that delivery options are not fetched for ARCHON records."""
+
+        mock_record = Mock()
+        mock_record.iaid = "C123456"
+        mock_record.reference_number = "TEST 123"
+        mock_record.custom_record_type = "ARCHON"
+        mock_record.subjects = None
+        mock_record_details.return_value = mock_record
+
+        mock_distressing.return_value = False
+
+        mock_client_instance = Mock()
+        mock_client_instance.get.return_value = {}
+        mock_client.return_value = mock_client_instance
+
+        request = Mock()
+
+        response = record_detail_view(request, id="C123456")
+
+        mock_delivery_options.assert_not_called()
+        self.assertNotIn("do_availability_group", response.context_data)
+
+    @patch("app.records.views.has_distressing_content")
+    @patch("app.records.views.get_delivery_options_context")
+    @patch("app.records.views.record_details_by_id")
+    @patch("app.records.views.JSONAPIClient")
+    def test_no_delivery_options_for_creators_records(
+        self,
+        mock_client,
+        mock_record_details,
+        mock_delivery_options,
+        mock_distressing,
+    ):
+        """Test that delivery options are not fetched for CREATORS records."""
+
+        mock_record = Mock()
+        mock_record.iaid = "C123456"
+        mock_record.reference_number = "TEST 123"
+        mock_record.custom_record_type = "CREATORS"
+        mock_record.subjects = None
+        mock_record_details.return_value = mock_record
+
+        mock_distressing.return_value = False
+
+        mock_client_instance = Mock()
+        mock_client_instance.get.return_value = {}
+        mock_client.return_value = mock_client_instance
+
+        request = Mock()
+
+        response = record_detail_view(request, id="C123456")
+
+        mock_delivery_options.assert_not_called()
+        self.assertNotIn("do_availability_group", response.context_data)
+
+    @patch("app.records.views.has_distressing_content")
+    @patch("app.records.views.get_delivery_options_context")
+    @patch("app.records.views.record_details_by_id")
+    @patch("app.records.views.JSONAPIClient")
+    def test_empty_availability_group_not_added_to_context(
+        self,
+        mock_client,
+        mock_record_details,
+        mock_delivery_options,
+        mock_distressing,
+    ):
+        """Test that empty availability group is not added to context."""
+
+        mock_record = Mock()
+        mock_record.iaid = "C123456"
+        mock_record.reference_number = "TEST 123"
+        mock_record.custom_record_type = None
+        mock_record.subjects = None
+        mock_record_details.return_value = mock_record
+
+        mock_delivery_options.return_value = {}  # Empty result
+        mock_distressing.return_value = False
+
+        mock_client_instance = Mock()
+        mock_client_instance.get.return_value = {}
+        mock_client.return_value = mock_client_instance
+
+        request = Mock()
+
+        response = record_detail_view(request, id="C123456")
+
+        mock_delivery_options.assert_called_once_with("C123456")
+        self.assertNotIn("do_availability_group", response.context_data)
+
+    @patch("app.records.views.has_distressing_content")
+    @patch("app.records.views.get_delivery_options_context")
+    @patch("app.records.views.record_details_by_id")
+    @patch("app.records.views.JSONAPIClient")
+    def test_distressing_content_flag_added_to_context(
+        self,
+        mock_client,
+        mock_record_details,
+        mock_delivery_options,
+        mock_distressing,
+    ):
+        """Test that distressing content flag is added to context."""
+
+        mock_record = Mock()
+        mock_record.iaid = "C123456"
+        mock_record.reference_number = "HO 616/123"
+        mock_record.custom_record_type = None
+        mock_record.subjects = None
+        mock_record_details.return_value = mock_record
+
+        mock_delivery_options.return_value = {}
+        mock_distressing.return_value = True
+
+        mock_client_instance = Mock()
+        mock_client_instance.get.return_value = {}
+        mock_client.return_value = mock_client_instance
+
+        request = Mock()
+
+        response = record_detail_view(request, id="C123456")
+
+        self.assertIn("distressing_content", response.context_data)
+        self.assertTrue(response.context_data["distressing_content"])
+        mock_distressing.assert_called_once_with("HO 616/123")
