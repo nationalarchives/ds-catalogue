@@ -28,7 +28,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "subjects",
+                        "name": "subject",
                         "entries": [
                             {"value": "Army", "doc_count": 150},
                             {"value": "Air Force", "doc_count": 75},
@@ -53,24 +53,24 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
 
         # Test with multiple valid subjects parameters
         response = self.client.get(
-            "/catalogue/search/?q=military&subjects=Army&subjects=Air Force"
+            "/catalogue/search/?q=military&subject=Army&subject=Air Force"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         # Check form field values
         self.assertEqual(
-            response.context_data.get("form").fields["subjects"].value,
+            response.context_data.get("form").fields["subject"].value,
             ["Army", "Air Force"],
         )
         self.assertEqual(
-            response.context_data.get("form").fields["subjects"].cleaned,
+            response.context_data.get("form").fields["subject"].cleaned,
             ["Army", "Air Force"],
         )
 
         # Check form field items with API counts
         self.assertEqual(
-            response.context_data.get("form").fields["subjects"].items,
+            response.context_data.get("form").fields["subject"].items,
             [
                 {
                     "text": "Army (150)",
@@ -91,12 +91,12 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
             [
                 {
                     "label": "Subject: Army",
-                    "href": "?q=military&subjects=Air+Force",
+                    "href": "?q=military&subject=Air+Force",
                     "title": "Remove Army subject",
                 },
                 {
                     "label": "Subject: Air Force",
-                    "href": "?q=military&subjects=Army",
+                    "href": "?q=military&subject=Army",
                     "title": "Remove Air Force subject",
                 },
             ],
@@ -122,7 +122,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "subjects",
+                        "name": "subject",
                         "entries": [
                             {"value": "Army", "doc_count": 100},
                         ],
@@ -146,26 +146,26 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
 
         # Test with valid and invalid subject IDs
         response = self.client.get(
-            "/catalogue/search/?q=test&subjects=Army&subjects=invalid&subjects=999"
+            "/catalogue/search/?q=test&subject=Army&subject=invalid&subject=999"
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         # Form should include all values (valid and invalid)
         self.assertEqual(
-            response.context_data.get("form").fields["subjects"].value,
+            response.context_data.get("form").fields["subject"].value,
             ["Army", "invalid", "999"],
         )
 
         # Should still be cleaned since validate_input=False for subjects
         self.assertEqual(
-            response.context_data.get("form").fields["subjects"].cleaned,
+            response.context_data.get("form").fields["subject"].cleaned,
             ["Army", "invalid", "999"],
         )
 
         # Items should show what's available
         self.assertEqual(
-            response.context_data.get("form").fields["subjects"].items,
+            response.context_data.get("form").fields["subject"].items,
             [
                 {
                     "text": "Army (100)",
@@ -191,17 +191,17 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
             [
                 {
                     "label": "Subject: Army",
-                    "href": "?q=test&subjects=invalid&subjects=999",
+                    "href": "?q=test&subject=invalid&subject=999",
                     "title": "Remove Army subject",
                 },
                 {
                     "label": "Subject: invalid",
-                    "href": "?q=test&subjects=Army&subjects=999",
+                    "href": "?q=test&subject=Army&subject=999",
                     "title": "Remove invalid subject",
                 },
                 {
                     "label": "Subject: 999",
-                    "href": "?q=test&subjects=Army&subjects=invalid",
+                    "href": "?q=test&subject=Army&subject=invalid",
                     "title": "Remove 999 subject",
                 },
             ],
@@ -227,7 +227,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "subjects",
+                        "name": "subject",
                         "entries": [
                             {"value": "Army", "doc_count": 100},
                             {"value": "Navy", "doc_count": 50},
@@ -256,17 +256,17 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
 
         # Check subjects field is empty
         self.assertEqual(
-            response.context_data.get("form").fields["subjects"].value,
+            response.context_data.get("form").fields["subject"].value,
             [],
         )
         self.assertEqual(
-            response.context_data.get("form").fields["subjects"].cleaned,
+            response.context_data.get("form").fields["subject"].cleaned,
             [],
         )
 
         # Should show available subjects from API without any checked
         self.assertEqual(
-            response.context_data.get("form").fields["subjects"].items,
+            response.context_data.get("form").fields["subject"].items,
             [
                 {
                     "text": "Army (100)",
@@ -326,7 +326,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
         )
 
         self.response = self.client.get(
-            "/catalogue/search/?subjects=Army&subjects=Navy"
+            "/catalogue/search/?subject=Army&subject=Navy"
         )
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
 

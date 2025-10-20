@@ -134,7 +134,7 @@
                   <dt>Topics</dt>
                   {% for item in record[field] %}
                     <dd>
-                      <a href="{{ url('search:catalogue') }}?subjects={{ item|urlencode }}" class="tna-dl-chips__item">
+                      <a href="{{ url('search:catalogue') }}?subject={{ item|urlencode }}" class="tna-dl-chips__item">
                         {{ item }}
                       </a>
                     </dd>

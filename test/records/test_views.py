@@ -1,7 +1,12 @@
+from unittest.mock import Mock, patch
+
 import responses
+from app.deliveryoptions.constants import AvailabilityCondition
 from app.records.models import Record
+from app.records.views import get_delivery_options_context
 from django.conf import settings
-from django.test import TestCase
+from django.template.response import TemplateResponse
+from django.test import RequestFactory, TestCase
 
 
 class TestRecordView(TestCase):
@@ -112,12 +117,12 @@ class TestSubjectLinks(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Check that subject links exist (using %20 for spaces, not +)
-        self.assertContains(response, 'href="/catalogue/search/?subjects=Army"')
+        self.assertContains(response, 'href="/catalogue/search/?subject=Army"')
         self.assertContains(
-            response, 'href="/catalogue/search/?subjects=Europe%20and%20Russia"'
+            response, 'href="/catalogue/search/?subject=Europe%20and%20Russia"'
         )
         self.assertContains(
-            response, 'href="/catalogue/search/?subjects=Conflict"'
+            response, 'href="/catalogue/search/?subject=Conflict"'
         )
 
     @responses.activate
@@ -153,11 +158,11 @@ class TestSubjectLinks(TestCase):
         # Check that spaces and special characters are encoded
         # urlencode uses %20 for spaces, not +
         self.assertContains(
-            response, 'href="/catalogue/search/?subjects=Sex%20and%20gender"'
+            response, 'href="/catalogue/search/?subject=Sex%20and%20gender"'
         )
         self.assertContains(
             response,
-            'href="/catalogue/search/?subjects=Art%2C%20architecture%20and%20design"',
+            'href="/catalogue/search/?subject=Art%2C%20architecture%20and%20design"',
         )
 
     @responses.activate
@@ -234,3 +239,99 @@ class TestSubjectLinks(TestCase):
 
             # Should not contain href="#" in subjects section
             self.assertNotIn('href="#"', subjects_section)
+
+
+class DoAvailabilityGroupTestCase(TestCase):
+
+    def test_do_availability_group_present_when_found(self):
+        """Test that do_availability_group is included when get_availability_group returns a value."""
+        # Use DigitizedDiscovery which is in AVAILABLE_ONLINE_TNA_ONLY group
+        mock_delivery_response = [
+            {
+                "options": AvailabilityCondition.DigitizedDiscovery.value,
+                "surrogateLinks": [],
+                "advancedOrderUrlParameters": "",
+            }
+        ]
+
+        mock_availability_group = Mock()
+        mock_availability_group.name = "AVAILABLE_ONLINE_TNA_ONLY"
+
+        with (
+            patch(
+                "app.records.views.delivery_options_request_handler",
+                return_value=mock_delivery_response,
+            ),
+            patch(
+                "app.records.views.get_availability_group",
+                return_value=mock_availability_group,
+            ),
+        ):
+
+            context = get_delivery_options_context("TEST123")
+
+            self.assertIn("delivery_option", context)
+            self.assertEqual(context["delivery_option"], "DigitizedDiscovery")
+            self.assertIn("do_availability_group", context)
+            self.assertEqual(
+                context["do_availability_group"], "AVAILABLE_ONLINE_TNA_ONLY"
+            )
+
+    def test_do_availability_group_absent_when_not_found(self):
+        """Test that do_availability_group is excluded when get_availability_group returns None."""
+        # Use OrderException which is in REDUNDANT_OR_IRRELEVANT group
+        mock_delivery_response = [
+            {
+                "options": AvailabilityCondition.OrderException.value,
+                "surrogateLinks": [],
+                "advancedOrderUrlParameters": "",
+            }
+        ]
+
+        with (
+            patch(
+                "app.records.views.delivery_options_request_handler",
+                return_value=mock_delivery_response,
+            ),
+            patch(
+                "app.records.views.get_availability_group", return_value=None
+            ),
+        ):
+
+            context = get_delivery_options_context("TEST123")
+
+            self.assertIn("delivery_option", context)
+            self.assertEqual(context["delivery_option"], "OrderException")
+            self.assertNotIn("do_availability_group", context)
+
+    def test_get_delivery_options_handles_errors_gracefully(self):
+        """Test that errors return empty dict without crashing."""
+        # Test various error conditions
+        test_cases = [
+            (Exception("API Error"), "API exception"),
+            ([{"no_options_key": "value"}], "Missing options key"),
+            ([], "Empty response"),
+            (None, "None response"),
+            (
+                [{"options": 999999}],
+                "Invalid enum value",
+            ),  # Invalid AvailabilityCondition value
+        ]
+
+        for mock_response, description in test_cases:
+            with self.subTest(description=description):
+                if isinstance(mock_response, Exception):
+                    with patch(
+                        "app.records.views.delivery_options_request_handler",
+                        side_effect=mock_response,
+                    ):
+                        context = get_delivery_options_context("TEST123")
+                else:
+                    with patch(
+                        "app.records.views.delivery_options_request_handler",
+                        return_value=mock_response,
+                    ):
+                        context = get_delivery_options_context("TEST123")
+
+                self.assertEqual(context, {})
+                self.assertNotIn("do_availability_group", context)
