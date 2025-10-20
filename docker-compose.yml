@@ -28,6 +28,14 @@ services:
       - 65533:8080
     volumes:
       - ./:/app
+
+  mock-api:
+    image: wiremock/wiremock:3.13.1
+    volumes:
+      - ./wiremock:/home/wiremock
+    ports:
+      - 8080:8080
+
   dev:
     image: ghcr.io/nationalarchives/tna-python-dev:preview
     volumes:
