@@ -9,6 +9,7 @@ from app.deliveryoptions.delivery_options import (
     get_availability_group,
     has_distressing_content,
 )
+from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
 from app.lib.api import JSONAPIClient
 from app.records.api import get_subjects_enrichment, record_details_by_id
 from app.records.models import Record
@@ -232,6 +233,29 @@ class DeliveryOptionsMixin:
             )
             return {}
 
+    def get_temporary_delivery_options_context(self, record: Record) -> dict:
+        """
+        Get temporary delivery options context whilst awaiting decisions on presentation.
+
+        TODO: This is an alternative action on delivery options whilst we wait on
+        decisions on how we are going to present it.
+
+        Args:
+            record: The record to generate context for
+
+        Returns:
+            Dictionary with temporary delivery options display information
+        """
+        return {
+            "delivery_options_heading": "How to order it",
+            "delivery_instructions": [
+                "View this record page in our current catalogue",
+                "Check viewing and downloading options",
+                "Select an option and follow instructions",
+            ],
+            "tna_discovery_link": f"{BASE_TNA_DISCOVERY_URL}/details/r/{record.iaid}",
+        }
+
     def should_include_delivery_options(self, record: Record) -> bool:
         """
         Determine if delivery options should be included for this record type.
@@ -251,6 +275,12 @@ class DeliveryOptionsMixin:
         if "record" in context:
             record = context["record"]
             if self.should_include_delivery_options(record):
+                # TODO: This is an alternative action on delivery options whilst we wait on
+                # decisions on how we are going to present it.
+                context.update(
+                    self.get_temporary_delivery_options_context(record)
+                )
+                # Add actual delivery options context
                 context.update(self.get_delivery_options_context(record.iaid))
         return context
 
