@@ -15,3 +15,7 @@ class Sort(StrEnum):
     TITLE_DESC = "title:desc"
     DATE_ASC = "date:asc"
     DATE_DESC = "date:desc"
+
+
+# date format for displaying dates in the UI (e.g. active filters, error message
+DATE_DISPLAY_FORMAT = "%d-%m-%Y"

@@ -11,6 +11,7 @@ from app.search.buckets import CATALOGUE_BUCKETS, Aggregation
 from app.search.constants import Sort
 
 from .collection_names import COLLECTION_CHOICES
+from .constants import DATE_DISPLAY_FORMAT
 
 
 class FieldsConstant:
@@ -84,7 +85,16 @@ class CatalogueSearchBaseForm(BaseForm):
 
             # add cross field error message (not derived from field)
             # use _cleaned since an error has been added to the field and cleaned is now None
-            cross_field_message = f"{prefix_text}: {date_from._cleaned.strftime("%d-%m-%Y")} must be earlier than or equal to the {date_to._cleaned.strftime("%d-%m-%Y")}."
+            cross_field_message = (
+                "{prefix_text}: 'from' date ({from_format}) "
+                "cannot be after 'to' date ({to_format}).".format(
+                    prefix_text=prefix_text,
+                    from_format=date_from._cleaned.strftime(
+                        DATE_DISPLAY_FORMAT
+                    ),
+                    to_format=date_to._cleaned.strftime(DATE_DISPLAY_FORMAT),
+                )
+            )
             error_messages.append(cross_field_message)
 
         return error_messages

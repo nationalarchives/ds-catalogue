@@ -246,7 +246,7 @@ class CoveringDateFilterErrorTests(TestCase):
             form.non_field_errors,
             [
                 {
-                    "text": "Record dates: 01-01-2000 must be earlier than or equal to the 31-12-1999."
+                    "text": "Record dates: 'from' date (01-01-2000) cannot be after 'to' date (31-12-1999)."
                 }
             ],
         )

@@ -23,6 +23,7 @@ from django.views.generic import TemplateView
 
 from .buckets import CATALOGUE_BUCKETS, Bucket, BucketKeys, BucketList
 from .constants import (
+    DATE_DISPLAY_FORMAT,
     FILTER_DATATYPE_RECORD,
     PAGE_LIMIT,
     RESULTS_PER_PAGE,
@@ -497,7 +498,6 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
     ):
         """Appends selected filters for date fields."""
 
-        C_DATE_FORMAT = "%d-%m-%Y"  # dd-mm-yyyy
         for field in (from_field, to_field):
             if field.cleaned:
                 year, month, day = (
@@ -544,7 +544,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                                 return_object=False,
                             )
 
-                label_value = field.cleaned.strftime(C_DATE_FORMAT)
+                label_value = field.cleaned.strftime(DATE_DISPLAY_FORMAT)
 
                 existing_filters.append(
                     {
