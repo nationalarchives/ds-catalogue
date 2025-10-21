@@ -1,5 +1,3 @@
-"""Mixins for record views."""
-
 import logging
 from typing import Dict
 

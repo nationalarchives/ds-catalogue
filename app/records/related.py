@@ -238,9 +238,12 @@ def _search_and_rank_by_subject_matches(
     )
 
     # Return just the Record objects
-    return [record for record, _, _ in sorted_records[:fetch_limit]]
+    final_results = [record for record, _, _ in sorted_records[:fetch_limit]]
+
+    return final_results
 
 
+# TODO: related by series is only partially correct because, at the moment, records aren't retrieved in order of relevance
 def get_related_records_by_series(
     current_record: Record, limit: int = 3
 ) -> list[Record]:
