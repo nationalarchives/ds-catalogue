@@ -56,6 +56,10 @@ class BaseField:
         self.label = self.label or name.capitalize()
         self._value = value
 
+    def get_bind_value(self, data: QueryDict, name: str):
+        """Override in subclasses if special bind value extraction is needed."""
+        return data.getlist(name)
+
     def is_valid(self):
         """Runs cleaning and validation. Handles ValidationError.
         Stores cleaned value. Returns True if valid, False otherwise"""
@@ -378,6 +382,10 @@ class MultiPartDateField(BaseField):
             bind_value[key] = input_value
 
         super().bind(name, bind_value)
+
+    def get_bind_value(self, data: QueryDict, name: str):
+        """MultiPartDateField needs the entire QueryDict to extract date parts."""
+        return data
 
     def clean(self, value: dict[str, str]) -> dict[str, str] | date | None:
         """Cleans and validates dict value. returns dict for calling function

@@ -44,16 +44,10 @@ class BaseForm:
 
     def bind_fields(self):
         """Binds fields with data as list as inputs can be driven manually.
-        Binding list or string value is handled at the field."""
+        Binding values are handled at the field."""
 
         for name, field in self.fields.items():
-            if isinstance(field, MultiPartDateField):
-                # for multi part date field, send the whole QueryDict
-                # to allow binding in the field class
-                value = self.data
-            else:
-                value = self.data.getlist(name)
-
+            value = field.get_bind_value(self.data, name)
             field.bind(name, value)
 
     def is_valid(self) -> bool:
