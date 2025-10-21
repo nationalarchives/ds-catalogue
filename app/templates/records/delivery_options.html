@@ -9,12 +9,15 @@
     </ol>
 {% endif %}
 
+
 {% if tna_discovery_link %}
     <div class="tna-button-group tna-!--margin-top-s">
         {{ tnaButton({
             'text': 'View this record page',
             'href': tna_discovery_link,
-            'target': '_blank'
+            'target': '_blank',
+            'classes':'discovery-link',
         }) }}
     </div>
 {% endif %}
+

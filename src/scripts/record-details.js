@@ -106,3 +106,35 @@ const $accordions = document.querySelectorAll('[data-module="etna-accordion"]');
 $accordions.forEach(($accordion) => {
   new Accordion($accordion);
 });
+
+// dataLayer push for 'View this record' : goes to discovery
+
+// Use a standard event listener pattern to ensure code runs after the DOM is loaded
+document.addEventListener("DOMContentLoaded", () => {
+  // Select the button element using the class name 'discovery-link'
+  const discoveryLinkButton = document.querySelector(".discovery-link");
+
+  // 2. Check if the button was found
+  if (discoveryLinkButton) {
+    // 3. Attach the event listener for the 'click' event
+    discoveryLinkButton.addEventListener("click", () => {
+      // Prevent the default action (though a button has no default action here,
+      // this is good practice for links/forms)
+      // event.preventDefault();
+
+      // 4. push to the dataLayer
+      window.dataLayer = window.dataLayer || [];
+
+      window.dataLayer.push({
+        event: "select_promotion",
+        promotion_name: "Ordering and viewing options",
+        creative_name: "Ordering and viewing options:link",
+        creative_slot: "Full description and record details",
+      });
+    });
+
+    // console.log("Successfully attached click listener to '.discovery-link'.");
+  } else {
+    // console.error("Error: Could not find element with class 'discovery-link'.");
+  }
+});
