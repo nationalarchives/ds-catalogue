@@ -508,7 +508,6 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         DateKeys.DAY.value,
                     )
                 )
-                label_value = ""
                 filter_name = ""
                 qs_value = ""
 
