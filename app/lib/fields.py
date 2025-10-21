@@ -410,10 +410,28 @@ class MultiPartDateField(BaseField):
         # not progressive, no full date entered, cleaned is None
         return None
 
-    # TODO: Simplify this function - it has high cyclomatic complexity
-    def validate(self, value: dict):  # noqa: C901
+    def validate(self, value: dict):
         """Overrides validate because of multi parts.
         value must be a dict with keys day, month, year."""
+
+        # first validate required field
+        self._validate_required(value)
+
+        # validate complete date for non-progressive entry
+        if not self.progressive and not self._is_complete_date(value):
+            raise ValidationError(
+                "Either all or none of the date parts (day, month, year) must be provided."
+            )
+
+        # validate date parts if any part entered
+        year_int = self._validate_year_only(DateKeys.YEAR.value, value)
+        month_int = self._validate_month_only(DateKeys.MONTH.value, value)
+        day_int = self._validate_day_only(DateKeys.DAY.value, value)
+        if year_int and month_int and day_int:
+            self._validate_full_date(year_int, month_int, day_int)
+
+    def _validate_required(self, value):
+        """Validates required field."""
 
         year, _, _ = (value.get(date_key, "") for date_key in self.date_keys)
 
@@ -428,46 +446,64 @@ class MultiPartDateField(BaseField):
                         "All date parts (day, month, year) are required."
                     )
 
-        if not self.progressive and not self._is_complete_date(value):
-            raise ValidationError(
-                "Either all or none of the date parts (day, month, year) must be provided."
-            )
+    def _validate_int(self, key, value) -> int:
+        """Validates integer input for progressive date field."""
 
-        # validate date parts if any part entered
+        input_value = value.get(key, "")
+        try:
+            int_value = int(input_value)
+        except ValueError:
+            raise ValidationError(f"{key.capitalize()} must be an integer.")
+        return int_value
 
-        year_int = month_int = day_int = None
-        # check range and type if any part entered
-        for key in self.date_keys:
-            if input_value := value.get(key):
-                try:
-                    int_value = int(input_value)
-                except ValueError:
-                    raise ValidationError(
-                        f"{key.capitalize()} must be an integer."
-                    )
-                if key == DateKeys.YEAR:
-                    if not (1 <= int_value <= 9999):
-                        raise ValidationError(
-                            "Year must be between 1 and 9999."
-                        )
-                    year_int = int_value
-                elif key == DateKeys.MONTH:
-                    if not (1 <= int_value <= 12):
-                        raise ValidationError("Month must be between 1 and 12.")
-                    month_int = int_value
-                elif key == DateKeys.DAY:
-                    if not (1 <= int_value <= 31):
-                        raise ValidationError("Day must be between 1 and 31.")
-                    day_int = int_value
+    def _validate_year_only(self, key, value) -> int | None:
+        """Validates year input."""
 
-        # final check, all part available: is it a real date?
-        if year_int and month_int and day_int:
-            try:
-                _ = date(year_int, month_int, day_int)
-            except ValueError:
+        year = value.get(key, "")
+        year_int = None
+        if year:
+            year_int = self._validate_int(key, value)
+            if not (1 <= year_int <= 9999):
                 raise ValidationError(
-                    "Entered date must be a real date, for example Year 2017, Month 9, Day 23"
+                    f"{key.capitalize()} must be between 1 and 9999."
                 )
+        return year_int
+
+    def _validate_month_only(self, key, value) -> int | None:
+        """Validates month input."""
+
+        month = value.get(key, "")
+        month_int = None
+        if month:
+            month_int = self._validate_int(key, value)
+            if not (1 <= month_int <= 12):
+                raise ValidationError(
+                    f"{key.capitalize()} must be between 1 and 12."
+                )
+        return month_int
+
+    def _validate_day_only(self, key, value) -> int | None:
+        """Validates day input."""
+
+        day = value.get(key, "")
+        day_int = None
+        if day:
+            day_int = self._validate_int(key, value)
+            if not (1 <= day_int <= 31):
+                raise ValidationError(
+                    f"{key.capitalize()} must be between 1 and 31."
+                )
+        return day_int
+
+    def _validate_full_date(self, year: int, month: int, day: int):
+        """Validates full date input."""
+
+        try:
+            _ = date(year, month, day)
+        except ValueError:
+            raise ValidationError(
+                "Entered date must be a real date, for example Year 2017, Month 9, Day 23"
+            )
 
     def _is_complete_date(self, value):
         """Checks if all or none of the date parts are filled."""
