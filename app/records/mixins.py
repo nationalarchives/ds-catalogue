@@ -87,16 +87,11 @@ class SubjectsEnrichmentMixin:
             record: The record to enrich (modified in-place)
         """
         if record.subjects:
-            logger.info(
-                f"Enriching record {record.iaid} with {len(record.subjects)} subjects"
-            )
             subjects_enrichment = get_subjects_enrichment(
                 record.subjects, limit=settings.MAX_SUBJECTS_PER_RECORD
             )
             record._subjects_enrichment = subjects_enrichment
-            logger.info(f"Enrichment data: {subjects_enrichment}")
         else:
-            logger.info(f"No subjects to enrich for record {record.iaid}")
             record._subjects_enrichment = {}
 
     def get_context_data(self, **kwargs):
@@ -104,10 +99,7 @@ class SubjectsEnrichmentMixin:
         context = super().get_context_data(**kwargs)
         if "record" in context:
             self.enrich_record_subjects(context["record"])
-        else:
-            logger.warning(
-                "No record found in context for SubjectsEnrichmentMixin"
-            )
+
         return context
 
 
@@ -130,11 +122,9 @@ class RelatedRecordsMixin:
         Returns:
             List of related Record objects (up to limit)
         """
-        logger.info(f"Fetching related records for {record.iaid}")
         related_records = get_related_records_by_subjects(
             record, limit=self.related_records_limit
         )
-        logger.info(f"Found {len(related_records)} related records by subjects")
 
         # Backfill from series if needed
         if len(related_records) < self.related_records_limit:
@@ -142,12 +132,8 @@ class RelatedRecordsMixin:
             series_records = get_related_records_by_series(
                 record, limit=remaining_slots
             )
-            logger.info(
-                f"Found {len(series_records)} related records by series"
-            )
             related_records.extend(series_records)
 
-        logger.info(f"Total related records: {len(related_records)}")
         return related_records
 
     def get_context_data(self, **kwargs):
@@ -157,11 +143,6 @@ class RelatedRecordsMixin:
             context["related_records"] = self.get_related_records(
                 context["record"]
             )
-            logger.info(
-                f"Added {len(context['related_records'])} related records to context"
-            )
-        else:
-            logger.warning("No record found in context for RelatedRecordsMixin")
         return context
 
 
@@ -301,12 +282,6 @@ class DistressingContentMixin:
             True if distressing content warning exists, False otherwise
         """
         has_warning = has_distressing_content(record.reference_number)
-
-        if has_warning:
-            logger.info(
-                f"Document {record.reference_number} has a sensitive "
-                f"content warning"
-            )
 
         return has_warning
 

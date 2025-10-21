@@ -80,11 +80,6 @@ def get_related_records_by_subjects(
         )
         return []
 
-    logger.debug(
-        f"Searching for related records to {current_record.level} "
-        f"at levels: {similar_levels}"
-    )
-
     # Strategy 1: Try to find records with ALL subjects first (if not too many)
     if len(current_record.subjects) <= 3:
         records = _search_with_all_subjects(
@@ -158,10 +153,10 @@ def _search_with_all_subjects(
                     if len(all_results) >= limit:
                         return all_results
 
-        except Exception:
+        except Exception as e:
             logger.debug(
                 f"No TNA records with all subjects at level '{level}' "
-                f"found for {current_record.iaid}"
+                f"found for {current_record.iaid}: {e}"
             )
             continue
 
@@ -242,15 +237,6 @@ def _search_and_rank_by_subject_matches(
         ),
     )
 
-    # Log match quality for debugging
-    if sorted_records and logger.isEnabledFor(logging.DEBUG):
-        for record, matching_subjects, level_distance in sorted_records[:5]:
-            logger.debug(
-                f"TNA record {record.iaid} ({record.level}) matches "
-                f"{len(matching_subjects)}/{len(current_record.subjects)} subjects, "
-                f"level_distance={level_distance}: {matching_subjects}"
-            )
-
     # Return just the Record objects
     return [record for record, _, _ in sorted_records[:fetch_limit]]
 
@@ -291,11 +277,6 @@ def get_related_records_by_series(
         # Fallback to Item/Piece if no level code
         logger.warning(f"TNA record {current_record.iaid} has no level_code")
         similar_levels = ["Item", "Piece"]
-
-    logger.debug(
-        f"Searching for related records from series '{series_ref}' "
-        f"at levels: {similar_levels}"
-    )
 
     # Since multiple level filters use AND logic, search each level separately
     all_results = []
@@ -340,11 +321,5 @@ def get_related_records_by_series(
     # Sort by level distance and return top results
     all_results.sort(key=lambda x: x[0])
     final_results = [record for _, record in all_results[:limit]]
-
-    if final_results:
-        logger.debug(
-            f"Found {len(final_results)} related records from series '{series_ref}' "
-            f"for {current_record.iaid}"
-        )
 
     return final_results

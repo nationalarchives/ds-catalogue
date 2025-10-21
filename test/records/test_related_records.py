@@ -351,8 +351,6 @@ class RelatedRecordsBySeriesTests(TestCase):
         result = get_related_records_by_series(self.current_record, limit=3)
 
         self.assertEqual(result, [])
-        # New implementation logs at debug level
-        self.assertTrue(mock_logger.debug.called)
 
 
 class RelatedRecordsIntegrationTests(TestCase):
