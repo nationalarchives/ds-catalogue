@@ -104,7 +104,7 @@ class APIMixin:
 
         return params
 
-    def _get_date_api_params(self, form) -> list:
+    def _get_date_api_params(self, form) -> list[str]:
         """Returns date related API params."""
 
         filter_list = []
