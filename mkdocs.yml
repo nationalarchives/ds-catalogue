@@ -17,3 +17,4 @@ nav:
       - "Index": "backend.md"
       - "Template variables": "backend/template_variables.md"
   - "Frontend development": "frontend.md"
+  - "Mocking API responses with Wiremock": "wiremock.md"
