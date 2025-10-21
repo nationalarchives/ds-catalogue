@@ -113,6 +113,41 @@ class BaseFormWithProgressiveDatesTest(TestCase):
         self.assertEqual(self.date_to.cleaned, date(2000, 1, 1))
         self.assertEqual(self.date_to.error, {})
 
+    def test_form_with_leap_and_non_leap_years_ranges(self):
+
+        # leap year 2000 date_from to non-leap year 2001 date_to
+        data = QueryDict(
+            "join_date_from-year=2000"
+            "&join_date_from-month=2"
+            "&join_date_from-day=29"
+            "&join_date_to-year=2001"
+            "&join_date_to-month=02"
+            "&join_date_to-day=28"
+        )
+        self.form = self.get_form_with_date_fields(data)
+        self.date_from = self.form.fields["join_date_from"]
+        self.date_to = self.form.fields["join_date_to"]
+        valid_status = self.form.is_valid()
+
+        # form attributes
+        self.assertEqual(valid_status, True)
+        self.assertEqual(self.form.errors, {})
+        self.assertEqual(self.form.non_field_errors, [])
+
+        # join_date_from field
+        self.assertEqual(
+            self.date_from.value, {"year": "2000", "month": "2", "day": "29"}
+        )
+        self.assertEqual(self.date_from.cleaned, date(2000, 2, 29))
+        self.assertEqual(self.date_from.error, {})
+
+        # join_date_to field
+        self.assertEqual(
+            self.date_to.value, {"year": "2001", "month": "02", "day": "28"}
+        )
+        self.assertEqual(self.date_to.cleaned, date(2001, 2, 28))
+        self.assertEqual(self.date_to.error, {})
+
     def test_form_with_date_fields_year_part(self):
 
         data = QueryDict("join_date_from-year=1999" "&join_date_to-year=2000")
