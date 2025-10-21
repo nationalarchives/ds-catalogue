@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/rosetta/data?.*iaid=C14016305.*"
+  },
+  "response": {
+    "status": 200,
+    "body": "[{\"options\": 9, \"surrogateLinks\": [{\"xReferenceId\": null, \"xReferenceCode\": null, \"xReferenceName\": null, \"xReferenceType\": \"AV_MEDIA\", \"xReferenceURL\": \"<a target=\\\"_blank\\\" href=\\\"https://discovery.nationalarchives.gov.uk/VideoPlayer/?url=https://ds-live-videos.s3.amazonaws.com/66/LEV/1/2011-12-13pm\\\">Discovery Video Player</a>\", \"xReferenceDescription\": null, \"xReferenceSortWord\": null}], \"advancedOrderUrlParameters\": null}]",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

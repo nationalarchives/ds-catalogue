@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/rosetta/data?.*iaid=C13187129.*"
+  },
+  "response": {
+    "status": 200,
+    "body": "[{\"options\": 20, \"surrogateLinks\": [], \"advancedOrderUrlParameters\": \"requestthis=BT 43/422&CATID=-7935423&CATLN=7&Itemref=BT 43/422/83039&ItemScope=&linkback=\"}]",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
