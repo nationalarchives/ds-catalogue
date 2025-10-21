@@ -519,7 +519,7 @@ class ToDateField(BaseProgressiveDateField):
     Ex year and month 2023-02 -> 2023-02-28/29
     Note: field name should be suffixed with '_to'"""
 
-    def _create_date_from_parts(self, day: str, month: str, year: str) -> date:
+    def _create_date_from_parts(self, year: str, month: str, day: str) -> date:
         """Fill in missing parts progressively to form a valid date."""
         if month:
             day = str(calendar.monthrange(int(year), int(month))[1])
