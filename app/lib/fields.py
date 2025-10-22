@@ -371,12 +371,6 @@ class MultiPartDateField(BaseField):
         # bind value will either be empty dict or a dict with parts
         bind_value = {}
 
-        # make sure the bind value is QueryDict
-        if not isinstance(value, QueryDict):
-            raise TypeError(
-                f"MultiPartDateField.bind() expects QueryDict, got {type(value)}"
-            )
-
         for key in self.date_keys:
             input_value = value.get(f"{name}{self.date_ymd_separator}{key}", "")
             bind_value[key] = input_value
