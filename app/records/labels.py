@@ -129,7 +129,10 @@ FIELD_LABELS = {
         "title": "Separated material",
         "description": "A cross-reference between records that are related by provenance but now kept separately",
     },
-    "subjects": {"title": "Subjects"},
+    "subjects": {
+        "title": "Subjects",
+        "description": "Categories and themes found in our collection (our subject list is under development, and some records may have no subjects or fewer than expected)",
+    },
     "summary_title": {"title": "Summary title"},
     "title": {"title": "Title", "description": "The name of the records"},
     "unpublished_finding_aids": {
