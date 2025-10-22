@@ -410,6 +410,8 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
         return context
 
     def build_selected_filters_list(self):
+        """Builds a list of selected filters for display and removal links."""
+
         selected_filters = []
         # TODO: commented code is retained from previous code, want to have q in filter?
         # if request.GET.get("q", None):
@@ -496,52 +498,16 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
         from_field: FromDateField,
         to_field: ToDateField,
     ):
-        """Appends selected filters for date fields."""
+        """Appends selected filters for date fields. Builds filters to remove
+        date fields from url query string.
+        """
 
         for field in (from_field, to_field):
             if field.cleaned:
-                year, month, day = (
-                    field.value.get(date_key)
-                    for date_key in (
-                        DateKeys.YEAR.value,
-                        DateKeys.MONTH.value,
-                        DateKeys.DAY.value,
-                    )
+                # build only when we have a valid date
+                qs_value = self._build_href_for_date_filter(
+                    form_kwargs=form_kwargs, field=field
                 )
-                filter_name = ""
-                qs_value = ""
-
-                if year:
-                    date_key = DateKeys.YEAR.value
-                    filter_name = f"{field.name}-{date_key}"
-                    return_object = bool(year and month)
-                    qs_value = qs_toggle_value(
-                        existing_qs=form_kwargs.get("data"),
-                        filter=filter_name,
-                        by=year,
-                        return_object=return_object,
-                    )
-
-                    if month:
-                        date_key = DateKeys.MONTH.value
-                        filter_name = f"{field.name}-{date_key}"
-                        return_object = bool(month and day)
-                        qs_value = qs_toggle_value(
-                            existing_qs=qs_value,
-                            filter=filter_name,
-                            by=month,
-                            return_object=return_object,
-                        )
-
-                        if day:
-                            date_key = DateKeys.DAY.value
-                            filter_name = f"{field.name}-{date_key}"
-                            qs_value = qs_toggle_value(
-                                existing_qs=qs_value,
-                                filter=filter_name,
-                                by=day,
-                                return_object=False,
-                            )
 
                 label_value = field.cleaned.strftime(DATE_DISPLAY_FORMAT)
 
@@ -552,3 +518,58 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                         "title": f"Remove {label_value} {field.active_filter_label.lower()}",
                     }
                 )
+
+    def _build_href_for_date_filter(
+        self,
+        form_kwargs: QueryDict,
+        field: FromDateField | ToDateField,
+    ) -> str:
+        """Builds href for date filter removal."""
+
+        year, month, day = (
+            field.value.get(date_key)
+            for date_key in (
+                DateKeys.YEAR.value,
+                DateKeys.MONTH.value,
+                DateKeys.DAY.value,
+            )
+        )
+        filter_name = ""
+        qs_value = ""
+
+        if year:
+            date_key = DateKeys.YEAR.value
+            filter_name = f"{field.name}-{date_key}"
+            return_object = bool(year and month)  # False if last date part
+            qs_value = qs_toggle_value(
+                existing_qs=form_kwargs.get(
+                    "data"
+                ),  # start from original query dict
+                filter=filter_name,
+                by=year,
+                return_object=return_object,
+            )
+
+            if month:
+                date_key = DateKeys.MONTH.value
+                filter_name = f"{field.name}-{date_key}"
+                return_object = bool(month and day)  # False if last date part
+                qs_value = qs_toggle_value(
+                    existing_qs=qs_value,  # chain from previous part
+                    filter=filter_name,
+                    by=month,
+                    return_object=return_object,
+                )
+
+                if day:
+                    # all date parts present
+                    date_key = DateKeys.DAY.value
+                    filter_name = f"{field.name}-{date_key}"
+                    qs_value = qs_toggle_value(
+                        existing_qs=qs_value,  # chain from previous part
+                        filter=filter_name,
+                        by=day,
+                        return_object=False,  # last date part, returns string
+                    )
+
+        return qs_value
