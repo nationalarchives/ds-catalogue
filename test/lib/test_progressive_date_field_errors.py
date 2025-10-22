@@ -474,8 +474,6 @@ class ProgressiveDateCrossValidateAssignFieldErrorTest(TestCase):
         # NOTE: cleaned is None because the field has an error
         self.assertEqual(self.date_from.cleaned, None)
         # NOTE: _cleaned remains set to the valid date,
-        # to show it was valid before cross_validate and can be used
-        # in active filters etc
         self.assertEqual(self.date_from._cleaned, date(2000, 1, 1))
         # Error assigned in cross_validate to field
         self.assertEqual(

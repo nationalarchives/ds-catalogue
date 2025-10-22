@@ -1,0 +1,72 @@
+from http import HTTPStatus
+
+import responses
+from app.search.forms import (
+    CatalogueSearchTnaForm,
+    DynamicMultipleChoiceField,
+    FieldsConstant,
+)
+from django.conf import settings
+from django.test import TestCase
+
+
+class CatalogueSearchTnaFormTests(TestCase):
+    """Tests form in isolation of view."""
+
+    # valid_query -> query that returns results
+    # invalid_query -> query that returns no results
+    # known_filter(s) -> filter value that matches configured collections
+    # some_known_filter(s) -> some filter values that match configured collections
+    # unknown_filter(s) -> filter value that does not match any configured collections
+    # filter(s) -> filter value(s) for collection field, others not tested here
+    # returns_results -> data returned in "data" field of api response
+    # returns_no_results -> no data returned in "data" field of api response
+    # returns_no_result_no_buckets -> no data returned in "data" field and no entries in "buckets" field of api response
+    # other filters ?? with_other_filters - non colllection filter
+    # tests attributes to be used in template, others look in test libs
+
+    # AGF: add new test - test form field attributes initiall without view interaction
+    def test_collection_field_initial_attr(
+        self,
+    ):
+        """Test the collection field attributes used by form associated with the view dynamically."""
+
+        form = CatalogueSearchTnaForm()
+        field = form.fields[FieldsConstant.COLLECTION]
+        # form_status = form.is_valid()
+        # self.assertTrue(form_status)
+
+        # default - no query, no filter params
+        # self.response = self.client.get("/catalogue/search/")
+
+        # form = self.response.context_data.get("form")
+        # field = form.fields[FieldsConstant.COLLECTION]
+
+        # IS_VALID?
+
+        self.assertIsInstance(form, CatalogueSearchTnaForm)
+        self.assertIsInstance(field, DynamicMultipleChoiceField)
+
+        # configured values
+        self.assertEqual(field.name, "collection")
+        self.assertEqual(field.label, "Collections")
+        self.assertEqual(field.active_filter_label, "Collection")
+        self.assertEqual(field.hint, "")
+        self.assertEqual(field.required, False)
+        self.assertEqual(field.validate_input, False)
+
+        # default values
+        self.assertEqual(field.value, [])
+        self.assertEqual(field.cleaned, None)
+
+        print("TODO: test_collection_field: field.items=field.items")
+        # TODO: fix - currently fails
+        self.assertEqual(len(field.items), 0)  # Should be 0 or None
+        # self.assertEqual(field.items,None) # should be None or []
+        self.assertEqual(field.error, {})
+
+        # other attributes
+        self.assertEqual(field.choices_updated, True)
+        self.assertEqual(len(field.configured_choices), 452)
+        # TODO: fix - currently fails
+        self.assertEqual(len(field.choices), 0)

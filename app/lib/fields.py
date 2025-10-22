@@ -362,7 +362,6 @@ class MultiPartDateField(BaseField):
             DateKeys.MONTH.value,
             DateKeys.DAY.value,
         ]
-        self._cleaned_date_obj = None  # stores cleaned date object
         super().__init__(**kwargs)
 
     def bind(self, name, value: QueryDict) -> None:
@@ -392,9 +391,8 @@ class MultiPartDateField(BaseField):
             value.get(date_key, "") for date_key in self.date_keys
         )
         if year and month and day:
-            self._cleaned_date_obj = date(int(year), int(month), int(day))
             # return for either progressive or full date
-            return self._cleaned_date_obj
+            return date(int(year), int(month), int(day))
 
         # partial date or no date entered
         if self.progressive:

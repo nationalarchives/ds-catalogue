@@ -81,20 +81,20 @@ class CatalogueSearchBaseForm(BaseForm):
             field_message = (
                 "This date must be earlier than or equal to the 'to' date."
             )
-            date_from.add_error(field_message)
 
             # add cross field error message (not derived from field)
-            # use _cleaned since an error has been added to the field and cleaned is now None
             cross_field_message = (
                 "{prefix_text}: 'from' date ({from_format}) "
                 "cannot be after 'to' date ({to_format}).".format(
                     prefix_text=prefix_text,
-                    from_format=date_from._cleaned.strftime(
-                        DATE_DISPLAY_FORMAT
-                    ),
-                    to_format=date_to._cleaned.strftime(DATE_DISPLAY_FORMAT),
+                    from_format=date_from.cleaned.strftime(DATE_DISPLAY_FORMAT),
+                    to_format=date_to.cleaned.strftime(DATE_DISPLAY_FORMAT),
                 )
             )
+
+            # NOTE: add error after building cross field message to use cleaned date
+            date_from.add_error(field_message)
+
             error_messages.append(cross_field_message)
 
         return error_messages
