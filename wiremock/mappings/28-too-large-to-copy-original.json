@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/rosetta/data?.*iaid=C1375903.*"
+  },
+  "response": {
+    "status": 200,
+    "body": "[{\"options\": 28, \"surrogateLinks\": [], \"advancedOrderUrlParameters\": \"requestthis=IR 77/67&linkback=\"}]",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

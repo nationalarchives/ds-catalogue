@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/rosetta/data?.*iaid=C6208104.*"
+  },
+  "response": {
+    "status": 200,
+    "body": "[{\"options\": 7, \"surrogateLinks\": [{\"xReferenceId\": null, \"xReferenceCode\": null, \"xReferenceName\": null, \"xReferenceType\": \"DIGITIZED_DISCOVERY\", \"xReferenceURL\": \"<a target=\\\"_blank\\\" href=\\\"https://www.ancestry.co.uk/search/collections/1687/\\\">Ancestry</a>\", \"xReferenceDescription\": null, \"xReferenceSortWord\": null}], \"advancedOrderUrlParameters\": null}]",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

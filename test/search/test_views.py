@@ -138,7 +138,7 @@ class CatalogueSearchViewTests(TestCase):
             self.response.context_data.get("form"), CatalogueSearchTnaForm
         )
         self.assertEqual(self.response.context_data.get("form").errors, {})
-        self.assertEqual(len(self.response.context_data.get("form").fields), 9)
+        self.assertEqual(len(self.response.context_data.get("form").fields), 13)
         tna_field_names = [
             FieldsConstant.GROUP,
             FieldsConstant.SORT,
@@ -149,6 +149,10 @@ class CatalogueSearchViewTests(TestCase):
             FieldsConstant.ONLINE,
             FieldsConstant.CLOSURE,
             FieldsConstant.FILTER_LIST,
+            FieldsConstant.COVERING_DATE_FROM,
+            FieldsConstant.COVERING_DATE_TO,
+            FieldsConstant.OPENING_DATE_FROM,
+            FieldsConstant.OPENING_DATE_TO,
         ]
         tna_form_field_names = set(
             self.response.context_data.get("form").fields.keys()
@@ -327,6 +331,70 @@ class CatalogueSearchViewTests(TestCase):
             ],
         )
 
+        # test covering date from fields
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields[FieldsConstant.COVERING_DATE_FROM]
+            .name,
+            "covering_date_from",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields[FieldsConstant.COVERING_DATE_FROM]
+            .label,
+            "From",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields[FieldsConstant.COVERING_DATE_FROM]
+            .active_filter_label,
+            "Record date from",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields[FieldsConstant.COVERING_DATE_FROM]
+            .value,
+            {"year": "", "month": "", "day": ""},
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields[FieldsConstant.COVERING_DATE_FROM]
+            .cleaned,
+            None,
+        )
+
+        # test covering date to fields
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields[FieldsConstant.COVERING_DATE_TO]
+            .name,
+            "covering_date_to",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields[FieldsConstant.COVERING_DATE_TO]
+            .label,
+            "To",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields[FieldsConstant.COVERING_DATE_TO]
+            .active_filter_label,
+            "Record date to",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields[FieldsConstant.COVERING_DATE_TO]
+            .value,
+            {"year": "", "month": "", "day": ""},
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields[FieldsConstant.COVERING_DATE_TO]
+            .cleaned,
+            None,
+        )
+
     @responses.activate
     def test_catalogue_search_context_with_query_param(self):
 
@@ -478,12 +546,14 @@ class CatalogueSearchViewTests(TestCase):
             self.response.context_data.get("form"), CatalogueSearchNonTnaForm
         )
         self.assertEqual(self.response.context_data.get("form").errors, {})
-        self.assertEqual(len(self.response.context_data.get("form").fields), 4)
+        self.assertEqual(len(self.response.context_data.get("form").fields), 6)
         non_tna_field_names = [
             FieldsConstant.GROUP,
             FieldsConstant.SORT,
             FieldsConstant.Q,
             FieldsConstant.HELD_BY,
+            FieldsConstant.COVERING_DATE_FROM,
+            FieldsConstant.COVERING_DATE_TO,
         ]
         non_tna_form_field_names = set(
             self.response.context_data.get("form").fields.keys()
@@ -557,7 +627,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
                         ],
                     },
                     {
-                        "name": "subjects",
+                        "name": "subject",
                         "entries": [
                             {"value": "somevalue", "doc_count": 100},
                         ],
@@ -619,13 +689,31 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
         )
 
-        # Test subjects filter for TNA group
+        # Test subject filter for TNA group
         self.response = self.client.get(
             "/catalogue/search/?group=tna&subject=Army&subject=Navy"
         )
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
             "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&filter=subject%3AArmy&filter=subject%3ANavy&q=%2A&size=20"
+        )
+
+        # Test covering date filters
+        self.response = self.client.get(
+            "/catalogue/search/?covering_date_from-year=2000&covering_date_from-month=12&covering_date_from-day=1&covering_date_to-year=2000&covering_date_to-month=12&covering_date_to-day=31"
+        )
+        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+        mock_logger.debug.assert_called_with(
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29&filter=coveringToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
+        )
+
+        # Test opening date filters
+        self.response = self.client.get(
+            "/catalogue/search/?opening_date_from-year=2000&opening_date_from-month=12&opening_date_from-day=1&opening_date_to-year=2000&opening_date_to-month=12&opening_date_to-day=31"
+        )
+        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+        mock_logger.debug.assert_called_with(
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&filter=openingFromDate%3A%28%3E%3D2000-12-1%29&filter=openingToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
         )
 
 
@@ -697,4 +785,13 @@ class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
             "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
+        )
+
+        # Test covering date filters
+        self.response = self.client.get(
+            "/catalogue/search/?group=nonTna&covering_date_from-year=2000&covering_date_from-month=12&covering_date_from-day=1&covering_date_to-year=2000&covering_date_to-month=12&covering_date_to-day=31"
+        )
+        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+        mock_logger.debug.assert_called_with(
+            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29&filter=coveringToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
         )

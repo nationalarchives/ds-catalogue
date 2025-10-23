@@ -1,0 +1,22 @@
+{% macro whats_this_below_series_about(record) %}
+  <div class="tna-column tna-column--width-1-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
+    <div class="tna-aside tna-aside--tight tna-background-accent full-height-aside">
+      <h2 class="tna-heading-m">What’s it about?</h2>
+      <p>This record is
+        {%- if record.level == 'File' %}
+          a <strong>{{ record.level | lower }}</strong>
+        {%- endif %}
+        about the <strong>{{ record.clean_summary_title }}</strong>
+        {%- if record.date_covering %}
+          dating from <strong>{{ record.date_covering }}</strong>
+        {%- endif -%}
+        {%- if record.is_tna and record.hierarchy_series %}
+          in the series <strong>{{ record.hierarchy_series.summary_title }}</strong>
+        {%- endif -%}.
+        {%- if record.is_tna and record.held_by %}
+          It is held at <strong>{{ record.held_by }}</strong>.
+        {%- endif -%}
+      </p>
+    </div>
+  </div>
+{% endmacro %}
