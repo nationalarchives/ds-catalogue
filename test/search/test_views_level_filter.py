@@ -3,6 +3,7 @@ from http import HTTPStatus
 import responses
 from django.conf import settings
 from django.test import TestCase
+from django.utils.encoding import force_str
 
 
 class CatalogueSearchViewLevelFilterTests(TestCase):
@@ -137,6 +138,26 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
             "/catalogue/search/?q=ufo&level=Item&level=Division&level=invalid"
         )
 
+        html = force_str(self.response.content)
+
+        # test for presence of hidden inputs for invalid level params
+        self.assertIn(
+            """<input type="hidden" name="level" value="Item">""", html
+        )
+        self.assertIn(
+            """<input type="hidden" name="level" value="Division">""", html
+        )
+        self.assertIn(
+            """<input type="hidden" name="level" value="invalid">""", html
+        )
+
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields["level"]
+            .choices_updated,
+            True,
+        )
+
         self.assertEqual(
             self.response.context_data.get("form").fields["level"].value,
             ["Item", "Division", "invalid"],
@@ -145,15 +166,12 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
             self.response.context_data.get("form").fields["level"].cleaned,
             None,
         )
-        # with some invalid input filter show valid with count 0
+        # invalid inputs are not shown, so items is empty
         self.assertEqual(
             self.response.context_data.get("form").fields["level"].items,
-            [
-                {"text": "Item (0)", "value": "Item", "checked": True},
-                {"text": "Division (0)", "value": "Division", "checked": True},
-            ],
+            [],
         )
-        # with some invalid input selected shows all filters
+        # all inputs including invalid are shown in selected filters
         self.assertEqual(
             self.response.context_data.get("selected_filters"),
             [
