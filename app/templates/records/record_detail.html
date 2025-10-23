@@ -2,8 +2,10 @@
 
 {%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
 {% from 'records/macros/accordion.html' import etna_accordion %}
-{% from 'records/macros/information_series_level_and_above.html' import information_series_level_and_above %}
-{% from 'records/macros/information_below_series_level.html' import information_below_series_level %}
+{% from 'records/macros/whats_this_series_or_above_about.html' import whats_this_series_or_above_about %}
+{% from 'records/macros/whats_this_below_series_about.html' import whats_this_below_series_about %}
+{% from 'records/macros/available_online.html' import available_online %}
+{% from 'records/macros/available_in_person.html' import available_in_person %}
 {% from 'records/macros/detail_fields.html' import detail_fields %}
 {% from 'records/macros/hierarchy.html' import hierarchy %}
 {% from 'records/macros/how_to_order.html' import how_to_order %}
@@ -54,9 +56,13 @@
   </div>
 
   {% if record.is_tna and record.level in ["Series", "Division", "Department"] %}
-    {{ information_series_level_and_above(record) }}
+    {{ whats_this_series_or_above_about(record) }}
   {% else %}
-    {{ information_below_series_level(record) }}
+    <div class="tna-container">
+      {{ whats_this_below_series_about(record) }}
+      {{ available_online(record, do_availability_group) }}
+      {{ available_in_person(record, do_availability_group) }}
+    </div>
   {% endif %}
 
   {{ detail_fields(record, field_labels, request) }}
