@@ -45,12 +45,12 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
         self.assertEqual(form.fields["dmc_field"]._cleaned, None)
         self.assertEqual(form.fields["dmc_field"].cleaned, None)
         self.assertEqual(form.fields["dmc_field"].error, {})
-        # before items called, choices not updated
+        # as this is not a view test, before items called, choices not updated
         self.assertEqual(form.fields["dmc_field"].choices_updated, False)
         self.assertEqual(
             form.fields["dmc_field"].items, []
         )  # should be empty until choices are updated
-        # after items called, choices are updated
+        # as this is not a view test, after items called, choices are updated
         self.assertEqual(form.fields["dmc_field"].choices_updated, True)
 
     def test_form_with_dynamic_multiple_choice_field_error_with_no_params(self):
@@ -64,11 +64,11 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
         )
         self.assertEqual(form.fields["dmc_field"].value, [])
         self.assertEqual(form.fields["dmc_field"].cleaned, None)
-        # before items called, choices not updated
+        # as this is not a view test, before items called, choices not updated
         self.assertEqual(form.fields["dmc_field"].choices_updated, False)
         # required field with no input, so items is empty
         self.assertEqual(form.fields["dmc_field"].items, [])
-        # after items called, choices are updated
+        # as this is not a view test, after items called, choices are updated
         self.assertEqual(form.fields["dmc_field"].choices_updated, True)
         self.assertEqual(
             form.fields["dmc_field"].error, {"text": "Value is required."}
@@ -178,11 +178,11 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
         self.assertEqual(
             form.fields["dmc_field"].value, ["london", "manchester"]
         )
-        # before items called, choices not updated
+        # as this is not a view test, before items called, choices not updated
         self.assertEqual(form.fields["dmc_field"].choices_updated, False)
         # invalid choices, so items is empty
         self.assertEqual(form.fields["dmc_field"].items, [])
-        # before items called, choices updated
+        # after items called, choices updated
         self.assertEqual(form.fields["dmc_field"].choices_updated, True)
         self.assertEqual(
             form.fields["dmc_field"].error,
@@ -235,12 +235,12 @@ class BaseFormWithDMCFieldValidateInputFalseTest(TestCase):
         self.assertEqual(form.fields["dmc_field"]._cleaned, None)
         self.assertEqual(form.fields["dmc_field"].cleaned, None)
         self.assertEqual(form.fields["dmc_field"].error, {})
-        # before items called, choices not updated
+        # as this is not a view test, before items called, choices not updated
         self.assertEqual(form.fields["dmc_field"].choices_updated, False)
         self.assertEqual(
             form.fields["dmc_field"].items, []
         )  # should be empty until choices are updated
-        # after items called, choices are updated
+        # as this is not a view test, after items called, choices are updated
         self.assertEqual(form.fields["dmc_field"].choices_updated, True)
 
     def test_form_with_dynamic_multiple_choice_field_error_with_no_params(self):
