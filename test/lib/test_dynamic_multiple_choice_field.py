@@ -6,7 +6,7 @@ from django.test import TestCase
 
 class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
 
-    def get_form_with_dynamic_multiple_choice_field(self, data=None):
+    def create_form_with_dynamic_multiple_choice_field(self, data=None):
 
         class MyTestForm(BaseForm):
             def add_fields(self):
@@ -23,82 +23,80 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
                 }
 
         form = MyTestForm(data)
+        self.dmc_field = form.fields["dmc_field"]
         return form
 
     def test_form_with_dynamic_multiple_choice_field_initial_attrs(self):
 
-        form = self.get_form_with_dynamic_multiple_choice_field()
-        self.assertEqual(form.fields["dmc_field"].name, "dmc_field")
-        self.assertEqual(form.fields["dmc_field"].label, "Location")
-        self.assertEqual(form.fields["dmc_field"].hint, "")
-        self.assertEqual(form.fields["dmc_field"].required, True)
-        self.assertEqual(form.fields["dmc_field"].validate_input, True)
-        self.assertEqual(form.fields["dmc_field"].active_filter_label, None)
+        _ = self.create_form_with_dynamic_multiple_choice_field()
+        
+        self.assertEqual(self.dmc_field.name, "dmc_field")
+        self.assertEqual(self.dmc_field.label, "Location")
+        self.assertEqual(self.dmc_field.hint, "")
+        self.assertEqual(self.dmc_field.required, True)
+        self.assertEqual(self.dmc_field.validate_input, True)
+        self.assertEqual(self.dmc_field.active_filter_label, None)
         self.assertEqual(
-            form.fields["dmc_field"].choices,
+            self.dmc_field.choices,
             [("london", "London"), ("leeds", "Leeds")],
         )
         self.assertEqual(
-            form.fields["dmc_field"].configured_choices,
+            self.dmc_field.configured_choices,
             [("london", "London"), ("leeds", "Leeds")],
         )
-        self.assertEqual(form.fields["dmc_field"]._cleaned, None)
-        self.assertEqual(form.fields["dmc_field"].cleaned, None)
-        self.assertEqual(form.fields["dmc_field"].error, {})
+        self.assertEqual(self.dmc_field._cleaned, None)
+        self.assertEqual(self.dmc_field.cleaned, None)
+        self.assertEqual(self.dmc_field.error, {})
         # as this is not a view test, before items called, choices not updated
-        self.assertEqual(form.fields["dmc_field"].choices_updated, False)
+        self.assertEqual(self.dmc_field.choices_updated, False)
         self.assertEqual(
-            form.fields["dmc_field"].items, []
+            self.dmc_field.items, []
         )  # should be empty until choices are updated
         # as this is not a view test, after items called, choices are updated
-        self.assertEqual(form.fields["dmc_field"].choices_updated, True)
+        self.assertEqual(self.dmc_field.choices_updated, True)
 
     def test_form_with_dynamic_multiple_choice_field_error_with_no_params(self):
 
         data = QueryDict("")  # no params
-        form = self.get_form_with_dynamic_multiple_choice_field(data)
+        form = self.create_form_with_dynamic_multiple_choice_field(data)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, False)
         self.assertEqual(
             form.errors, {"dmc_field": {"text": "Value is required."}}
         )
-        self.assertEqual(form.fields["dmc_field"].value, [])
-        self.assertEqual(form.fields["dmc_field"].cleaned, None)
+        self.assertEqual(self.dmc_field.value, [])
+        self.assertEqual(self.dmc_field.cleaned, None)
         # as this is not a view test, before items called, choices not updated
-        self.assertEqual(form.fields["dmc_field"].choices_updated, False)
+        self.assertEqual(self.dmc_field.choices_updated, False)
         # required field with no input, so items is empty
-        self.assertEqual(form.fields["dmc_field"].items, [])
+        self.assertEqual(self.dmc_field.items, [])
         # as this is not a view test, after items called, choices are updated
-        self.assertEqual(form.fields["dmc_field"].choices_updated, True)
-        self.assertEqual(
-            form.fields["dmc_field"].error, {"text": "Value is required."}
-        )
+        self.assertEqual(self.dmc_field.choices_updated, True)
+        self.assertEqual(self.dmc_field.error, {"text": "Value is required."})
 
     def test_form_with_dynamic_multiple_choice_field_with_param_with_valid_value(
         self,
     ):
 
         data = QueryDict("dmc_field=london&dmc_field=leeds")
-        form = self.get_form_with_dynamic_multiple_choice_field(data)
+        form = self.create_form_with_dynamic_multiple_choice_field(data)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, True)
         self.assertEqual(form.errors, {})
-        self.assertEqual(form.fields["dmc_field"].value, ["london", "leeds"])
-        self.assertEqual(form.fields["dmc_field"].cleaned, ["london", "leeds"])
+        self.assertEqual(self.dmc_field.value, ["london", "leeds"])
+        self.assertEqual(self.dmc_field.cleaned, ["london", "leeds"])
 
         # update choices
-        self.assertEqual(form.fields["dmc_field"].choices_updated, False)
+        self.assertEqual(self.dmc_field.choices_updated, False)
         choice_api_data = [
             {"value": "london", "doc_count": 10},
             {"value": "leeds", "doc_count": 5},
         ]
-        form.fields["dmc_field"].update_choices(
-            choice_api_data, form.fields["dmc_field"].value
-        )
-        self.assertEqual(form.fields["dmc_field"].choices_updated, True)
+        self.dmc_field.update_choices(choice_api_data, self.dmc_field.value)
+        self.assertEqual(self.dmc_field.choices_updated, True)
 
         self.assertEqual(
-            form.fields["dmc_field"].items,
+            self.dmc_field.items,
             [
                 {
                     "text": "London (10)",
@@ -112,34 +110,32 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
                 },
             ],
         )
-        self.assertEqual(form.fields["dmc_field"].error, {})
+        self.assertEqual(self.dmc_field.error, {})
 
     def test_form_with_dynamic_multiple_choice_field_with_multiple_param_with_valid_values(
         self,
     ):
 
         data = QueryDict("dmc_field=london&dmc_field=leeds")
-        form = self.get_form_with_dynamic_multiple_choice_field(data)
+        form = self.create_form_with_dynamic_multiple_choice_field(data)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, True)
         self.assertEqual(form.errors, {})
-        self.assertEqual(form.fields["dmc_field"].name, "dmc_field")
-        self.assertEqual(form.fields["dmc_field"].value, ["london", "leeds"])
-        self.assertEqual(form.fields["dmc_field"].cleaned, ["london", "leeds"])
+        self.assertEqual(self.dmc_field.name, "dmc_field")
+        self.assertEqual(self.dmc_field.value, ["london", "leeds"])
+        self.assertEqual(self.dmc_field.cleaned, ["london", "leeds"])
 
         # update choices
-        self.assertEqual(form.fields["dmc_field"].choices_updated, False)
+        self.assertEqual(self.dmc_field.choices_updated, False)
         choice_api_data = [
             {"value": "london", "doc_count": 10},
             {"value": "leeds", "doc_count": 5},
         ]
-        form.fields["dmc_field"].update_choices(
-            choice_api_data, form.fields["dmc_field"].value
-        )
-        self.assertEqual(form.fields["dmc_field"].choices_updated, True)
+        self.dmc_field.update_choices(choice_api_data, self.dmc_field.value)
+        self.assertEqual(self.dmc_field.choices_updated, True)
 
         self.assertEqual(
-            form.fields["dmc_field"].items,
+            self.dmc_field.items,
             [
                 {
                     "text": "London (10)",
@@ -153,7 +149,7 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
                 },
             ],
         )
-        self.assertEqual(form.fields["dmc_field"].error, {})
+        self.assertEqual(self.dmc_field.error, {})
 
     def test_form_with_dynamic_multiple_choice_field_with_multiple_param_error_with_invalid_values(
         self,
@@ -161,7 +157,7 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
 
         # partial match: some levels valid, others invalid
         data = QueryDict("dmc_field=london&dmc_field=manchester")
-        form = self.get_form_with_dynamic_multiple_choice_field(data)
+        form = self.create_form_with_dynamic_multiple_choice_field(data)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, False)
         self.assertEqual(
@@ -175,17 +171,15 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
                 }
             },
         )
-        self.assertEqual(
-            form.fields["dmc_field"].value, ["london", "manchester"]
-        )
+        self.assertEqual(self.dmc_field.value, ["london", "manchester"])
         # as this is not a view test, before items called, choices not updated
-        self.assertEqual(form.fields["dmc_field"].choices_updated, False)
+        self.assertEqual(self.dmc_field.choices_updated, False)
         # invalid choices, so items is empty
-        self.assertEqual(form.fields["dmc_field"].items, [])
+        self.assertEqual(self.dmc_field.items, [])
         # after items called, choices updated
-        self.assertEqual(form.fields["dmc_field"].choices_updated, True)
+        self.assertEqual(self.dmc_field.choices_updated, True)
         self.assertEqual(
-            form.fields["dmc_field"].error,
+            self.dmc_field.error,
             {
                 "text": (
                     "Enter a valid choice. Value(s) [london, manchester] do not belong "
@@ -197,7 +191,7 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
 
 class BaseFormWithDMCFieldValidateInputFalseTest(TestCase):
 
-    def get_form_with_dynamic_multiple_choice_field(self, data=None):
+    def create_form_with_dynamic_multiple_choice_field(self, data=None):
 
         class MyTestForm(BaseForm):
             def add_fields(self):
@@ -213,90 +207,88 @@ class BaseFormWithDMCFieldValidateInputFalseTest(TestCase):
                 }
 
         form = MyTestForm(data)
+        self.dmc_field = form.fields["dmc_field"]
         return form
 
     def test_form_with_dynamic_multiple_choice_field_initial_attrs(self):
 
-        form = self.get_form_with_dynamic_multiple_choice_field()
-        self.assertEqual(form.fields["dmc_field"].name, "dmc_field")
-        self.assertEqual(form.fields["dmc_field"].label, "Location")
-        self.assertEqual(form.fields["dmc_field"].hint, "")
-        self.assertEqual(form.fields["dmc_field"].required, False)
-        self.assertEqual(form.fields["dmc_field"].validate_input, False)
-        self.assertEqual(form.fields["dmc_field"].active_filter_label, None)
+        _ = self.create_form_with_dynamic_multiple_choice_field()
+        
+        self.assertEqual(self.dmc_field.name, "dmc_field")
+        self.assertEqual(self.dmc_field.label, "Location")
+        self.assertEqual(self.dmc_field.hint, "")
+        self.assertEqual(self.dmc_field.required, False)
+        self.assertEqual(self.dmc_field.validate_input, False)
+        self.assertEqual(self.dmc_field.active_filter_label, None)
         self.assertEqual(
-            form.fields["dmc_field"].choices,
+            self.dmc_field.choices,
             [("london", "London"), ("leeds", "Leeds")],
         )
         self.assertEqual(
-            form.fields["dmc_field"].configured_choices,
+            self.dmc_field.configured_choices,
             [("london", "London"), ("leeds", "Leeds")],
         )
-        self.assertEqual(form.fields["dmc_field"]._cleaned, None)
-        self.assertEqual(form.fields["dmc_field"].cleaned, None)
-        self.assertEqual(form.fields["dmc_field"].error, {})
+        self.assertEqual(self.dmc_field._cleaned, None)
+        self.assertEqual(self.dmc_field.cleaned, None)
+        self.assertEqual(self.dmc_field.error, {})
         # as this is not a view test, before items called, choices not updated
-        self.assertEqual(form.fields["dmc_field"].choices_updated, False)
+        self.assertEqual(self.dmc_field.choices_updated, False)
         self.assertEqual(
-            form.fields["dmc_field"].items, []
+            self.dmc_field.items, []
         )  # should be empty until choices are updated
         # as this is not a view test, after items called, choices are updated
-        self.assertEqual(form.fields["dmc_field"].choices_updated, True)
+        self.assertEqual(self.dmc_field.choices_updated, True)
 
     def test_form_with_dynamic_multiple_choice_field_error_with_no_params(self):
 
         data = QueryDict("")  # no params
-        form = self.get_form_with_dynamic_multiple_choice_field(data)
+        form = self.create_form_with_dynamic_multiple_choice_field(data)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, True)
-        self.assertEqual(form.fields["dmc_field"].value, [])
-        self.assertEqual(form.fields["dmc_field"].cleaned, [])
+        self.assertEqual(self.dmc_field.value, [])
+        self.assertEqual(self.dmc_field.cleaned, [])
 
         # update choices
-        self.assertEqual(form.fields["dmc_field"].choices_updated, False)
+        self.assertEqual(self.dmc_field.choices_updated, False)
         choice_api_data = [
             {"value": "london", "doc_count": 10},
             {"value": "leeds", "doc_count": 5},
         ]
-        form.fields["dmc_field"].update_choices(
-            choice_api_data, form.fields["dmc_field"].value
-        )
-        self.assertEqual(form.fields["dmc_field"].choices_updated, True)
+        self.dmc_field.update_choices(choice_api_data, self.dmc_field.value)
+        self.assertEqual(self.dmc_field.choices_updated, True)
 
         self.assertEqual(
-            form.fields["dmc_field"].items,
+            self.dmc_field.items,
             [
                 {"text": "London (10)", "value": "london"},
                 {"text": "Leeds (5)", "value": "leeds"},
             ],
         )
-        self.assertEqual(form.fields["dmc_field"].error, {})
+        self.assertEqual(self.dmc_field.error, {})
 
     def test_form_with_dynamic_multiple_choice_field_with_data_found_for_all_params(
         self,
     ):
 
         data = QueryDict("dmc_field=london&dmc_field=leeds")
-        form = self.get_form_with_dynamic_multiple_choice_field(data)
+        form = self.create_form_with_dynamic_multiple_choice_field(data)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, True)
         self.assertEqual(form.errors, {})
-        self.assertEqual(form.fields["dmc_field"].value, ["london", "leeds"])
-        self.assertEqual(form.fields["dmc_field"].cleaned, ["london", "leeds"])
+        self.assertEqual(self.dmc_field.value, ["london", "leeds"])
+        self.assertEqual(self.dmc_field.cleaned, ["london", "leeds"])
 
         # update choices
-        self.assertEqual(form.fields["dmc_field"].choices_updated, False)
+        self.assertEqual(self.dmc_field.choices_updated, False)
         choice_api_data = [
             {"value": "london", "doc_count": 10},
             {"value": "leeds", "doc_count": 5},
         ]
-        form.fields["dmc_field"].update_choices(
-            choice_api_data, form.fields["dmc_field"].value
-        )
-        self.assertEqual(form.fields["dmc_field"].choices_updated, True)
+        self.dmc_field.update_choices(choice_api_data, self.dmc_field.value)
+        self.assertEqual(self.dmc_field.choices_updated, True)
 
         self.assertEqual(
-            form.fields["dmc_field"].items,
+            self.dmc_field.items,
             [
                 {
                     "text": "London (10)",
@@ -310,32 +302,30 @@ class BaseFormWithDMCFieldValidateInputFalseTest(TestCase):
                 },
             ],
         )
-        self.assertEqual(form.fields["dmc_field"].error, {})
+        self.assertEqual(self.dmc_field.error, {})
 
     def test_form_with_dynamic_multiple_choice_field_with_data_found_for_some_params(
         self,
     ):
 
         data = QueryDict("dmc_field=london&dmc_field=leeds")
-        form = self.get_form_with_dynamic_multiple_choice_field(data)
+        form = self.create_form_with_dynamic_multiple_choice_field(data)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, True)
         self.assertEqual(form.errors, {})
-        self.assertEqual(form.fields["dmc_field"].value, ["london", "leeds"])
-        self.assertEqual(form.fields["dmc_field"].cleaned, ["london", "leeds"])
+        self.assertEqual(self.dmc_field.value, ["london", "leeds"])
+        self.assertEqual(self.dmc_field.cleaned, ["london", "leeds"])
 
         # update choices
-        self.assertEqual(form.fields["dmc_field"].choices_updated, False)
+        self.assertEqual(self.dmc_field.choices_updated, False)
         choice_api_data = [
             {"value": "london", "doc_count": 10},
         ]
-        form.fields["dmc_field"].update_choices(
-            choice_api_data, form.fields["dmc_field"].value
-        )
-        self.assertEqual(form.fields["dmc_field"].choices_updated, True)
+        self.dmc_field.update_choices(choice_api_data, self.dmc_field.value)
+        self.assertEqual(self.dmc_field.choices_updated, True)
 
         self.assertEqual(
-            form.fields["dmc_field"].items,
+            self.dmc_field.items,
             [
                 {
                     "text": "London (10)",  # Data found
@@ -349,4 +339,4 @@ class BaseFormWithDMCFieldValidateInputFalseTest(TestCase):
                 },
             ],
         )
-        self.assertEqual(form.fields["dmc_field"].error, {})
+        self.assertEqual(self.dmc_field.error, {})
