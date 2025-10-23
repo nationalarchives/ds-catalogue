@@ -34,7 +34,7 @@ services:
     volumes:
       - ./wiremock:/home/wiremock
     ports:
-      - 8080:8080
+      - 65501:8080
   dev:
     image: ghcr.io/nationalarchives/tna-python-dev:preview
     volumes:
