@@ -215,13 +215,13 @@ class DynamicMultipleChoiceField(BaseField):
     def items(self):
         if self.error:
             if self.configured_choices:
-                # remove choices that have been updated 
+                # remove choices that have been updated
                 # with configured choices by coercing with empty data
                 self.update_choices([], [])
         else:
             # check choices not updated i.e. api did not return any choice data
             if not self.choices_updated:
-                # remove choices that have been updated 
+                # remove choices that have been updated
                 # with configured choices by coercing with empty data
                 # and coerce 0 counts for input not in api data
                 self.update_choices([], self.value)

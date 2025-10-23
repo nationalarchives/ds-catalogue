@@ -29,7 +29,7 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
     def test_form_with_dynamic_multiple_choice_field_initial_attrs(self):
 
         _ = self.create_form_with_dynamic_multiple_choice_field()
-        
+
         self.assertEqual(self.dmc_field.name, "dmc_field")
         self.assertEqual(self.dmc_field.label, "Location")
         self.assertEqual(self.dmc_field.hint, "")
@@ -213,7 +213,7 @@ class BaseFormWithDMCFieldValidateInputFalseTest(TestCase):
     def test_form_with_dynamic_multiple_choice_field_initial_attrs(self):
 
         _ = self.create_form_with_dynamic_multiple_choice_field()
-        
+
         self.assertEqual(self.dmc_field.name, "dmc_field")
         self.assertEqual(self.dmc_field.label, "Location")
         self.assertEqual(self.dmc_field.hint, "")
