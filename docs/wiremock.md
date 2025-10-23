@@ -28,6 +28,8 @@ The `urlPattern` field uses regular expressions to define flexible URL matching.
 
 ## Using the mocked endpoints
 
+You can see the API responses in your browser using http://localhost:65501/rosetta/data (plus the endpoint you require)
+
 To use the mocked endpoints during local development, you'll need to update your `.env` file to use the Wiremock server URL, rather than the real API endpoint. For example, to use the Wiremock server for the delivery options API, you would set the following environment variable:
 
 ```
