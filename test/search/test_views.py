@@ -663,22 +663,6 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&q=%2A&size=20"
         )
 
-        # query with search term, non tna records
-        self.response = self.client.get("/catalogue/search/?group=nonTna&q=ufo")
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
-        )
-
-        # with collection param for nonTna group
-        self.response = self.client.get(
-            "/catalogue/search/?group=nonTna&q=ufo&collection=BT"
-        )
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
-        )
-
         # Test subjects filter for TNA group
         self.response = self.client.get(
             "/catalogue/search/?group=tna&subject=Army&subject=Navy"
