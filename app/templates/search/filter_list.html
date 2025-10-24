@@ -10,6 +10,7 @@
 {{ super() }}
 <link rel="stylesheet" href="{{ static('catalogue-results.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
 {% endblock %}
+
 {% block beforeContent %}
 <div class="tna-background-accent">
    <div class="tna-container">
@@ -61,6 +62,8 @@
       </div>
    </div>
 
+
+
 <div id="results" class="tna-column tna-column--width-2-3 tna-!--margin-top-l">
    
    {{ tnaCheckboxes({
@@ -69,6 +72,7 @@
   'headingSize': "m",
   'id': "categories",
   'name': "categories",
+  'classes': 'tna-checkboxes--grid',
   'items': [
     {
       'text': "ADM - Admiralty, Navy, Royal Marines, and Castguard (713,881)",
@@ -94,6 +98,8 @@
    ]
 }) }}
 </div>
+
+
 
    
 
