@@ -1,12 +1,12 @@
-from http import HTTPStatus
-
 import responses
 from django.conf import settings
 from django.test import TestCase
+from app.records.models import Record
 
 
 class CatalogueSearchViewHeldByFilterTests(TestCase):
-    """Mainly tests the context."""
+    """Mainly tests the context.
+    Held by filter is only available for nonTna group."""
 
     def setUp(self):
         self.maxDiff = None
@@ -73,23 +73,46 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
         self.response = self.client.get(
             "/catalogue/search/?group=nonTna&held_by=Devon Archives and Local Studies Service (South West Heritage Trust)&held_by=National Library of Wales: Department of Collection Services"
         )
+        context_data = self.response.context_data
+        form = context_data.get("form")
+        held_by_field = form.fields["held_by"]
+
+        self.assertEqual(form.is_valid(), True)
+
+        self.assertIsInstance(context_data.get("results"), list)
+        self.assertEqual(len(context_data.get("results")), 2)
+        self.assertIsInstance(context_data.get("results")[0], Record)
+        self.assertEqual(
+            context_data.get("stats"),
+            {"total": 2, "results": 20},
+        )
 
         self.assertEqual(
-            self.response.context_data.get("form").fields["held_by"].value,
+            context_data.get("results_range"),
+            {"from": 1, "to": 20},
+        )
+
+        self.assertEqual(
+            held_by_field.choices_updated,
+            True,
+        )
+
+        self.assertEqual(
+            held_by_field.value,
             [
                 "Devon Archives and Local Studies Service (South West Heritage Trust)",
                 "National Library of Wales: Department of Collection Services",
             ],
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["held_by"].cleaned,
+            held_by_field.cleaned,
             [
                 "Devon Archives and Local Studies Service (South West Heritage Trust)",
                 "National Library of Wales: Department of Collection Services",
             ],
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["held_by"].items,
+            held_by_field.items,
             [
                 {
                     "text": "Devon Archives and Local Studies Service (South West Heritage Trust) (1)",
@@ -104,7 +127,7 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
             ],
         )
         self.assertEqual(
-            self.response.context_data.get("selected_filters"),
+            context_data.get("selected_filters"),
             [
                 {
                     "label": "Held by: Devon Archives and Local Studies Service (South West Heritage Trust)",
@@ -130,6 +153,7 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
             f"{settings.ROSETTA_API_URL}/search",
             json={
                 "data": [],
+                "aggregations": [{"name": "heldBy", "total": 0, "other": 0}],
                 "buckets": [
                     {
                         "name": "group",
@@ -149,24 +173,36 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
             "/catalogue/search/?group=nonTna&held_by=DOESNOTEXIST"
         )
 
-        self.assertEqual(self.response.context_data.get("results"), [])
-        self.assertEqual(self.response.context_data.get("results_range"), None)
-        self.assertEqual(self.response.context_data.get("pagination"), None)
+        context_data = self.response.context_data
+        form = context_data.get("form")
+        held_by_field = form.fields["held_by"]
 
+        self.assertEqual(form.is_valid(), True)
+
+        self.assertEqual(context_data.get("results"), [])
+        self.assertEqual(context_data.get("results_range"), None)
+        self.assertEqual(context_data.get("pagination"), None)
+
+        self.assertEqual(held_by_field.choices_updated, True)
+
+        self.assertEqual(held_by_field.value, ["DOESNOTEXIST"])
         self.assertEqual(
-            self.response.context_data.get("form").fields["held_by"].value,
+            held_by_field.cleaned,
             ["DOESNOTEXIST"],
         )
+        self.assertEqual(held_by_field.choices_updated, True)
         self.assertEqual(
-            self.response.context_data.get("form").fields["held_by"].cleaned,
-            ["DOESNOTEXIST"],
+            held_by_field.items,
+            [
+                {
+                    "checked": True,
+                    "text": "DOESNOTEXIST (0)",
+                    "value": "DOESNOTEXIST",
+                }
+            ],
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["held_by"].items,
-            [],
-        )
-        self.assertEqual(
-            self.response.context_data.get("selected_filters"),
+            context_data.get("selected_filters"),
             [
                 {
                     "label": "Held by: DOESNOTEXIST",
