@@ -121,9 +121,9 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
     def test_catalogue_search_with_known_filters_with_unmatched_config_returns_results(
         self,
     ):
-        """Test that known filter value VALID-WITH-UNMACTHED-CONFIG which do not match the config return results."""
+        """Test that known filter value VALID-WITH-UNMATCHED-CONFIG which do not match the config return results."""
 
-        input_collections = ["VALID-WITH-UNMACTHED-CONFIG"]
+        input_collections = ["VALID-WITH-UNMATCHED-CONFIG"]
         collection_query = "&" + "&".join(
             f"collection={col}" for col in input_collections
         )
@@ -152,7 +152,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
                         "name": "collection",
                         "entries": [
                             {
-                                "value": "VALID-WITH-UNMACTHED-CONFIG",
+                                "value": "VALID-WITH-UNMATCHED-CONFIG",
                                 "doc_count": 50,
                             },
                         ],
@@ -175,7 +175,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
         )
 
         # unmatched collection param
-        # &collection=VALID-WITH-UNMACTHED-CONFIG
+        # &collection=VALID-WITH-UNMATCHED-CONFIG
         self.response = self.client.get(
             "/catalogue/search/?" + collection_query
         )
@@ -188,12 +188,12 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
 
         self.assertEqual(
             collection_field.value,
-            ["VALID-WITH-UNMACTHED-CONFIG"],
+            ["VALID-WITH-UNMATCHED-CONFIG"],
         )
         self.assertEqual(
             collection_field.cleaned,
             [
-                "VALID-WITH-UNMACTHED-CONFIG",
+                "VALID-WITH-UNMATCHED-CONFIG",
             ],
         )
         self.assertEqual(collection_field.choices_updated, True)
@@ -201,8 +201,8 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
             collection_field.items,
             [
                 {
-                    "text": "VALID-WITH-UNMACTHED-CONFIG (50)",
-                    "value": "VALID-WITH-UNMACTHED-CONFIG",
+                    "text": "VALID-WITH-UNMATCHED-CONFIG (50)",
+                    "value": "VALID-WITH-UNMATCHED-CONFIG",
                     "checked": True,
                 },
             ],
@@ -211,9 +211,9 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
             context_data.get("selected_filters"),
             [
                 {
-                    "label": "Collection: VALID-WITH-UNMACTHED-CONFIG",
+                    "label": "Collection: VALID-WITH-UNMATCHED-CONFIG",
                     "href": "?",
-                    "title": "Remove VALID-WITH-UNMACTHED-CONFIG collection",
+                    "title": "Remove VALID-WITH-UNMATCHED-CONFIG collection",
                 },
             ],
         )
