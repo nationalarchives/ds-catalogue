@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Any, Dict, List
 
 from app.lib.api import JSONAPIClient
@@ -51,7 +52,6 @@ def delivery_options_request_handler(iaid: str) -> List[Dict[str, Any]]:
 
     except Exception as e:
         # Log the original exception for debugging
-        import logging
 
         logger = logging.getLogger(__name__)
         logger.error(f"Delivery options request error: {str(e)}")

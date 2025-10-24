@@ -72,6 +72,7 @@ class JSONAPIClient:
             except JSONDecodeError:
                 logger.error("JSON API provided non-JSON response")
                 raise Exception("Non-JSON response provided")
+
         if response.status_code == HTTPStatus.BAD_REQUEST:
             logger.error(f"Bad request: {response.url}")
             raise Exception("Bad request")
