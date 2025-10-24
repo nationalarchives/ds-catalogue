@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/rosetta/data?.*iaid=C6934963.*"
+  },
+  "response": {
+    "status": 200,
+    "body": "[{\"options\": 30, \"surrogateLinks\": [], \"advancedOrderUrlParameters\": \"requestthis=AIR 51/1&CATID=-1414484&CATLN=7&Itemref=AIR 51/1/5&ItemScope=&linkback=\"}]",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
