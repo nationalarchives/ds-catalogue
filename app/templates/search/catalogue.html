@@ -98,6 +98,14 @@
       </div> -->
       <input type="hidden" name="display" value="{{ request.GET.get('display') or 'list' }}">
       <input type="hidden" name="group" value="{{ request.GET.get('group') or bucket_keys.TNA }}">
+      {% if form.fields.group.value==bucket_keys.TNA %}
+        {# preserve invalid inputs from disappearing when other filters are updated until invalids are removed #}
+        {% if form.fields['level'].error %}
+          {% for value in  form.fields['level'].value %}
+            <input type="hidden" name="level" value="{{ value }}">
+          {% endfor %}
+        {% endif %}
+      {% endif %}
     </form>
     <div class="tna-column tna-column-full">
       <a href="{{ url('main:catalogue') }}">Start new search</a>
