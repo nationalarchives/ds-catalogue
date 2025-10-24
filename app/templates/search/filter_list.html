@@ -65,7 +65,7 @@
 
 
 <div id="results" class="tna-column tna-column--width-2-3 tna-!--margin-top-l">
-   
+   <form id="long-filters-form" method="get"> 
    {{ tnaCheckboxes({
   'label': '',
   'headingLevel': 4,
@@ -97,11 +97,8 @@
     
    ]
 }) }}
-</div>
 
-
-
-   
+</div>  
 
 <div class="tna-container tna-section">
    <a href="#" class="tna-button">
@@ -111,7 +108,7 @@
    Cancel and return to results
    </a>
 </div>
-
+</form>
 
 {% endblock %}
 {% block content %}
