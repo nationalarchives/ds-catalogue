@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/rosetta/data?.*iaid=C3747386.*"
+  },
+  "response": {
+    "status": 200,
+    "body": "[{\"options\": 4, \"surrogateLinks\": [{\"xReferenceId\": null, \"xReferenceCode\": null, \"xReferenceName\": null, \"xReferenceType\": \"DIGITIZED_LIA\", \"xReferenceURL\": \"<a target=\\\"_blank\\\" href=\\\"https://www.ancestry.co.uk/search/collections/7572/\\\">Ancestry</a>\", \"xReferenceDescription\": null, \"xReferenceSortWord\": null}, {\"xReferenceId\": null, \"xReferenceCode\": null, \"xReferenceName\": null, \"xReferenceType\": \"DIGITIZED_LIA\", \"xReferenceURL\": \"<a target=\\\"_blank\\\" href=\\\"https://www.thegenealogist.co.uk/census/1881/\\\">The Genealogist</a>\", \"xReferenceDescription\": null, \"xReferenceSortWord\": null}, {\"xReferenceId\": null, \"xReferenceCode\": null, \"xReferenceName\": null, \"xReferenceType\": \"DIGITIZED_LIA\", \"xReferenceURL\": \"<a target=\\\"_blank\\\" href=\\\"https://search.findmypast.co.uk/search-world-Records/1881-england-wales-and-scotland-census\\\">Findmypast</a>\", \"xReferenceDescription\": null, \"xReferenceSortWord\": null}], \"advancedOrderUrlParameters\": null}]",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

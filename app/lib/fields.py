@@ -1,10 +1,27 @@
 """Module for custom fields which interfaces with FE component attrs."""
 
+import calendar
+from datetime import date
+from enum import StrEnum
+
+from django.http import QueryDict
 from django.utils.functional import cached_property
 
 
 class ValidationError(Exception):
     pass
+
+
+class DateKeys(StrEnum):
+    """Date keys for multi part date fields used both BE and FE.
+    They appear in the input name as suffixes in the FE component.
+    Ex for field name 'start_date', the input keys are
+    The separator is defined in the field as date_ymd_separator.
+    'start_date-year', 'start_date-month', 'start_date-day'."""
+
+    YEAR = "year"
+    MONTH = "month"
+    DAY = "day"
 
 
 class BaseField:
@@ -30,7 +47,7 @@ class BaseField:
         self.choices = None  # applicable to certain fields ex choice
         self.active_filter_label = active_filter_label
 
-    def bind(self, name, value: list | str) -> None:
+    def bind(self, name, value: list | str | QueryDict | dict) -> None:
         """Binds field name, value to the field. The value is usually from
         user input. Binding happens through the form on initialisation.
         Override to bind to list or string."""
@@ -38,6 +55,10 @@ class BaseField:
         self.name = name
         self.label = self.label or name.capitalize()
         self._value = value
+
+    def get_bind_value(self, data: QueryDict, name: str):
+        """Override in subclasses if special bind value extraction is needed."""
+        return data.getlist(name)
 
     def is_valid(self):
         """Runs cleaning and validation. Handles ValidationError.
@@ -289,3 +310,240 @@ class DynamicMultipleChoiceField(BaseField):
         # Replace the field's attribute value
         self.choices = choices
         self.choices_updated = True
+
+
+class MultiPartDateField(BaseField):
+    """A field for handling date input split into multiple parts (day, month, year).
+    The input is expected to be QueryDict of date parts.
+    The field handles progressive and non-progressive date entry.
+    Non-progressive date entry requires all parts to be entered or none.
+
+    Note: progressive data passes with all parts and progressive=True
+    """
+
+    def __init__(
+        self, progressive: bool = True, date_ymd_separator: str = "-", **kwargs
+    ):
+        """
+        This field is used for both progressive and non-progressive date entry.
+
+        progressive: if True, allows progressive date entry starting from year,
+        then month, then day. If False, requires all parts (day, month, year)
+        to be entered or none.
+        date_ymd_separator: separator between field name and date part key.
+        FE component uses this value as separator for ymd date entry.
+        Ex for field name 'start_date' and separator '-', the input keys are
+        'start_date-year', 'start_date-month', 'start_date-day'.
+
+        progressive, date_ymd_separator - are field specific attributes used
+        to configure the field behaviour and interface with the FE component.
+        """
+
+        self.progressive = progressive
+        self.date_ymd_separator = date_ymd_separator
+        self.date_keys = [
+            DateKeys.YEAR.value,
+            DateKeys.MONTH.value,
+            DateKeys.DAY.value,
+        ]
+        super().__init__(**kwargs)
+
+    def bind(self, name, value: QueryDict) -> None:
+        """Extracts values from QueryDict and binds to a dict."""
+
+        # bind value will either be empty dict or a dict with parts
+        bind_value = {}
+
+        for key in self.date_keys:
+            input_value = value.get(f"{name}{self.date_ymd_separator}{key}", "")
+            bind_value[key] = input_value
+
+        super().bind(name, bind_value)
+
+    def get_bind_value(self, data: QueryDict, name: str):
+        """MultiPartDateField needs the entire QueryDict to extract date parts."""
+        return data
+
+    def clean(self, value: dict[str, str]) -> dict[str, str] | date | None:
+        """Cleans and validates dict value. returns dict for calling function
+        to handle partial date."""
+
+        value = super().clean(value)
+
+        # after validation, convert to date object
+        year, month, day = (
+            value.get(date_key, "") for date_key in self.date_keys
+        )
+        if year and month and day:
+            # return for either progressive or full date
+            return date(int(year), int(month), int(day))
+
+        # partial date or no date entered
+        if self.progressive:
+            # return to calling function to handle partial date
+            return value
+
+        # not progressive, no full date entered, cleaned is None
+        return None
+
+    def validate(self, value: dict):
+        """Overrides validate because of multi parts.
+        value must be a dict with keys day, month, year."""
+
+        # first validate required field
+        self._validate_required(value)
+
+        # validate complete date for non-progressive entry
+        if not self.progressive and not self._is_complete_date(value):
+            raise ValidationError(
+                "Either all or none of the date parts (day, month, year) must be provided."
+            )
+
+        # validate date parts if any part entered
+        year_int = self._validate_year_only(DateKeys.YEAR.value, value)
+        month_int = self._validate_month_only(DateKeys.MONTH.value, value)
+        day_int = self._validate_day_only(DateKeys.DAY.value, value)
+        if year_int and month_int and day_int:
+            self._validate_full_date(year_int, month_int, day_int)
+
+    def _validate_required(self, value):
+        """Validates required field."""
+
+        year, _, _ = (value.get(date_key, "") for date_key in self.date_keys)
+
+        # basic validation for required field
+        if self.required:
+            if self.progressive:
+                if not year:
+                    raise ValidationError("Year value is required.")
+            else:
+                if any(v == "" for v in value.values()):
+                    raise ValidationError(
+                        "All date parts (day, month, year) are required."
+                    )
+
+    def _validate_int(self, key, value) -> int:
+        """Validates integer input for progressive date field."""
+
+        input_value = value.get(key, "")
+        try:
+            int_value = int(input_value)
+        except ValueError:
+            raise ValidationError(f"{key.capitalize()} must be an integer.")
+        return int_value
+
+    def _validate_year_only(self, key, value) -> int | None:
+        """Validates year input."""
+
+        year = value.get(key, "")
+        year_int = None
+        if year:
+            year_int = self._validate_int(key, value)
+            if not (1 <= year_int <= 9999):
+                raise ValidationError(
+                    f"{key.capitalize()} must be between 1 and 9999."
+                )
+        return year_int
+
+    def _validate_month_only(self, key, value) -> int | None:
+        """Validates month input."""
+
+        month = value.get(key, "")
+        month_int = None
+        if month:
+            month_int = self._validate_int(key, value)
+            if not (1 <= month_int <= 12):
+                raise ValidationError(
+                    f"{key.capitalize()} must be between 1 and 12."
+                )
+        return month_int
+
+    def _validate_day_only(self, key, value) -> int | None:
+        """Validates day input."""
+
+        day = value.get(key, "")
+        day_int = None
+        if day:
+            day_int = self._validate_int(key, value)
+            if not (1 <= day_int <= 31):
+                raise ValidationError(
+                    f"{key.capitalize()} must be between 1 and 31."
+                )
+        return day_int
+
+    def _validate_full_date(self, year: int, month: int, day: int):
+        """Validates full date input."""
+
+        try:
+            _ = date(year, month, day)
+        except ValueError:
+            raise ValidationError(
+                "Entered date must be a real date, for example Year 2017, Month 9, Day 23"
+            )
+
+    def _is_complete_date(self, value):
+        """Checks if all or none of the date parts are filled."""
+
+        filled = [bool(value.get(key)) for key in self.date_keys]
+        return all(filled) or not any(filled)
+
+
+class BaseProgressiveDateField(MultiPartDateField):
+
+    def clean(self, value: dict | date | None) -> date | None:
+
+        # clean and validate partial input from super method
+        value = super().clean(value)
+
+        if value and isinstance(value, dict):
+            # fill in missing parts progressively to form a valid date
+
+            if year := value.get("year"):
+                return self._create_date_from_parts(
+                    year=year, month=value.get("month"), day=value.get("day")
+                )
+            else:
+                # year not entered, cannot progress
+                return None
+
+        return value
+
+    def _create_date_from_parts(
+        self, year: str, month: str, day: str
+    ) -> dict[str, str]:
+        """Subclass to fill in missing parts progressively to form a valid date."""
+        raise NotImplementedError
+
+
+class FromDateField(BaseProgressiveDateField):
+    """Progressive date entry starting from year, then month, then day.
+    Missing parts are filled in progressively to form a valid date.
+    Ex year only 2023 -> 2023-01-01
+    Ex year and month 2023-02 -> 2023-02-01
+    Note: Field name should be suffixed with '_from'
+    """
+
+    def _create_date_from_parts(self, year: str, month: str, day: str) -> date:
+        """Fill in missing parts progressively to form a valid date."""
+        if not month:
+            month = "01"
+        if not day:
+            day = "01"
+        return date(int(year), int(month), int(day))
+
+
+class ToDateField(BaseProgressiveDateField):
+    """Progressive date entry starting from year, then month, then day.
+    Missing parts are filled in progressively to form a valid date.
+    Ex year only 2023 -> 2023-12-31
+    Ex year and month 2023-02 -> 2023-02-28/29
+    Note: field name should be suffixed with '_to'"""
+
+    def _create_date_from_parts(self, year: str, month: str, day: str) -> date:
+        """Fill in missing parts progressively to form a valid date."""
+        if month:
+            day = str(calendar.monthrange(int(year), int(month))[1])
+        else:
+            month = "12"
+            day = "31"
+        return date(int(year), int(month), int(day))

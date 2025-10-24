@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/rosetta/data?.*iaid=C1905025.*"
+  },
+  "response": {
+    "status": 200,
+    "body": "[{\"options\": 6, \"surrogateLinks\": [{\"xReferenceId\": null, \"xReferenceCode\": null, \"xReferenceName\": null, \"xReferenceType\": \"DIGITIZED_DISCOVERY\", \"xReferenceURL\": \"<a target=\\\"_blank\\\" href=\\\"https://www.thegenealogist.co.uk/search/advanced/wills/pcc/\\\">The Genealogist</a>\", \"xReferenceDescription\": null, \"xReferenceSortWord\": null}, {\"xReferenceId\": null, \"xReferenceCode\": null, \"xReferenceName\": null, \"xReferenceType\": \"DIGITIZED_DISCOVERY\", \"xReferenceURL\": \"<a target=\\\"_blank\\\" href=\\\"https://www.ancestryinstitution.co.uk/search/collections/5111/\\\">Ancestry</a>\", \"xReferenceDescription\": null, \"xReferenceSortWord\": null}], \"advancedOrderUrlParameters\": null}]",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

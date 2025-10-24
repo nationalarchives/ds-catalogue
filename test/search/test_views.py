@@ -83,13 +83,18 @@ class CatalogueSearchViewDefaultTests(TestCase):
         self.response = self.client.get("/catalogue/search/")
         context_data = self.response.context_data
         form = context_data.get("form")
-        group_field = form.fields["group"]
-        q_field = form.fields["q"]
-        sort_field = form.fields["sort"]
-        level_field = form.fields["level"]
-        collection_field = form.fields["collection"]
-        closure_field = form.fields["closure"]
-        subject_field = form.fields["subject"]
+        group_field = form.fields[FieldsConstant.GROUP]
+        q_field = form.fields[FieldsConstant.Q]
+        sort_field = form.fields[FieldsConstant.SORT]
+        level_field = form.fields[FieldsConstant.LEVEL]
+        collection_field = form.fields[FieldsConstant.COLLECTION]
+        closure_field = form.fields[FieldsConstant.CLOSURE]
+        subject_field = form.fields[FieldsConstant.SUBJECT]
+        covering_date_from_field = form.fields[ 
+            FieldsConstant.COVERING_DATE_FROM
+        ]
+        covering_date_to_field = form.fields[FieldsConstant.COVERING_DATE_TO]
+
 
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
 
@@ -141,7 +146,7 @@ class CatalogueSearchViewDefaultTests(TestCase):
         # ### form ###
         self.assertIsInstance(form, CatalogueSearchTnaForm)
         self.assertEqual(form.errors, {})
-        self.assertEqual(len(form.fields), 9)
+        self.assertEqual(len(form.fields), 13)
         tna_field_names = [
             FieldsConstant.GROUP,
             FieldsConstant.SORT,
@@ -152,6 +157,10 @@ class CatalogueSearchViewDefaultTests(TestCase):
             FieldsConstant.ONLINE,
             FieldsConstant.CLOSURE,
             FieldsConstant.FILTER_LIST,
+            FieldsConstant.COVERING_DATE_FROM,
+            FieldsConstant.COVERING_DATE_TO,
+            FieldsConstant.OPENING_DATE_FROM,
+            FieldsConstant.OPENING_DATE_TO,
         ]
         tna_form_field_names = set(form.fields.keys())
         self.assertTrue(set(tna_field_names) == set(tna_form_field_names))
@@ -296,4 +305,48 @@ class CatalogueSearchViewDefaultTests(TestCase):
                 {"text": "Army (25)", "value": "Army"},
                 {"text": "Navy (15)", "value": "Navy"},
             ],
+        )
+
+        # test covering date from fields
+        self.assertEqual(
+            covering_date_from_field.name,
+            "covering_date_from",
+        )
+        self.assertEqual(
+            covering_date_from_field.label,
+            "From",
+        )
+        self.assertEqual(
+            covering_date_from_field.active_filter_label,
+            "Record date from",
+        )
+        self.assertEqual(
+            covering_date_from_field.value,
+            {"year": "", "month": "", "day": ""},
+        )
+        self.assertEqual(
+            covering_date_from_field.cleaned,
+            None,
+        )
+
+        # test covering date to fields
+        self.assertEqual(
+            covering_date_to_field.name,
+            "covering_date_to",
+        )
+        self.assertEqual(
+            covering_date_to_field.label,
+            "To",
+        )
+        self.assertEqual(
+            covering_date_to_field.active_filter_label,
+            "Record date to",
+        )
+        self.assertEqual(
+            covering_date_to_field.value,
+            {"year": "", "month": "", "day": ""},
+        )
+        self.assertEqual(
+            covering_date_to_field.cleaned,
+            None,
         )

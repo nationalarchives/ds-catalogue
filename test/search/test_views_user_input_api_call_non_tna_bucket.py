@@ -75,3 +75,12 @@ class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
         mock_logger.debug.assert_called_with(
             "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
         )
+
+        # Test covering date filters
+        self.response = self.client.get(
+            "/catalogue/search/?group=nonTna&covering_date_from-year=2000&covering_date_from-month=12&covering_date_from-day=1&covering_date_to-year=2000&covering_date_to-month=12&covering_date_to-day=31"
+        )
+        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+        mock_logger.debug.assert_called_with(
+            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29&filter=coveringToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
+        )

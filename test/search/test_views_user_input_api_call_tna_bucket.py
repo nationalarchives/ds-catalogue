@@ -42,7 +42,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
                         ],
                     },
                     {
-                        "name": "subjects",
+                        "name": "subject",
                         "entries": [
                             {"value": "somevalue", "doc_count": 100},
                         ],
@@ -88,11 +88,29 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&q=%2A&size=20"
         )
 
-        # Test subjects filter for TNA group
+        # Test subject filter for TNA group
         self.response = self.client.get(
             "/catalogue/search/?group=tna&subject=Army&subject=Navy"
         )
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
             "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&filter=subject%3AArmy&filter=subject%3ANavy&q=%2A&size=20"
+        )
+
+        # Test covering date filters
+        self.response = self.client.get(
+            "/catalogue/search/?covering_date_from-year=2000&covering_date_from-month=12&covering_date_from-day=1&covering_date_to-year=2000&covering_date_to-month=12&covering_date_to-day=31"
+        )
+        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+        mock_logger.debug.assert_called_with(
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29&filter=coveringToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
+        )
+
+        # Test opening date filters
+        self.response = self.client.get(
+            "/catalogue/search/?opening_date_from-year=2000&opening_date_from-month=12&opening_date_from-day=1&opening_date_to-year=2000&opening_date_to-month=12&opening_date_to-day=31"
+        )
+        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+        mock_logger.debug.assert_called_with(
+            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&filter=openingFromDate%3A%28%3E%3D2000-12-1%29&filter=openingToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
         )
