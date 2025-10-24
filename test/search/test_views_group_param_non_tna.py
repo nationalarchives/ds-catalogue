@@ -48,40 +48,38 @@ class CatalogueSearchViewGroupParamTests(TestCase):
         )
 
         self.response = self.client.get("/catalogue/search/?group=nonTna")
+
+        form = self.response.context_data.get("form")
+        group_field = form.fields[FieldsConstant.GROUP]
+
         self.assertEqual(self.response.status_code, HTTPStatus.OK)
 
-        self.assertIsInstance(
-            self.response.context_data.get("form"), CatalogueSearchNonTnaForm
-        )
-        self.assertEqual(self.response.context_data.get("form").errors, {})
-        self.assertEqual(len(self.response.context_data.get("form").fields), 4)
+        self.assertIsInstance(form, CatalogueSearchNonTnaForm)
+        self.assertEqual(form.errors, {})
+        self.assertEqual(len(form.fields), 4)
         non_tna_field_names = [
             FieldsConstant.GROUP,
             FieldsConstant.SORT,
             FieldsConstant.Q,
             FieldsConstant.HELD_BY,
         ]
-        non_tna_form_field_names = set(
-            self.response.context_data.get("form").fields.keys()
-        )
+        non_tna_form_field_names = set(form.fields.keys())
         self.assertTrue(
             set(non_tna_field_names) == set(non_tna_form_field_names)
         )
 
+        self.assertEqual(group_field.name, "group")
         self.assertEqual(
-            self.response.context_data.get("form").fields["group"].name, "group"
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["group"].value,
+            group_field.value,
             "nonTna",
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["group"].cleaned,
+            group_field.cleaned,
             "nonTna",
         )
 
         self.assertEqual(
-            self.response.context_data.get("form").fields["group"].items,
+            group_field.items,
             [
                 {
                     "text": "Records at the National Archives",

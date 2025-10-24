@@ -1,7 +1,8 @@
 import responses
+from app.records.models import Record
+from app.search.forms import FieldsConstant
 from django.conf import settings
 from django.test import TestCase
-from app.records.models import Record
 
 
 class CatalogueSearchViewHeldByFilterTests(TestCase):
@@ -75,7 +76,7 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
         )
         context_data = self.response.context_data
         form = context_data.get("form")
-        held_by_field = form.fields["held_by"]
+        held_by_field = form.fields[FieldsConstant.HELD_BY]
 
         self.assertEqual(form.is_valid(), True)
 
@@ -92,10 +93,7 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
             {"from": 1, "to": 20},
         )
 
-        self.assertEqual(
-            held_by_field.choices_updated,
-            True,
-        )
+        self.assertEqual(held_by_field.choices_updated, True)
 
         self.assertEqual(
             held_by_field.value,
