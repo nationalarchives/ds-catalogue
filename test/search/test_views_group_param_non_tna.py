@@ -10,7 +10,8 @@ from django.test import TestCase
 
 
 class CatalogueSearchViewGroupParamTests(TestCase):
-    """Mainly tests the context."""
+    """Mainly tests the context.
+    Group param decides which form to use."""
 
     @responses.activate
     def test_catalogue_search_context_with_non_tna_group(self):

@@ -12,7 +12,8 @@ from django.test import TestCase
 
 
 class CatalogueSearchViewDefaultTests(TestCase):
-    """Mainly tests the context."""
+    """Mainly tests the context.
+    Default is tna group."""
 
     @responses.activate
     def test_catalogue_search_context_without_params(self):

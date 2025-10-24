@@ -6,7 +6,8 @@ from django.test import TestCase
 
 
 class CatalogueSearchViewSortParamTests(TestCase):
-    """Mainly tests the context."""
+    """Mainly tests the context.
+    Sort param is available for all groups."""
 
     @responses.activate
     def test_catalogue_search_context_with_sort_param(self):

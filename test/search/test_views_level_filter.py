@@ -6,7 +6,8 @@ from django.test import TestCase
 
 
 class CatalogueSearchViewLevelFilterTests(TestCase):
-    """Mainly tests the context."""
+    """Mainly tests the context.
+    Level filter is only available for tna group."""
 
     @responses.activate
     def test_catalogue_search_context_with_valid_level_param(self):

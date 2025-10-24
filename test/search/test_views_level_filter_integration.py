@@ -5,7 +5,8 @@ from django.utils.encoding import force_str
 
 
 class CatalogueSearchViewLevelFilterIntegrationTests(TestCase):
-    """Tests context with hidden level filter inputs in the template output."""
+    """Tests context with hidden level filter inputs in the template output.
+    Level filter is available for tna group only."""
 
     def test_catalogue_search_context_with_invalid_level_param(self):
         """Test level filter with invalid param value.
