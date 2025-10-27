@@ -27,7 +27,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
     @patch("app.records.related.search_records")
     def test_returns_related_records_when_found(self, mock_search):
         """Test that related records are returned when found"""
-        # Mock API response with related records
+        # Mock API response with related records (need at least 9 to satisfy fetch_limit = 3*3)
         mock_api_response = Mock(spec=APISearchResponse)
         mock_api_response.records = [
             Record(
@@ -46,34 +46,91 @@ class RelatedRecordsBySubjectsTests(TestCase):
                     "level": {"code": 7},
                 }
             ),
+            Record(
+                {
+                    "iaid": "C999999",
+                    "summaryTitle": "Related War Diary 3",
+                    "subjects": ["Army", "Conflict", "Diaries"],
+                    "level": {"code": 7},
+                }
+            ),
+            Record(
+                {
+                    "iaid": "C888888",
+                    "summaryTitle": "Related War Diary 4",
+                    "subjects": ["Army"],
+                    "level": {"code": 6},
+                }
+            ),
+            Record(
+                {
+                    "iaid": "C777777",
+                    "summaryTitle": "Related War Diary 5",
+                    "subjects": ["Diaries"],
+                    "level": {"code": 8},
+                }
+            ),
+            Record(
+                {
+                    "iaid": "C666666",
+                    "summaryTitle": "Related War Diary 6",
+                    "subjects": ["Conflict"],
+                    "level": {"code": 7},
+                }
+            ),
+            Record(
+                {
+                    "iaid": "C555555",
+                    "summaryTitle": "Related War Diary 7",
+                    "subjects": ["Army", "Conflict"],
+                    "level": {"code": 6},
+                }
+            ),
+            Record(
+                {
+                    "iaid": "C444444",
+                    "summaryTitle": "Related War Diary 8",
+                    "subjects": ["Army", "Diaries"],
+                    "level": {"code": 8},
+                }
+            ),
+            Record(
+                {
+                    "iaid": "C333333",
+                    "summaryTitle": "Related War Diary 9",
+                    "subjects": ["Conflict", "Diaries"],
+                    "level": {"code": 7},
+                }
+            ),
         ]
         mock_search.return_value = mock_api_response
 
         result = get_related_records_by_subjects(self.current_record, limit=3)
 
-        # Should return 2 related records
-        self.assertEqual(len(result), 2)
+        # Should return 3 related records (limited by the limit parameter)
+        self.assertEqual(len(result), 3)
         self.assertIsInstance(result[0], Record)
         self.assertEqual(result[0].iaid, "C789012")
         self.assertEqual(result[1].iaid, "C345678")
 
-        # With new implementation, multiple searches are made (one per subject/level combo)
-        # For Item level (7), similar levels are [6, 7] (Piece and Item)
-        # 4 subjects × 2 levels = 8 calls
-        self.assertEqual(mock_search.call_count, 8)
+        # New behavior: only 1 call with ALL subjects since we return 9 records
+        self.assertEqual(mock_search.call_count, 1)
 
-        # Verify that calls include correct filters
-        all_calls = mock_search.call_args_list
-        for call in all_calls:
-            call_params = call[1]["params"]["filter"]
-            self.assertIn("group:tna", call_params)
-            # Should have exactly one subject and one level per call
-            subject_filters = [
-                f for f in call_params if f.startswith("subject:")
-            ]
-            level_filters = [f for f in call_params if f.startswith("level:")]
-            self.assertEqual(len(subject_filters), 1)
-            self.assertEqual(len(level_filters), 1)
+        # Verify the call includes all subjects (AND logic)
+        call_params = mock_search.call_args_list[0][1]["params"]["filter"]
+        self.assertIn("group:tna", call_params)
+
+        # Should have ALL 4 subjects in the single call
+        subject_filters = [f for f in call_params if f.startswith("subject:")]
+        self.assertEqual(len(subject_filters), 4)
+        self.assertIn("subject:Army", call_params)
+        self.assertIn("subject:Europe and Russia", call_params)
+        self.assertIn("subject:Conflict", call_params)
+        self.assertIn("subject:Diaries", call_params)
+
+        # No level filters anymore
+        level_filters = [f for f in call_params if f.startswith("level:")]
+        self.assertEqual(len(level_filters), 0)
 
     @patch("app.records.related.search_records")
     def test_filters_out_current_record(self, mock_search):
@@ -258,10 +315,7 @@ class RelatedRecordsBySeriesTests(TestCase):
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0].iaid, "C1717133")
         self.assertEqual(result[1].iaid, "C1717134")
-
-        # With new implementation, searches are made for each similar level
-        # For Piece level (6), similar levels are [5, 6, 7] (Sub-sub-series, Piece, Item)
-        self.assertEqual(mock_search.call_count, 3)
+        self.assertEqual(mock_search.call_count, 1)
 
         # Verify all calls use the series reference
         for call in mock_search.call_args_list:
@@ -444,37 +498,61 @@ class RelatedRecordsIntegrationTests(TestCase):
             ]
         }
 
-        # Mock search_records to return different results for subject/series searches
-        # With new implementation, there will be multiple calls
-        subject_response = Mock(spec=APISearchResponse)
-        subject_response.records = [
+        # First call: subject search with "Army" - returns 1 record (not enough for fetch_limit=9)
+        subject_response_first = Mock(spec=APISearchResponse)
+        subject_response_first.records = [
             Record(
                 {
                     "iaid": "C111",
                     "level": {"code": 7},
-                    "groupArray": [{"value": "tna"}],  # Add this!
+                    "groupArray": [{"value": "tna"}],
                 }
             ),
         ]
 
-        series_response = Mock(spec=APISearchResponse)
-        series_response.records = [
-            Record({"iaid": "C222", "level": {"code": 6}}),
-            Record({"iaid": "C333", "level": {"code": 6}}),
+        # Second call: individual subject fallback for "Army" - returns same record (already tracked)
+        subject_response_second = Mock(spec=APISearchResponse)
+        subject_response_second.records = [
+            Record(
+                {
+                    "iaid": "C111",  # Same record - will be deduplicated
+                    "level": {"code": 7},
+                    "groupArray": [{"value": "tna"}],
+                }
+            ),
         ]
 
-        # Set up responses for multiple calls
-        # Subject searches (1 subject × 3 levels) + Series searches (3 levels)
+        # Third call: series search
+        series_response = Mock(spec=APISearchResponse)
+        series_response.records = [
+            Record(
+                {
+                    "iaid": "C123456",  # Current record (will be filtered out)
+                    "level": {"code": 6},
+                    "groupArray": [{"value": "tna"}],
+                }
+            ),
+            Record(
+                {
+                    "iaid": "C222",
+                    "level": {"code": 6},
+                    "groupArray": [{"value": "tna"}],
+                }
+            ),
+            Record(
+                {
+                    "iaid": "C333",
+                    "level": {"code": 6},
+                    "groupArray": [{"value": "tna"}],
+                }
+            ),
+        ]
+
+        # Set up responses
         mock_search.side_effect = [
-            subject_response,  # Strategy 1: Subject search level 1 (Sub-sub-series)
-            subject_response,  # Strategy 1: Subject search level 2 (Piece)
-            subject_response,  # Strategy 1: Subject search level 3 (Item)
-            subject_response,  # Strategy 2: Subject search Sub-sub-series + Army
-            subject_response,  # Strategy 2: Subject search Piece + Army
-            subject_response,  # Strategy 2: Subject search Item + Army
-            series_response,  # Series search level 1 (Sub-sub-series)
-            series_response,  # Series search level 2 (Piece)
-            series_response,  # Series search level 3 (Item)
+            subject_response_first,  # All subjects search
+            subject_response_second,  # Individual subject fallback
+            series_response,  # Series backfill
         ]
 
         response = self.client.get("/catalogue/id/C123456/")
@@ -484,7 +562,6 @@ class RelatedRecordsIntegrationTests(TestCase):
         # Should have 3 related records total (1 from subjects + 2 from series)
         related = response.context_data["related_records"]
 
-        self.assertEqual(len(related), 3)
         self.assertEqual(len(related), 3)
         self.assertEqual(related[0].iaid, "C111")  # From subjects
         self.assertEqual(related[1].iaid, "C222")  # From series
