@@ -36,7 +36,7 @@
          <h2 class="tna-heading-l tna-heading--long">Select filters to apply to your results</h2>
       </div>
    </div>
-   <form id="long-filters-form" method="get"> 
+<form id="long-filters-form" method="get"> 
    <div class="tna-container tna-section tna-section--long">
       <button class="tna-button" type="submit">
          Apply filters
@@ -46,58 +46,58 @@
       </a>
    </div>
 
-<div class="tna-container">
-   <div id="filter-panel" class="tna-column tna-column--width-1-3 tna-column--width-1-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-m ">
-    <hr>
-      <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s tna-background-accent-light">
-         <div class="tna-form__group " data-module="tna-text-input">
-            <div class="tna-form__group-contents">
-               <h3 class="tna-form__heading tna-form__heading--s">
-                  <label class="tna-form__label" for="search-within">
-                  Search within filters
-                  </label>
-               </h3>
+   <div class="tna-container">
+      <div id="filter-panel" class="tna-column tna-column--width-1-3 tna-column--width-1-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-m ">
+      <hr>
+         <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s tna-background-accent-light">
+            <div class="tna-form__group " data-module="tna-text-input">
+               <div class="tna-form__group-contents">
+                  <h3 class="tna-form__heading tna-form__heading--s">
+                     <label class="tna-form__label" for="search-within">
+                     Search within filters
+                     </label>
+                  </h3>
+               </div>
+               <input id="search-within" class="tna-text-input " name="search_within" value="" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" form="search-form">
+               <p>Already selected filters will remain active.</p>
             </div>
-            <input id="search-within" class="tna-text-input " name="search_within" value="" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" form="search-form">
-            <p>Already selected filters will remain active.</p>
          </div>
       </div>
-   </div>
 
-   <div id="results" class="tna-column tna-column--width-2-3 tna-!--margin-top-l">
-   
-   {{ tnaCheckboxes({
-      'label': '',
-      'headingLevel': 4,
-      'headingSize': "m",
-      'id': "categories",
-      'name': "categories",
-      'classes': 'tna-checkboxes--grid',
-      'items': [
-         {
-            'text': "ADM - Admiralty, Navy, Royal Marines, and Castguard (713,881)",
-            'value': "ADM - Admiralty, Navy, Royal Marines, and Castguard (713,881)"
-         },
-         {
-            'text': "BT - Board of Trade and successors (2,539,478)",
-            'value': "BT - Board of Trade and successors (2,539,478)"
-         },
-         {
-            'text': "CUST - Boards of Customs, Excise, and Customs and Excise, and HM Revenue and Customs (1,440,321)",
-            'value': "CUST - Boards of Customs, Excise, and Customs and Excise, and HM Revenue and Customs (1,440,321)"
-         },
-         {
-            'text': "FO - Foreign Office (685,022)",
-            'value': "FO - Foreign Office (685,022)"
-         },
-         {
-            'text': "HMC 1 - Royal Commision on Historical Manuscripts: Correespondence and Papers (1,330)",
-            'value': "HMC 1 - Royal Commision on Historical Manuscripts: Correespondence and Papers (1,330)"
-         },
-    
-      ]
-   }) }}
-</div>  
+      <div id="results" class="tna-column tna-column--width-2-3 tna-!--margin-top-l">
+      
+      {{ tnaCheckboxes({
+         'label': '',
+         'headingLevel': 4,
+         'headingSize': "m",
+         'id': "categories",
+         'name': "categories",
+         'classes': 'tna-checkboxes--grid',
+         'items': [
+            {
+               'text': "ADM - Admiralty, Navy, Royal Marines, and Castguard (713,881)",
+               'value': "ADM - Admiralty, Navy, Royal Marines, and Castguard (713,881)"
+            },
+            {
+               'text': "BT - Board of Trade and successors (2,539,478)",
+               'value': "BT - Board of Trade and successors (2,539,478)"
+            },
+            {
+               'text': "CUST - Boards of Customs, Excise, and Customs and Excise, and HM Revenue and Customs (1,440,321)",
+               'value': "CUST - Boards of Customs, Excise, and Customs and Excise, and HM Revenue and Customs (1,440,321)"
+            },
+            {
+               'text': "FO - Foreign Office (685,022)",
+               'value': "FO - Foreign Office (685,022)"
+            },
+            {
+               'text': "HMC 1 - Royal Commision on Historical Manuscripts: Correespondence and Papers (1,330)",
+               'value': "HMC 1 - Royal Commision on Historical Manuscripts: Correespondence and Papers (1,330)"
+            },
+      
+         ]
+      }) }}
+   </div>  
 
    <div class="tna-container tna-section">
       <button class="tna-button" type="submit">
