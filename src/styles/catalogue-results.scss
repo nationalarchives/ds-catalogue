@@ -90,10 +90,18 @@
 
     &:focus-visible,
     &:active {
-      outline: none;
+      @include a11y.no-focus-outline;
+    }
 
+    &:focus-visible {
       &::before {
         @include a11y.focus-outline;
+      }
+    }
+
+    &:active {
+      &::before {
+        @include a11y.active-outline;
       }
     }
   }
