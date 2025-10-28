@@ -10,9 +10,11 @@ from config.jinja2 import (
     sanitise_record_field,
     slugify,
     truncate_preserve_mark_tags,
+    override_tna_record_count,
 )
 from django.http import QueryDict
 from django.test import TestCase
+from types import SimpleNamespace
 
 
 class Jinja2TestCase(TestCase):
@@ -269,3 +271,15 @@ class Jinja2TestCase(TestCase):
             truncate_preserve_mark_tags(long_text),
             "a" * 250 + "…",
         )
+
+    def test_override_tna_record_count_parametrized(self):
+        cases = [
+            ("12345678", True, "Over 27 million"),
+            ("12,345,678", False, "12,345,678"),
+            ("321", None, "321"),
+            ("654", "", "654"),
+        ]
+        for value, is_tna, expected in cases:
+            with self.subTest(value=value, is_tna=is_tna):
+                record = SimpleNamespace(is_tna=is_tna)
+                self.assertEqual(override_tna_record_count(value, record), expected)
