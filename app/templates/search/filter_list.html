@@ -36,6 +36,7 @@
          <h2 class="tna-heading-l tna-heading--long">Select filters to apply to your results</h2>
       </div>
    </div>
+   <form id="long-filters-form" method="get"> 
    <div class="tna-container tna-section tna-section--long">
       <button class="tna-button" type="submit">
          Apply filters
@@ -64,7 +65,7 @@
    </div>
 
    <div id="results" class="tna-column tna-column--width-2-3 tna-!--margin-top-l">
-   <form id="long-filters-form" method="get"> 
+   
    {{ tnaCheckboxes({
       'label': '',
       'headingLevel': 4,
