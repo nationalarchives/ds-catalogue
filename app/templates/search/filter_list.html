@@ -6,9 +6,10 @@
 
 {% from 'search/macros/filters/collections.html' import collections %}
 {%- set pageTitle = 'More filter options' -%}
+
 {% block stylesheets %}
-{{ super() }}
-<link rel="stylesheet" href="{{ static('catalogue-results.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
+   {{ super() }}
+   <link rel="stylesheet" href="{{ static('catalogue-results.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
 {% endblock %}
 
 {% block beforeContent %}
