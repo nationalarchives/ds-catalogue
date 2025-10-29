@@ -235,24 +235,17 @@ class DynamicMultipleChoiceField(BaseField):
     @property
     def items(self):
         if self.error:
-            # applied filter did not return results,
-            # so coerce api data to 0 counts for selected values
-            zero_count_data = []
-            partial_match = False
-            if not self._has_match_all(self.value, self.valid_choices):
-                for input_value in self.value:
-                    if input_value in self.valid_choices:
-                        partial_match = True
-                        zero_count_data.append(
-                            {"value": input_value, "doc_count": 0}
-                        )
-            if not partial_match:
-                for value in self.valid_choices:
-                    zero_count_data.append({"value": value, "doc_count": 0})
-
-            if zero_count_data:
-                self.update_choices(zero_count_data, self.value)
-
+            if self.configured_choices:
+                # remove choices that have been updated
+                # with configured choices by coercing with empty data
+                self.update_choices([], [])
+        else:
+            # check choices not updated i.e. api did not return any choice data
+            if not self.choices_updated:
+                # remove choices that have been updated
+                # with configured choices by coercing with empty data
+                # and coerce 0 counts for input not in api data
+                self.update_choices([], self.value)
         return [
             (
                 {"text": display_value, "value": value, "checked": True}
@@ -305,18 +298,9 @@ class DynamicMultipleChoiceField(BaseField):
             )
             choice_vals_with_hits.add(item["value"])
 
-        if self.validate_input:
-            check_values_from = [
-                v
-                for v in selected_values
-                if v not in choice_vals_with_hits and v in self.valid_choices
-            ]
-        else:
-            check_values_from = [
-                v for v in selected_values if v not in choice_vals_with_hits
-            ]
-
-        for missing_value in check_values_from:
+        for missing_value in [
+            v for v in selected_values if v not in choice_vals_with_hits
+        ]:
             try:
                 label_base = self.configured_choice_labels[missing_value]
             except KeyError:
