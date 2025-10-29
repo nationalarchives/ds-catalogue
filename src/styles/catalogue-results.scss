@@ -1,8 +1,8 @@
+@use "@nationalarchives/frontend/nationalarchives/tools/a11y";
+@use "@nationalarchives/frontend/nationalarchives/tools/borders";
 @use "@nationalarchives/frontend/nationalarchives/tools/colour";
 @use "@nationalarchives/frontend/nationalarchives/tools/spacing";
 @use "@nationalarchives/frontend/nationalarchives/tools/typography";
-@use "@nationalarchives/frontend/nationalarchives/tools/borders";
-@use "@nationalarchives/frontend/nationalarchives/tools/a11y";
 
 .tna-dl-chips__item {
   text-align: left;
@@ -71,39 +71,12 @@
       outline-offset: spacing.space(0.2);
       @include colour.colour-outline("base-keyline", 2px, solid);
     }
+
+    @include a11y.faux-full-outline("a");
   }
 
   p {
     margin-top: spacing.space(0.5);
-  }
-
-  a {
-    &::before {
-      content: "";
-
-      position: absolute;
-      inset: 0;
-      z-index: 3;
-
-      @include borders.rounded-border;
-    }
-
-    &:focus-visible,
-    &:active {
-      @include a11y.no-focus-outline;
-    }
-
-    &:focus-visible {
-      &::before {
-        @include a11y.focus-outline;
-      }
-    }
-
-    &:active {
-      &::before {
-        @include a11y.active-outline;
-      }
-    }
   }
 }
 
