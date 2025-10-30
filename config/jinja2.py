@@ -257,6 +257,16 @@ def truncate_preserve_mark_tags(value, max_length=250):  # noqa: C901
     return "".join(output)
 
 
+def override_tna_record_count(value, record):
+    """
+    Override the record count for records that are held by The National Archives.
+    """
+    if record.is_tna:
+        return "Over 27 million"
+
+    return value
+
+
 def environment(**options):
     env = Environment(**options)
 
@@ -306,6 +316,7 @@ def environment(**options):
             "tna_html": tna_html,
             "remove_string_case_insensitive": remove_string_case_insensitive,
             "truncate_preserve_mark_tags": truncate_preserve_mark_tags,
+            "override_tna_record_count": override_tna_record_count,
         }
     )
     return env

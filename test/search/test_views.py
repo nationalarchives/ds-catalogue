@@ -1,11 +1,9 @@
 from http import HTTPStatus
-from unittest.mock import patch
 
 import responses
 from app.records.models import Record
 from app.search.buckets import BucketKeys
 from app.search.forms import (
-    CatalogueSearchNonTnaForm,
     CatalogueSearchTnaForm,
     FieldsConstant,
 )
@@ -13,8 +11,9 @@ from django.conf import settings
 from django.test import TestCase
 
 
-class CatalogueSearchViewTests(TestCase):
-    """Mainly tests the context."""
+class CatalogueSearchViewDefaultTests(TestCase):
+    """Mainly tests the context.
+    Default is tna group."""
 
     @responses.activate
     def test_catalogue_search_context_without_params(self):
@@ -81,28 +80,40 @@ class CatalogueSearchViewTests(TestCase):
             status=HTTPStatus.OK,
         )
 
-        self.response = self.client.get("/catalogue/search/")
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+        response = self.client.get("/catalogue/search/")
+        context_data = response.context_data
+        form = context_data.get("form")
+        group_field = form.fields[FieldsConstant.GROUP]
+        q_field = form.fields[FieldsConstant.Q]
+        sort_field = form.fields[FieldsConstant.SORT]
+        level_field = form.fields[FieldsConstant.LEVEL]
+        collection_field = form.fields[FieldsConstant.COLLECTION]
+        closure_field = form.fields[FieldsConstant.CLOSURE]
+        subject_field = form.fields[FieldsConstant.SUBJECT]
+        covering_date_from_field = form.fields[
+            FieldsConstant.COVERING_DATE_FROM
+        ]
+        covering_date_to_field = form.fields[FieldsConstant.COVERING_DATE_TO]
 
-        self.assertIsInstance(self.response.context_data.get("results"), list)
-        self.assertEqual(len(self.response.context_data.get("results")), 1)
-        self.assertIsInstance(
-            self.response.context_data.get("results")[0], Record
-        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        self.assertIsInstance(context_data.get("results"), list)
+        self.assertEqual(len(context_data.get("results")), 1)
+        self.assertIsInstance(context_data.get("results")[0], Record)
         self.assertEqual(
-            self.response.context_data.get("stats"),
+            context_data.get("stats"),
             {"total": 26008838, "results": 20},
         )
 
         self.assertEqual(
-            self.response.context_data.get("results_range"),
+            context_data.get("results_range"),
             {"from": 1, "to": 20},
         )
 
-        self.assertEqual(self.response.context_data.get("selected_filters"), [])
+        self.assertEqual(context_data.get("selected_filters"), [])
 
         self.assertEqual(
-            self.response.context_data.get("pagination"),
+            context_data.get("pagination"),
             {
                 "items": [
                     {"number": "1", "href": "?page=1", "current": True},
@@ -115,7 +126,7 @@ class CatalogueSearchViewTests(TestCase):
         )
 
         self.assertEqual(
-            self.response.context_data.get("bucket_list").items,
+            context_data.get("bucket_list").items,
             [
                 {
                     "name": "Records at the National Archives (1)",
@@ -129,16 +140,12 @@ class CatalogueSearchViewTests(TestCase):
                 },
             ],
         )
-        self.assertEqual(
-            self.response.context_data.get("bucket_keys"), BucketKeys
-        )
+        self.assertEqual(context_data.get("bucket_keys"), BucketKeys)
 
         # ### form ###
-        self.assertIsInstance(
-            self.response.context_data.get("form"), CatalogueSearchTnaForm
-        )
-        self.assertEqual(self.response.context_data.get("form").errors, {})
-        self.assertEqual(len(self.response.context_data.get("form").fields), 13)
+        self.assertIsInstance(form, CatalogueSearchTnaForm)
+        self.assertEqual(form.errors, {})
+        self.assertEqual(len(form.fields), 13)
         tna_field_names = [
             FieldsConstant.GROUP,
             FieldsConstant.SORT,
@@ -154,35 +161,23 @@ class CatalogueSearchViewTests(TestCase):
             FieldsConstant.OPENING_DATE_FROM,
             FieldsConstant.OPENING_DATE_TO,
         ]
-        tna_form_field_names = set(
-            self.response.context_data.get("form").fields.keys()
-        )
+        tna_form_field_names = set(form.fields.keys())
         self.assertTrue(set(tna_field_names) == set(tna_form_field_names))
 
         # ### form fields ###
 
-        self.assertEqual(
-            self.response.context_data.get("form").fields["q"].name, "q"
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["q"].value, ""
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["q"].cleaned, ""
-        )
+        self.assertEqual(q_field.name, "q")
+        self.assertEqual(q_field.value, "")
+        self.assertEqual(q_field.cleaned, "")
 
+        self.assertEqual(group_field.name, "group")
+        self.assertEqual(group_field.value, "tna")
         self.assertEqual(
-            self.response.context_data.get("form").fields["group"].name, "group"
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["group"].value, "tna"
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["group"].cleaned,
+            group_field.cleaned,
             "tna",
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["group"].items,
+            group_field.items,
             [
                 {
                     "text": "Records at the National Archives",
@@ -193,17 +188,11 @@ class CatalogueSearchViewTests(TestCase):
             ],
         )
 
+        self.assertEqual(sort_field.name, "sort")
+        self.assertEqual(sort_field.value, "")
+        self.assertEqual(sort_field.cleaned, "")
         self.assertEqual(
-            self.response.context_data.get("form").fields["sort"].name, "sort"
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["sort"].value, ""
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["sort"].cleaned, ""
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["sort"].items,
+            sort_field.items,
             [
                 {"text": "Relevance", "value": "", "checked": True},
                 {"text": "Date (newest first)", "value": "date:desc"},
@@ -213,56 +202,46 @@ class CatalogueSearchViewTests(TestCase):
             ],
         )
 
+        self.assertEqual(level_field.name, "level")
         self.assertEqual(
-            self.response.context_data.get("form").fields["level"].name, "level"
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["level"].label,
+            level_field.label,
             "Filter by levels",
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields["level"]
-            .active_filter_label,
+            level_field.active_filter_label,
             "Level",
         )
+        self.assertEqual(level_field.value, [])
+        self.assertEqual(level_field.cleaned, [])
         self.assertEqual(
-            self.response.context_data.get("form").fields["level"].value, []
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["level"].cleaned, []
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["level"].items,
+            level_field.items,
             [
                 {"text": "Item (100)", "value": "Item"},
                 {"text": "Division (5)", "value": "Division"},
             ],
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["collection"].name,
+            collection_field.name,
             "collection",
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["collection"].label,
+            collection_field.label,
             "Collections",
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields["collection"]
-            .active_filter_label,
+            form.fields["collection"].active_filter_label,
             "Collection",
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["collection"].value,
+            collection_field.value,
             [],
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["collection"].cleaned,
+            collection_field.cleaned,
             [],
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["collection"].items,
+            collection_field.items,
             [
                 {
                     "text": "BT - Board of Trade and successors (50)",
@@ -276,29 +255,27 @@ class CatalogueSearchViewTests(TestCase):
         )
 
         self.assertEqual(
-            self.response.context_data.get("form").fields["closure"].name,
+            closure_field.name,
             "closure",
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["closure"].label,
+            closure_field.label,
             "Closure status",
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields["closure"]
-            .active_filter_label,
+            closure_field.active_filter_label,
             "Closure status",
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["closure"].value,
+            closure_field.value,
             [],
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["closure"].cleaned,
+            closure_field.cleaned,
             [],
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["closure"].items,
+            closure_field.items,
             [
                 {
                     "text": "Open Document, Open Description (150)",
@@ -309,22 +286,20 @@ class CatalogueSearchViewTests(TestCase):
 
         # Test subjects field
         self.assertEqual(
-            self.response.context_data.get("form").fields["subject"].name,
+            subject_field.name,
             "subject",
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["subject"].label,
+            subject_field.label,
             "Subjects",
         )
+        self.assertEqual(subject_field.value, [])
         self.assertEqual(
-            self.response.context_data.get("form").fields["subject"].value, []
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["subject"].cleaned,
+            subject_field.cleaned,
             [],
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["subject"].items,
+            subject_field.items,
             [
                 {"text": "Army (25)", "value": "Army"},
                 {"text": "Navy (15)", "value": "Navy"},
@@ -333,465 +308,44 @@ class CatalogueSearchViewTests(TestCase):
 
         # test covering date from fields
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields[FieldsConstant.COVERING_DATE_FROM]
-            .name,
+            covering_date_from_field.name,
             "covering_date_from",
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields[FieldsConstant.COVERING_DATE_FROM]
-            .label,
+            covering_date_from_field.label,
             "From",
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields[FieldsConstant.COVERING_DATE_FROM]
-            .active_filter_label,
+            covering_date_from_field.active_filter_label,
             "Record date from",
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields[FieldsConstant.COVERING_DATE_FROM]
-            .value,
+            covering_date_from_field.value,
             {"year": "", "month": "", "day": ""},
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields[FieldsConstant.COVERING_DATE_FROM]
-            .cleaned,
+            covering_date_from_field.cleaned,
             None,
         )
 
         # test covering date to fields
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields[FieldsConstant.COVERING_DATE_TO]
-            .name,
+            covering_date_to_field.name,
             "covering_date_to",
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields[FieldsConstant.COVERING_DATE_TO]
-            .label,
+            covering_date_to_field.label,
             "To",
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields[FieldsConstant.COVERING_DATE_TO]
-            .active_filter_label,
+            covering_date_to_field.active_filter_label,
             "Record date to",
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields[FieldsConstant.COVERING_DATE_TO]
-            .value,
+            covering_date_to_field.value,
             {"year": "", "month": "", "day": ""},
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields[FieldsConstant.COVERING_DATE_TO]
-            .cleaned,
+            covering_date_to_field.cleaned,
             None,
-        )
-
-    @responses.activate
-    def test_catalogue_search_context_with_query_param(self):
-
-        responses.add(
-            responses.GET,
-            f"{settings.ROSETTA_API_URL}/search",
-            json={
-                "data": [
-                    {
-                        "@template": {
-                            "details": {
-                                "iaid": "C123456",
-                                "source": "CAT",
-                            }
-                        }
-                    }
-                ],
-                "aggregations": [],
-                "buckets": [
-                    {
-                        "name": "group",
-                        "entries": [
-                            {"value": "tna", "count": 1},
-                        ],
-                    }
-                ],
-                "stats": {
-                    "total": 26008838,
-                    "results": 20,
-                },
-            },
-            status=HTTPStatus.OK,
-        )
-
-        self.response = self.client.get("/catalogue/search/?q=ufo")
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        self.assertEqual(
-            self.response.context_data.get("form").fields["q"].name, "q"
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["q"].value,
-            "ufo",
-        )
-        self.assertEqual(self.response.context_data.get("selected_filters"), [])
-
-    @responses.activate
-    def test_catalogue_search_context_with_sort_param(self):
-
-        responses.add(
-            responses.GET,
-            f"{settings.ROSETTA_API_URL}/search",
-            json={
-                "data": [
-                    {
-                        "@template": {
-                            "details": {
-                                "iaid": "C123456",
-                                "source": "CAT",
-                            }
-                        }
-                    }
-                ],
-                "aggregations": [],
-                "buckets": [
-                    {
-                        "name": "group",
-                        "entries": [
-                            {"value": "tna", "count": 1},
-                        ],
-                    }
-                ],
-                "stats": {
-                    "total": 26008838,
-                    "results": 20,
-                },
-            },
-            status=HTTPStatus.OK,
-        )
-
-        self.response = self.client.get("/catalogue/search/?sort=title:asc")
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        self.assertEqual(
-            self.response.context_data.get("form").fields["sort"].name, "sort"
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["sort"].value,
-            "title:asc",
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["sort"].cleaned,
-            "title:asc",
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["sort"].items,
-            [
-                {
-                    "text": "Relevance",
-                    "value": "",
-                },
-                {
-                    "text": "Date (newest first)",
-                    "value": "date:desc",
-                },
-                {"text": "Date (oldest first)", "value": "date:asc"},
-                {"text": "Title (A–Z)", "value": "title:asc", "checked": True},
-                {"text": "Title (Z–A)", "value": "title:desc"},
-            ],
-        )
-        self.assertEqual(self.response.context_data.get("selected_filters"), [])
-
-    @responses.activate
-    def test_catalogue_search_context_with_group_param(self):
-
-        responses.add(
-            responses.GET,
-            f"{settings.ROSETTA_API_URL}/search",
-            json={
-                "data": [
-                    {
-                        "@template": {
-                            "details": {
-                                "iaid": "C123456",
-                                "source": "CAT",
-                            }
-                        }
-                    }
-                ],
-                "aggregations": [],
-                "buckets": [
-                    {
-                        "name": "group",
-                        "entries": [
-                            {"value": "nonTna", "count": 1},
-                        ],
-                    }
-                ],
-                "stats": {
-                    "total": 26008838,
-                    "results": 20,
-                },
-            },
-            status=HTTPStatus.OK,
-        )
-
-        self.response = self.client.get("/catalogue/search/?group=nonTna")
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-
-        self.assertIsInstance(
-            self.response.context_data.get("form"), CatalogueSearchNonTnaForm
-        )
-        self.assertEqual(self.response.context_data.get("form").errors, {})
-        self.assertEqual(len(self.response.context_data.get("form").fields), 6)
-        non_tna_field_names = [
-            FieldsConstant.GROUP,
-            FieldsConstant.SORT,
-            FieldsConstant.Q,
-            FieldsConstant.HELD_BY,
-            FieldsConstant.COVERING_DATE_FROM,
-            FieldsConstant.COVERING_DATE_TO,
-        ]
-        non_tna_form_field_names = set(
-            self.response.context_data.get("form").fields.keys()
-        )
-        self.assertTrue(
-            set(non_tna_field_names) == set(non_tna_form_field_names)
-        )
-
-        self.assertEqual(
-            self.response.context_data.get("form").fields["group"].name, "group"
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["group"].value,
-            "nonTna",
-        )
-        self.assertEqual(
-            self.response.context_data.get("form").fields["group"].cleaned,
-            "nonTna",
-        )
-
-        self.assertEqual(
-            self.response.context_data.get("form").fields["group"].items,
-            [
-                {
-                    "text": "Records at the National Archives",
-                    "value": "tna",
-                },
-                {
-                    "text": "Records at other UK archives",
-                    "value": "nonTna",
-                    "checked": True,
-                },
-            ],
-        )
-        self.assertEqual(self.response.context_data.get("selected_filters"), [])
-
-
-class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
-    """Tests API calls (url) made by the catalogue search view for tna bucket/group."""
-
-    @patch("app.lib.api.logger")
-    @responses.activate
-    def test_catalogue_debug_api(self, mock_logger):
-
-        responses.add(
-            responses.GET,
-            f"{settings.ROSETTA_API_URL}/search",
-            json={
-                "data": [
-                    {
-                        "@template": {
-                            "details": {
-                                "iaid": "C123456",
-                                "source": "CAT",
-                            }
-                        }
-                    }
-                ],
-                # Note: api response is not checked for these values
-                "aggregations": [
-                    {
-                        "name": "level",
-                        "entries": [
-                            {"value": "somevalue", "doc_count": 100},
-                        ],
-                    },
-                    {
-                        "name": "collection",
-                        "entries": [
-                            {"value": "somevalue", "doc_count": 100},
-                        ],
-                    },
-                    {
-                        "name": "subject",
-                        "entries": [
-                            {"value": "somevalue", "doc_count": 100},
-                        ],
-                    },
-                ],
-                "buckets": [
-                    {
-                        "name": "group",
-                        "entries": [
-                            # Note: api response is not checked for these values
-                            {"value": "somevalue", "count": 1},
-                        ],
-                    }
-                ],
-                "stats": {
-                    "total": 26008838,
-                    "results": 20,
-                },
-            },
-            status=HTTPStatus.OK,
-        )
-
-        # default query
-        self.response = self.client.get("/catalogue/search/")
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&q=%2A&size=20"
-        )
-
-        # with group=tna param
-        self.response = self.client.get("/catalogue/search/?group=tna")
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&q=%2A&size=20"
-        )
-
-        # query with held_by param (should be ignored for tna group)
-        self.response = self.client.get(
-            "/catalogue/search/?group=tna&held_by=somearchive"
-        )
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&q=%2A&size=20"
-        )
-
-        # query with search term, non tna records
-        self.response = self.client.get("/catalogue/search/?group=nonTna&q=ufo")
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
-        )
-
-        # with collection param for nonTna group
-        self.response = self.client.get(
-            "/catalogue/search/?group=nonTna&q=ufo&collection=BT"
-        )
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
-        )
-
-        # Test subject filter for TNA group
-        self.response = self.client.get(
-            "/catalogue/search/?group=tna&subject=Army&subject=Navy"
-        )
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&filter=subject%3AArmy&filter=subject%3ANavy&q=%2A&size=20"
-        )
-
-        # Test covering date filters
-        self.response = self.client.get(
-            "/catalogue/search/?covering_date_from-year=2000&covering_date_from-month=12&covering_date_from-day=1&covering_date_to-year=2000&covering_date_to-month=12&covering_date_to-day=31"
-        )
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29&filter=coveringToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
-        )
-
-        # Test opening date filters
-        self.response = self.client.get(
-            "/catalogue/search/?opening_date_from-year=2000&opening_date_from-month=12&opening_date_from-day=1&opening_date_to-year=2000&opening_date_to-month=12&opening_date_to-day=31"
-        )
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&filter=openingFromDate%3A%28%3E%3D2000-12-1%29&filter=openingToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
-        )
-
-
-class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
-    """Tests API calls (url) made by the catalogue search view for for nonTna bucket/group."""
-
-    @patch("app.lib.api.logger")
-    @responses.activate
-    def test_catalogue_debug_api_non_tna(self, mock_logger):
-
-        responses.add(
-            responses.GET,
-            f"{settings.ROSETTA_API_URL}/search",
-            json={
-                "data": [
-                    {
-                        "@template": {
-                            "details": {
-                                "iaid": "C123456",
-                                "source": "CAT",
-                            }
-                        }
-                    }
-                ],
-                # Note: api response is not checked for these values
-                "aggregations": [
-                    {
-                        "name": "heldBy",
-                        "entries": [
-                            {"value": "somevalue", "doc_count": 100},
-                        ],
-                    },
-                ],
-                "buckets": [
-                    {
-                        "name": "group",
-                        "entries": [
-                            # Note: api response is not checked for these values
-                            {"value": "somevalue", "count": 1},
-                        ],
-                    }
-                ],
-                "stats": {
-                    "total": 26008838,
-                    "results": 20,
-                },
-            },
-            status=HTTPStatus.OK,
-        )
-
-        # with nonTna group param
-        self.response = self.client.get("/catalogue/search/?group=nonTna")
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=%2A&size=20"
-        )
-
-        # with search term, non tna records
-        self.response = self.client.get("/catalogue/search/?group=nonTna&q=ufo")
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
-        )
-
-        # with filter not belonging to nontna group (should be ignored)
-        self.response = self.client.get(
-            "/catalogue/search/?group=nonTna&q=ufo&collection=somecollection&online=true&level=somelevel&subject=Army"
-        )
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
-        )
-
-        # Test covering date filters
-        self.response = self.client.get(
-            "/catalogue/search/?group=nonTna&covering_date_from-year=2000&covering_date_from-month=12&covering_date_from-day=1&covering_date_to-year=2000&covering_date_to-month=12&covering_date_to-day=31"
-        )
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29&filter=coveringToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
         )
