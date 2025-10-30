@@ -2,10 +2,9 @@ from unittest.mock import Mock, patch
 
 import responses
 from app.deliveryoptions.constants import AvailabilityCondition
+from app.records.mixins import DeliveryOptionsMixin
 from app.records.models import Record
-from app.records.views import get_delivery_options_context
 from django.conf import settings
-from django.template.response import TemplateResponse
 from django.test import RequestFactory, TestCase
 
 
@@ -242,6 +241,11 @@ class TestSubjectLinks(TestCase):
 
 
 class DoAvailabilityGroupTestCase(TestCase):
+    """Tests for delivery options mixin functionality"""
+
+    def setUp(self):
+        self.mixin = DeliveryOptionsMixin()
+        self.factory = RequestFactory()
 
     def test_do_availability_group_present_when_found(self):
         """Test that do_availability_group is included when get_availability_group returns a value."""
@@ -259,16 +263,16 @@ class DoAvailabilityGroupTestCase(TestCase):
 
         with (
             patch(
-                "app.records.views.delivery_options_request_handler",
+                "app.records.mixins.delivery_options_request_handler",
                 return_value=mock_delivery_response,
             ),
             patch(
-                "app.records.views.get_availability_group",
+                "app.records.mixins.get_availability_group",
                 return_value=mock_availability_group,
             ),
         ):
 
-            context = get_delivery_options_context("TEST123")
+            context = self.mixin.get_delivery_options_context("TEST123")
 
             self.assertIn("delivery_option", context)
             self.assertEqual(context["delivery_option"], "DigitizedDiscovery")
@@ -290,15 +294,15 @@ class DoAvailabilityGroupTestCase(TestCase):
 
         with (
             patch(
-                "app.records.views.delivery_options_request_handler",
+                "app.records.mixins.delivery_options_request_handler",
                 return_value=mock_delivery_response,
             ),
             patch(
-                "app.records.views.get_availability_group", return_value=None
+                "app.records.mixins.get_availability_group", return_value=None
             ),
         ):
 
-            context = get_delivery_options_context("TEST123")
+            context = self.mixin.get_delivery_options_context("TEST123")
 
             self.assertIn("delivery_option", context)
             self.assertEqual(context["delivery_option"], "OrderException")
@@ -322,16 +326,20 @@ class DoAvailabilityGroupTestCase(TestCase):
             with self.subTest(description=description):
                 if isinstance(mock_response, Exception):
                     with patch(
-                        "app.records.views.delivery_options_request_handler",
+                        "app.records.mixins.delivery_options_request_handler",
                         side_effect=mock_response,
                     ):
-                        context = get_delivery_options_context("TEST123")
+                        context = self.mixin.get_delivery_options_context(
+                            "TEST123"
+                        )
                 else:
                     with patch(
-                        "app.records.views.delivery_options_request_handler",
+                        "app.records.mixins.delivery_options_request_handler",
                         return_value=mock_response,
                     ):
-                        context = get_delivery_options_context("TEST123")
+                        context = self.mixin.get_delivery_options_context(
+                            "TEST123"
+                        )
 
                 self.assertEqual(context, {})
                 self.assertNotIn("do_availability_group", context)

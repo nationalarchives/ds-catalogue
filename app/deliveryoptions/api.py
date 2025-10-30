@@ -1,13 +1,16 @@
-import json
-from typing import Any, Dict, List
+import logging
+from typing import Any, Dict, List, Optional
 
-from app.lib.api import JSONAPIClient
+from app.lib.api import JSONAPIClient, ResourceNotFound
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from requests.exceptions import ConnectionError, RequestException
+
+logger = logging.getLogger(__name__)
 
 
-def delivery_options_request_handler(iaid: str) -> List[Dict[str, Any]]:
+def delivery_options_request_handler(
+    iaid: str,
+) -> Optional[List[Dict[str, Any]]]:
     """
     Makes an API call to the delivery options service to fetch available
     delivery options for a given iaid.
@@ -16,11 +19,12 @@ def delivery_options_request_handler(iaid: str) -> List[Dict[str, Any]]:
         iaid: The item archive ID to retrieve delivery options for
 
     Returns:
-        The delivery options data for the specified item
+        The delivery options data for the specified item, or None if no
+        delivery options are available for this record (404)
 
     Raises:
         ImproperlyConfigured: If the DELIVERY_OPTIONS_API_URL setting is not configured
-        ValueError: If the API request fails or returns invalid data
+        Exception: If the delivery options service is unavailable or returns invalid data
     """
     # Validate API URL configuration
     api_url = settings.DELIVERY_OPTIONS_API_URL
@@ -49,11 +53,12 @@ def delivery_options_request_handler(iaid: str) -> List[Dict[str, Any]]:
 
         return data
 
+    except ResourceNotFound:
+        # 404 - This record doesn't have delivery options, which is normal
+        logger.info(f"No delivery options found for iaid {iaid}")
+        return None
+
     except Exception as e:
         # Log the original exception for debugging
-        import logging
-
-        logger = logging.getLogger(__name__)
         logger.error(f"Delivery options request error: {str(e)}")
-
         raise Exception("Delivery Options database is currently unavailable")
