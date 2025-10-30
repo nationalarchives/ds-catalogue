@@ -1,5 +1,6 @@
 import logging
-from typing import List, Set
+import random
+from typing import List
 
 from app.records.constants import TNA_LEVELS
 from app.records.models import Record
@@ -7,13 +8,17 @@ from app.search.api import search_records
 
 logger = logging.getLogger(__name__)
 
+_LEVEL_FILTERS_SERIES_TO_ITEM = [
+    f"level:{TNA_LEVELS[str(i)]}" for i in range(3, 8)
+]
+
 
 def get_related_records_by_subjects(
     current_record: Record, limit: int = 3
 ) -> list[Record]:
     """
     Fetches related records that share subjects with the current record.
-    Prioritises records with more matching subjects.
+    Returns a random selection from matching records.
     Only applies to TNA records (Non-TNA records don't have subjects).
 
     Args:
@@ -21,38 +26,23 @@ def get_related_records_by_subjects(
         limit: Maximum number of related records to return (default 3)
 
     Returns:
-        List of related Record objects, sorted by
-        number of matching subjects, or empty list if none found
+        List of related Record objects (random selection), or empty list if none found
     """
     # Only TNA records have subjects
     if not current_record.is_tna or not current_record.subjects:
         return []
 
-    # Find records with matching subjects and rank by match count
-    all_matches = _search_and_rank_by_subject_matches(
+    # Fetch 10 candidates
+    all_matches = _search_by_subject_matches(
         current_record,
-        limit * 3,  # Get more candidates to ensure best matches
+        fetch_limit=10,
     )
 
-    return all_matches[:limit]
+    # Randomly select up to 'limit' records from the candidates
+    if len(all_matches) <= limit:
+        return all_matches
 
-
-def _calculate_level_distance(record: Record, current_record: Record) -> int:
-    """Calculate the level distance between two records."""
-    if current_record.level_code and record.level_code:
-        return abs(record.level_code - current_record.level_code)
-    return 0
-
-
-def _add_record_match(
-    record_matches: dict,
-    record: Record,
-    current_record: Record,
-    matching_subjects: set,
-) -> None:
-    """Add a record to the matches dictionary."""
-    level_distance = _calculate_level_distance(record, current_record)
-    record_matches[record.iaid] = (record, matching_subjects, level_distance)
+    return random.sample(all_matches, limit)
 
 
 def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
@@ -60,11 +50,16 @@ def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
     record_matches = {}
 
     filters = ["group:tna"]
+
+    # Add pre-computed level filters
+    filters.extend(_LEVEL_FILTERS_SERIES_TO_ITEM)
+
     for subject in current_record.subjects:
         filters.append(f"subject:{subject}")
 
     params = {"filter": filters, "aggs": []}
 
+    # TODO: When filter AND is implemented, this function will provide even more closely related records
     try:
         api_result = search_records(
             query="*",
@@ -76,12 +71,7 @@ def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
 
         for record in api_result.records:
             if record.iaid != current_record.iaid:
-                _add_record_match(
-                    record_matches,
-                    record,
-                    current_record,
-                    set(current_record.subjects),
-                )
+                record_matches[record.iaid] = record
 
     except Exception as e:
         logger.debug(f"Failed to search with all subjects: {e}")
@@ -93,7 +83,6 @@ def _search_individual_subjects(
     current_record: Record, fetch_limit: int, record_matches: dict
 ) -> None:
     """Search by individual subjects until enough matches are found."""
-    import random
 
     remaining_subjects = list(current_record.subjects)
     random.shuffle(remaining_subjects)
@@ -102,7 +91,11 @@ def _search_individual_subjects(
         if len(record_matches) >= fetch_limit:
             break
 
-        params = {"filter": ["group:tna", f"subject:{subject}"], "aggs": []}
+        filters = ["group:tna", f"subject:{subject}"]
+        # Add pre-computed level filters
+        filters.extend(_LEVEL_FILTERS_SERIES_TO_ITEM)
+
+        params = {"filter": filters, "aggs": []}
 
         try:
             api_result = search_records(
@@ -118,28 +111,13 @@ def _search_individual_subjects(
                     continue
 
                 if record.iaid not in record_matches:
-                    _add_record_match(
-                        record_matches, record, current_record, set()
-                    )
-
-                record_matches[record.iaid][1].add(subject)
+                    record_matches[record.iaid] = record
 
         except Exception as e:
             logger.debug(f"Failed to search for subject '{subject}': {e}")
 
 
-def _sort_and_limit_results(
-    record_matches: dict, fetch_limit: int
-) -> list[Record]:
-    """Sort records by match count and level distance, then limit results."""
-    sorted_records = sorted(
-        record_matches.values(),
-        key=lambda x: (-len(x[1]), x[2]),
-    )
-    return [record for record, _, _ in sorted_records[:fetch_limit]]
-
-
-def _search_and_rank_by_subject_matches(
+def _search_by_subject_matches(
     current_record: Record, fetch_limit: int
 ) -> list[Record]:
     """
@@ -151,7 +129,7 @@ def _search_and_rank_by_subject_matches(
         fetch_limit: Maximum number of candidates to fetch
 
     Returns:
-        List of records sorted by number of matching subjects (descending)
+        List of records (unsorted)
     """
     # Try searching with all subjects first
     record_matches = _search_with_all_subjects(current_record, fetch_limit)
@@ -160,7 +138,7 @@ def _search_and_rank_by_subject_matches(
     if len(record_matches) < fetch_limit:
         _search_individual_subjects(current_record, fetch_limit, record_matches)
 
-    return _sort_and_limit_results(record_matches, fetch_limit)
+    return list(record_matches.values())
 
 
 # TODO: related by series is only partially correct because, at the moment, records aren't retrieved in order of relevance

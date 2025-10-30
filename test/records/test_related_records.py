@@ -27,7 +27,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
     @patch("app.records.related.search_records")
     def test_returns_related_records_when_found(self, mock_search):
         """Test that related records are returned when found"""
-        # Mock API response with related records (need at least 9 to satisfy fetch_limit = 3*3)
+        # Mock API response with related records (need at least 10 to satisfy fetch_limit = 10)
         mock_api_response = Mock(spec=APISearchResponse)
         mock_api_response.records = [
             Record(
@@ -102,6 +102,14 @@ class RelatedRecordsBySubjectsTests(TestCase):
                     "level": {"code": 7},
                 }
             ),
+            Record(
+                {
+                    "iaid": "C222222",
+                    "summaryTitle": "Related War Diary 10",
+                    "subjects": ["Army"],
+                    "level": {"code": 6},
+                }
+            ),
         ]
         mock_search.return_value = mock_api_response
 
@@ -110,10 +118,24 @@ class RelatedRecordsBySubjectsTests(TestCase):
         # Should return 3 related records (limited by the limit parameter)
         self.assertEqual(len(result), 3)
         self.assertIsInstance(result[0], Record)
-        self.assertEqual(result[0].iaid, "C789012")
-        self.assertEqual(result[1].iaid, "C345678")
 
-        # New behavior: only 1 call with ALL subjects since we return 9 records
+        # Check that all returned records are from the expected pool
+        all_iaids = [
+            "C789012",
+            "C345678",
+            "C999999",
+            "C888888",
+            "C777777",
+            "C666666",
+            "C555555",
+            "C444444",
+            "C333333",
+            "C222222",
+        ]
+        for record in result:
+            self.assertIn(record.iaid, all_iaids)
+
+        # New behavior: only 1 call with ALL subjects since we return 10 records
         self.assertEqual(mock_search.call_count, 1)
 
         # Verify the call includes all subjects (AND logic)
@@ -128,9 +150,9 @@ class RelatedRecordsBySubjectsTests(TestCase):
         self.assertIn("subject:Conflict", call_params)
         self.assertIn("subject:Diaries", call_params)
 
-        # No level filters anymore
+        # Should have 5 level filters (Series through Item)
         level_filters = [f for f in call_params if f.startswith("level:")]
-        self.assertEqual(len(level_filters), 0)
+        self.assertEqual(len(level_filters), 5)
 
     @patch("app.records.related.search_records")
     def test_filters_out_current_record(self, mock_search):
