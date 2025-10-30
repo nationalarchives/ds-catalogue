@@ -35,7 +35,7 @@ class TestCatalogueSearchViewExceptions(TestCase):
 
         # test direct call to view raises SuspiciousOperation
         request = self.factory.get(
-            "/catalogue/search/?group=tna&filter_list=longCollections&filter_list=longCollections"
+            "/catalogue/search/?group=tna&filter_list=longCollection&filter_list=longCollection"
         )
         view = CatalogueSearchView.as_view()
         with self.assertRaises(SuspiciousOperation):
@@ -44,7 +44,7 @@ class TestCatalogueSearchViewExceptions(TestCase):
         # test full stack with middleware handles SuspiciousOperation
         with self.assertLogs("app.search.views", level="INFO") as log:
             response = self.client.get(
-                "/catalogue/search/?group=tna&filter_list=longCollections&filter_list=longCollections"
+                "/catalogue/search/?group=tna&filter_list=longCollection&filter_list=longCollection"
             )
         self.assertIn(
             "INFO:app.search.views:ChoiceField filter_list can only bind to single value",

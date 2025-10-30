@@ -31,7 +31,7 @@
     {% if collection.more_filter_options_available %}
       {{ tnaButton({
         'text': 'See more collections',
-        'href': '?' + qs_replace_value(request.GET, 'filter_list', 'longCollections'),
+        'href': '?' + qs_replace_value(request.GET, 'filter_list', 'longCollection'),
         'plain': True,
         'small': True
       }) }}
