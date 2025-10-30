@@ -28,7 +28,7 @@
       {% if subjects.more_filter_options_available %}
         {{ tnaButton({
           'text': 'See more subjects',
-          'href': '?' + qs_replace_value(request.GET, 'filter_list', 'longSubjects'),
+          'href': '?' + qs_replace_value(request.GET, 'filter_list', 'longSubject'),
           'plain': True,
           'small': True
         }) }}

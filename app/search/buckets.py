@@ -27,10 +27,10 @@ class Aggregation(MultiValueForAggregation):
     """
 
     LEVEL = ("level", "")
-    COLLECTION = ("collection", "longCollections")
+    COLLECTION = ("collection", "longCollection")
     HELD_BY = ("heldBy", "")  # TODO: long_aggs in another PR change
     CLOSURE = ("closure", "")
-    SUBJECT = ("subject", "longSubjects")
+    SUBJECT = ("subject", "longSubject")
 
 
 @dataclass

@@ -1,6 +1,9 @@
+from types import SimpleNamespace
+
 from config.jinja2 import (
     dump_json,
     format_number,
+    override_tna_record_count,
     qs_append_value,
     qs_is_value_active,
     qs_remove_value,
@@ -10,11 +13,9 @@ from config.jinja2 import (
     sanitise_record_field,
     slugify,
     truncate_preserve_mark_tags,
-    override_tna_record_count,
 )
 from django.http import QueryDict
 from django.test import TestCase
-from types import SimpleNamespace
 
 
 class Jinja2TestCase(TestCase):
@@ -282,4 +283,6 @@ class Jinja2TestCase(TestCase):
         for value, is_tna, expected in cases:
             with self.subTest(value=value, is_tna=is_tna):
                 record = SimpleNamespace(is_tna=is_tna)
-                self.assertEqual(override_tna_record_count(value, record), expected)
+                self.assertEqual(
+                    override_tna_record_count(value, record), expected
+                )
