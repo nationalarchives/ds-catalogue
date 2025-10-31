@@ -38,7 +38,7 @@
 {% endblock %}
   
 {% block content %}
-  <form id="long-filters-form" method="get" action="/catalogue/search/"> 
+  <form id="long-filters-form" method="get" action="{{ url('search:catalogue') }}"> 
      <div class="tna-container tna-section tna-section--long">
        <button class="tna-button" type="submit">
             Apply filters
