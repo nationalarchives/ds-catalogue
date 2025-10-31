@@ -69,14 +69,14 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         response = self.client.get("/catalogue/search/")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&q=%2A&size=20"
+            "https://rosetta.test/data/search?filter=group%3Atna&aggs=level&aggs=collection&aggs=closure&aggs=subject&q=%2A&size=20&from=0"
         )
 
         # with group=tna param
         response = self.client.get("/catalogue/search/?group=tna")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&q=%2A&size=20"
+            "https://rosetta.test/data/search?filter=group%3Atna&aggs=level&aggs=collection&aggs=closure&aggs=subject&q=%2A&size=20&from=0"
         )
 
         # query with held_by param (should be ignored for tna group)
@@ -85,7 +85,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&q=%2A&size=20"
+            "https://rosetta.test/data/search?filter=group%3Atna&aggs=level&aggs=collection&aggs=closure&aggs=subject&q=%2A&size=20&from=0"
         )
 
         # Test subject filter for TNA group
@@ -94,7 +94,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&filter=subject%3AArmy&filter=subject%3ANavy&q=%2A&size=20"
+            "https://rosetta.test/data/search?filter=group%3Atna&filter=subject%3AArmy&filter=subject%3ANavy&aggs=level&aggs=collection&aggs=closure&aggs=subject&q=%2A&size=20&from=0"
         )
 
         # Test covering date filters
@@ -103,7 +103,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29&filter=coveringToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
+            "https://rosetta.test/data/search?filter=group%3Atna&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29&filter=coveringToDate%3A%28%3C%3D2000-12-31%29&aggs=level&aggs=collection&aggs=closure&aggs=subject&q=%2A&size=20&from=0"
         )
 
         # Test opening date filters
@@ -112,5 +112,5 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=level&aggs=collection&aggs=closure&aggs=subject&filter=group%3Atna&filter=openingFromDate%3A%28%3E%3D2000-12-1%29&filter=openingToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
+            "https://rosetta.test/data/search?filter=group%3Atna&filter=openingFromDate%3A%28%3E%3D2000-12-1%29&filter=openingToDate%3A%28%3C%3D2000-12-31%29&aggs=level&aggs=collection&aggs=closure&aggs=subject&q=%2A&size=20&from=0"
         )

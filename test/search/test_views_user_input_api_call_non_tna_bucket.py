@@ -57,14 +57,14 @@ class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
         response = self.client.get("/catalogue/search/?group=nonTna")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=%2A&size=20"
+            "https://rosetta.test/data/search?filter=group%3AnonTna&filter=datatype%3Arecord&aggs=heldBy&q=%2A&size=20&from=0"
         )
 
         # with search term, non tna records
         response = self.client.get("/catalogue/search/?group=nonTna&q=ufo")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
+            "https://rosetta.test/data/search?filter=group%3AnonTna&filter=datatype%3Arecord&aggs=heldBy&q=ufo&size=20&from=0"
         )
 
         # with filter not belonging to nontna group (should be ignored)
@@ -73,7 +73,7 @@ class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
+            "https://rosetta.test/data/search?filter=group%3AnonTna&filter=datatype%3Arecord&aggs=heldBy&q=ufo&size=20&from=0"
         )
 
         # Test covering date filters
@@ -82,5 +82,5 @@ class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29&filter=coveringToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
+            "https://rosetta.test/data/search?filter=group%3AnonTna&filter=datatype%3Arecord&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29&filter=coveringToDate%3A%28%3C%3D2000-12-31%29&aggs=heldBy&q=%2A&size=20&from=0"
         )
