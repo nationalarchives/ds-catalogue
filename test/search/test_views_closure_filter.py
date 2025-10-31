@@ -69,26 +69,28 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
             status=HTTPStatus.OK,
         )
 
-        self.response = self.client.get(
+        response = self.client.get(
             "/catalogue/search/?q=ufo&closure=Open+Document,+Open+Description&closure=Closed+Or+Retained+Document,+Open+Description"
         )
+        context_data = response.context_data
+        closure_field = context_data.get("form").fields["closure"]
 
         self.assertEqual(
-            self.response.context_data.get("form").fields["closure"].value,
+            closure_field.value,
             [
                 "Open Document, Open Description",
                 "Closed Or Retained Document, Open Description",
             ],
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["closure"].cleaned,
+            closure_field.cleaned,
             [
                 "Open Document, Open Description",
                 "Closed Or Retained Document, Open Description",
             ],
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["closure"].items,
+            closure_field.items,
             [
                 {
                     "text": "Open Document, Open Description (150)",
@@ -103,7 +105,7 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
             ],
         )
         self.assertEqual(
-            self.response.context_data.get("selected_filters"),
+            context_data.get("selected_filters"),
             [
                 {
                     "label": "Closure status: Open Document, Open Description",
@@ -118,21 +120,15 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
             ],
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields["closure"]
-            .more_filter_options_available,
+            closure_field.more_filter_options_available,
             False,
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields["closure"]
-            .more_filter_options_url,
+            closure_field.more_filter_options_url,
             "",
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields["closure"]
-            .more_filter_options_text,
+            closure_field.more_filter_options_text,
             "",
         )
 
@@ -182,26 +178,28 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
             status=HTTPStatus.OK,
         )
 
-        self.response = self.client.get(
+        response = self.client.get(
             "/catalogue/search/?q=ufo&closure=Open+Document,+Open+Description&closure=invalid"
         )
+        context_data = response.context_data
+        closure_field = context_data.get("form").fields["closure"]
 
         self.assertEqual(
-            self.response.context_data.get("form").fields["closure"].value,
+            closure_field.value,
             [
                 "Open Document, Open Description",
                 "invalid",
             ],
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["closure"].cleaned,
+            closure_field.cleaned,
             [
                 "Open Document, Open Description",
                 "invalid",
             ],
         )
         self.assertEqual(
-            self.response.context_data.get("form").fields["closure"].items,
+            closure_field.items,
             [
                 {
                     "text": "Open Document, Open Description (150)",
@@ -216,7 +214,7 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
             ],
         )
         self.assertEqual(
-            self.response.context_data.get("selected_filters"),
+            context_data.get("selected_filters"),
             [
                 {
                     "label": "Closure status: Open Document, Open Description",
@@ -231,8 +229,6 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
             ],
         )
         self.assertEqual(
-            self.response.context_data.get("form")
-            .fields["closure"]
-            .more_filter_options_available,
+            closure_field.more_filter_options_available,
             False,
         )
