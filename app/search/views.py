@@ -164,9 +164,15 @@ class APIMixin:
                     form.fields[field_name].update_choices(
                         choice_api_data, form.fields[field_name].value
                     )
-                    form.fields[field_name].more_filter_options_available = (
-                        bool(aggregation.get("other", 0))
+                    more_filter_options_available = bool(
+                        aggregation.get("other", 0)
                     )
+                    form.fields[field_name].more_filter_options_available = (
+                        more_filter_options_available
+                    )
+                    if not more_filter_options_available:
+                        form.fields[field_name].more_filter_options_text = ""
+                        form.fields[field_name].more_filter_options_url = ""
 
     def replace_api_data(
         self, field_name, entries_data: list[dict[str, str | int]]

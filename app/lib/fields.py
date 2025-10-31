@@ -38,6 +38,7 @@ class BaseField:
     def __init__(
         self, label=None, required=False, hint="", active_filter_label=None
     ):
+        self.id = None  # set on bind
         self.label = label
         self.required = required
         self.hint = hint
@@ -53,8 +54,10 @@ class BaseField:
         Override to bind to list or string."""
 
         self.name = name
-        self.label = self.label or name.capitalize()
         self._value = value
+        # also bind id and label
+        self.id = "id_" + name
+        self.label = self.label or name.capitalize()
 
     def get_bind_value(self, data: QueryDict, name: str):
         """Override in subclasses if special bind value extraction is needed."""
@@ -186,10 +189,14 @@ class DynamicMultipleChoiceField(BaseField):
         there are no fixed choices to validate against or need to
         lookup labels.
 
-        keyword args - validate_input: bool
+        keyword args - validate_input: bool,
+                       more_filter_options_text: str
         validate_input is optional, it defaults True if choices provided,
         False otherwise. Override to False when validation from defined
         choices is required. Coerce to False when no choices provided.
+        more_filter_options_text: text for more options link/button.
+        more_filter_options: set by form when more options available.
+        more_filter_options_url: set by form when more options available.
 
         Choices are updated dynamically using update_choices() method.
         """
@@ -203,7 +210,14 @@ class DynamicMultipleChoiceField(BaseField):
             self.validate_input = False
             kwargs.pop("validate_input", None)
 
+        self.more_filter_options_text: str = kwargs.pop(
+            "more_filter_options_text", "See more options"
+        )  # default text
+        self.more_filter_options_available: bool = False  # set by form
+        self.more_filter_options_url: str = ""  # set by form
+
         super().__init__(**kwargs)
+
         self.choices = choices
         self.configured_choices = self.choices
         # cache valid choices

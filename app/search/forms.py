@@ -112,17 +112,20 @@ class CatalogueSearchTnaForm(CatalogueSearchBaseForm):
                 choices=list((level, level) for level in TNA_LEVELS.values()),
                 validate_input=True,  # validate input with choices before querying the API
                 active_filter_label="Level",
+                more_filter_options_text="See more levels",
             ),
             FieldsConstant.COLLECTION: DynamicMultipleChoiceField(
                 label="Collections",
                 choices=COLLECTION_CHOICES,
                 validate_input=False,  # do not validate input COLLECTION_CHOICES fixed or dynamic
                 active_filter_label="Collection",
+                more_filter_options_text="See more collections",
             ),
             FieldsConstant.SUBJECT: DynamicMultipleChoiceField(
                 label="Subjects",
                 choices=[],  # no initial choices as they are set dynamically
                 active_filter_label="Subject",
+                more_filter_options_text="See more subjects",
             ),
             FieldsConstant.ONLINE: ChoiceField(
                 choices=[
@@ -210,5 +213,6 @@ class CatalogueSearchNonTnaForm(CatalogueSearchBaseForm):
                 label="Held by",
                 choices=[],  # no initial choices as they are set dynamically
                 active_filter_label="Held by",
+                more_filter_options_text="See more held by",
             ),
         }
