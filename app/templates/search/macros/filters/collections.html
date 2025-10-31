@@ -5,10 +5,10 @@
 
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
   {{ tnaCheckboxes({
-    'label': 'Collections',
+    'label': collection.label,
     'headingLevel': 3,
     'headingSize': 'm',
-    'id': 'collection',
+    'id': collection.id,
     'name': collection.name,
     'items': collection.items,
     'small': True,
@@ -30,8 +30,8 @@
 
     {% if collection.more_filter_options_available %}
       {{ tnaButton({
-        'text': 'See more collections',
-        'href': '?' + qs_replace_value(request.GET, 'filter_list', 'longCollection'),
+        'text': collection.more_filter_options_text,
+        'href': collection.more_filter_options_url,
         'plain': True,
         'small': True
       }) }}

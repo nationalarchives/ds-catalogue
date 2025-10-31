@@ -4,10 +4,10 @@
 {% macro subjects(request, subjects) %}
   <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
     {{ tnaCheckboxes({
-      'label': 'Subjects',
+      'label': subjects.label,
       'headingLevel': 3,
       'headingSize': 'm',
-      'id': 'subjects',
+      'id': subjects.id,
       'name': subjects.name,
       'items': subjects.items,
       'small': True,
@@ -27,8 +27,8 @@
 
       {% if subjects.more_filter_options_available %}
         {{ tnaButton({
-          'text': 'See more subjects',
-          'href': '?' + qs_replace_value(request.GET, 'filter_list', 'longSubject'),
+        'text': subjects.more_filter_options_text,
+        'href': subjects.more_filter_options_url,
           'plain': True,
           'small': True
         }) }}

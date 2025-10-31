@@ -4,10 +4,10 @@
 {% macro held_by(request, held_by) %}
   <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
     {{ tnaCheckboxes({
-      'label': 'Held by',
+      'label': held_by.label,
       'headingLevel': 3,
       'headingSize': 'm',
-      'id': 'held_by',
+      'id': held_by.id,
       'name': held_by.name,
       'items': held_by.items,
       'small': True,
