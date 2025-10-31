@@ -25,8 +25,18 @@ def search_records(
             # "sortOrder": order, # Unused for Rosetta
         }
     )
-    # remove params having no values
-    params = {param: value for param, value in params.items() if value}
+
+    # for 0 results_per_page, "from" param not needed
+    if results_per_page == 0:
+        del params["from"]
+
+    # remove params having empty values, for long filters size=0 is valid
+    params = {
+        param: value
+        for param, value in params.items()
+        if value not in [None, "", []]
+    }
+
     results = rosetta_request_handler(uri, params)
     if "data" not in results:
         raise Exception("No data returned")

@@ -32,7 +32,7 @@ class FieldsConstant:
     OPENING_DATE_TO = "opening_date_to"
 
 
-# Format (long aggs value, field name) ex ("longCollections", "collection")
+# Format (api long aggs value, field name) ex ("longCollections", "collection")
 # also serves as mapping betwen form field and aggregation
 FILTER_LIST_CHOICES = [
     ("", "No filter"),

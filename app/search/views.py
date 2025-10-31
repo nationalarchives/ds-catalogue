@@ -36,6 +36,7 @@ from .constants import (
     Sort,
 )
 from .forms import (
+    FILTER_LIST_CHOICES,
     CatalogueSearchNonTnaForm,
     CatalogueSearchTnaForm,
     FieldsConstant,
@@ -52,6 +53,8 @@ class PageNotFound(Exception):
 
 class APIMixin:
     """A mixin to get the api result, processes api result, sets the context."""
+
+    _FILTER_CHOICES_LIST_DICT = dict(FILTER_LIST_CHOICES)
 
     def get_api_result(self, query, results_per_page, page, sort, params):
         api_result = search_records(
@@ -75,15 +78,23 @@ class APIMixin:
 
         params = {}
 
-        # aggregations
-        params.update({"aggs": current_bucket.aggregations})
-
         # filter records for a bucket
         add_filter(params, f"group:{current_bucket.key}")
 
         # applies to catalogue records to filter records with iaid in the results
         if current_bucket.key == BucketKeys.NON_TNA.value:
             add_filter(params, FILTER_DATATYPE_RECORD)
+
+        # aggregations, check long filter applied first
+        if self.is_filter_list_applied(form):
+            # aggs for long filter
+            filter_list_value = form.fields.get(
+                FieldsConstant.FILTER_LIST
+            ).cleaned
+            params.update({"aggs": filter_list_value})
+        else:
+            # aggs for current bucket
+            params.update({"aggs": current_bucket.aggregations})
 
         # date related filters
         add_filter(params, self._get_date_api_params(form))
@@ -109,6 +120,16 @@ class APIMixin:
                 add_filter(params, "digitised:true")
 
         return params
+
+    def is_filter_list_applied(self, form) -> bool:
+        """Returns True if filter_list is applied and valid."""
+
+        if (
+            form.fields.get(FieldsConstant.FILTER_LIST)
+            and form.fields[FieldsConstant.FILTER_LIST].cleaned
+        ):
+            return True
+        return False
 
     def _get_date_api_params(self, form) -> list[str]:
         """Returns date related API params."""
@@ -159,7 +180,8 @@ class APIMixin:
         reflect data included in the API's `aggs` response."""
 
         for aggregation in api_result.aggregations:
-            field_name = camelcase_to_underscore(aggregation.get("name"))
+
+            field_name = self._get_field_name_from_api_aggregation(aggregation)
 
             if field_name in form.fields:
                 if isinstance(
@@ -175,10 +197,46 @@ class APIMixin:
                         form, field_name, aggregation
                     )
 
+    def _get_field_name_from_api_aggregation(self, aggregation: dict) -> str:
+        """Get field name from aggregation name, considering long filters.
+        Examples:
+        aggs:collection -> field_name:collection
+        aggs:longCollection -> field_name:collection
+        aggs:heldBy -> field_name:held_by
+        """
+
+        aggregation_name = aggregation.get("name")
+        field_name = self.get_field_name_for_long_aggs_name(aggregation_name)
+        if not field_name:
+            field_name = camelcase_to_underscore(aggregation_name)
+        return field_name
+
+    def get_field_name_for_long_aggs_name(self, aggregation_name: str) -> str:
+        """Get field name for aggregation name that belongs to api aggregation
+        or input filter_list value otherwise returns empty string.
+        Examples:
+        aggs:longCollection -> field_name:collection
+        filter_list:longCollection -> field_name:collection
+        aggs:collection -> field_name:""
+        """
+
+        if aggregation_name in self._FILTER_CHOICES_LIST_DICT:
+            field_name = self._FILTER_CHOICES_LIST_DICT[aggregation_name]
+            return field_name
+        return ""
+
     def _build_more_filter_options(
-        self, form, field_name: str, aggregation: dict
+        self,
+        form: CatalogueSearchTnaForm | CatalogueSearchNonTnaForm,
+        field_name: str,
+        aggregation: dict,
     ):
-        """Builds more filter options url and text for dynamic multiple choice fields."""
+        """Builds more filter options url and text for dynamic multiple choice fields.
+        from api aggregation data.
+        Examples:
+        {"other": 1} -> more options available
+        {"other": 0} -> no more options available
+        """
 
         # determine if more filter options are available
         more_filter_options_available = bool(aggregation.get("other", 0))
@@ -340,9 +398,15 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         """Gets the api result and processes it after the form and fields
         are cleaned and validated. Renders with form, context."""
 
+        if self.is_filter_list_applied(self.form):
+            # for long filter, skip pagination to get all options
+            results_per_page = 0
+        else:
+            results_per_page = RESULTS_PER_PAGE
+
         self.api_result = self.get_api_result(
             query=self.query,
-            results_per_page=RESULTS_PER_PAGE,
+            results_per_page=results_per_page,
             page=self.page,
             sort=self.sort,
             params=self.get_api_params(self.form, self.current_bucket),
@@ -417,6 +481,10 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
     def get_context_data(self, **kwargs):
         context: dict = super().get_context_data(**kwargs)
 
+        # add more filter options context if applicable
+        if filter_context := self._get_context_data_for_more_filter_options():
+            context.update(filter_context)
+
         selected_filters = self.build_selected_filters_list()
 
         global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
@@ -439,6 +507,30 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
             }
         )
         return context
+
+    def _get_context_data_for_more_filter_options(self) -> dict:
+        """Returns context data for more filter options page.
+        mfo_cancel_and_return_to_search_url: url to cancel and return to search results
+        mfo_field: the dynamic multiple choice field for long filter options
+        """
+
+        filter_context = {}
+        if self.is_filter_list_applied(self.form):
+            cancel_and_return_to_search = f"?{qs_remove_value(self.request.GET, FieldsConstant.FILTER_LIST)}"
+            filter_context["mfo_cancel_and_return_to_search_url"] = (
+                cancel_and_return_to_search
+            )
+
+            # get field name from filter_list value
+            filter_list_value = self.form.fields[
+                FieldsConstant.FILTER_LIST
+            ].cleaned
+            field_name = self.get_field_name_for_long_aggs_name(
+                filter_list_value
+            )
+            if field_name:
+                filter_context["mfo_field"] = self.form.fields.get(field_name)
+        return filter_context
 
     def build_selected_filters_list(self):
         """Builds a list of selected filters for display and removal links."""

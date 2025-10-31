@@ -20,7 +20,7 @@ class MultiValueForAggregation(Enum):
 
 class Aggregation(MultiValueForAggregation):
     """Aggregated counts to include with response.
-    Enum value format (aggs, long_aggs)
+    Enum value format (api aggs, api long_aggs)
     When long_aggs is empty string, long aggregation is not supported.
 
     Supported by /search endpoint.
