@@ -170,26 +170,34 @@ class APIMixin:
                     form.fields[field_name].update_choices(
                         choice_api_data, form.fields[field_name].value
                     )
-                    more_filter_options_available = bool(
-                        aggregation.get("other", 0)
+
+                    self._build_more_filter_options(
+                        form, field_name, aggregation
                     )
-                    form.fields[field_name].more_filter_options_available = (
-                        more_filter_options_available
-                    )
-                    if more_filter_options_available:
-                        form.fields[field_name].more_filter_options_url = (
-                            "?"
-                            + qs_replace_value(
-                                existing_qs=self.request.GET,
-                                filter=FieldsConstant.FILTER_LIST,
-                                by=getattr(
-                                    Aggregation[field_name.upper()], "long_aggs"
-                                ),
-                            )
-                        )
-                    else:
-                        form.fields[field_name].more_filter_options_text = ""
-                        form.fields[field_name].more_filter_options_url = ""
+
+    def _build_more_filter_options(
+        self, form, field_name: str, aggregation: dict
+    ):
+        """Builds more filter options url and text for dynamic multiple choice fields."""
+
+        # determine if more filter options are available
+        more_filter_options_available = bool(aggregation.get("other", 0))
+        form.fields[field_name].more_filter_options_available = (
+            more_filter_options_available
+        )
+        if more_filter_options_available:
+            # adds filter_list=<Aggregation long_aggs value> to existing query string
+            form.fields[field_name].more_filter_options_url = (
+                "?"
+                + qs_replace_value(
+                    existing_qs=self.request.GET,
+                    filter=FieldsConstant.FILTER_LIST,
+                    by=getattr(Aggregation[field_name.upper()], "long_aggs"),
+                )
+            )
+        else:
+            form.fields[field_name].more_filter_options_text = ""
+            form.fields[field_name].more_filter_options_url = ""
 
     def replace_api_data(
         self, field_name, entries_data: list[dict[str, str | int]]
