@@ -32,6 +32,25 @@ class FieldsConstant:
     OPENING_DATE_TO = "opening_date_to"
 
 
+# Format (long aggs value, field name) ex ("longCollections", "collection")
+# also serves as mapping betwen form field and aggregation
+FILTER_LIST_CHOICES = [
+    ("", "No filter"),
+    (
+        Aggregation.COLLECTION.long_aggs,
+        FieldsConstant.COLLECTION,
+    ),
+    (
+        Aggregation.SUBJECT.long_aggs,
+        FieldsConstant.SUBJECT,
+    ),
+    (
+        Aggregation.HELD_BY.long_aggs,
+        FieldsConstant.HELD_BY,
+    ),
+]
+
+
 class CatalogueSearchBaseForm(BaseForm):
 
     def add_fields(self):
@@ -50,6 +69,9 @@ class CatalogueSearchBaseForm(BaseForm):
                 ],
             ),
             FieldsConstant.Q: CharField(),
+            FieldsConstant.FILTER_LIST: ChoiceField(
+                choices=FILTER_LIST_CHOICES,
+            ),
         }
 
     def cross_validate(self) -> list[str]:
@@ -139,19 +161,6 @@ class CatalogueSearchTnaForm(CatalogueSearchBaseForm):
                 label="Closure status",
                 choices=[],  # no initial choices as they are set dynamically
                 active_filter_label="Closure status",
-            ),
-            FieldsConstant.FILTER_LIST: ChoiceField(
-                choices=[
-                    ("", "No filter"),
-                    (
-                        Aggregation.COLLECTION.long_aggs,
-                        FieldsConstant.COLLECTION,
-                    ),
-                    (
-                        Aggregation.SUBJECT.long_aggs,
-                        FieldsConstant.SUBJECT,
-                    ),
-                ],
             ),
             FieldsConstant.COVERING_DATE_FROM: FromDateField(
                 label="From",

@@ -15,13 +15,19 @@ from app.lib.fields import (
 from app.lib.pagination import pagination_object
 from app.records.constants import TNA_LEVELS
 from app.search.api import search_records
-from config.jinja2 import qs_remove_value, qs_toggle_value
+from config.jinja2 import qs_remove_value, qs_replace_value, qs_toggle_value
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.views.generic import TemplateView
 
-from .buckets import CATALOGUE_BUCKETS, Bucket, BucketKeys, BucketList
+from .buckets import (
+    CATALOGUE_BUCKETS,
+    Aggregation,
+    Bucket,
+    BucketKeys,
+    BucketList,
+)
 from .constants import (
     DATE_DISPLAY_FORMAT,
     FILTER_DATATYPE_RECORD,
@@ -170,7 +176,18 @@ class APIMixin:
                     form.fields[field_name].more_filter_options_available = (
                         more_filter_options_available
                     )
-                    if not more_filter_options_available:
+                    if more_filter_options_available:
+                        form.fields[field_name].more_filter_options_url = (
+                            "?"
+                            + qs_replace_value(
+                                existing_qs=self.request.GET,
+                                filter=FieldsConstant.FILTER_LIST,
+                                by=getattr(
+                                    Aggregation[field_name.upper()], "long_aggs"
+                                ),
+                            )
+                        )
+                    else:
                         form.fields[field_name].more_filter_options_text = ""
                         form.fields[field_name].more_filter_options_url = ""
 
