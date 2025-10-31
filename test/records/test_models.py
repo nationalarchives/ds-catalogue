@@ -56,6 +56,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.related_materials, ())
         self.assertEqual(self.record.description, "")
         self.assertEqual(self.record.clean_description, None)
+        self.assertEqual(self.record.short_description, "")
         self.assertEqual(self.record.separated_materials, ())
         self.assertEqual(self.record.unpublished_finding_aids, [])
         self.assertEqual(self.record.hierarchy, ())
@@ -638,6 +639,29 @@ class RecordModelTests(SimpleTestCase):
                 """papers</span></span>"""
             ),
         )
+
+    def test_short_description(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["description"] = {
+            "value": "",
+            "short": (
+                """This series contains the vast majority of registered wills """
+                """proved before the Prerogative Court of Canterbury and other """
+                """jurisdictions that exercised probate jurisdiction in the place """
+                """of the Court, the most important of which was the Court for Probate ..."""
+            ),
+        }
+        self.assertEqual(
+            self.record.short_description,
+            (
+                """This series contains the vast majority of registered wills """
+                """proved before the Prerogative Court of Canterbury and other """
+                """jurisdictions that exercised probate jurisdiction in the place """
+                """of the Court, the most important of which was the Court for Probate ..."""
+            ),
+        )
+        self.assertTrue(self.record.short_description.endswith("..."))
 
     def test_raw_description(self):
         self.record = Record(self.template_details)
