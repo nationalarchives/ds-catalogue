@@ -49,6 +49,8 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
                                 "doc_count": 50,
                             },
                         ],
+                        "total": 100,
+                        "other": 0,
                     }
                 ],
                 "buckets": [
@@ -115,6 +117,24 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
                 },
             ],
         )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields["closure"]
+            .more_filter_options_available,
+            False,
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields["closure"]
+            .more_filter_options_url,
+            "",
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields["closure"]
+            .more_filter_options_text,
+            "",
+        )
 
     @responses.activate
     def test_catalogue_search_context_with_invalid_closure_param(self):
@@ -142,6 +162,8 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
                                 "doc_count": 150,
                             },
                         ],
+                        "total": 100,
+                        "other": 0,
                     }
                 ],
                 "buckets": [
@@ -207,4 +229,10 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
                     "title": "Remove invalid closure status",
                 },
             ],
+        )
+        self.assertEqual(
+            self.response.context_data.get("form")
+            .fields["closure"]
+            .more_filter_options_available,
+            False,
         )

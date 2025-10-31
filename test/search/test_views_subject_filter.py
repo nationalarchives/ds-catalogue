@@ -33,6 +33,8 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
                             {"value": "Army", "doc_count": 150},
                             {"value": "Air Force", "doc_count": 75},
                         ],
+                        "total": 100,
+                        "other": 0,
                     }
                 ],
                 "buckets": [
@@ -100,6 +102,24 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
                     "title": "Remove Air Force subject",
                 },
             ],
+        )
+        self.assertEqual(
+            response.context_data.get("form")
+            .fields["subject"]
+            .more_filter_options_available,
+            False,
+        )
+        self.assertEqual(
+            response.context_data.get("form")
+            .fields["subject"]
+            .more_filter_options_url,
+            "",
+        )
+        self.assertEqual(
+            response.context_data.get("form")
+            .fields["subject"]
+            .more_filter_options_text,
+            "",
         )
 
     @responses.activate

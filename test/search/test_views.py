@@ -166,10 +166,12 @@ class CatalogueSearchViewDefaultTests(TestCase):
 
         # ### form fields ###
 
+        self.assertEqual(q_field.id, "id_q")
         self.assertEqual(q_field.name, "q")
         self.assertEqual(q_field.value, "")
         self.assertEqual(q_field.cleaned, "")
 
+        self.assertEqual(group_field.id, "id_group")
         self.assertEqual(group_field.name, "group")
         self.assertEqual(group_field.value, "tna")
         self.assertEqual(
@@ -188,6 +190,7 @@ class CatalogueSearchViewDefaultTests(TestCase):
             ],
         )
 
+        self.assertEqual(sort_field.id, "id_sort")
         self.assertEqual(sort_field.name, "sort")
         self.assertEqual(sort_field.value, "")
         self.assertEqual(sort_field.cleaned, "")
@@ -202,6 +205,7 @@ class CatalogueSearchViewDefaultTests(TestCase):
             ],
         )
 
+        self.assertEqual(level_field.id, "id_level")
         self.assertEqual(level_field.name, "level")
         self.assertEqual(
             level_field.label,
@@ -219,6 +223,10 @@ class CatalogueSearchViewDefaultTests(TestCase):
                 {"text": "Item (100)", "value": "Item"},
                 {"text": "Division (5)", "value": "Division"},
             ],
+        )
+        self.assertEqual(
+            collection_field.id,
+            "id_collection",
         )
         self.assertEqual(
             collection_field.name,
@@ -254,6 +262,10 @@ class CatalogueSearchViewDefaultTests(TestCase):
             ],
         )
 
+        self.assertEqual(
+            closure_field.id,
+            "id_closure",
+        )
         self.assertEqual(
             closure_field.name,
             "closure",
@@ -308,6 +320,10 @@ class CatalogueSearchViewDefaultTests(TestCase):
 
         # test covering date from fields
         self.assertEqual(
+            covering_date_from_field.id,
+            "id_covering_date_from",
+        )
+        self.assertEqual(
             covering_date_from_field.name,
             "covering_date_from",
         )
@@ -329,6 +345,10 @@ class CatalogueSearchViewDefaultTests(TestCase):
         )
 
         # test covering date to fields
+        self.assertEqual(
+            covering_date_to_field.id,
+            "id_covering_date_to",
+        )
         self.assertEqual(
             covering_date_to_field.name,
             "covering_date_to",

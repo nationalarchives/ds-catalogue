@@ -44,6 +44,8 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
                         ],
+                        "total": 100,
+                        "other": 0,
                     }
                 ],
                 "buckets": [
@@ -116,6 +118,12 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
                 },
             ],
         )
+        self.assertEqual(
+            collection_field.more_filter_options_available,
+            False,
+        )
+        self.assertEqual(collection_field.more_filter_options_url, "")
+        self.assertEqual(collection_field.more_filter_options_text, "")
 
     @responses.activate
     def test_search_with_known_filters_with_unmatched_config_returns_results(
@@ -150,6 +158,8 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
                                 "doc_count": 50,
                             },
                         ],
+                        "total": 100,
+                        "other": 0,
                     }
                 ],
                 "buckets": [
@@ -213,6 +223,10 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
                     "title": "Remove VALUE-DOES-NOT-MATCH-CONFIG collection",
                 },
             ],
+        )
+        self.assertEqual(
+            collection_field.more_filter_options_available,
+            False,
         )
 
     @responses.activate
@@ -294,6 +308,10 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
 
         self.assertEqual(level_field.choices_updated, True)
         self.assertEqual(level_field.items, [])
+        self.assertEqual(
+            collection_field.more_filter_options_available,
+            False,
+        )
 
     @responses.activate
     def test_search_with_some_known_and_unknown_filters_returns_results(
@@ -322,6 +340,8 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                         ],
+                        "total": 100,
+                        "other": 0,
                     }
                 ],
                 "buckets": [
@@ -392,6 +412,10 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
                 },
             ],
         )
+        self.assertEqual(
+            collection_field.more_filter_options_available,
+            False,
+        )
 
     @responses.activate
     def test_search_with_unknown_filter_returns_no_results_no_aggs(
@@ -459,3 +483,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
         self.assertEqual(level_field.choices_updated, True)
         # should not reflect configured choices
         self.assertEqual(len(level_field.items), 0)
+        self.assertEqual(
+            collection_field.more_filter_options_available,
+            False,
+        )
