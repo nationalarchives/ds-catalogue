@@ -25,6 +25,15 @@
           'form': 'search-form'
         }
       }) }}
+
+    {% if held_by.more_filter_options_available %}
+      {{ tnaButton({
+        'text': held_by.more_filter_options_text,
+        'href': held_by.more_filter_options_url,
+        'plain': True,
+        'small': True
+      }) }}
+    {% endif %}
     </div>
   </div>
 {% endmacro %}
