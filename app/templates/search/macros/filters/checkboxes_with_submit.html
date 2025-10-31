@@ -1,15 +1,15 @@
 {% from 'components/button/macro.html' import tnaButton %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 
-{% macro subjects(request, subjects) %}
+{% macro checkboxes_with_submit(request, field) %}
   <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
     {{ tnaCheckboxes({
-      'label': subjects.label,
+      'label': field.label,
       'headingLevel': 3,
       'headingSize': 'm',
-      'id': subjects.id,
-      'name': subjects.name,
-      'items': subjects.items,
+      'id': field.id,
+      'name': field.name,
+      'items': field.items,
       'small': True,
       'attributes': {
         'form': 'search-form'
@@ -20,15 +20,15 @@
         'text': 'Update',
         'buttonElement': True,
         'buttonType': 'submit',
+        'small': True,
         'attributes': {
           'form': 'search-form'
         }
       }) }}
-
-      {% if subjects.more_filter_options_available %}
+      {% if field.more_filter_options_available %}
         {{ tnaButton({
-        'text': subjects.more_filter_options_text,
-        'href': subjects.more_filter_options_url,
+          'text': field.more_filter_options_text,
+          'href': field.more_filter_options_url,
           'plain': True,
           'small': True
         }) }}

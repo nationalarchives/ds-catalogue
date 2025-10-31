@@ -17,14 +17,10 @@
 {% from 'search/macros/filters/search_within.html' import search_within %}
 {% from 'search/macros/filters/date_range.html' import date_range %}
 {% from 'search/macros/filters/date_input.html' import date_input %}
-{% from 'search/macros/filters/levels.html' import levels %}
-{% from 'search/macros/filters/closure_statuses.html' import closure_statuses %}
 {% from 'search/macros/filters/opening_date.html' import opening_date %}
-{% from 'search/macros/filters/collections.html' import collections %}
 {% from 'search/macros/filters/online.html' import online %}
-{% from 'search/macros/filters/subjects.html' import subjects %}
-{% from 'search/macros/filters/held_by.html' import held_by %}
 {% from 'search/macros/search_results.html' import search_results %}
+{% from 'search/macros/filters/checkboxes_with_submit.html' import checkboxes_with_submit %}
 
 {%- set pageTitle = 'Catalogue search results' -%}
 {%- set encodedQuery = request.GET.urlencode() | base64_encode -%}
@@ -169,15 +165,15 @@
       {{ online(request) }}
       {# {{ search_within(request) }} #}
       {{ date_input(request, form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
-      {{ collections(request, form.fields['collection']) }}
-      {{ subjects(request, form.fields['subject']) }}
-      {{ levels(request, form.fields['level']) }}
+      {{ checkboxes_with_submit(request, form.fields['collection']) }}
+      {{ checkboxes_with_submit(request, form.fields['subject']) }}
+      {{ checkboxes_with_submit(request, form.fields['level']) }}
       {{ date_input(request, form.fields.opening_date_from, form.fields.opening_date_to, 'Filter by record opening date') }}
-      {{ closure_statuses(request, form.fields['closure']) }}
+      {{ checkboxes_with_submit(request, form.fields['closure']) }}
     {% elif form.fields.group.value==bucket_keys.NON_TNA %}
       {# {{ search_within(request) }} #}
       {{ date_input(request, form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
-      {{ held_by(request, form.fields['held_by']) }}
+      {{ checkboxes_with_submit(request, form.fields['held_by']) }}
     {% endif %}
     
     
