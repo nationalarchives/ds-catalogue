@@ -154,7 +154,7 @@
             <h3 class="tna-heading-m">Active filters {% if selected_filters %} ({{ selected_filters | length }}){% endif %}:</h3>
             {{ tnaCompoundFilters({
               'items': selected_filters,
-              'removeAllHref': url('search:catalogue') + '?q=' + form.fields.q.value + '&display=' + (request.GET.get('display') or ''),
+              'removeAllHref': url('search:catalogue') + '?group=' + form.fields.group.value + '&q=' + form.fields.q.value + '&display=' + (request.GET.get('display') or ''),
               'removeAllText': 'Reset filters',
               'classes': 'tna-!--margin-top-s'
             }) }}
