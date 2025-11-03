@@ -120,15 +120,15 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
             ],
         )
         self.assertEqual(
-            closure_field.more_filter_options_available,
+            closure_field.more_filter_choices_available,
             False,
         )
         self.assertEqual(
-            closure_field.more_filter_options_url,
+            closure_field.more_filter_choices_url,
             "",
         )
         self.assertEqual(
-            closure_field.more_filter_options_text,
+            closure_field.more_filter_choices_text,
             "",
         )
 
@@ -229,6 +229,6 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
             ],
         )
         self.assertEqual(
-            closure_field.more_filter_options_available,
+            closure_field.more_filter_choices_available,
             False,
         )

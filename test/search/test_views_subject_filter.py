@@ -106,15 +106,15 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
             ],
         )
         self.assertEqual(
-            subject_field.more_filter_options_available,
+            subject_field.more_filter_choices_available,
             False,
         )
         self.assertEqual(
-            subject_field.more_filter_options_url,
+            subject_field.more_filter_choices_url,
             "",
         )
         self.assertEqual(
-            subject_field.more_filter_options_text,
+            subject_field.more_filter_choices_text,
             "",
         )
 

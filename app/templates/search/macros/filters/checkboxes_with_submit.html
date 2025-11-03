@@ -25,10 +25,10 @@
           'form': 'search-form'
         }
       }) }}
-      {% if field.more_filter_options_available %}
+      {% if field.more_filter_choices_available %}
         {{ tnaButton({
-          'text': field.more_filter_options_text,
-          'href': field.more_filter_options_url,
+          'text': field.more_filter_choices_text,
+          'href': field.more_filter_choices_url,
           'plain': True,
           'small': True
         }) }}

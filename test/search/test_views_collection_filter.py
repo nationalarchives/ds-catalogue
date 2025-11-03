@@ -119,11 +119,11 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
             ],
         )
         self.assertEqual(
-            collection_field.more_filter_options_available,
+            collection_field.more_filter_choices_available,
             False,
         )
-        self.assertEqual(collection_field.more_filter_options_url, "")
-        self.assertEqual(collection_field.more_filter_options_text, "")
+        self.assertEqual(collection_field.more_filter_choices_url, "")
+        self.assertEqual(collection_field.more_filter_choices_text, "")
 
     @responses.activate
     def test_search_with_known_filters_with_unmatched_config_returns_results(
@@ -225,7 +225,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
             ],
         )
         self.assertEqual(
-            collection_field.more_filter_options_available,
+            collection_field.more_filter_choices_available,
             False,
         )
 
@@ -309,7 +309,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
         self.assertEqual(level_field.choices_updated, True)
         self.assertEqual(level_field.items, [])
         self.assertEqual(
-            collection_field.more_filter_options_available,
+            collection_field.more_filter_choices_available,
             False,
         )
 
@@ -413,7 +413,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
             ],
         )
         self.assertEqual(
-            collection_field.more_filter_options_available,
+            collection_field.more_filter_choices_available,
             False,
         )
 
@@ -484,6 +484,6 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
         # should not reflect configured choices
         self.assertEqual(len(level_field.items), 0)
         self.assertEqual(
-            collection_field.more_filter_options_available,
+            collection_field.more_filter_choices_available,
             False,
         )

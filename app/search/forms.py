@@ -7,48 +7,10 @@ from app.lib.fields import (
 )
 from app.lib.forms import BaseForm
 from app.records.constants import TNA_LEVELS
-from app.search.buckets import CATALOGUE_BUCKETS, Aggregation
-from app.search.constants import Sort
 
+from .buckets import CATALOGUE_BUCKETS, Aggregation
 from .collection_names import COLLECTION_CHOICES
-from .constants import DATE_DISPLAY_FORMAT
-
-
-class FieldsConstant:
-
-    Q = "q"
-    SORT = "sort"
-    LEVEL = "level"
-    GROUP = "group"
-    COLLECTION = "collection"
-    ONLINE = "online"
-    SUBJECT = "subject"
-    HELD_BY = "held_by"
-    CLOSURE = "closure"
-    FILTER_LIST = "filter_list"
-    COVERING_DATE_FROM = "covering_date_from"
-    COVERING_DATE_TO = "covering_date_to"
-    OPENING_DATE_FROM = "opening_date_from"
-    OPENING_DATE_TO = "opening_date_to"
-
-
-# Format (api long aggs value, field name) ex ("longCollections", "collection")
-# also serves as mapping betwen form field and aggregation
-FILTER_LIST_CHOICES = [
-    ("", "No filter"),
-    (
-        Aggregation.COLLECTION.long_aggs,
-        FieldsConstant.COLLECTION,
-    ),
-    (
-        Aggregation.SUBJECT.long_aggs,
-        FieldsConstant.SUBJECT,
-    ),
-    (
-        Aggregation.HELD_BY.long_aggs,
-        FieldsConstant.HELD_BY,
-    ),
-]
+from .constants import DATE_DISPLAY_FORMAT, FieldsConstant, Sort
 
 
 class CatalogueSearchBaseForm(BaseForm):
@@ -70,7 +32,7 @@ class CatalogueSearchBaseForm(BaseForm):
             ),
             FieldsConstant.Q: CharField(),
             FieldsConstant.FILTER_LIST: ChoiceField(
-                choices=FILTER_LIST_CHOICES,
+                choices=Aggregation.as_input_choices(),
             ),
         }
 
@@ -134,20 +96,20 @@ class CatalogueSearchTnaForm(CatalogueSearchBaseForm):
                 choices=list((level, level) for level in TNA_LEVELS.values()),
                 validate_input=True,  # validate input with choices before querying the API
                 active_filter_label="Level",
-                more_filter_options_text="See more levels",
+                more_filter_choices_text="See more levels",
             ),
             FieldsConstant.COLLECTION: DynamicMultipleChoiceField(
                 label="Collections",
                 choices=COLLECTION_CHOICES,
                 validate_input=False,  # do not validate input COLLECTION_CHOICES fixed or dynamic
                 active_filter_label="Collection",
-                more_filter_options_text="See more collections",
+                more_filter_choices_text="See more collections",
             ),
             FieldsConstant.SUBJECT: DynamicMultipleChoiceField(
                 label="Subjects",
                 choices=[],  # no initial choices as they are set dynamically
                 active_filter_label="Subject",
-                more_filter_options_text="See more subjects",
+                more_filter_choices_text="See more subjects",
             ),
             FieldsConstant.ONLINE: ChoiceField(
                 choices=[
@@ -222,6 +184,6 @@ class CatalogueSearchNonTnaForm(CatalogueSearchBaseForm):
                 label="Held by",
                 choices=[],  # no initial choices as they are set dynamically
                 active_filter_label="Held by",
-                more_filter_options_text="See more held by",
+                more_filter_choices_text="See more held by",
             ),
         }

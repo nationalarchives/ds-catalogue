@@ -190,13 +190,17 @@ class DynamicMultipleChoiceField(BaseField):
         lookup labels.
 
         keyword args - validate_input: bool,
-                       more_filter_options_text: str
-        validate_input is optional, it defaults True if choices provided,
+                       more_filter_choices_text: str
+        validate_input: is optional, it defaults True if choices provided,
         False otherwise. Override to False when validation from defined
         choices is required. Coerce to False when no choices provided.
-        more_filter_options_text: text for more options link/button.
-        more_filter_options: set by form when more options available.
-        more_filter_options_url: set by form when more options available.
+        more_filter_choices_text: text for more choices link/button.
+        if not provided, a defined default is used. Override to empty string
+        in form when no more choices are available.
+
+        set by form - when more choices are available:
+            more_filter_choices_available: default False.
+            more_filter_choices_url: default "".
 
         Choices are updated dynamically using update_choices() method.
         """
@@ -210,11 +214,11 @@ class DynamicMultipleChoiceField(BaseField):
             self.validate_input = False
             kwargs.pop("validate_input", None)
 
-        self.more_filter_options_text: str = kwargs.pop(
-            "more_filter_options_text", "See more options"
+        self.more_filter_choices_text: str = kwargs.pop(
+            "more_filter_choices_text", "See more options"
         )  # default text
-        self.more_filter_options_available: bool = False  # set by form
-        self.more_filter_options_url: str = ""  # set by form
+        self.more_filter_choices_available: bool = False  # set by form
+        self.more_filter_choices_url: str = ""  # set by form
 
         super().__init__(**kwargs)
 

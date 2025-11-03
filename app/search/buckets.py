@@ -1,36 +1,62 @@
-import copy
 from dataclasses import dataclass, field
 from enum import Enum, StrEnum
 
 from django.contrib.humanize.templatetags.humanize import intcomma
 
+from .constants import FieldsConstant
+
 
 class MultiValueForAggregation(Enum):
-    def __new__(cls, aggs, long_aggs):
+    def __new__(cls, field_name: str, api_aggs: tuple[str, str]):
         """Allows each enum member to have multiple values.
+        field_name: name of the field in Form
+        api_aggs: tuple of (aggs, long_aggs)
         aggs: value used to request aggregation from API
         long_aggs: value used to request extended aggregation from API"""
 
         obj = object.__new__(cls)
-        obj._value_ = aggs  # Primary value used by Enum
-        obj.aggs = aggs
-        obj.long_aggs = long_aggs
+        obj._value_ = field_name  # Primary value used by Enum
+        obj.field_name = field_name
+        obj.aggs = api_aggs[0]
+        obj.long_aggs = api_aggs[1]
         return obj
 
 
 class Aggregation(MultiValueForAggregation):
     """Aggregated counts to include with response.
-    Enum value format (api aggs, api long_aggs)
+    Enum value format tuple of (field_name, (api aggs, api long_aggs))
     When long_aggs is empty string, long aggregation is not supported.
 
     Supported by /search endpoint.
+
+    Example:
+        HELD_BY = ("held_by", ("heldBy", "longHeldBy"))
+        means HELD_BY aggregation uses "held_by" as forms field name,
+        "heldBy" as aggs value, "longHeldBy" as long_aggs value.
+
+    Note: Keep Aggregation members name in sync with FieldsConstant
+          names (HELD_BY member uses FieldsConstant.HELD_BY as forms
+          field name).
     """
 
-    LEVEL = ("level", "")
-    COLLECTION = ("collection", "longCollection")
-    HELD_BY = ("heldBy", "longHeldBy")
-    CLOSURE = ("closure", "")
-    SUBJECT = ("subject", "longSubject")
+    LEVEL = (FieldsConstant.LEVEL, ("level", ""))
+    COLLECTION = (FieldsConstant.COLLECTION, ("collection", "longCollection"))
+    HELD_BY = (FieldsConstant.HELD_BY, ("heldBy", "longHeldBy"))
+    CLOSURE = (FieldsConstant.CLOSURE, ("closure", ""))
+    SUBJECT = (FieldsConstant.SUBJECT, ("subject", "longSubject"))
+
+    def as_input_choices() -> list[tuple[str, str]]:
+        """Returns list of (long_aggs, forms field_name) tuples for all enum members
+        that support long aggregation.
+        Example:
+            [("longHeldBy", "held_by"),...]
+        """
+
+        long_aggs_list = [("", "No filter")]  # Default no filter choice
+        for agg in Aggregation:
+            if agg.long_aggs:
+                long_aggs_list.append((agg.long_aggs, agg.field_name))
+        return long_aggs_list
 
 
 @dataclass
@@ -122,10 +148,10 @@ CATALOGUE_BUCKETS = BucketList(
             label="Records at the National Archives",
             description="Results for records held at The National Archives that match your search term.",
             aggregations=[
-                Aggregation.LEVEL.value,
-                Aggregation.COLLECTION.value,
-                Aggregation.CLOSURE.value,
-                Aggregation.SUBJECT.value,
+                Aggregation.LEVEL.aggs,
+                Aggregation.COLLECTION.aggs,
+                Aggregation.CLOSURE.aggs,
+                Aggregation.SUBJECT.aggs,
             ],
         ),
         Bucket(
@@ -133,7 +159,7 @@ CATALOGUE_BUCKETS = BucketList(
             label="Records at other UK archives",
             description="Results for records held at other archives in the UK (and not at The National Archives) that match your search term.",
             aggregations=[
-                Aggregation.HELD_BY.value,
+                Aggregation.HELD_BY.aggs,
             ],
         ),
     ]

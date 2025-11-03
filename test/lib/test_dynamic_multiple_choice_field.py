@@ -248,9 +248,9 @@ class BaseFormWithDMCFieldValidateInputFalseTest(TestCase):
         # as this is not a view test, after items called, choices are updated
         self.assertEqual(dmc_field.choices_updated, True)
 
-        self.assertEqual(dmc_field.more_filter_options_available, False)
-        self.assertEqual(dmc_field.more_filter_options_url, "")
-        self.assertEqual(dmc_field.more_filter_options_text, "See more options")
+        self.assertEqual(dmc_field.more_filter_choices_available, False)
+        self.assertEqual(dmc_field.more_filter_choices_url, "")
+        self.assertEqual(dmc_field.more_filter_choices_text, "See more options")
 
     def test_form_with_dynamic_multiple_choice_field_with_no_params(self):
 

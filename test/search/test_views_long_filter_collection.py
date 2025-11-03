@@ -66,13 +66,13 @@ class CatalogueSearchViewCollectionFilterMoreOptionsTests(TestCase):
 
         self.assertEqual(len(context_data.get("results")), 1)
         self.assertEqual(
-            collection_field.more_filter_options_available,
+            collection_field.more_filter_choices_available,
             True,
         )
         self.assertEqual(
-            collection_field.more_filter_options_text, "See more collections"
+            collection_field.more_filter_choices_text, "See more collections"
         )
         self.assertEqual(
-            collection_field.more_filter_options_url,
+            collection_field.more_filter_choices_url,
             "?filter_list=longCollection",
         )

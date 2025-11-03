@@ -36,7 +36,6 @@ from .constants import (
     Sort,
 )
 from .forms import (
-    FILTER_LIST_CHOICES,
     CatalogueSearchNonTnaForm,
     CatalogueSearchTnaForm,
     FieldsConstant,
@@ -54,7 +53,7 @@ class PageNotFound(Exception):
 class APIMixin:
     """A mixin to get the api result, processes api result, sets the context."""
 
-    _FILTER_CHOICES_LIST_DICT = dict(FILTER_LIST_CHOICES)
+    _FILTER_LIST_CHOICES_AS_DICT = dict(Aggregation.as_input_choices())
 
     def get_api_result(self, query, results_per_page, page, sort, params):
         api_result = search_records(
@@ -220,9 +219,12 @@ class APIMixin:
         aggs:collection -> field_name:""
         """
 
-        if aggregation_name in self._FILTER_CHOICES_LIST_DICT:
-            field_name = self._FILTER_CHOICES_LIST_DICT[aggregation_name]
-            return field_name
+        try:
+            # check if aggregation_name is in long_aggs values
+            # and return corresponding field_name
+            return self._FILTER_LIST_CHOICES_AS_DICT[aggregation_name]
+        except KeyError:
+            pass
         return ""
 
     def _build_more_filter_options(
@@ -231,21 +233,28 @@ class APIMixin:
         field_name: str,
         aggregation: dict,
     ):
-        """Builds more filter options url and text for dynamic multiple choice fields.
+        """Builds more filter options. These options allow user to explore
+        more filter choices in a separate page.
+
+        i.e.
+        more_filter_choices_available:more choice availability,
+        more_filter_choices_text: text for more choices link/button,
+        more_filter_choices_url: url for dynamic multiple choice fields
         from api aggregation data.
+
         Examples:
-        {"other": 1} -> more options available
-        {"other": 0} -> no more options available
+        {"other": 1} -> more choices available
+        {"other": 0} -> no more choices available
         """
 
-        # determine if more filter options are available
-        more_filter_options_available = bool(aggregation.get("other", 0))
-        form.fields[field_name].more_filter_options_available = (
-            more_filter_options_available
+        # determine if more filter choices are available
+        more_filter_choices_available = bool(aggregation.get("other", 0))
+        form.fields[field_name].more_filter_choices_available = (
+            more_filter_choices_available
         )
-        if more_filter_options_available:
+        if more_filter_choices_available:
             # adds filter_list=<Aggregation long_aggs value> to existing query string
-            form.fields[field_name].more_filter_options_url = (
+            form.fields[field_name].more_filter_choices_url = (
                 "?"
                 + qs_replace_value(
                     existing_qs=self.request.GET,
@@ -254,8 +263,9 @@ class APIMixin:
                 )
             )
         else:
-            form.fields[field_name].more_filter_options_text = ""
-            form.fields[field_name].more_filter_options_url = ""
+            # override when no more options available
+            form.fields[field_name].more_filter_choices_text = ""
+            form.fields[field_name].more_filter_choices_url = ""
 
     def replace_api_data(
         self, field_name, entries_data: list[dict[str, str | int]]
@@ -509,15 +519,15 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
         return context
 
     def _get_context_data_for_more_filter_options(self) -> dict:
-        """Returns context data for more filter options page.
-        mfo_cancel_and_return_to_search_url: url to cancel and return to search results
-        mfo_field: the dynamic multiple choice field for long filter options
+        """Returns context data for more filter choices page.
+        mfc_cancel_and_return_to_search_url: url to cancel and return to search results
+        mfc_field: the dynamic multiple choice field for long filter choices
         """
 
         filter_context = {}
         if self.is_filter_list_applied(self.form):
             cancel_and_return_to_search = f"?{qs_remove_value(self.request.GET, FieldsConstant.FILTER_LIST)}"
-            filter_context["mfo_cancel_and_return_to_search_url"] = (
+            filter_context["mfc_cancel_and_return_to_search_url"] = (
                 cancel_and_return_to_search
             )
 
@@ -529,7 +539,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
                 filter_list_value
             )
             if field_name:
-                filter_context["mfo_field"] = self.form.fields.get(field_name)
+                filter_context["mfc_field"] = self.form.fields.get(field_name)
         return filter_context
 
     def build_selected_filters_list(self):
