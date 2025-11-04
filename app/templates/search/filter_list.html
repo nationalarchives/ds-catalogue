@@ -3,6 +3,7 @@
 {% from 'components/button/macro.html' import tnaButton %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 {%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
+{% from 'search/macros/as_hidden_for_single_value.html' import as_hidden_for_single_value %}
 
 {%- set pageTitle = 'More filter options' -%}
 
@@ -87,8 +88,12 @@
         Cancel and return to results
       </a>
   </div>
-    <input type="hidden" name="{{ form.fields.group.name }}" value="{{ form.fields.group.value }}">
-    <input type="hidden" name="{{ form.fields.q.name }}" value="{{ form.fields.q.value }}">
+    {{ as_hidden_for_single_value(form.fields.group) }}
+    {{ as_hidden_for_single_value(form.fields.q) }}
+    {{ as_hidden_for_single_value(form.fields.sort) }}
+    {% if form.fields.group.value==bucket_keys.TNA %}
+      {{ as_hidden_for_single_value(form.fields.online) }}
+    {% endif %}
   </form>
 
   <div class="tna-background-accent">
