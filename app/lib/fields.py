@@ -199,8 +199,10 @@ class DynamicMultipleChoiceField(BaseField):
         in form when no more choices are available.
 
         set by form - when more choices are available:
-            more_filter_choices_available: default False.
-            more_filter_choices_url: default "".
+            more_filter_choices_available: default False. Indicates if more
+            choices are available from the API.
+            more_filter_choices_url: When more choices are available, this url
+            is used for the more choices link/button. Default "".
 
         Choices are updated dynamically using update_choices() method.
         """

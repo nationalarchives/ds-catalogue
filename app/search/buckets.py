@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass, field
 from enum import Enum, StrEnum
 
@@ -5,11 +6,14 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 
 from .constants import FieldsConstant
 
+logger = logging.getLogger(__name__)
+
 
 class MultiValueForAggregation(Enum):
     def __new__(cls, field_name: str, api_aggs: tuple[str, str]):
         """Allows each enum member to have multiple values.
-        field_name: name of the field in Form
+
+        field_name: DynamicMultipleChoiceField in forms.
         api_aggs: tuple of (aggs, long_aggs)
         aggs: value used to request aggregation from API
         long_aggs: value used to request extended aggregation from API"""
@@ -34,9 +38,6 @@ class Aggregation(MultiValueForAggregation):
         means HELD_BY aggregation uses "held_by" as forms field name,
         "heldBy" as aggs value, "longHeldBy" as long_aggs value.
 
-    Note: Keep Aggregation members name in sync with FieldsConstant
-          names (HELD_BY member uses FieldsConstant.HELD_BY as forms
-          field name).
     """
 
     LEVEL = (FieldsConstant.LEVEL, ("level", ""))
@@ -45,7 +46,7 @@ class Aggregation(MultiValueForAggregation):
     CLOSURE = (FieldsConstant.CLOSURE, ("closure", ""))
     SUBJECT = (FieldsConstant.SUBJECT, ("subject", "longSubject"))
 
-    def as_input_choices() -> list[tuple[str, str]]:
+    def as_input_choices_for_long_aggs() -> list[tuple[str, str]]:
         """Returns list of (long_aggs, forms field_name) tuples for all enum members
         that support long aggregation.
         Example:
@@ -57,6 +58,43 @@ class Aggregation(MultiValueForAggregation):
             if agg.long_aggs:
                 long_aggs_list.append((agg.long_aggs, agg.field_name))
         return long_aggs_list
+
+    def get_field_name_for_long_aggs_name(agg_name: str) -> str | None:
+        """Given long_aggs name, return the corresponding forms field_name.
+
+        Pre-condition: long_aggs name must be configured for long aggregations before
+        calling this method.
+
+        Example:
+            "longHeldBy" -> "held_by"
+        """
+
+        for agg in Aggregation:
+            if agg_name and agg.long_aggs == agg_name:
+                return agg.field_name
+        return None
+
+    def get_long_aggs_name_for_field_name(field_name: str) -> str | None:
+        """Given forms field_name, return the corresponding long_aggs name, or
+        None otherwise.
+
+        Pre-condition: attribute more_filter_choices_available must be True
+        and long_aggs name must be configured for long aggregations
+        before calling this method.
+
+        Example:
+            "held_by" -> "longHeldBy"
+        """
+
+        for agg in Aggregation:
+            if agg.field_name == field_name and agg.long_aggs:
+                return agg.long_aggs
+
+        # show be never reached, but keep for safety
+        logger.warning(
+            f"Long aggregation name not found for field name: {field_name}"
+        )
+        return None
 
 
 @dataclass

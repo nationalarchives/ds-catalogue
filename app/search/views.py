@@ -53,8 +53,6 @@ class PageNotFound(Exception):
 class APIMixin:
     """A mixin to get the api result, processes api result, sets the context."""
 
-    _FILTER_LIST_CHOICES_AS_DICT = dict(Aggregation.as_input_choices())
-
     def get_api_result(self, query, results_per_page, page, sort, params):
         api_result = search_records(
             query=query,
@@ -205,27 +203,12 @@ class APIMixin:
         """
 
         aggregation_name = aggregation.get("name")
-        field_name = self.get_field_name_for_long_aggs_name(aggregation_name)
+        field_name = Aggregation.get_field_name_for_long_aggs_name(
+            aggregation_name
+        )
         if not field_name:
             field_name = camelcase_to_underscore(aggregation_name)
         return field_name
-
-    def get_field_name_for_long_aggs_name(self, aggregation_name: str) -> str:
-        """Get field name for aggregation name that belongs to api aggregation
-        or input filter_list value otherwise returns empty string.
-        Examples:
-        aggs:longCollection -> field_name:collection
-        filter_list:longCollection -> field_name:collection
-        aggs:collection -> field_name:""
-        """
-
-        try:
-            # check if aggregation_name is in long_aggs values
-            # and return corresponding field_name
-            return self._FILTER_LIST_CHOICES_AS_DICT[aggregation_name]
-        except KeyError:
-            pass
-        return ""
 
     def _build_more_filter_options(
         self,
@@ -254,12 +237,17 @@ class APIMixin:
         )
         if more_filter_choices_available:
             # adds filter_list=<Aggregation long_aggs value> to existing query string
+
+            long_aggs = Aggregation.get_long_aggs_name_for_field_name(
+                field_name
+            )
+
             form.fields[field_name].more_filter_choices_url = (
                 "?"
                 + qs_replace_value(
                     existing_qs=self.request.GET,
                     filter=FieldsConstant.FILTER_LIST,
-                    by=getattr(Aggregation[field_name.upper()], "long_aggs"),
+                    by=long_aggs,
                 )
             )
         else:
@@ -535,7 +523,8 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
             filter_list_value = self.form.fields[
                 FieldsConstant.FILTER_LIST
             ].cleaned
-            field_name = self.get_field_name_for_long_aggs_name(
+
+            field_name = Aggregation.get_field_name_for_long_aggs_name(
                 filter_list_value
             )
             if field_name:

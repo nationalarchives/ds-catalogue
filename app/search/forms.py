@@ -32,7 +32,7 @@ class CatalogueSearchBaseForm(BaseForm):
             ),
             FieldsConstant.Q: CharField(),
             FieldsConstant.FILTER_LIST: ChoiceField(
-                choices=Aggregation.as_input_choices(),
+                choices=Aggregation.as_input_choices_for_long_aggs(),
             ),
         }
 
