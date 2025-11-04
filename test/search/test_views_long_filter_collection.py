@@ -2,11 +2,14 @@ from http import HTTPStatus
 
 import responses
 from app.search.collection_names import COLLECTION_CHOICES
+from app.search.constants import FieldsConstant
+from app.search.forms import DynamicMultipleChoiceField
 from django.conf import settings
 from django.test import TestCase
+from django.utils.encoding import force_str
 
 
-class CatalogueSearchViewCollectionMoreFilterAttrsTests(TestCase):
+class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
     """Collection filter is only available for tna group."""
 
     @responses.activate
@@ -77,35 +80,26 @@ class CatalogueSearchViewCollectionMoreFilterAttrsTests(TestCase):
         )
 
     @responses.activate
-    def test_search_for_more_filter_choices_attributes_with_filters(
+    def test_search_for_filter_list_param_with_other_params(
         self,
     ):
-        """Tests more filter choices attributes are correctly set in context"""
+        """Tests long filters are correctly processed with other params"""
 
-        # data present for input collections
+        # 0 results for long filter
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
             json={
-                "data": [
-                    {
-                        "@template": {
-                            "details": {
-                                "iaid": "C123456",
-                                "source": "CAT",
-                            }
-                        }
-                    }
-                ],
+                "data": [],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
                         ],
-                        "total": 100,
-                        "other": 50,
+                        "total": 28083703,
+                        "other": 0,
                     }
                 ],
                 "buckets": [
@@ -117,48 +111,76 @@ class CatalogueSearchViewCollectionMoreFilterAttrsTests(TestCase):
                     }
                 ],
                 "stats": {
-                    "total": 26008838,
-                    "results": 20,
+                    "total": 10000,
+                    "results": 0,
                 },
             },
             status=HTTPStatus.OK,
         )
 
+        # input long filter with other params
         response = self.client.get(
             "/catalogue/search/?"
             "q=ufo"
-            "&display=list"
-            "&group=tna"
-            "&online=true"
-            "&covering_date_from-year=1900"
-            "&covering_date_to-year=2024"
-            "&level=Item"
-            "&closure=Open+Document%2C+Open+Description"
             "&sort=title:asc"
+            "&online=true"
+            "&filter_list=longCollection"
         )
 
         context_data = response.context_data
         form = context_data.get("form")
-        collection_field = form.fields["collection"]
+        html = force_str(response.content)
+        # more filter choice field - i.e. collection - used in template
+        mfc_field = context_data.get("mfc_field")
 
-        self.assertEqual(len(context_data.get("results")), 1)
+        self.assertEqual(len(context_data.get("results")), 0)
+        self.assertTrue(form.is_valid())
+
         self.assertEqual(
-            collection_field.more_filter_choices_available,
-            True,
+            context_data.get("mfc_cancel_and_return_to_search_url"),
+            ("?q=ufo" "&sort=title%3Aasc" "&online=true"),
+        )
+        self.assertIsInstance(
+            mfc_field,
+            DynamicMultipleChoiceField,
         )
         self.assertEqual(
-            collection_field.more_filter_choices_text, "See more collections"
+            mfc_field.name,
+            FieldsConstant.COLLECTION,
         )
         self.assertEqual(
-            collection_field.more_filter_choices_url,
-            "?q=ufo"
-            "&display=list"
-            "&group=tna"
-            "&online=true"
-            "&covering_date_from-year=1900"
-            "&covering_date_to-year=2024"
-            "&level=Item"
-            "&closure=Open+Document%2C+Open+Description"
-            "&sort=title%3Aasc"
-            "&filter_list=longCollection",
+            mfc_field.items,
+            [
+                {
+                    "text": "BT - Board of Trade and successors (50)",
+                    "value": "BT",
+                },
+                {
+                    "text": "WO - War Office, Armed Forces, Judge Advocate General, and related bodies (35)",
+                    "value": "WO",
+                },
+            ],
+        )
+        self.assertEqual(
+            mfc_field.more_filter_choices_available,
+            False,
+        )
+        self.assertEqual(
+            mfc_field.more_filter_choices_url,
+            "",
+        )
+
+        # test hidden inputs to retain other filters in form
+        self.assertIn(
+            """<input type="hidden" name="group" value="tna">""", html
+        )
+        self.assertIn("""<input type="hidden" name="q" value="ufo">""", html)
+        self.assertIn(
+            """<input type="hidden" name="sort" value="title:asc">""", html
+        )
+        self.assertIn(
+            """<input type="hidden" name="display" value="list">""", html
+        )
+        self.assertIn(
+            """<input type="hidden" name="online" value="true">""", html
         )
