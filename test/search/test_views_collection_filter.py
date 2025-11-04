@@ -487,3 +487,129 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
             collection_field.more_filter_choices_available,
             False,
         )
+
+    @responses.activate
+    def test_search_with_exceeding_limit_returns_error_with_no_results(
+        self,
+    ):
+        """Tests filter with exceeding param values."""
+
+        # with valid and invalid param values
+        response = self.client.get(
+            "/catalogue/search/?collection=value1"
+            "&collection=value2"
+            "&collection=value3"
+            "&collection=value4"
+            "&collection=value5"
+            "&collection=value6"
+            "&collection=value7"
+            "&collection=value8"
+            "&collection=value9"
+            "&collection=value10"
+            "&collection=value11"
+        )
+
+        form = response.context_data.get("form")
+        context_data = response.context_data
+        collection_field = response.context_data.get("form").fields[
+            "collection"
+        ]
+
+        self.assertEqual(form.is_valid(), False)
+
+        # returns None when errors present
+        self.assertEqual(context_data.get("results"), None)
+
+        self.assertEqual(
+            form.errors,
+            {
+                "collection": {
+                    "text": "Maximum filter choices exceeded. Must be 10 or fewer.",
+                }
+            },
+        )
+        self.assertEqual(
+            collection_field.value,
+            [
+                "value1",
+                "value2",
+                "value3",
+                "value4",
+                "value5",
+                "value6",
+                "value7",
+                "value8",
+                "value9",
+                "value10",
+                "value11",
+            ],
+        )
+        self.assertEqual(collection_field.cleaned, None)
+        self.assertEqual(collection_field.choices_updated, True)
+        # invalid inputs are not shown, so items is empty
+        self.assertEqual(
+            collection_field.items,
+            [],
+        )
+        # all inputs including invalid are shown in selected filters
+        print(context_data.get("selected_filters"))
+        self.assertEqual(
+            context_data.get("selected_filters"),
+            [
+                {
+                    "label": "Collection: value1",
+                    "href": "?collection=value2&collection=value3&collection=value4&collection=value5&collection=value6&collection=value7&collection=value8&collection=value9&collection=value10&collection=value11",
+                    "title": "Remove value1 collection",
+                },
+                {
+                    "label": "Collection: value2",
+                    "href": "?collection=value1&collection=value3&collection=value4&collection=value5&collection=value6&collection=value7&collection=value8&collection=value9&collection=value10&collection=value11",
+                    "title": "Remove value2 collection",
+                },
+                {
+                    "label": "Collection: value3",
+                    "href": "?collection=value1&collection=value2&collection=value4&collection=value5&collection=value6&collection=value7&collection=value8&collection=value9&collection=value10&collection=value11",
+                    "title": "Remove value3 collection",
+                },
+                {
+                    "label": "Collection: value4",
+                    "href": "?collection=value1&collection=value2&collection=value3&collection=value5&collection=value6&collection=value7&collection=value8&collection=value9&collection=value10&collection=value11",
+                    "title": "Remove value4 collection",
+                },
+                {
+                    "label": "Collection: value5",
+                    "href": "?collection=value1&collection=value2&collection=value3&collection=value4&collection=value6&collection=value7&collection=value8&collection=value9&collection=value10&collection=value11",
+                    "title": "Remove value5 collection",
+                },
+                {
+                    "label": "Collection: value6",
+                    "href": "?collection=value1&collection=value2&collection=value3&collection=value4&collection=value5&collection=value7&collection=value8&collection=value9&collection=value10&collection=value11",
+                    "title": "Remove value6 collection",
+                },
+                {
+                    "label": "Collection: value7",
+                    "href": "?collection=value1&collection=value2&collection=value3&collection=value4&collection=value5&collection=value6&collection=value8&collection=value9&collection=value10&collection=value11",
+                    "title": "Remove value7 collection",
+                },
+                {
+                    "label": "Collection: value8",
+                    "href": "?collection=value1&collection=value2&collection=value3&collection=value4&collection=value5&collection=value6&collection=value7&collection=value9&collection=value10&collection=value11",
+                    "title": "Remove value8 collection",
+                },
+                {
+                    "label": "Collection: value9",
+                    "href": "?collection=value1&collection=value2&collection=value3&collection=value4&collection=value5&collection=value6&collection=value7&collection=value8&collection=value10&collection=value11",
+                    "title": "Remove value9 collection",
+                },
+                {
+                    "label": "Collection: value10",
+                    "href": "?collection=value1&collection=value2&collection=value3&collection=value4&collection=value5&collection=value6&collection=value7&collection=value8&collection=value9&collection=value11",
+                    "title": "Remove value10 collection",
+                },
+                {
+                    "label": "Collection: value11",
+                    "href": "?collection=value1&collection=value2&collection=value3&collection=value4&collection=value5&collection=value6&collection=value7&collection=value8&collection=value9&collection=value10",
+                    "title": "Remove value11 collection",
+                },
+            ],
+        )
