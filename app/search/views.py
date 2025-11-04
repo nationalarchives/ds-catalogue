@@ -508,6 +508,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
 
     def _get_context_data_for_more_filter_options(self) -> dict:
         """Returns context data for more filter choices page.
+        mfc - more filter choices
         mfc_cancel_and_return_to_search_url: url to cancel and return to search results
         mfc_field: the dynamic multiple choice field for long filter choices
         """
