@@ -224,6 +224,7 @@ class DynamicMultipleChoiceField(BaseField):
 
         super().__init__(**kwargs)
 
+        self.FILTER_CHOICES_LIMIT = 10
         self.choices = choices
         self.configured_choices = self.choices
         # cache valid choices
@@ -251,6 +252,11 @@ class DynamicMultipleChoiceField(BaseField):
                             f"to the available choices. Valid choices are [{', '.join(self.valid_choices)}]"
                         )
                     )
+
+        if len(value) > self.FILTER_CHOICES_LIMIT:
+            raise ValidationError(
+                f"Maximum filter choices exceeded. Must be {self.FILTER_CHOICES_LIMIT} or fewer."
+            )
 
     @property
     def items(self):
