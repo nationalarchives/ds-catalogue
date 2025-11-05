@@ -1,0 +1,7 @@
+{% macro as_hidden_for_checkboxes(field) %}
+  {% for value in field.value %}
+    {% if value %}
+      <input type="hidden" name="{{ field.name }}" value="{{ value }}">
+    {% endif %}
+  {% endfor %}
+{% endmacro %}

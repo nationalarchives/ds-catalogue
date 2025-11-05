@@ -3,7 +3,7 @@
 {% from 'components/button/macro.html' import tnaButton %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 {%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
-{% from 'search/macros/as_hidden_for_single_value.html' import as_hidden_for_single_value %}
+{% from 'search/macros/render_hidden_fields.html' import render_hidden_fields %}
 
 {%- set pageTitle = 'More filter options' -%}
 
@@ -88,13 +88,7 @@
         Cancel and return to results
       </a>
   </div>
-    {{ as_hidden_for_single_value(form.fields.group) }}
-    {{ as_hidden_for_single_value(form.fields.q) }}
-    <input type="hidden" name="display" value="{{ request.GET.get('display') or 'list' }}">
-    {{ as_hidden_for_single_value(form.fields.sort) }}
-    {% if form.fields.group.value==bucket_keys.TNA %}
-      {{ as_hidden_for_single_value(form.fields.online) }}
-    {% endif %}
+    {{ render_hidden_fields(request, form, bucket_keys, mfc_field) }}
   </form>
 
   <div class="tna-background-accent">
