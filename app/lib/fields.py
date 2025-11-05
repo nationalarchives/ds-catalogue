@@ -224,10 +224,11 @@ class DynamicMultipleChoiceField(BaseField):
 
         super().__init__(**kwargs)
 
+        # TODO: FILTER_CHOICES_LIMIT: discuss limit with team
         # The API response limit for aggs is 10,
         # we don't allow more than that for filtering.
         # Also, this keeps the URL length manageable.
-        self.FILTER_CHOICES_LIMIT = 5
+        # self.FILTER_CHOICES_LIMIT = 5
 
         self.choices = choices
         self.configured_choices = self.choices
@@ -257,13 +258,14 @@ class DynamicMultipleChoiceField(BaseField):
                         )
                     )
 
-        if (
-            self.FILTER_CHOICES_LIMIT > 0
-            and len(value) > self.FILTER_CHOICES_LIMIT
-        ):
-            raise ValidationError(
-                f"Maximum filter choices exceeded. Must be {self.FILTER_CHOICES_LIMIT} or fewer."
-            )
+        # TODO: FILTER_CHOICES_LIMIT: discuss limit with team
+        # if (
+        #     self.FILTER_CHOICES_LIMIT > 0
+        #     and len(value) > self.FILTER_CHOICES_LIMIT
+        # ):
+        #     raise ValidationError(
+        #         f"Maximum filter choices exceeded. Must be {self.FILTER_CHOICES_LIMIT} or fewer."
+        #     )
 
     @property
     def items(self):
