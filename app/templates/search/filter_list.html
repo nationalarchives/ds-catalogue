@@ -96,7 +96,6 @@
 {% endblock %}
 
 {% block bodyEnd %}
-
   {{ super() }}
-    <script src="{{ static('catalogue-results.min.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
+  <script src="{{ static('catalogue-results.min.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
 {% endblock %}
