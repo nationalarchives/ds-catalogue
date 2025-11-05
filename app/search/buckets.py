@@ -76,6 +76,7 @@ class Aggregation(MultiValueForAggregation):
                 return agg.field_name
         return None
 
+    @staticmethod
     def get_long_aggs_name_for_field_name(field_name: str) -> str | None:
         """Given forms field_name, return the corresponding long_aggs name, or
         None otherwise.
