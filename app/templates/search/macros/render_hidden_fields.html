@@ -10,10 +10,8 @@
   {{ as_hidden_for_single_value(form.fields.sort) }}
   {% if form.fields.group.value==bucket_keys.TNA %}
     {{ as_hidden_for_single_value(form.fields.online) }}
-  {% endif %}
-  {{ as_hidden_for_date_input(form.fields.covering_date_from) }}
-  {{ as_hidden_for_date_input(form.fields.covering_date_to) }}
-  {% if form.fields.group.value==bucket_keys.TNA %}
+    {{ as_hidden_for_date_input(form.fields.covering_date_from) }}
+    {{ as_hidden_for_date_input(form.fields.covering_date_to) }}
     {{ as_hidden_for_checkboxes(form.fields.collection) }}
     {{ as_hidden_for_checkboxes(form.fields.subject) }}
     {{ as_hidden_for_checkboxes(form.fields.level) }}
@@ -21,6 +19,9 @@
     {{ as_hidden_for_date_input(form.fields.opening_date_to) }}
     {{ as_hidden_for_checkboxes(form.fields.closure) }}
   {% else %}
+    {# Non Tna #}
+    {{ as_hidden_for_date_input(form.fields.covering_date_from) }}
+    {{ as_hidden_for_date_input(form.fields.covering_date_to) }}
     {{ as_hidden_for_checkboxes(form.fields.held_by) }}
   {% endif %}
 {% endmacro %}
