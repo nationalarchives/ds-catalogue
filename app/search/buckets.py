@@ -46,6 +46,7 @@ class Aggregation(MultiValueForAggregation):
     CLOSURE = (FieldsConstant.CLOSURE, ("closure", ""))
     SUBJECT = (FieldsConstant.SUBJECT, ("subject", "longSubject"))
 
+    @staticmethod
     def as_input_choices_for_long_aggs() -> list[tuple[str, str]]:
         """Returns list of (long_aggs, forms field_name) tuples for all enum members
         that support long aggregation.
@@ -59,6 +60,7 @@ class Aggregation(MultiValueForAggregation):
                 long_aggs_list.append((agg.long_aggs, agg.field_name))
         return long_aggs_list
 
+    @staticmethod
     def get_field_name_for_long_aggs_name(agg_name: str) -> str | None:
         """Given long_aggs name, return the corresponding forms field_name.
 
