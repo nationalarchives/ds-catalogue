@@ -8,8 +8,8 @@ from django.test import TestCase
 from django.utils.encoding import force_str
 
 
-class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
-    """Collection filter is only available for tna group."""
+class CatalogueSearchViewHeldByMoreFilterChoicesTests(TestCase):
+    """HeldBy filter is only available for Non Tna group."""
 
     @responses.activate
     def test_search_for_more_filter_choices_attributes_without_filters(
@@ -17,7 +17,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
     ):
         """Tests more filter choices attributes are correctly set in context"""
 
-        # data present for input collections
+        # data present for input held by values
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
@@ -34,10 +34,10 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "heldBy",
                         "entries": [
-                            {"value": "BT", "doc_count": 50},
-                            {"value": "WO", "doc_count": 35},
+                            {"value": "Lancashire Archives", "doc_count": 50},
+                            {"value": "Freud Museum", "doc_count": 35},
                         ],
                         "total": 100,
                         "other": 50,
@@ -47,7 +47,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                     {
                         "name": "group",
                         "entries": [
-                            {"value": "tna", "count": 1},
+                            {"value": "nonTna", "count": 1},
                         ],
                     }
                 ],
@@ -59,25 +59,25 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
             status=HTTPStatus.OK,
         )
 
-        response = self.client.get("/catalogue/search/")
+        response = self.client.get("/catalogue/search/?group=nonTna")
 
         context_data = response.context_data
         form = context_data.get("form")
-        collection_field = form.fields[FieldsConstant.COLLECTION]
+        held_by_field = form.fields[FieldsConstant.HELD_BY]
 
-        # more filter choice field - i.e. collection - used in template
+        # more filter choice field - i.e. held by - used in template
 
         self.assertEqual(len(context_data.get("results")), 1)
         self.assertEqual(
-            collection_field.more_filter_choices_available,
+            held_by_field.more_filter_choices_available,
             True,
         )
         self.assertEqual(
-            collection_field.more_filter_choices_text, "See more collections"
+            held_by_field.more_filter_choices_text, "See more held by"
         )
         self.assertEqual(
-            collection_field.more_filter_choices_url,
-            "?filter_list=longCollection",
+            held_by_field.more_filter_choices_url,
+            "?group=nonTna&filter_list=longHeldBy",
         )
 
     @responses.activate
@@ -94,10 +94,10 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                 "data": [],
                 "aggregations": [
                     {
-                        "name": "longCollection",
+                        "name": "longHeldBy",
                         "entries": [
-                            {"value": "BT", "doc_count": 50},
-                            {"value": "WO", "doc_count": 35},
+                            {"value": "Lancashire Archives", "doc_count": 50},
+                            {"value": "Freud Museum", "doc_count": 35},
                         ],
                         "total": 28083703,
                         "other": 0,
@@ -107,7 +107,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                     {
                         "name": "group",
                         "entries": [
-                            {"value": "tna", "count": 1},
+                            {"value": "nonTna", "count": 1},
                         ],
                     }
                 ],
@@ -121,13 +121,13 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
 
         # input long filter without other params
         response = self.client.get(
-            "/catalogue/search/?filter_list=longCollection"
+            "/catalogue/search/?group=nonTna&filter_list=longHeldBy"
         )
 
         context_data = response.context_data
         form = context_data.get("form")
         html = force_str(response.content)
-        # more filter choice field - i.e. collection - used in template
+        # more filter choice field - i.e. held by - used in template
         mfc_field = context_data.get("mfc_field")
 
         self.assertEqual(len(context_data.get("results")), 0)
@@ -135,26 +135,27 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
 
         self.assertEqual(
             context_data.get("mfc_cancel_and_return_to_search_url"),
-            ("?"),
+            ("?group=nonTna"),
         )
+        print(type(mfc_field))
         self.assertIsInstance(
             mfc_field,
             DynamicMultipleChoiceField,
         )
         self.assertEqual(
             mfc_field.name,
-            FieldsConstant.COLLECTION,
+            FieldsConstant.HELD_BY,
         )
         self.assertEqual(
             mfc_field.items,
             [
                 {
-                    "text": "BT - Board of Trade and successors (50)",
-                    "value": "BT",
+                    "text": "Lancashire Archives (50)",
+                    "value": "Lancashire Archives",
                 },
                 {
-                    "text": "WO - War Office, Armed Forces, Judge Advocate General, and related bodies (35)",
-                    "value": "WO",
+                    "text": "Freud Museum (35)",
+                    "value": "Freud Museum",
                 },
             ],
         )
@@ -169,14 +170,13 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
 
         # test hidden inputs to retain other filters in form
         self.assertIn(
-            """<input type="hidden" name="group" value="tna">""", html
+            """<input type="hidden" name="group" value="nonTna">""", html
         )
         self.assertNotIn("""<input type="hidden" name="q" """, html)
         self.assertNotIn("""<input type="hidden" name="sort" """, html)
         self.assertIn(
             """<input type="hidden" name="display" value="list">""", html
         )
-        self.assertNotIn("""<input type="hidden" name="online" """, html)
 
     @responses.activate
     def test_search_for_filter_list_param_with_other_params(
@@ -192,10 +192,10 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                 "data": [],
                 "aggregations": [
                     {
-                        "name": "longCollection",
+                        "name": "longHeldBy",
                         "entries": [
-                            {"value": "BT", "doc_count": 50},
-                            {"value": "WO", "doc_count": 35},
+                            {"value": "Lancashire Archives", "doc_count": 50},
+                            {"value": "Freud Museum", "doc_count": 35},
                         ],
                         "total": 28083703,
                         "other": 0,
@@ -205,7 +205,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                     {
                         "name": "group",
                         "entries": [
-                            {"value": "tna", "count": 1},
+                            {"value": "nonTna", "count": 1},
                         ],
                     }
                 ],
@@ -219,20 +219,17 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
 
         # input long filter with other params
         response = self.client.get(
-            "/catalogue/search/?"
-            "q=ufo"
+            "/catalogue/search/?group=nonTna"
+            "&q=ufo"
             "&sort=title:asc"
-            "&online=true"
-            "&level=Item"
-            "&level=Piece"
             "&covering_date_from-year=1940"
-            "&filter_list=longCollection"
+            "&filter_list=longHeldBy"
         )
 
         context_data = response.context_data
         form = context_data.get("form")
         html = force_str(response.content)
-        # more filter choice field - i.e. collection - used in template
+        # more filter choice field - i.e. held by - used in template
         mfc_field = context_data.get("mfc_field")
 
         self.assertEqual(len(context_data.get("results")), 0)
@@ -241,11 +238,9 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         self.assertEqual(
             context_data.get("mfc_cancel_and_return_to_search_url"),
             (
-                "?q=ufo"
+                "?group=nonTna"
+                "&q=ufo"
                 "&sort=title%3Aasc"
-                "&online=true"
-                "&level=Item"
-                "&level=Piece"
                 "&covering_date_from-year=1940"
             ),
         )
@@ -255,18 +250,18 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         )
         self.assertEqual(
             mfc_field.name,
-            FieldsConstant.COLLECTION,
+            FieldsConstant.HELD_BY,
         )
         self.assertEqual(
             mfc_field.items,
             [
                 {
-                    "text": "BT - Board of Trade and successors (50)",
-                    "value": "BT",
+                    "text": "Lancashire Archives (50)",
+                    "value": "Lancashire Archives",
                 },
                 {
-                    "text": "WO - War Office, Armed Forces, Judge Advocate General, and related bodies (35)",
-                    "value": "WO",
+                    "text": "Freud Museum (35)",
+                    "value": "Freud Museum",
                 },
             ],
         )
@@ -281,7 +276,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
 
         # test hidden inputs to retain other filters in form
         self.assertIn(
-            """<input type="hidden" name="group" value="tna">""", html
+            """<input type="hidden" name="group" value="nonTna">""", html
         )
         self.assertIn("""<input type="hidden" name="q" value="ufo">""", html)
         self.assertIn(
@@ -289,15 +284,6 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         )
         self.assertIn(
             """<input type="hidden" name="display" value="list">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="online" value="true">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="level" value="Item">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="level" value="Piece">""", html
         )
         self.assertIn(
             """<input type="hidden" name="covering_date_from-year" value="1940">""",

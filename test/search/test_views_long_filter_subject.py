@@ -8,8 +8,8 @@ from django.test import TestCase
 from django.utils.encoding import force_str
 
 
-class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
-    """Collection filter is only available for tna group."""
+class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
+    """Subject filter is only available for tna group."""
 
     @responses.activate
     def test_search_for_more_filter_choices_attributes_without_filters(
@@ -17,7 +17,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
     ):
         """Tests more filter choices attributes are correctly set in context"""
 
-        # data present for input collections
+        # data present for input subjects
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
@@ -34,10 +34,10 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "subject",
                         "entries": [
-                            {"value": "BT", "doc_count": 50},
-                            {"value": "WO", "doc_count": 35},
+                            {"value": "International", "doc_count": 50},
+                            {"value": "Army", "doc_count": 35},
                         ],
                         "total": 100,
                         "other": 50,
@@ -63,21 +63,21 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
 
         context_data = response.context_data
         form = context_data.get("form")
-        collection_field = form.fields[FieldsConstant.COLLECTION]
+        subject_field = form.fields[FieldsConstant.SUBJECT]
 
-        # more filter choice field - i.e. collection - used in template
+        # more filter choice field - i.e. subject - used in template
 
         self.assertEqual(len(context_data.get("results")), 1)
         self.assertEqual(
-            collection_field.more_filter_choices_available,
+            subject_field.more_filter_choices_available,
             True,
         )
         self.assertEqual(
-            collection_field.more_filter_choices_text, "See more collections"
+            subject_field.more_filter_choices_text, "See more subjects"
         )
         self.assertEqual(
-            collection_field.more_filter_choices_url,
-            "?filter_list=longCollection",
+            subject_field.more_filter_choices_url,
+            "?filter_list=longSubject",
         )
 
     @responses.activate
@@ -94,10 +94,10 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                 "data": [],
                 "aggregations": [
                     {
-                        "name": "longCollection",
+                        "name": "longSubject",
                         "entries": [
-                            {"value": "BT", "doc_count": 50},
-                            {"value": "WO", "doc_count": 35},
+                            {"value": "International", "doc_count": 50},
+                            {"value": "Army", "doc_count": 35},
                         ],
                         "total": 28083703,
                         "other": 0,
@@ -120,14 +120,12 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         )
 
         # input long filter without other params
-        response = self.client.get(
-            "/catalogue/search/?filter_list=longCollection"
-        )
+        response = self.client.get("/catalogue/search/?filter_list=longSubject")
 
         context_data = response.context_data
         form = context_data.get("form")
         html = force_str(response.content)
-        # more filter choice field - i.e. collection - used in template
+        # more filter choice field - i.e. subject - used in template
         mfc_field = context_data.get("mfc_field")
 
         self.assertEqual(len(context_data.get("results")), 0)
@@ -143,18 +141,18 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         )
         self.assertEqual(
             mfc_field.name,
-            FieldsConstant.COLLECTION,
+            FieldsConstant.SUBJECT,
         )
         self.assertEqual(
             mfc_field.items,
             [
                 {
-                    "text": "BT - Board of Trade and successors (50)",
-                    "value": "BT",
+                    "text": "International (50)",
+                    "value": "International",
                 },
                 {
-                    "text": "WO - War Office, Armed Forces, Judge Advocate General, and related bodies (35)",
-                    "value": "WO",
+                    "text": "Army (35)",
+                    "value": "Army",
                 },
             ],
         )
@@ -192,10 +190,10 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                 "data": [],
                 "aggregations": [
                     {
-                        "name": "longCollection",
+                        "name": "longSubject",
                         "entries": [
-                            {"value": "BT", "doc_count": 50},
-                            {"value": "WO", "doc_count": 35},
+                            {"value": "International", "doc_count": 50},
+                            {"value": "Army", "doc_count": 35},
                         ],
                         "total": 28083703,
                         "other": 0,
@@ -226,13 +224,13 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
             "&level=Item"
             "&level=Piece"
             "&covering_date_from-year=1940"
-            "&filter_list=longCollection"
+            "&filter_list=longSubject"
         )
 
         context_data = response.context_data
         form = context_data.get("form")
         html = force_str(response.content)
-        # more filter choice field - i.e. collection - used in template
+        # more filter choice field - i.e. subject - used in template
         mfc_field = context_data.get("mfc_field")
 
         self.assertEqual(len(context_data.get("results")), 0)
@@ -255,18 +253,18 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         )
         self.assertEqual(
             mfc_field.name,
-            FieldsConstant.COLLECTION,
+            FieldsConstant.SUBJECT,
         )
         self.assertEqual(
             mfc_field.items,
             [
                 {
-                    "text": "BT - Board of Trade and successors (50)",
-                    "value": "BT",
+                    "text": "International (50)",
+                    "value": "International",
                 },
                 {
-                    "text": "WO - War Office, Armed Forces, Judge Advocate General, and related bodies (35)",
-                    "value": "WO",
+                    "text": "Army (35)",
+                    "value": "Army",
                 },
             ],
         )
