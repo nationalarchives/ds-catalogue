@@ -137,7 +137,6 @@ class CatalogueSearchViewHeldByMoreFilterChoicesTests(TestCase):
             context_data.get("mfc_cancel_and_return_to_search_url"),
             ("?group=nonTna"),
         )
-        print(type(mfc_field))
         self.assertIsInstance(
             mfc_field,
             DynamicMultipleChoiceField,

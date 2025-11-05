@@ -90,7 +90,7 @@ class Aggregation(MultiValueForAggregation):
             if agg.field_name == field_name and agg.long_aggs:
                 return agg.long_aggs
 
-        # show be never reached, but keep for safety
+        # should be never reached, but keep for safety
         logger.warning(
             f"Long aggregation name not found for field name: {field_name}"
         )

@@ -83,7 +83,6 @@ class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
         response = self.client.get(
             "/catalogue/search/?"
             "group=nonTna"
-            ""
             "&q=ufo"
             "&collection=somecollection"
             "&online=true"
