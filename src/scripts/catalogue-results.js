@@ -40,11 +40,11 @@ isDesktop.onchange = (e) => {
   }
 };
 
-$mobileFiltersButton.textContent = "Add Filters";
+$mobileFiltersButton.textContent = "Show Filters";
 
 
 $mobileFiltersButton.onclick = function () {
-  if ($mobileFiltersButton.textContent === "Add Filters") {
+  if ($mobileFiltersButton.textContent === "Show Filters") {
     // If the button says "Add Filters", change it to "Hide Filters" and show the aside elements
     $mobileFiltersButton.textContent = "Hide Filters";
     for (let i = 0; i < $visibleAsideElements.length; i++) {
@@ -52,7 +52,7 @@ $mobileFiltersButton.onclick = function () {
     }
   } else {
     // If the button says "Hide Filters", change it to "Add Filters" and hide the aside elements
-    $mobileFiltersButton.textContent = "Add Filters";
+    $mobileFiltersButton.textContent = "Show Filters";
     for (let i = 0; i < $visibleAsideElements.length; i++) {
       $visibleAsideElements[i].style.display = "none"; // Changed to 'none' to hide
     }
