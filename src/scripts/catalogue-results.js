@@ -12,7 +12,6 @@ $sort.addEventListener("change", () => {
 const $mobileFiltersButton = document.getElementById("mobile-filters");
 const $visibleAsideElements = document.getElementsByClassName("tna-aside");
 
-
 // mobile view
 const showEventFilters = () => {
   // console.log('mobile view');
@@ -41,7 +40,6 @@ isDesktop.onchange = (e) => {
 };
 
 $mobileFiltersButton.textContent = "Show Filters";
-
 
 $mobileFiltersButton.onclick = function () {
   if ($mobileFiltersButton.textContent === "Show Filters") {
