@@ -152,6 +152,13 @@
           'id':'mobile-filters'
         }
       }) }}
+      {% if selected_filters | length > 0 %}
+        <div class="filters-selected">
+          <div class="tna-heading-m">
+            {{ selected_filters | length }}
+        </div>
+        </div>
+      {% endif %}
     </div>
     {% if selected_filters %}
         <div class="tna-aside tna-aside--tight tna-background-accent-light tna-!--margin-top-s">

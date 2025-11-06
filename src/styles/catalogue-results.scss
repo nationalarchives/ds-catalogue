@@ -173,3 +173,15 @@ mark {
 .skip-from-filters-to-results:has(a:focus) {
   margin-top: spacing.space(1);
 }
+
+.filters-selected {
+  display: none;
+  @media only screen and (width <= 48em) {
+    display:block;
+    background:rgb(255, 204, 0);
+    padding: 4px 10px;
+    border-radius: 5px;
+    border:solid 3px black;
+    font-weight: bold;
+  }
+}
