@@ -159,7 +159,9 @@
             </dd>
           {% endif %}
         {% endfor %}
-        <dt>Record URL</dt>
+        <dt>
+          <div class="record-details__label">Record URL</div>
+        </dt>
         <dd><span class="copy-url">{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.iaid})) }}</span></dd>
       </dl>
     </div>
