@@ -67,6 +67,7 @@ In addition to the [base Docker image variables](https://github.com/nationalarch
 | `CSP_MEDIA_SRC`                   | A comma separated list of CSP rules for `media-src`   | `'self'`                                                    |
 | `CSP_WORKER_SRC`                  | A comma separated list of CSP rules for `worker-src`  | `'self'`                                                    |
 | `CSP_FRAME_SRC`                   | A comma separated list of CSP rules for `frame-src`   | `'self'`                                                    |
+| `CSP_REPORT_URL`                  | The URL to report CSP violations to                   | `'self'`                                                    |
 | `GA4_ID`                          | The Google Analytics 4 ID                             | _none_                                                      |
 | `ROSETTA_API_VERIFY_CERTIFICATES` | Verify certificate for API                            | `True`                                                      |
 | `ENVIRONMENT_NAME`                | The name of the environment (for reporting purposes)  | `production`                                                |

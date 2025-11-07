@@ -151,6 +151,11 @@ DEBUG: bool = strtobool(os.getenv("DEBUG", "False"))
 
 COOKIE_DOMAIN: str = os.environ.get("COOKIE_DOMAIN", "")
 
+CSP_REPORT_URL: str = os.environ.get("CSP_REPORT_URL", "")
+if CSP_REPORT_URL:
+    CSP_REPORT_URL += (
+        f"&sentry_release={BUILD_VERSION}" if BUILD_VERSION else ""
+    )
 CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
         "default-src": [SELF],
@@ -164,6 +169,7 @@ CONTENT_SECURITY_POLICY = {
         "media-src": os.environ.get("CSP_MEDIA_SRC", SELF).split(","),
         "worker-src": os.environ.get("CSP_WORKER_SRC", SELF).split(","),
         "frame-src": os.environ.get("CSP_FRAME_SRC", SELF).split(","),
+        "report-uri": CSP_REPORT_URL or None,
     }
 }
 
