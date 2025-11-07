@@ -150,6 +150,7 @@
         'attributes': {
           'form': 'search-form',
           'id':'mobile-filters'
+          
         }
       }) }}
       {% if selected_filters | length > 0 %}
@@ -157,7 +158,7 @@
           <div class="tna-heading-m">
             {{ selected_filters | length }}<span class="tna-visually-hidden"> filters selected</span>
         </div>
-        </div>
+      </div>
       {% endif %}
     </div>
     {% if selected_filters %}
