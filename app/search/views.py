@@ -34,6 +34,7 @@ from .forms import (
     CatalogueSearchTnaForm,
     FieldsConstant,
 )
+from .mixins import SearchDataLayerMixin
 from .models import APISearchResponse
 from .utils import camelcase_to_underscore, underscore_to_camelcase
 
@@ -374,7 +375,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         return (results_range, pagination)
 
 
-class CatalogueSearchView(CatalogueSearchFormMixin):
+class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
     # templates for the view
     templates = {
@@ -382,11 +383,38 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
         "filter_list": "search/filter_list.html",
     }
     template_name = templates.get("default")  # default template
+    selected_filters = (
+        []
+    )  # list of selected filters for display and removal links
+
+    def get_datalayer_data(self, request):
+        """Assigns datalayer values specific to catalogue search pages."""
+
+        data = super().get_datalayer_data(request)
+
+        group = self.form.fields[FieldsConstant.GROUP].value
+        if group == BucketKeys.TNA.value:
+            data["content_source"] = "TNA catalogue"
+            data["search_type"] = "Records at The National Archives"
+        elif group == BucketKeys.NON_TNA.value:
+            data["content_source"] = "Other Archives catalogues"
+            data["search_type"] = "Records at other UK archives"
+
+        data["search_term"] = self.form.fields[FieldsConstant.Q].value
+
+        if self.api_result:
+            data["search_total"] = self.api_result.stats_total
+        else:
+            data["search_total"] = 0
+
+        data["search_filters"] = len(self.selected_filters)
+
+        return data
 
     def get_context_data(self, **kwargs):
         context: dict = super().get_context_data(**kwargs)
 
-        selected_filters = self.build_selected_filters_list()
+        self.selected_filters = self.build_selected_filters_list()
 
         global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
         global_alerts_client.add_parameters(
@@ -403,7 +431,7 @@ class CatalogueSearchView(CatalogueSearchFormMixin):
         context.update(
             {
                 "bucket_list": self.bucket_list,
-                "selected_filters": selected_filters,
+                "selected_filters": self.selected_filters,
                 "bucket_keys": BucketKeys,
             }
         )
