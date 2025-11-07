@@ -136,14 +136,16 @@
     position: sticky;
     top: spacing.space(0.5);
 
-    line-height: 1.35;
+    @include media.on-tiny {
+      padding-top: spacing.space(0.25);
+    }
   }
 
   &__description {
-    padding-top: spacing.space(0.5);
     padding-bottom: spacing.space(0.25);
 
     display: block;
+
     @include typography.detail-font-small;
     text-transform: none;
     @include colour.colour-font("font-light");
