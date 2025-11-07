@@ -24,7 +24,7 @@ class SearchDataLayerMixin(DataLayerMixin):
             content_source="",
             search_type="",
             search_term="",
-            search_total="",  # Use actual number
-            search_filters="",  # Count of filters applied
+            search_total=0,  # Use actual number
+            search_filters=0,  # Count of filters applied
         )
         return data
