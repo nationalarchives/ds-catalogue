@@ -29,6 +29,8 @@
 {%- set pageTitle = 'Catalogue search results' -%}
 {%- set encodedQuery = request.GET.urlencode() | base64_encode -%}
 
+{%- set analytics_data = view.get_datalayer_data(request) -%}
+
 {% block stylesheets %}
 {{ super() }}
     <link rel="stylesheet" href="{{ static('catalogue-results.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
@@ -48,6 +50,17 @@
   }) }}
 {% endif %}
 {{ super() }}
+{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <meta name="tna_root:content_group" content="{{ analytics_data.content_group }}">
+  <meta name="tna_root:page_type" content="{{ analytics_data.page_type }}">
+  <meta name="tna_root:reader_type" content="{{ analytics_data.reader_type | default('Null', true) }}"> <!-- Reserved for reader location; null if no value -->
+  <meta name="tna_root:search_type" content="{{ analytics_data.search_type }}">
+  <meta name="tna_root:search_term" content="{{ analytics_data.search_term }}">
+  <meta name="tna_root:search_total" content="{{ analytics_data.search_total }}"> <!-- Use actual number -->
+  <meta name="tna_root:search_filters" content="{{ analytics_data.search_filters }}"> <!-- Count of filters applied -->
 {% endblock %}
 
 {% block beforeContent %}
