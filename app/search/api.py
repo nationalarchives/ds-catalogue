@@ -26,7 +26,7 @@ def search_records(
     )
 
     # Add from only when results_per_page > 0,
-    # otherwise "from" param not needed
+    # for long filters with size=0, its not required
     if results_per_page > 0:
         params["from"] = ((page - 1) * results_per_page,)
 
