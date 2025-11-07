@@ -3,7 +3,7 @@
 {% from "components/date-input/macro.html" import tnaDateInput %}
 
 
-{% macro date_input(request, date_from, date_to, title) %}
+{% macro date_input(date_from, date_to, title) %}
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
   <h3 class="tna-heading-m">{{ title }}</h3>
     {{ tnaDateInput({

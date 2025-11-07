@@ -20,15 +20,15 @@ def search_records(
         {
             "q": query or "*",
             "size": results_per_page,
-            "from": (page - 1) * results_per_page,
             "sort": sort,
             # "sortOrder": order, # Unused for Rosetta
         }
     )
 
-    # for 0 results_per_page, "from" param not needed
-    if results_per_page == 0:
-        del params["from"]
+    # Add from only when results_per_page > 0,
+    # otherwise "from" param not needed
+    if results_per_page > 0:
+        params["from"] = ((page - 1) * results_per_page,)
 
     # remove params having empty values, for long filters size=0 is valid
     params = {
