@@ -113,7 +113,7 @@ class CatalogueSearchViewAnalyticsNonTnaTests(TestCase):
     def test_search_analytics_with_filters(
         self,
     ):
-        """Tests analytics metadata, data layer without filters"""
+        """Tests analytics metadata, data layer with filters"""
 
         # data present for input
         responses.add(

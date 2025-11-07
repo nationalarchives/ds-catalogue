@@ -383,9 +383,8 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         "filter_list": "search/filter_list.html",
     }
     template_name = templates.get("default")  # default template
-    selected_filters = (
-        []
-    )  # list of selected filters for display and removal links
+    # list of selected filters for display and removal links
+    selected_filters = []
 
     def get_datalayer_data(self, request):
         """Assigns datalayer values specific to catalogue search pages."""
