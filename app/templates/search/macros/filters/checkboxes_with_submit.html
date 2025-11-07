@@ -1,21 +1,21 @@
 {% from 'components/button/macro.html' import tnaButton %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 
-{% macro held_by(request, held_by) %}
+{% macro checkboxes_with_submit(request, field) %}
   <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
     {{ tnaCheckboxes({
-      'label': 'Held by',
+      'label': field.label,
       'headingLevel': 3,
       'headingSize': 'm',
-      'id': 'held_by',
-      'name': held_by.name,
-      'items': held_by.items,
+      'id': field.id,
+      'name': field.name,
+      'items': field.items,
       'small': True,
       'attributes': {
         'form': 'search-form'
       }
     }) }}
-    <div class="tna-button-group tna-!--margin-top-s">
+    <div class="tna-button-group tna-button-group--small tna-!--margin-top-s">
       {{ tnaButton({
         'text': 'Update',
         'buttonElement': True,
@@ -25,6 +25,14 @@
           'form': 'search-form'
         }
       }) }}
+      {% if field.more_filter_choices_available %}
+        {{ tnaButton({
+          'text': field.more_filter_choices_text,
+          'href': field.more_filter_choices_url,
+          'plain': True,
+          'small': True
+        }) }}
+      {% endif %}
     </div>
   </div>
 {% endmacro %}

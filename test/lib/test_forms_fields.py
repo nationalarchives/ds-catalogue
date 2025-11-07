@@ -30,6 +30,7 @@ class BaseFormWithCharFieldTest(TestCase):
     def test_form_with_char_field_initial_attrs(self):
 
         form = self.get_form_with_char_field()
+        self.assertEqual(form.fields["char_field"].id, "id_char_field")
         self.assertEqual(form.fields["char_field"].name, "char_field")
         self.assertEqual(form.fields["char_field"].label, "Char Field:")
         self.assertEqual(form.fields["char_field"].hint, "Enter a value")
@@ -112,6 +113,7 @@ class BaseFormWithChoiceFieldTest(TestCase):
     def test_form_with_choicr_field_initial_attrs(self):
 
         form = self.get_form_with_choice_field()
+        self.assertEqual(form.fields["choice_field"].id, "id_choice_field")
         self.assertEqual(form.fields["choice_field"].name, "choice_field")
         self.assertEqual(form.fields["choice_field"].label, "Yes/No")
         self.assertEqual(form.fields["choice_field"].hint, "")

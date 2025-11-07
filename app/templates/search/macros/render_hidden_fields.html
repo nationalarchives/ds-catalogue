@@ -1,0 +1,27 @@
+
+{% from 'search/macros/as_hidden_for_single_value.html' import as_hidden_for_single_value %}
+{% from 'search/macros/as_hidden_for_date_input.html' import as_hidden_for_date_input %}
+{% from 'search/macros/as_hidden_for_checkboxes.html' import as_hidden_for_checkboxes %}
+
+{% macro render_hidden_fields(request, form, bucket_keys, mfc_field) %}
+  {{ as_hidden_for_single_value(form.fields.group) }}
+  {{ as_hidden_for_single_value(form.fields.q) }}
+  <input type="hidden" name="display" value="{{ request.GET.get('display') or 'list' }}">
+  {{ as_hidden_for_single_value(form.fields.sort) }}
+  {% if form.fields.group.value==bucket_keys.TNA %}
+    {{ as_hidden_for_single_value(form.fields.online) }}
+    {{ as_hidden_for_date_input(form.fields.covering_date_from) }}
+    {{ as_hidden_for_date_input(form.fields.covering_date_to) }}
+    {{ as_hidden_for_checkboxes(form.fields.collection) }}
+    {{ as_hidden_for_checkboxes(form.fields.subject) }}
+    {{ as_hidden_for_checkboxes(form.fields.level) }}
+    {{ as_hidden_for_date_input(form.fields.opening_date_from) }}
+    {{ as_hidden_for_date_input(form.fields.opening_date_to) }}
+    {{ as_hidden_for_checkboxes(form.fields.closure) }}
+  {% else %}
+    {# Non Tna #}
+    {{ as_hidden_for_date_input(form.fields.covering_date_from) }}
+    {{ as_hidden_for_date_input(form.fields.covering_date_to) }}
+    {{ as_hidden_for_checkboxes(form.fields.held_by) }}
+  {% endif %}
+{% endmacro %}

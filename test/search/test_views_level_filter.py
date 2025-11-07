@@ -34,6 +34,8 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
                         "entries": [
                             {"value": "Lettercode", "doc_count": 100},
                         ],
+                        "total": 100,
+                        "other": 0,
                     }
                 ],
                 "buckets": [
@@ -95,6 +97,12 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
                 },
             ],
         )
+        self.assertEqual(
+            level_field.more_filter_choices_available,
+            False,
+        )
+        self.assertEqual(level_field.more_filter_choices_url, "")
+        self.assertEqual(level_field.more_filter_choices_text, "")
 
     def test_search_with_invalid_level_filters_returns_error_with_no_results(
         self,
@@ -183,4 +191,8 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
         self.assertEqual(
             collection_field.items,
             [],
+        )
+        self.assertEqual(
+            level_field.more_filter_choices_available,
+            False,
         )

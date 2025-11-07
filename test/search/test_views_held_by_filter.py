@@ -62,6 +62,8 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
                         "entries": [
                             {"value": "nonTna", "count": 25},
                         ],
+                        "total": 100,
+                        "other": 0,
                     }
                 ],
                 "stats": {
@@ -139,6 +141,12 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
                 },
             ],
         )
+        self.assertEqual(
+            held_by_field.more_filter_choices_available,
+            False,
+        )
+        self.assertEqual(held_by_field.more_filter_choices_url, "")
+        self.assertEqual(held_by_field.more_filter_choices_text, "")
 
     @responses.activate
     def test_catalogue_search_context_for_held_by_does_not_exist(
@@ -158,6 +166,8 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
                         "entries": [
                             {"value": "nonTna", "count": 25},
                         ],
+                        "total": 100,
+                        "other": 0,
                     }
                 ],
                 "stats": {
@@ -208,4 +218,8 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
                     "title": "Remove DOESNOTEXIST held by",
                 },
             ],
+        )
+        self.assertEqual(
+            held_by_field.more_filter_choices_available,
+            False,
         )

@@ -32,6 +32,7 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
 
         _, dmc_field = self.create_form_with_dynamic_multiple_choice_field()
 
+        self.assertEqual(dmc_field.id, "id_dmc_field")
         self.assertEqual(dmc_field.name, "dmc_field")
         self.assertEqual(dmc_field.label, "Location")
         self.assertEqual(dmc_field.hint, "")
@@ -123,6 +124,7 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
         valid_status = form.is_valid()
         self.assertEqual(valid_status, True)
         self.assertEqual(form.errors, {})
+        self.assertEqual(dmc_field.id, "id_dmc_field")
         self.assertEqual(dmc_field.name, "dmc_field")
         self.assertEqual(dmc_field.value, ["london", "leeds"])
         self.assertEqual(dmc_field.cleaned, ["london", "leeds"])
@@ -220,6 +222,7 @@ class BaseFormWithDMCFieldValidateInputFalseTest(TestCase):
 
         _, dmc_field = self.create_form_with_dynamic_multiple_choice_field()
 
+        self.assertEqual(dmc_field.id, "id_dmc_field")
         self.assertEqual(dmc_field.name, "dmc_field")
         self.assertEqual(dmc_field.label, "Location")
         self.assertEqual(dmc_field.hint, "")
@@ -244,6 +247,10 @@ class BaseFormWithDMCFieldValidateInputFalseTest(TestCase):
         )  # should be empty until choices are updated
         # as this is not a view test, after items called, choices are updated
         self.assertEqual(dmc_field.choices_updated, True)
+
+        self.assertEqual(dmc_field.more_filter_choices_available, False)
+        self.assertEqual(dmc_field.more_filter_choices_url, "")
+        self.assertEqual(dmc_field.more_filter_choices_text, "See more options")
 
     def test_form_with_dynamic_multiple_choice_field_with_no_params(self):
 

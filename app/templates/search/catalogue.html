@@ -17,14 +17,10 @@
 {% from 'search/macros/filters/search_within.html' import search_within %}
 {% from 'search/macros/filters/date_range.html' import date_range %}
 {% from 'search/macros/filters/date_input.html' import date_input %}
-{% from 'search/macros/filters/levels.html' import levels %}
-{% from 'search/macros/filters/closure_statuses.html' import closure_statuses %}
 {% from 'search/macros/filters/opening_date.html' import opening_date %}
-{% from 'search/macros/filters/collections.html' import collections %}
 {% from 'search/macros/filters/online.html' import online %}
-{% from 'search/macros/filters/subjects.html' import subjects %}
-{% from 'search/macros/filters/held_by.html' import held_by %}
 {% from 'search/macros/search_results.html' import search_results %}
+{% from 'search/macros/filters/checkboxes_with_submit.html' import checkboxes_with_submit %}
 
 {%- set pageTitle = 'Catalogue search results' -%}
 {%- set encodedQuery = request.GET.urlencode() | base64_encode -%}
@@ -158,7 +154,7 @@
             <h3 class="tna-heading-m">Active filters {% if selected_filters %} ({{ selected_filters | length }}){% endif %}:</h3>
             {{ tnaCompoundFilters({
               'items': selected_filters,
-              'removeAllHref': url('search:catalogue') + '?q=' + form.fields.q.value + '&display=' + (request.GET.get('display') or ''),
+              'removeAllHref': url('search:catalogue') + '?group=' + form.fields.group.value + '&q=' + form.fields.q.value + '&display=' + (request.GET.get('display') or ''),
               'removeAllText': 'Reset filters',
               'classes': 'tna-!--margin-top-s'
             }) }}
@@ -168,16 +164,16 @@
     {% if form.fields.group.value==bucket_keys.TNA %}
       {{ online(request) }}
       {# {{ search_within(request) }} #}
-      {{ date_input(request, 'covering_date_from', form.fields.covering_date_from, 'covering_date_to', form.fields.covering_date_to, 'Filter by record date') }}
-      {{ collections(request, form.fields['collection']) }}
-      {{ subjects(request, form.fields['subject']) }}
-      {{ levels(request, form.fields['level']) }}
-      {{ date_input(request, 'opening_date_from', form.fields.opening_date_from, 'opening_date_to',form.fields.opening_date_to, 'Filter by record opening date') }}
-      {{ closure_statuses(request, form.fields['closure']) }}
+      {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
+      {{ checkboxes_with_submit(request, form.fields['collection']) }}
+      {{ checkboxes_with_submit(request, form.fields['subject']) }}
+      {{ checkboxes_with_submit(request, form.fields['level']) }}
+      {{ date_input(form.fields.opening_date_from, form.fields.opening_date_to, 'Filter by record opening date') }}
+      {{ checkboxes_with_submit(request, form.fields['closure']) }}
     {% elif form.fields.group.value==bucket_keys.NON_TNA %}
       {# {{ search_within(request) }} #}
-      {{ date_input(request, 'covering_date_from', form.fields.covering_date_from, 'covering_date_to', form.fields.covering_date_to, 'Filter by record date') }}
-      {{ held_by(request, form.fields['held_by']) }}
+      {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
+      {{ checkboxes_with_submit(request, form.fields['held_by']) }}
     {% endif %}
     
     

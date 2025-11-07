@@ -47,6 +47,7 @@ class CatalogueSearchViewSortParamTests(TestCase):
         sort_field = response.context_data.get("form").fields["sort"]
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(sort_field.id, "id_sort")
         self.assertEqual(sort_field.name, "sort")
         self.assertEqual(sort_field.value, "title:asc")
         self.assertEqual(sort_field.cleaned, "title:asc")
