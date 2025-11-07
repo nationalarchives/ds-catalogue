@@ -218,6 +218,10 @@ class APIMixin:
     ):
         """Builds more filter options. These options allow user to explore
         more filter choices in a separate page.
+        
+        The API is configured to return 10 aggregation entries by default.
+        So if there are more than 10 entries, the API response will include
+        an  "other" count in the aggregation data.
 
         i.e.
         more_filter_choices_available:more choice availability,
