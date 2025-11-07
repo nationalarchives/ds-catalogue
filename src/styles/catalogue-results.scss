@@ -176,7 +176,7 @@ mark {
 
 .filters-selected {
   display: none;
-   @media only screen and (width <= 48em) {
+  @media only screen and (width <= 48em) {
     padding: 4px 10px;
 
     display: block;
