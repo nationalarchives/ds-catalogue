@@ -13,7 +13,7 @@ class MultiValueForAggregation(Enum):
     def __new__(cls, field_name: str, api_aggs: tuple[str, str]):
         """Allows each enum member to have multiple values.
 
-        field_name: DynamicMultipleChoiceField in forms.
+        field_name: string identifier for the form field (e.g., 'collection', 'held_by').
         api_aggs: tuple of (aggs, long_aggs)
         aggs: value used to request aggregation from API
         long_aggs: value used to request extended aggregation from API"""
