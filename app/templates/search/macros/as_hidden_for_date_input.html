@@ -1,0 +1,7 @@
+{% macro as_hidden_for_date_input(field) %}
+  {% for date_key, value in field.value.items() %}
+    {% if value %}
+      <input type="hidden" name="{{ field.name }}{{ field.date_ymd_separator }}{{ date_key }}" value="{{ value }}">
+    {% endif %}
+  {% endfor %}
+{% endmacro %}

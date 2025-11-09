@@ -38,6 +38,7 @@ class BaseField:
     def __init__(
         self, label=None, required=False, hint="", active_filter_label=None
     ):
+        self.id = None  # set on bind
         self.label = label
         self.required = required
         self.hint = hint
@@ -53,8 +54,10 @@ class BaseField:
         Override to bind to list or string."""
 
         self.name = name
-        self.label = self.label or name.capitalize()
         self._value = value
+        # also bind id and label
+        self.id = "id_" + name
+        self.label = self.label or name.capitalize()
 
     def get_bind_value(self, data: QueryDict, name: str):
         """Override in subclasses if special bind value extraction is needed."""
@@ -186,10 +189,20 @@ class DynamicMultipleChoiceField(BaseField):
         there are no fixed choices to validate against or need to
         lookup labels.
 
-        keyword args - validate_input: bool
-        validate_input is optional, it defaults True if choices provided,
+        keyword args - validate_input: bool,
+                       more_filter_choices_text: str
+        validate_input: is optional, it defaults True if choices provided,
         False otherwise. Override to False when validation from defined
         choices is required. Coerce to False when no choices provided.
+        more_filter_choices_text: text for more choices link/button.
+        if not provided, a defined default is used. Override to empty string
+        in form when no more choices are available.
+
+        set by form - when more choices are available:
+            more_filter_choices_available: default False. Indicates if more
+            choices are available from the API.
+            more_filter_choices_url: When more choices are available, this url
+            is used for the more choices link/button. Default "".
 
         Choices are updated dynamically using update_choices() method.
         """
@@ -203,7 +216,20 @@ class DynamicMultipleChoiceField(BaseField):
             self.validate_input = False
             kwargs.pop("validate_input", None)
 
+        self.more_filter_choices_text: str = kwargs.pop(
+            "more_filter_choices_text", "See more options"
+        )  # default text
+        self.more_filter_choices_available: bool = False  # set by form
+        self.more_filter_choices_url: str = ""  # set by form
+
         super().__init__(**kwargs)
+
+        # TODO: FILTER_CHOICES_LIMIT: discuss limit with team
+        # The API response limit for aggs is 10,
+        # we don't allow more than that for filtering.
+        # Also, this keeps the URL length manageable.
+        # self.FILTER_CHOICES_LIMIT = 5
+
         self.choices = choices
         self.configured_choices = self.choices
         # cache valid choices
@@ -231,6 +257,15 @@ class DynamicMultipleChoiceField(BaseField):
                             f"to the available choices. Valid choices are [{', '.join(self.valid_choices)}]"
                         )
                     )
+
+        # TODO: FILTER_CHOICES_LIMIT: discuss limit with team
+        # if (
+        #     self.FILTER_CHOICES_LIMIT > 0
+        #     and len(value) > self.FILTER_CHOICES_LIMIT
+        # ):
+        #     raise ValidationError(
+        #         f"Maximum filter choices exceeded. Must be {self.FILTER_CHOICES_LIMIT} or fewer."
+        #     )
 
     @property
     def items(self):

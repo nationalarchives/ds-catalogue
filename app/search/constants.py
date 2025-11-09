@@ -19,3 +19,21 @@ class Sort(StrEnum):
 
 # date format for displaying dates in the UI (e.g. active filters, error message
 DATE_DISPLAY_FORMAT = "%d-%m-%Y"
+
+
+class FieldsConstant:
+
+    Q = "q"
+    SORT = "sort"
+    LEVEL = "level"
+    GROUP = "group"
+    COLLECTION = "collection"
+    ONLINE = "online"
+    SUBJECT = "subject"
+    HELD_BY = "held_by"
+    CLOSURE = "closure"
+    FILTER_LIST = "filter_list"
+    COVERING_DATE_FROM = "covering_date_from"
+    COVERING_DATE_TO = "covering_date_to"
+    OPENING_DATE_FROM = "opening_date_from"
+    OPENING_DATE_TO = "opening_date_to"

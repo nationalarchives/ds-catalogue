@@ -57,30 +57,83 @@ class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
         response = self.client.get("/catalogue/search/?group=nonTna")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=%2A&size=20"
+            "https://rosetta.test/data/search?"
+            "filter=group%3AnonTna"
+            "&filter=datatype%3Arecord"
+            "&aggs=heldBy"
+            "&q=%2A"
+            "&size=20"
+            "&from=0"
         )
 
         # with search term, non tna records
         response = self.client.get("/catalogue/search/?group=nonTna&q=ufo")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
+            "https://rosetta.test/data/search?"
+            "filter=group%3AnonTna"
+            "&filter=datatype%3Arecord"
+            "&aggs=heldBy"
+            "&q=ufo"
+            "&size=20"
+            "&from=0"
         )
 
         # with filter not belonging to nontna group (should be ignored)
         response = self.client.get(
-            "/catalogue/search/?group=nonTna&q=ufo&collection=somecollection&online=true&level=somelevel&subject=Army"
+            "/catalogue/search/?"
+            "group=nonTna"
+            "&q=ufo"
+            "&collection=somecollection"
+            "&online=true"
+            "&level=somelevel"
+            "&subject=Army"
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&q=ufo&size=20"
+            "https://rosetta.test/data/search?"
+            "filter=group%3AnonTna"
+            "&filter=datatype%3Arecord"
+            "&aggs=heldBy"
+            "&q=ufo"
+            "&size=20"
+            "&from=0"
         )
 
         # Test covering date filters
         response = self.client.get(
-            "/catalogue/search/?group=nonTna&covering_date_from-year=2000&covering_date_from-month=12&covering_date_from-day=1&covering_date_to-year=2000&covering_date_to-month=12&covering_date_to-day=31"
+            "/catalogue/search/?"
+            "group=nonTna"
+            "&covering_date_from-year=2000"
+            "&covering_date_from-month=12"
+            "&covering_date_from-day=1"
+            "&covering_date_to-year=2000"
+            "&covering_date_to-month=12"
+            "&covering_date_to-day=31"
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?aggs=heldBy&filter=group%3AnonTna&filter=datatype%3Arecord&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29&filter=coveringToDate%3A%28%3C%3D2000-12-31%29&q=%2A&size=20"
+            "https://rosetta.test/data/search?"
+            "filter=group%3AnonTna"
+            "&filter=datatype%3Arecord"
+            "&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29"
+            "&filter=coveringToDate%3A%28%3C%3D2000-12-31%29"
+            "&aggs=heldBy"
+            "&q=%2A"
+            "&size=20"
+            "&from=0"
+        )
+
+        # Test longHeldBy filter
+        response = self.client.get(
+            "/catalogue/search/?group=nonTna&filter_list=longHeldBy"
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        mock_logger.debug.assert_called_with(
+            "https://rosetta.test/data/search?"
+            "filter=group%3AnonTna"
+            "&filter=datatype%3Arecord"
+            "&aggs=longHeldBy"
+            "&q=%2A"
+            "&size=0"
         )
