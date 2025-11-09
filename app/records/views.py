@@ -219,8 +219,10 @@ def record_detail_view(request: HttpRequest, id: str) -> TemplateResponse:
             determine_delivery_options = False
 
     # TODO: This is an alternative action on delivery options while we wait on decisions on how we are going to present it.
-    if determine_delivery_options:
-        # Add temporary delivery options context
+    # Only run this for TNA records
+    if (
+        record.is_tna and determine_delivery_options
+    ):  # Add temporary delivery options context
         delivery_options_context = {
             "delivery_options_heading": "How to order it",
             "delivery_instructions": [
@@ -233,7 +235,10 @@ def record_detail_view(request: HttpRequest, id: str) -> TemplateResponse:
         context.update(delivery_options_context)
 
     # Separated from above if statement because this is permanent logic
-    if determine_delivery_options:
+    # Only run this for TNA records
+    if (
+        record.is_tna and determine_delivery_options
+    ):  # Add temporary delivery options context
         context.update(get_delivery_options_context(record.iaid))
 
     # if determine_delivery_options:
