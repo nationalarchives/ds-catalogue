@@ -532,6 +532,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             {
                 "bucket_list": self.bucket_list,
                 "selected_filters": self.selected_filters,
+                "analytics_data": self.get_datalayer_data(self.request),
                 "bucket_keys": BucketKeys,
             }
         )

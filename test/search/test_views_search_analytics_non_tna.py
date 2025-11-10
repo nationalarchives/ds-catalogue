@@ -2,15 +2,12 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
-from django.test import RequestFactory, TestCase
+from django.test import TestCase
 from django.utils.encoding import force_str
 
 
 class CatalogueSearchViewAnalyticsNonTnaTests(TestCase):
     """Tests analytics metadata, data layer in CatalogueSearchView for Non TNA group"""
-
-    def setUp(self):
-        self.factory = RequestFactory()
 
     @responses.activate
     def test_search_analytics_without_filters(
@@ -92,9 +89,8 @@ class CatalogueSearchViewAnalyticsNonTnaTests(TestCase):
             """<meta name="tna_root:search_filters" content="0">""", html
         )
 
-        request = self.factory.get(query)
         self.assertEqual(
-            context_data.get("view").get_datalayer_data(request),
+            context_data.get("analytics_data"),
             {
                 "content_group": "Search the catalogue",
                 "page_type": "catalogue_search",
@@ -189,9 +185,8 @@ class CatalogueSearchViewAnalyticsNonTnaTests(TestCase):
             """<meta name="tna_root:search_filters" content="4">""", html
         )
 
-        request = self.factory.get(query)
         self.assertEqual(
-            context_data.get("view").get_datalayer_data(request),
+            context_data.get("analytics_data"),
             {
                 "content_group": "Search the catalogue",
                 "page_type": "catalogue_search",
@@ -271,9 +266,8 @@ class CatalogueSearchViewAnalyticsNonTnaTests(TestCase):
             """<meta name="tna_root:search_filters" content="0">""", html
         )
 
-        request = self.factory.get(query)
         self.assertEqual(
-            context_data.get("view").get_datalayer_data(request),
+            context_data.get("analytics_data"),
             {
                 "content_group": "Search the catalogue",
                 "page_type": "catalogue_search",

@@ -24,7 +24,6 @@
 
 {%- set pageTitle = 'Catalogue search results' -%}
 {%- set encodedQuery = request.GET.urlencode() | base64_encode -%}
-{%- set analytics_data = view.get_datalayer_data(request) -%}
 
 {% block stylesheets %}
 {{ super() }}
