@@ -80,7 +80,7 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
             html,
         )
         self.assertIn(
-            """<meta name="tna_root:reader_type" content="Null">""", html
+            """<meta name="tna_root:reader_type" content="null">""", html
         )
         self.assertIn(
             """<meta name="tna_root:search_type" content="Records at The National Archives">""",
@@ -177,7 +177,7 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
             html,
         )
         self.assertIn(
-            """<meta name="tna_root:reader_type" content="Null">""", html
+            """<meta name="tna_root:reader_type" content="null">""", html
         )
         self.assertIn(
             """<meta name="tna_root:search_type" content="Records at The National Archives">""",
@@ -262,7 +262,7 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
             html,
         )
         self.assertIn(
-            """<meta name="tna_root:reader_type" content="Null">""", html
+            """<meta name="tna_root:reader_type" content="null">""", html
         )
         self.assertIn(
             """<meta name="tna_root:search_type" content="Records at The National Archives">""",
@@ -319,7 +319,7 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
             html,
         )
         self.assertIn(
-            """<meta name="tna_root:reader_type" content="Null">""", html
+            """<meta name="tna_root:reader_type" content="null">""", html
         )
         self.assertIn(
             """<meta name="tna_root:search_type" content="Records at The National Archives">""",

@@ -53,13 +53,9 @@
 
 {% block head %}
   {{ super() }}
-  <meta name="tna_root:content_group" content="{{ analytics_data.content_group }}">
-  <meta name="tna_root:page_type" content="{{ analytics_data.page_type }}">
-  <meta name="tna_root:reader_type" content="{{ analytics_data.reader_type | default('Null', true) }}"> <!-- Reserved for reader location; null if no value -->
-  <meta name="tna_root:search_type" content="{{ analytics_data.search_type }}">
-  <meta name="tna_root:search_term" content="{{ analytics_data.search_term }}">
-  <meta name="tna_root:search_total" content="{{ analytics_data.search_total }}"> <!-- Use actual number -->
-  <meta name="tna_root:search_filters" content="{{ analytics_data.search_filters }}"> <!-- Count of filters applied -->
+  {% for property in analytics_data %}
+    <meta name="tna_root:{{ property }}" content="{{ analytics_data[property] | none_to_null_string() }}">
+  {% endfor %}
 {% endblock %}
 
 {% block beforeContent %}

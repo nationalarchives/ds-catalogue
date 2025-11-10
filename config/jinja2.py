@@ -267,6 +267,14 @@ def override_tna_record_count(value, record):
     return value
 
 
+def none_to_null_string(value):
+    """Convert None to 'null' string for JSON compatibility."""
+
+    if value is None:
+        return "null"
+    return value
+
+
 def environment(**options):
     env = Environment(**options)
 
@@ -317,6 +325,7 @@ def environment(**options):
             "remove_string_case_insensitive": remove_string_case_insensitive,
             "truncate_preserve_mark_tags": truncate_preserve_mark_tags,
             "override_tna_record_count": override_tna_record_count,
+            "none_to_null_string": none_to_null_string,
         }
     )
     return env

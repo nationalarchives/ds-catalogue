@@ -80,7 +80,7 @@ class CatalogueSearchViewAnalyticsNonTnaTests(TestCase):
             html,
         )
         self.assertIn(
-            """<meta name="tna_root:reader_type" content="Null">""", html
+            """<meta name="tna_root:reader_type" content="null">""", html
         )
         self.assertIn(
             """<meta name="tna_root:search_type" content="Records at other UK archives">""",
@@ -177,7 +177,7 @@ class CatalogueSearchViewAnalyticsNonTnaTests(TestCase):
             html,
         )
         self.assertIn(
-            """<meta name="tna_root:reader_type" content="Null">""", html
+            """<meta name="tna_root:reader_type" content="null">""", html
         )
         self.assertIn(
             """<meta name="tna_root:search_type" content="Records at other UK archives">""",
@@ -261,7 +261,7 @@ class CatalogueSearchViewAnalyticsNonTnaTests(TestCase):
             html,
         )
         self.assertIn(
-            """<meta name="tna_root:reader_type" content="Null">""", html
+            """<meta name="tna_root:reader_type" content="null">""", html
         )
         self.assertIn(
             """<meta name="tna_root:search_type" content="Records at other UK archives">""",
