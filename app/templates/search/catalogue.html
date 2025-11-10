@@ -54,7 +54,7 @@
 {% block head %}
   {{ super() }}
   {% for property in analytics_data %}
-    <meta name="tna_root:{{ property }}" content="{{ analytics_data[property] | none_to_null_string() }}">
+    <meta name="tna_root:{{ property }}" content="{{ analytics_data[property] | none_to_empty_string() }}">
   {% endfor %}
 {% endblock %}
 

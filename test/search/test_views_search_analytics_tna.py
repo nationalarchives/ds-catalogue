@@ -79,9 +79,7 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
             """<meta name="tna_root:page_type" content="catalogue_search">""",
             html,
         )
-        self.assertIn(
-            """<meta name="tna_root:reader_type" content="null">""", html
-        )
+        self.assertIn("""<meta name="tna_root:reader_type" content="">""", html)
         self.assertIn(
             """<meta name="tna_root:search_type" content="Records at The National Archives">""",
             html,
@@ -176,9 +174,7 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
             """<meta name="tna_root:page_type" content="catalogue_search">""",
             html,
         )
-        self.assertIn(
-            """<meta name="tna_root:reader_type" content="null">""", html
-        )
+        self.assertIn("""<meta name="tna_root:reader_type" content="">""", html)
         self.assertIn(
             """<meta name="tna_root:search_type" content="Records at The National Archives">""",
             html,
@@ -261,9 +257,7 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
             """<meta name="tna_root:page_type" content="catalogue_search">""",
             html,
         )
-        self.assertIn(
-            """<meta name="tna_root:reader_type" content="null">""", html
-        )
+        self.assertIn("""<meta name="tna_root:reader_type" content="">""", html)
         self.assertIn(
             """<meta name="tna_root:search_type" content="Records at The National Archives">""",
             html,
@@ -318,9 +312,7 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
             """<meta name="tna_root:page_type" content="catalogue_search">""",
             html,
         )
-        self.assertIn(
-            """<meta name="tna_root:reader_type" content="null">""", html
-        )
+        self.assertIn("""<meta name="tna_root:reader_type" content="">""", html)
         self.assertIn(
             """<meta name="tna_root:search_type" content="Records at The National Archives">""",
             html,
