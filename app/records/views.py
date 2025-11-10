@@ -13,6 +13,7 @@ from app.deliveryoptions.delivery_options import (
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
 from app.lib.api import JSONAPIClient, ResourceNotFound
 from app.records.api import record_details_by_id, wagtail_request_handler
+from app.records.constants import PREFERRED_DESCRIPTION_LENGTH
 from app.records.labels import FIELD_LABELS
 from django.conf import settings
 from django.http import HttpRequest
@@ -284,6 +285,8 @@ def record_detail_view(request: HttpRequest, id: str) -> TemplateResponse:
         logger.info(
             f"Document {record.reference_number} has a sensitive content warning"
         )
+
+    context["preferred_description_length"]  = PREFERRED_DESCRIPTION_LENGTH
 
     return TemplateResponse(
         request=request, template=template_name, context=context

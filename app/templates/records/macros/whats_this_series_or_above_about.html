@@ -1,4 +1,4 @@
-{% macro whats_this_series_or_above_about(record) %}
+{% macro whats_this_series_or_above_about(record, preferred_description_length) %}
   <div class="tna-container tna-!--margin-top-m">
     <div class="tna-column tna-column--full">
       <div class="tna-!--padding-vertical-m tna-background-accent etna-rounded-corners">
@@ -13,7 +13,7 @@
           </div>
           <div
             class="tna-column tna-column--flex-1 tna-column--full-small tna-column--full-tiny tna-column--align-centre tna-!--margin-top-xs">
-            <p>{{ record.short_description }}</p>
+            <p>{{ record.no_html_description | truncate(preferred_description_length) }}</p>
           </div>
         </div>
       </div>

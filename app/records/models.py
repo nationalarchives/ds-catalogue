@@ -339,9 +339,9 @@ class Record(APIModel):
             return clean_description
 
     @cached_property
-    def short_description(self) -> str:
+    def no_html_description(self) -> str:
         """Returns the api value of the attr if found, empty str otherwise."""
-        return self.get("description.short", "")
+        return self.get("description.noHtml", "")
 
     @cached_property
     def description(self) -> str:
