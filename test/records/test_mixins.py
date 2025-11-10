@@ -130,7 +130,9 @@ class TestSubjectsEnrichmentMixin(TestCase):
         self.view_class = TestView
 
     @patch("app.records.mixins.get_subjects_enrichment")
-    def test_enrich_record_subjects_with_subjects(self, mock_get_enrichment):
+    def test_set_record_subjects_enrichment_with_subjects(
+        self, mock_get_enrichment
+    ):
         """Test enriching a record that has subjects"""
         mock_enrichment = {"items": [{"title": "Test Article"}]}
         mock_get_enrichment.return_value = mock_enrichment
@@ -139,20 +141,20 @@ class TestSubjectsEnrichmentMixin(TestCase):
         mock_record.subjects = ["Army", "Conflict"]
 
         view = self.view_class()
-        view.enrich_record_subjects(mock_record)
+        view.set_record_subjects_enrichment(mock_record)
 
         mock_get_enrichment.assert_called_once_with(
             ["Army", "Conflict"], limit=settings.MAX_SUBJECTS_PER_RECORD
         )
         self.assertEqual(mock_record._subjects_enrichment, mock_enrichment)
 
-    def test_enrich_record_subjects_without_subjects(self):
+    def test_set_record_subjects_enrichment_without_subjects(self):
         """Test enriching a record that has no subjects"""
         mock_record = Mock(spec=Record)
         mock_record.subjects = []
 
         view = self.view_class()
-        view.enrich_record_subjects(mock_record)
+        view.set_record_subjects_enrichment(mock_record)
 
         self.assertEqual(mock_record._subjects_enrichment, {})
 
@@ -169,7 +171,7 @@ class TestRelatedRecordsMixin(TestCase):
         self.view_class = TestView
 
     @patch("app.records.mixins.get_related_records_by_series")
-    @patch("app.records.mixins.get_related_records_by_subjects")
+    @patch("app.records.mixins.get_tna_related_records_by_subjects")
     def test_get_related_records_with_sufficient_subjects(
         self, mock_by_subjects, mock_by_series
     ):
@@ -188,7 +190,7 @@ class TestRelatedRecordsMixin(TestCase):
         mock_by_series.assert_not_called()
 
     @patch("app.records.mixins.get_related_records_by_series")
-    @patch("app.records.mixins.get_related_records_by_subjects")
+    @patch("app.records.mixins.get_tna_related_records_by_subjects")
     def test_get_related_records_backfill_from_series(
         self, mock_by_subjects, mock_by_series
     ):
@@ -316,7 +318,7 @@ class TestMixinIntegration(TestCase):
 
     @patch("app.records.mixins.has_distressing_content")
     @patch("app.records.mixins.delivery_options_request_handler")
-    @patch("app.records.mixins.get_related_records_by_subjects")
+    @patch("app.records.mixins.get_tna_related_records_by_subjects")
     @patch("app.records.mixins.get_subjects_enrichment")
     @patch("app.records.mixins.JSONAPIClient")
     @patch("app.records.mixins.record_details_by_id")

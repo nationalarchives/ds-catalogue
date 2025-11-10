@@ -2,7 +2,7 @@ import logging
 import random
 from typing import List
 
-from app.records.constants import TNA_LEVELS
+from app.records.constants import RELATED_RECORDS_FETCH_LIMIT, TNA_LEVELS
 from app.records.models import Record
 from app.search.api import search_records
 
@@ -13,7 +13,7 @@ _LEVEL_FILTERS_SERIES_TO_ITEM = [
 ]
 
 
-def get_related_records_by_subjects(
+def get_tna_related_records_by_subjects(
     current_record: Record, limit: int = 3
 ) -> list[Record]:
     """
@@ -33,16 +33,16 @@ def get_related_records_by_subjects(
         return []
 
     # Fetch 10 candidates
-    all_matches = _search_by_subject_matches(
+    list_of_related_records = _search_by_subject_matches(
         current_record,
-        fetch_limit=10,
+        fetch_limit=RELATED_RECORDS_FETCH_LIMIT,
     )
 
     # Randomly select up to 'limit' records from the candidates
-    if len(all_matches) <= limit:
-        return all_matches
+    if len(list_of_related_records) <= limit:
+        return list_of_related_records
 
-    return random.sample(all_matches, limit)
+    return random.sample(list_of_related_records, limit)
 
 
 def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
@@ -59,7 +59,6 @@ def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
 
     params = {"filter": filters, "aggs": []}
 
-    # TODO: When filter AND is implemented, this function will provide even more closely related records
     try:
         api_result = search_records(
             query="*",
@@ -81,13 +80,22 @@ def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
 
 def _search_individual_subjects(
     current_record: Record, fetch_limit: int, record_matches: dict
-) -> None:
-    """Search by individual subjects until enough matches are found."""
+) -> dict:
+    """Search by individual subjects until enough matches are found.
 
-    remaining_subjects = list(current_record.subjects)
-    random.shuffle(remaining_subjects)
+    Args:
+        current_record: The TNA record to find relations for
+        fetch_limit: Maximum number of additional matches to fetch
+        record_matches: Existing matches to add to
 
-    for subject in remaining_subjects:
+    Returns:
+        Updated dictionary of record matches
+    """
+
+    record_subject_list = list(current_record.subjects)
+    random.shuffle(record_subject_list)
+
+    for subject in record_subject_list:
         if len(record_matches) >= fetch_limit:
             break
 
@@ -116,13 +124,15 @@ def _search_individual_subjects(
         except Exception as e:
             logger.debug(f"Failed to search for subject '{subject}': {e}")
 
+    return record_matches
+
 
 def _search_by_subject_matches(
     current_record: Record, fetch_limit: int
 ) -> list[Record]:
     """
     Search for TNA records with matching subjects.
-    First tries ALL subjects (AND), then falls back to individual subjects until enough matches found.
+    First tries ALL subjects (logical AND, pending implementation), then falls back to individual subjects until enough matches found.
 
     Args:
         current_record: The TNA record to find relations for
@@ -131,12 +141,16 @@ def _search_by_subject_matches(
     Returns:
         List of records (unsorted)
     """
+    # TODO: When filter logical AND is implemented, this function will provide even more closely related records
+
     # Try searching with all subjects first
     record_matches = _search_with_all_subjects(current_record, fetch_limit)
 
     # If not enough results, search individual subjects
     if len(record_matches) < fetch_limit:
-        _search_individual_subjects(current_record, fetch_limit, record_matches)
+        record_matches = _search_individual_subjects(
+            current_record, fetch_limit - len(record_matches), record_matches
+        )
 
     return list(record_matches.values())
 

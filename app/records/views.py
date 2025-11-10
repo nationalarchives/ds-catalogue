@@ -58,8 +58,6 @@ class RecordDetailView(
 
     def get_context_data(self, **kwargs):
         """Add field labels and all enriched data to context."""
-        # Debug MRO
-
         context = super().get_context_data(**kwargs)
         context["field_labels"] = FIELD_LABELS
 
@@ -74,7 +72,7 @@ class RelatedRecordsView(RecordContextMixin, TemplateView):
     hierarchical or associative relationships.
     """
 
-    template_name = "records/related_records.html"
+    template_name = "records/related_records_block.html"
 
 
 class RecordsHelpView(RecordContextMixin, TemplateView):

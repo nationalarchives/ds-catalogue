@@ -3,14 +3,14 @@ from unittest.mock import Mock, patch
 from app.records.models import Record
 from app.records.related import (
     get_related_records_by_series,
-    get_related_records_by_subjects,
+    get_tna_related_records_by_subjects,
 )
 from app.search.models import APISearchResponse
 from django.test import TestCase
 
 
 class RelatedRecordsBySubjectsTests(TestCase):
-    """Tests for get_related_records_by_subjects function"""
+    """Tests for get_tna_related_records_by_subjects function"""
 
     def setUp(self):
         """Set up common test data"""
@@ -113,7 +113,9 @@ class RelatedRecordsBySubjectsTests(TestCase):
         ]
         mock_search.return_value = mock_api_response
 
-        result = get_related_records_by_subjects(self.current_record, limit=3)
+        result = get_tna_related_records_by_subjects(
+            self.current_record, limit=3
+        )
 
         # Should return 3 related records (limited by the limit parameter)
         self.assertEqual(len(result), 3)
@@ -176,7 +178,9 @@ class RelatedRecordsBySubjectsTests(TestCase):
         ]
         mock_search.return_value = mock_api_response
 
-        result = get_related_records_by_subjects(self.current_record, limit=3)
+        result = get_tna_related_records_by_subjects(
+            self.current_record, limit=3
+        )
 
         # Should only return the different record
         self.assertEqual(len(result), 1)
@@ -192,7 +196,9 @@ class RelatedRecordsBySubjectsTests(TestCase):
         ]
         mock_search.return_value = mock_api_response
 
-        result = get_related_records_by_subjects(self.current_record, limit=2)
+        result = get_tna_related_records_by_subjects(
+            self.current_record, limit=2
+        )
 
         # Should only return 2 records
         self.assertEqual(len(result), 2)
@@ -207,7 +213,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
             }
         )
 
-        result = get_related_records_by_subjects(non_tna_record, limit=3)
+        result = get_tna_related_records_by_subjects(non_tna_record, limit=3)
 
         self.assertEqual(result, [])
 
@@ -222,7 +228,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
             }
         )
 
-        result = get_related_records_by_subjects(
+        result = get_tna_related_records_by_subjects(
             record_without_subjects, limit=3
         )
 
@@ -239,7 +245,9 @@ class RelatedRecordsBySubjectsTests(TestCase):
             }
         )
 
-        result = get_related_records_by_subjects(record_without_level, limit=3)
+        result = get_tna_related_records_by_subjects(
+            record_without_level, limit=3
+        )
 
         self.assertEqual(result, [])
 
@@ -249,7 +257,9 @@ class RelatedRecordsBySubjectsTests(TestCase):
         """Test that API exceptions are handled and logged at debug level"""
         mock_search.side_effect = Exception("API Error")
 
-        result = get_related_records_by_subjects(self.current_record, limit=3)
+        result = get_tna_related_records_by_subjects(
+            self.current_record, limit=3
+        )
 
         self.assertEqual(result, [])
         # New implementation logs at debug level, not warning
@@ -262,7 +272,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
         mock_api_response.records = []
         mock_search.return_value = mock_api_response
 
-        get_related_records_by_subjects(self.current_record, limit=3)
+        get_tna_related_records_by_subjects(self.current_record, limit=3)
 
         # Check that all subjects appear in at least one call
         all_subjects = {"Army", "Europe and Russia", "Conflict", "Diaries"}

@@ -13,13 +13,14 @@ from app.records.api import get_subjects_enrichment, record_details_by_id
 from app.records.models import Record
 from app.records.related import (
     get_related_records_by_series,
-    get_related_records_by_subjects,
+    get_tna_related_records_by_subjects,
 )
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
 
+# TODO: some of these mixins are too small and should be refactored.
 class RecordContextMixin:
     """Mixin for adding record to view context."""
 
@@ -74,7 +75,7 @@ class GlobalAlertsMixin:
 class SubjectsEnrichmentMixin:
     """Mixin for enriching records with subjects data."""
 
-    def enrich_record_subjects(self, record: Record) -> None:
+    def set_record_subjects_enrichment(self, record: Record) -> None:
         """
         Enrich a record with subjects data in-place.
 
@@ -96,7 +97,7 @@ class SubjectsEnrichmentMixin:
         """Enrich record with subjects before adding to context."""
         context = super().get_context_data(**kwargs)
         if "record" in context:
-            self.enrich_record_subjects(context["record"])
+            self.set_record_subjects_enrichment(context["record"])
 
         return context
 
@@ -120,7 +121,7 @@ class RelatedRecordsMixin:
         Returns:
             List of related Record objects (up to limit)
         """
-        related_records = get_related_records_by_subjects(
+        related_records = get_tna_related_records_by_subjects(
             record, limit=self.related_records_limit
         )
 
