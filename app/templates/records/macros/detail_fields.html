@@ -71,7 +71,9 @@
           {% if record[field] %}
             <dt>
               <div class="record-details__label">
-                {{ field_labels[field].title }}
+                <span class="record-details__title">
+                  {{ field_labels[field].title }}
+                </span>
                 {% if field_labels[field].description %}
                   <span class="record-details__description" hidden>
                     <span class="tna-visually-hidden">(</span>{{ field_labels[field].description }}<span class="tna-visually-hidden">)</span>
