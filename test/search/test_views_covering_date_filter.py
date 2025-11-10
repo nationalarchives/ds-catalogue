@@ -77,6 +77,7 @@ class CoveringDateFilterTests(TestCase):
 
         # covering_date_from
         self.assertEqual(covering_date_from_field.required, False)
+        self.assertEqual(covering_date_from_field.id, "id_covering_date_from")
         self.assertEqual(covering_date_from_field.name, "covering_date_from")
         self.assertEqual(covering_date_from_field.label, "From")
         self.assertEqual(
@@ -92,6 +93,7 @@ class CoveringDateFilterTests(TestCase):
 
         # covering_date_to
         self.assertEqual(covering_date_to_field.required, False)
+        self.assertEqual(covering_date_to_field.id, "id_covering_date_to")
         self.assertEqual(covering_date_to_field.name, "covering_date_to")
         self.assertEqual(covering_date_to_field.label, "To")
         self.assertEqual(

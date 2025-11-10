@@ -1,36 +1,103 @@
-import copy
+import logging
 from dataclasses import dataclass, field
 from enum import Enum, StrEnum
 
 from django.contrib.humanize.templatetags.humanize import intcomma
 
+from .constants import FieldsConstant
+
+logger = logging.getLogger(__name__)
+
 
 class MultiValueForAggregation(Enum):
-    def __new__(cls, aggs, long_aggs):
+    def __new__(cls, field_name: str, api_aggs: tuple[str, str]):
         """Allows each enum member to have multiple values.
+
+        field_name: string identifier for the form field (e.g., 'collection', 'held_by').
+        api_aggs: tuple of (aggs, long_aggs)
         aggs: value used to request aggregation from API
         long_aggs: value used to request extended aggregation from API"""
 
         obj = object.__new__(cls)
-        obj._value_ = aggs  # Primary value used by Enum
-        obj.aggs = aggs
-        obj.long_aggs = long_aggs
+        obj._value_ = field_name  # Primary value used by Enum
+        obj.field_name = field_name
+        obj.aggs = api_aggs[0]
+        obj.long_aggs = api_aggs[1]
         return obj
 
 
 class Aggregation(MultiValueForAggregation):
     """Aggregated counts to include with response.
-    Enum value format (aggs, long_aggs)
+    Enum value format tuple of (field_name, (api aggs, api long_aggs))
     When long_aggs is empty string, long aggregation is not supported.
 
     Supported by /search endpoint.
+
+    Example:
+        HELD_BY = ("held_by", ("heldBy", "longHeldBy"))
+        means HELD_BY aggregation uses "held_by" as forms field name,
+        "heldBy" as aggs value, "longHeldBy" as long_aggs value.
+
     """
 
-    LEVEL = ("level", "")
-    COLLECTION = ("collection", "longCollection")
-    HELD_BY = ("heldBy", "")  # TODO: long_aggs in another PR change
-    CLOSURE = ("closure", "")
-    SUBJECT = ("subject", "longSubject")
+    LEVEL = (FieldsConstant.LEVEL, ("level", ""))
+    COLLECTION = (FieldsConstant.COLLECTION, ("collection", "longCollection"))
+    HELD_BY = (FieldsConstant.HELD_BY, ("heldBy", "longHeldBy"))
+    CLOSURE = (FieldsConstant.CLOSURE, ("closure", ""))
+    SUBJECT = (FieldsConstant.SUBJECT, ("subject", "longSubject"))
+
+    @staticmethod
+    def as_input_choices_for_long_aggs() -> list[tuple[str, str]]:
+        """Returns list of (long_aggs, forms field_name) tuples for all enum members
+        that support long aggregation.
+        Example:
+            [("longHeldBy", "held_by"),...]
+        """
+
+        long_aggs_list = [("", "No filter")]  # Default no filter choice
+        for agg in Aggregation:
+            if agg.long_aggs:
+                long_aggs_list.append((agg.long_aggs, agg.field_name))
+        return long_aggs_list
+
+    @staticmethod
+    def get_field_name_for_long_aggs_name(agg_name: str) -> str | None:
+        """Given long_aggs name, return the corresponding forms field_name.
+
+        Pre-condition: long_aggs name must be configured for long aggregations before
+        calling this method.
+
+        Example:
+            "longHeldBy" -> "held_by"
+        """
+
+        for agg in Aggregation:
+            if agg_name and agg.long_aggs == agg_name:
+                return agg.field_name
+        return None
+
+    @staticmethod
+    def get_long_aggs_name_for_field_name(field_name: str) -> str | None:
+        """Given forms field_name, return the corresponding long_aggs name, or
+        None otherwise.
+
+        Pre-condition: attribute more_filter_choices_available must be True
+        and long_aggs name must be configured for long aggregations
+        before calling this method.
+
+        Example:
+            "held_by" -> "longHeldBy"
+        """
+
+        for agg in Aggregation:
+            if agg.field_name == field_name and agg.long_aggs:
+                return agg.long_aggs
+
+        # should be never reached, but keep for safety
+        logger.warning(
+            f"Long aggregation name not found for field name: {field_name}"
+        )
+        return None
 
 
 @dataclass
@@ -122,10 +189,10 @@ CATALOGUE_BUCKETS = BucketList(
             label="Records at the National Archives",
             description="Results for records held at The National Archives that match your search term.",
             aggregations=[
-                Aggregation.LEVEL.value,
-                Aggregation.COLLECTION.value,
-                Aggregation.CLOSURE.value,
-                Aggregation.SUBJECT.value,
+                Aggregation.LEVEL.aggs,
+                Aggregation.COLLECTION.aggs,
+                Aggregation.CLOSURE.aggs,
+                Aggregation.SUBJECT.aggs,
             ],
         ),
         Bucket(
@@ -133,7 +200,7 @@ CATALOGUE_BUCKETS = BucketList(
             label="Records at other UK archives",
             description="Results for records held at other archives in the UK (and not at The National Archives) that match your search term.",
             aggregations=[
-                Aggregation.HELD_BY.value,
+                Aggregation.HELD_BY.aggs,
             ],
         ),
     ]

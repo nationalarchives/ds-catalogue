@@ -20,13 +20,23 @@ def search_records(
         {
             "q": query or "*",
             "size": results_per_page,
-            "from": (page - 1) * results_per_page,
             "sort": sort,
             # "sortOrder": order, # Unused for Rosetta
         }
     )
-    # remove params having no values
-    params = {param: value for param, value in params.items() if value}
+
+    # Add from only when results_per_page > 0,
+    # for long filters with size=0, its not required
+    if results_per_page > 0:
+        params["from"] = ((page - 1) * results_per_page,)
+
+    # remove params having empty values, for long filters size=0 is valid
+    params = {
+        param: value
+        for param, value in params.items()
+        if value not in [None, "", []]
+    }
+
     results = rosetta_request_handler(uri, params)
     if "data" not in results:
         raise Exception("No data returned")

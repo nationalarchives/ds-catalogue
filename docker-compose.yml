@@ -9,7 +9,7 @@ services:
       - .env
     environment:
       - RUNTIME=develop
-      - ENVIRONMENT_NAME=develop
+      - ENVIRONMENT_NAME=localhost
       - DEBUG=True
       - DJANGO_SETTINGS_MODULE=config.settings.develop
       - SECRET_KEY=abc123

@@ -58,6 +58,7 @@ class BaseFormWithStandardDatesTest(TestCase):
         # join_date_from field
         self.assertEqual(self.date_from.progressive, False)
         self.assertEqual(self.date_from.required, False)
+        self.assertEqual(self.date_from.id, "id_join_date_from")
         self.assertEqual(self.date_from.name, "join_date_from")
         self.assertEqual(self.date_from.label, "From")
         self.assertEqual(self.date_from.active_filter_label, "Join date from")
@@ -71,6 +72,7 @@ class BaseFormWithStandardDatesTest(TestCase):
         # join_date_to field
         self.assertEqual(self.date_to.progressive, False)
         self.assertEqual(self.date_to.required, False)
+        self.assertEqual(self.date_to.id, "id_join_date_to")
         self.assertEqual(self.date_to.name, "join_date_to")
         self.assertEqual(self.date_to.label, "To")
         self.assertEqual(self.date_to.active_filter_label, "Join date to")

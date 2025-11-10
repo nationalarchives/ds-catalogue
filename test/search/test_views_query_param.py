@@ -49,6 +49,7 @@ class CatalogueSearchViewQueryParamTests(TestCase):
         q_field = form.fields["q"]
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(q_field.id, "id_q")
         self.assertEqual(q_field.name, "q")
         self.assertEqual(q_field.value, "ufo")
         self.assertEqual(response.context_data.get("selected_filters"), [])
