@@ -42,6 +42,20 @@
   flex: 0 0 auto;
 }
 
+.selected-filters-count {
+  margin-left: spacing.space(0.5);
+  padding: spacing.space(0.25) spacing.space(0.5);
+
+  display: inline-block;
+
+  @include colour.yellow-accent;
+  @include colour.colour-background("accent-background");
+  @include colour.colour-font("accent-font-base");
+  line-height: 1;
+
+  @include borders.rounded-border;
+}
+
 .etna-results {
   list-style: none;
 
@@ -113,7 +127,7 @@ mark {
 
 #mobile-filters {
   display: none;
-  @media only screen and (width <= 48em) {
+  @include media.on-mobile {
     display: block;
   }
 }
@@ -126,16 +140,12 @@ mark {
 }
 
 .mobile-skip {
-  margin-top: -5.4em;
+  display: none;
 
-  visibility: hidden;
+  @include media.on-mobile {
+    padding-bottom: spacing.space(1);
 
-  @media only screen and (width <= 48em) {
-    margin-top: 0;
-    margin-bottom: -1em;
-    margin-left: -1em;
-
-    visibility: visible;
+    display: block;
   }
 }
 
@@ -144,10 +154,6 @@ mark {
 //     padding: 0;
 //   }
 // }
-
-#filter-panel {
-  padding-left: 0;
-}
 
 .tna-section--long {
   padding-bottom: 0;
@@ -180,20 +186,4 @@ mark {
 
 .skip-from-filters-to-results:has(a:focus) {
   margin-top: spacing.space(1);
-}
-
-.filters-selected {
-  display: none;
-  @media only screen and (width <= 48em) {
-    padding: 4px 10px;
-
-    display: block;
-
-    font-weight: bold;
-
-    background: rgb(255 204 0);
-
-    border: solid 3px black;
-    border-radius: 5px;
-  }
 }
