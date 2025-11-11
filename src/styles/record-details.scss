@@ -141,7 +141,17 @@
     }
   }
 
+  &__title {
+    padding-top: spacing.space(0.25);
+    padding-bottom: spacing.space(0.25);
+
+    display: block;
+
+    line-height: 1.2;
+  }
+
   &__description {
+    padding-top: spacing.space(0.25);
     padding-bottom: spacing.space(0.25);
 
     display: block;
