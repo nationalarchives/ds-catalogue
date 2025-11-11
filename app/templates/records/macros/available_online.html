@@ -17,9 +17,8 @@
         {# Show this where the record is available in person at TNA only (and record copying is NOT available) #}
         {% if do_availability_group == "AVAILABLE_IN_PERSON_NO_COPYING" %}
           <p>No, this record is not available online.
-          <a href="#record-extended-details-heading-1">Other ways to view it</a>.
+          <a href="#record-extended-details-heading-1">Other ways to view it</a>.</p>
         {% endif %}
-      </p>
         {# Show this where the record is available in person at TNA only and record copying IS available #}
         {% if do_availability_group == "AVAILABLE_IN_PERSON_WITH_COPYING" %}
           <p>No, this record is not available online. However, you can order a copy. <a
