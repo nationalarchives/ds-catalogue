@@ -2,44 +2,52 @@
   <div class="tna-column tna-column--width-1-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
     <div class="tna-aside tna-aside--tight tna-background-accent full-height-aside">
       <h2 class="tna-heading-m">Is it available online?</h2>
-      {# Show this where the record is available online with us only #}
-      {% if do_availability_group == "AVAILABLE_ONLINE_TNA_ONLY" %}
-        <p>Yes, this record is available online and can be downloaded. <a href="#record-extended-details-heading-1">How
-          to view it</a>.</p>
-      {% endif %}
-      {# Show this where the record is available online with a third-party only #}
-      {% if do_availability_group == "AVAILABLE_ONLINE_THIRD_PARTY_ONLY" %}
-        <p>Yes, this record is available from a third party. <a href="#record-extended-details-heading-1">How to view
-          it</a>.</p>
-      {% endif %}
-      {# Show this where the record is available in person at TNA only (and record copying is NOT available) #}
-      {% if do_availability_group == "AVAILABLE_IN_PERSON_NO_COPYING" %}
-        <p>No, this record is not available online.
-        <a href="#record-extended-details-heading-1">Other ways to view it</a>.
-      {% endif %}
-      </p>
-      {# Show this where the record is available in person at TNA only and record copying IS available #}
-      {% if do_availability_group == "AVAILABLE_IN_PERSON_WITH_COPYING" %}
-        <p>No, this record is not available online. However, you can order a copy. <a
-          href="#record-extended-details-heading-1">Other ways to view it</a>.</p>
-      {% endif %}
-      {# Show this where the record is not available at all #}
-      {% if do_availability_group == "NOT_AVAILABLE" %}
-        <p>No, this record is not available online. <a href="#record-extended-details-heading-1">Find out more</a>.
+      {# do_availability_group has only been implemented for TNA records #}
+      {% if record.is_held_by_tna %}
+        {# Show this where the record is available online with us only #}
+        {% if do_availability_group == "AVAILABLE_ONLINE_TNA_ONLY" %}
+          <p>Yes, this record is available online and can be downloaded. <a href="#record-extended-details-heading-1">How
+            to view it</a>.</p>
+        {% endif %}
+        {# Show this where the record is available online with a third-party only #}
+        {% if do_availability_group == "AVAILABLE_ONLINE_THIRD_PARTY_ONLY" %}
+          <p>Yes, this record is available from a third party. <a href="#record-extended-details-heading-1">How to view
+            it</a>.</p>
+        {% endif %}
+        {# Show this where the record is available in person at TNA only (and record copying is NOT available) #}
+        {% if do_availability_group == "AVAILABLE_IN_PERSON_NO_COPYING" %}
+          <p>No, this record is not available online.
+          <a href="#record-extended-details-heading-1">Other ways to view it</a>.</p>
+        {% endif %}
+        {# Show this where the record is available in person at TNA only and record copying IS available #}
+        {% if do_availability_group == "AVAILABLE_IN_PERSON_WITH_COPYING" %}
+          <p>No, this record is not available online. However, you can order a copy. <a
+            href="#record-extended-details-heading-1">Other ways to view it</a>.</p>
+        {% endif %}
+        {# Show this where the record is not available at all #}
+        {% if do_availability_group == "NOT_AVAILABLE" %}
+          <p>No, this record is not available online. <a href="#record-extended-details-heading-1">Find out more</a>.
+          </p>
+        {% endif %}
+        {# Show this for records held by other archives #}
+        {% if do_availability_group == "RECORDS_AT_OTHER_ARCHIVES" %}
+          <p>Maybe, but not on The National Archives website. This record is held at {{ record.held_by }}. <a
+            href="#record-extended-details-heading-1">How to view
+            it</a>.</p>
+        {% endif %}
+        {# Show this where the record is closed #}
+        {% if do_availability_group == "CLOSED_TNA_OR_PA" %}
+          <p>No, this record is closed and not available online. <a href="#record-extended-details-heading-1">Find out
+            more
+            about how you might access this
+            record</a>.</p>
+        {% endif %}
+      {% else %}
+        <p>
+        Maybe, but not on The National Archives website. This record is held at {{ record.held_by }}. <a
+            href="#record-extended-details-heading-1">How to view
+            it</a>
         </p>
-      {% endif %}
-      {# Show this for records held by other archives #}
-      {% if do_availability_group == "RECORDS_AT_OTHER_ARCHIVES" %}
-        <p>Maybe, but not on The National Archives website. This record is held at {{ record.held_by }}. <a
-          href="#record-extended-details-heading-1">How to view
-          it</a>.</p>
-      {% endif %}
-      {# Show this where the record is closed #}
-      {% if do_availability_group == "CLOSED_TNA_OR_PA" %}
-        <p>No, this record is closed and not available online. <a href="#record-extended-details-heading-1">Find out
-          more
-          about how you might access this
-          record</a>.</p>
       {% endif %}
     </div>
   </div>

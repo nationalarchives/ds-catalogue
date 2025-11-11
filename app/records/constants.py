@@ -25,3 +25,8 @@ NON_TNA_LEVELS = {
 SUBJECTS_LIMIT = 20
 
 MISSING_COUNT_TEXT = "Unknown number of"
+
+TNA_HELD_BY_VALUES = [
+    "The National Archives",
+    "The National Archives, Kew",
+]
