@@ -1,6 +1,7 @@
 @use "@nationalarchives/frontend/nationalarchives/tools/a11y";
 @use "@nationalarchives/frontend/nationalarchives/tools/borders";
 @use "@nationalarchives/frontend/nationalarchives/tools/colour";
+@use "@nationalarchives/frontend/nationalarchives/tools/media";
 @use "@nationalarchives/frontend/nationalarchives/tools/spacing";
 @use "@nationalarchives/frontend/nationalarchives/tools/typography";
 
@@ -138,11 +139,11 @@ mark {
   }
 }
 
-.tna-heading-l {
-  @media only screen and (width <= 48em) {
-    padding: 0;
-  }
-}
+// .tna-heading-l {
+//   @include media.on-small {
+//     padding: 0;
+//   }
+// }
 
 #filter-panel {
   padding-left: 0;
@@ -153,12 +154,19 @@ mark {
 }
 
 .tna-checkboxes--grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px 32px;
-  @media only screen and (width <= 48em) {
-    grid-template-columns: 1fr;
-    gap: 16px 0;
+  .tna-checkboxes {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px 32px;
+
+    @include media.on-medium {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @include media.on-mobile {
+      grid-template-columns: 1fr;
+      gap: 16px 0;
+    }
   }
 }
 

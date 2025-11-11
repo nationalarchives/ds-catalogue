@@ -6,7 +6,12 @@ from typing import Any
 
 import sentry_sdk
 from app.lib.xslt_transformations import apply_schema_xsl, apply_series_xsl
-from app.records.constants import NON_TNA_LEVELS, SUBJECTS_LIMIT, TNA_LEVELS, TNA_HELD_BY_VALUES
+from app.records.constants import (
+    NON_TNA_LEVELS,
+    SUBJECTS_LIMIT,
+    TNA_HELD_BY_VALUES,
+    TNA_LEVELS,
+)
 from app.records.utils import (
     change_discovery_record_details_links,
     extract,
