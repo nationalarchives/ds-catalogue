@@ -46,6 +46,13 @@
 {{ super() }}
 {% endblock %}
 
+{% block head %}
+  {{ super() }}
+  {% for property in analytics_data %}
+    <meta name="tna_root:{{ property }}" content="{{ analytics_data[property] | none_to_empty_string() }}">
+  {% endfor %}
+{% endblock %}
+
 {% block beforeContent %}
 <div class="tna-background-accent">
   <div class="tna-container">
