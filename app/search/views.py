@@ -115,7 +115,7 @@ class APIMixin:
         # online filter for TNA bucket
         if current_bucket.key == BucketKeys.TNA.value:
             if form.fields[FieldsConstant.ONLINE].cleaned == "true":
-                add_filter(params, "digitised:true")
+                params["digitised"] = "true"
 
         return params
 
