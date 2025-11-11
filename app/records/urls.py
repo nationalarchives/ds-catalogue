@@ -4,17 +4,17 @@ from django.urls import path
 urlpatterns = [
     path(
         r"id/<id:id>/",
-        views.record_detail_view,
+        views.RecordDetailView.as_view(),
         name="details",
     ),
     path(
         r"id/<id:id>/related/",
-        views.related_records_view,
+        views.RelatedRecordsView.as_view(),
         name="related",
     ),
     path(
         r"id/<id:id>/help/",
-        views.records_help_view,
+        views.RecordsHelpView.as_view(),
         name="help",
     ),
     # TODO: Implement record_details_by_ref once Rosetta has support
