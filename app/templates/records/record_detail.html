@@ -56,7 +56,7 @@
   </div>
 
   {% if record.is_tna and record.level in ["Series", "Division", "Department"] %}
-    {{ whats_this_series_or_above_about(record, preferred_description_length) }}
+    {{ whats_this_series_or_above_about(record) }}
   {% else %}
     <div class="tna-container">
       {{ whats_this_below_series_about(record) }}
