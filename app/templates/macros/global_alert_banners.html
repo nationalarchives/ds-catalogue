@@ -13,7 +13,7 @@
         </div>
       </section>
       {%- endif %}
-      {%- if global_alert and global_alert.uid not in dismissed_notifications %}
+      {%- if global_alert and global_alert.cascade and global_alert.uid not in dismissed_notifications %}
       <section class="etna-global-alert{%- if global_alert.alert_level == 'high' %} etna-global-alert--high{% elif global_alert.alert_level == 'medium' %} etna-global-alert--medium{% elif global_alert.alert_level == 'low' %} etna-global-alert--low{%- endif %} tna-background-base">
         <h2 class="tna-heading-s etna-global-alert__heading">{{ global_alert.title }}</h2>
         <div class="etna-global-alert__body">

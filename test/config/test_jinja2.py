@@ -3,6 +3,7 @@ from types import SimpleNamespace
 from config.jinja2 import (
     dump_json,
     format_number,
+    none_to_empty_string,
     override_tna_record_count,
     qs_append_value,
     qs_is_value_active,
@@ -286,3 +287,8 @@ class Jinja2TestCase(TestCase):
                 self.assertEqual(
                     override_tna_record_count(value, record), expected
                 )
+
+    def test_none_to_empty_string(self):
+
+        self.assertEqual(none_to_empty_string(None), "")
+        self.assertEqual(none_to_empty_string("some value"), "some value")

@@ -3,8 +3,8 @@
 {% from 'components/button/macro.html' import tnaButton %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 {%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
+{% from 'search/macros/render_hidden_fields.html' import render_hidden_fields %}
 
-{% from 'search/macros/filters/collections.html' import collections %}
 {%- set pageTitle = 'More filter options' -%}
 
 {% block stylesheets %}
@@ -25,39 +25,60 @@
             {
               'text': 'Catalogue',
               'href': url('main:catalogue')
+            },
+            {
+              'text': 'Search',
+              'href': url('search:catalogue')
             }
           ],
           'structuredData': True,
           'classes': 'tna-!--padding-vertical-s'
         }) }}
       </div>
-    </div>
-    <div class="tna-container">
-      <h2 class="tna-heading-l tna-heading--long">Select filters to apply to your results</h2>
+      <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-s tna-!--margin-bottom-m">
+        <h1 class="tna-heading-l">Select filters to apply to your results</h1>
+      </div>
     </div>
   </div>
 {% endblock %}
   
 {% block content %}
-  <form id="long-filters-form" method="get"> 
-    <div class="tna-container tna-section tna-section--long">
-      <button class="tna-button" type="submit">
-          Apply filters
-      </button>
-      <a href="#" class="tna-column tna-column--width-1-4 tna-column--width-1-3-medium tna-column--width-1-2-small tna-column--full-tiny">
-        Cancel and return to results
-      </a>
+  <form id="long-filters-form" method="get" action="{{ url('search:catalogue') }}"> 
+    <div class="tna-container tna-section">
+      <div class="tna-column tna-column--full">
+        <div class="tna-button-group tna-button-group--small">
+          {{ tnaButton({
+            'text': 'Apply filters',
+            'buttonElement': True,
+            'buttonType': 'submit'
+          }) }}
+          {{ tnaButton({
+            'text': 'Cancel and return to results',
+            'href': mfc_cancel_and_return_to_search_url,
+            'plain': True
+          }) }}
+        </div>
+        {{ tnaCheckboxes({
+          'label': request.GET.filter_list | replace('long', ''),
+          'headingSize': "m",
+          'id': mfc_field.id,
+          'name': mfc_field.name,
+          'small': True,
+          'items': mfc_field.items,
+          'formItemClasses': 'tna-checkboxes--grid'
+        }) }}
+      </div>
     </div>
 
-    <div class="tna-container">
-      <!--COMMENTING OUT 'SEARCH WITH FILTERS' BOX TEMPORALLY-->
-      <!-- <div id="filter-panel" class="tna-column tna-column--width-1-3 tna-column--width-1-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-m ">
+    <!--COMMENTING OUT 'SEARCH WITH FILTERS' BOX TEMPORALLY-->
+    <!-- <div class="tna-container">
+      <div id="filter-panel" class="tna-column tna-column--width-1-3 tna-column--width-1-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-m ">
         <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s tna-background-accent-light tna-hidden-element">
           <div class="tna-form__group " data-module="tna-text-input">
             <div class="tna-form__group-contents">
               <h3 class="tna-form__heading tna-form__heading--s">
                 <label class="tna-form__label" for="search-within">
-                  Search within filters
+                Search within filters
                 </label>
               </h3>
             </div>
@@ -65,51 +86,26 @@
             <p>Already selected filters will remain active.</p>
           </div>
         </div>
-      </div> -->
-
-      <div id="results" class="tna-column tna-column--width-2-3 tna-!--margin-top-l">
-        {{ tnaCheckboxes({
-          'label': '',
-          'headingLevel': 4,
-          'headingSize': "m",
-          'id': "categories",
-          'name': "categories",
-          'classes': 'tna-checkboxes--grid',
-          'items': [
-                    {
-                      'text': "ADM - Admiralty, Navy, Royal Marines, and Castguard (713,881)",
-                      'value': "ADM - Admiralty, Navy, Royal Marines, and Castguard (713,881)"
-                    },
-                    {
-                      'text': "BT - Board of Trade and successors (2,539,478)",
-                      'value': "BT - Board of Trade and successors (2,539,478)"
-                    },
-                    {
-                      'text': "CUST - Boards of Customs, Excise, and Customs and Excise, and HM Revenue and Customs (1,440,321)",
-                      'value': "CUST - Boards of Customs, Excise, and Customs and Excise, and HM Revenue and Customs (1,440,321)"
-                    },
-                    {
-                      'text': "FO - Foreign Office (685,022)",
-                      'value': "FO - Foreign Office (685,022)"
-                    },
-                    {
-                      'text': "HMC 1 - Royal Commision on Historical Manuscripts: Correspondence and Papers (1,330)",
-                      'value': "HMC 1 - Royal Commision on Historical Manuscripts: Correspondence and Papers (1,330)"
-                    },
-              
-                ]
-              }) }}
-      </div>  
-    </div>
+      </div>
+    </div> -->
 
     <div class="tna-container tna-section">
-      <button class="tna-button" type="submit">
-        Apply filters
-      </button>
-        <a href="#" class="tna-column tna-column--width-1-4 tna-column--width-1-3-medium tna-column--width-1-2-small tna-column--full-tiny">
-          Cancel and return to results
-        </a>
+      <div class="tna-column tna-column--full">
+        <div class="tna-button-group tna-button-group--small">
+          {{ tnaButton({
+            'text': 'Apply filters',
+            'buttonElement': True,
+            'buttonType': 'submit'
+          }) }}
+          {{ tnaButton({
+            'text': 'Cancel and return to results',
+            'href': mfc_cancel_and_return_to_search_url,
+            'plain': True
+          }) }}
+        </div>
+      </div>
     </div>
+    {{ render_hidden_fields(request, form, bucket_keys, mfc_field) }}
   </form>
 
   <div class="tna-background-accent">

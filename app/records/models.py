@@ -6,7 +6,12 @@ from typing import Any
 
 import sentry_sdk
 from app.lib.xslt_transformations import apply_schema_xsl, apply_series_xsl
-from app.records.constants import NON_TNA_LEVELS, SUBJECTS_LIMIT, TNA_LEVELS
+from app.records.constants import (
+    NON_TNA_LEVELS,
+    SUBJECTS_LIMIT,
+    TNA_HELD_BY_VALUES,
+    TNA_LEVELS,
+)
 from app.records.utils import (
     change_discovery_record_details_links,
     extract,
@@ -212,6 +217,11 @@ class Record(APIModel):
         return self.get("heldBy", "")
 
     @cached_property
+    def is_held_by_tna(self) -> bool:
+        """Returns True if held_by is listed in TNA_HELD_BY_VALUES, False otherwise."""
+        return self.held_by in TNA_HELD_BY_VALUES
+
+    @cached_property
     def held_by_id(self) -> str:
         """Returns the api value of the attr if found, empty str otherwise."""
         return self.get("heldById", "")
@@ -339,9 +349,9 @@ class Record(APIModel):
             return clean_description
 
     @cached_property
-    def short_description(self) -> str:
+    def no_html_description(self) -> str:
         """Returns the api value of the attr if found, empty str otherwise."""
-        return self.get("description.short", "")
+        return self.get("description.noHtml", "")
 
     @cached_property
     def description(self) -> str:

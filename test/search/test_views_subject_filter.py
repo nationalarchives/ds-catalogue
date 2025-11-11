@@ -33,6 +33,8 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
                             {"value": "Army", "doc_count": 150},
                             {"value": "Air Force", "doc_count": 75},
                         ],
+                        "total": 100,
+                        "other": 0,
                     }
                 ],
                 "buckets": [
@@ -55,22 +57,24 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
         response = self.client.get(
             "/catalogue/search/?q=military&subject=Army&subject=Air Force"
         )
+        context_data = response.context_data
+        subject_field = context_data.get("form").fields["subject"]
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         # Check form field values
         self.assertEqual(
-            response.context_data.get("form").fields["subject"].value,
+            subject_field.value,
             ["Army", "Air Force"],
         )
         self.assertEqual(
-            response.context_data.get("form").fields["subject"].cleaned,
+            subject_field.cleaned,
             ["Army", "Air Force"],
         )
 
         # Check form field items with API counts
         self.assertEqual(
-            response.context_data.get("form").fields["subject"].items,
+            subject_field.items,
             [
                 {
                     "text": "Army (150)",
@@ -87,7 +91,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
 
         # Check selected filters
         self.assertEqual(
-            response.context_data.get("selected_filters"),
+            context_data.get("selected_filters"),
             [
                 {
                     "label": "Subject: Army",
@@ -100,6 +104,18 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
                     "title": "Remove Air Force subject",
                 },
             ],
+        )
+        self.assertEqual(
+            subject_field.more_filter_choices_available,
+            False,
+        )
+        self.assertEqual(
+            subject_field.more_filter_choices_url,
+            "",
+        )
+        self.assertEqual(
+            subject_field.more_filter_choices_text,
+            "",
         )
 
     @responses.activate
@@ -148,24 +164,26 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
         response = self.client.get(
             "/catalogue/search/?q=test&subject=Army&subject=invalid&subject=999"
         )
+        context_data = response.context_data
+        subject_field = context_data.get("form").fields["subject"]
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         # Form should include all values (valid and invalid)
         self.assertEqual(
-            response.context_data.get("form").fields["subject"].value,
+            subject_field.value,
             ["Army", "invalid", "999"],
         )
 
         # Should still be cleaned since validate_input=False for subjects
         self.assertEqual(
-            response.context_data.get("form").fields["subject"].cleaned,
+            subject_field.cleaned,
             ["Army", "invalid", "999"],
         )
 
         # Items should show what's available
         self.assertEqual(
-            response.context_data.get("form").fields["subject"].items,
+            subject_field.items,
             [
                 {
                     "text": "Army (100)",
@@ -187,7 +205,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
 
         # Selected filters should handle invalid IDs gracefully
         self.assertEqual(
-            response.context_data.get("selected_filters"),
+            context_data.get("selected_filters"),
             [
                 {
                     "label": "Subject: Army",
@@ -251,22 +269,24 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
         )
 
         response = self.client.get("/catalogue/search/?q=test")
+        context_data = response.context_data
+        subject_field = context_data.get("form").fields["subject"]
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         # Check subjects field is empty
         self.assertEqual(
-            response.context_data.get("form").fields["subject"].value,
+            subject_field.value,
             [],
         )
         self.assertEqual(
-            response.context_data.get("form").fields["subject"].cleaned,
+            subject_field.cleaned,
             [],
         )
 
         # Should show available subjects from API without any checked
         self.assertEqual(
-            response.context_data.get("form").fields["subject"].items,
+            subject_field.items,
             [
                 {
                     "text": "Army (100)",
@@ -280,7 +300,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
         )
 
         # No subject filters should be in selected filters
-        self.assertEqual(response.context_data.get("selected_filters"), [])
+        self.assertEqual(context_data.get("selected_filters"), [])
 
     @responses.activate
     def test_catalogue_search_context_with_subjects_param(self):
@@ -325,14 +345,15 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
             status=HTTPStatus.OK,
         )
 
-        self.response = self.client.get(
+        response = self.client.get(
             "/catalogue/search/?subject=Army&subject=Navy"
         )
-        self.assertEqual(self.response.status_code, HTTPStatus.OK)
+        context_data = response.context_data
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
         filter_labels = [
-            f["label"]
-            for f in self.response.context_data.get("selected_filters")
+            f["label"] for f in context_data.get("selected_filters")
         ]
         self.assertIn("Subject: Army", filter_labels)
         self.assertIn("Subject: Navy", filter_labels)

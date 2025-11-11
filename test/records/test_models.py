@@ -56,7 +56,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.related_materials, ())
         self.assertEqual(self.record.description, "")
         self.assertEqual(self.record.clean_description, None)
-        self.assertEqual(self.record.short_description, "")
+        self.assertEqual(self.record.no_html_description, "")
         self.assertEqual(self.record.separated_materials, ())
         self.assertEqual(self.record.unpublished_finding_aids, [])
         self.assertEqual(self.record.hierarchy, ())
@@ -385,6 +385,19 @@ class RecordModelTests(SimpleTestCase):
         self.record._raw["heldBy"] = "National Maritime Museum"
         self.assertEqual(self.record.held_by, "National Maritime Museum")
 
+    def test_is_held_by_tna(self):
+        cases = [
+            ("The National Archives", True),
+            ("The National Archives, Kew", True),
+            ("Another Archive", False),
+            ("", False),
+        ]
+        for held_by, expected in cases:
+            with self.subTest(held_by=held_by):
+                record = Record(self.template_details)
+                record._raw["heldBy"] = held_by
+                self.assertEqual(record.is_held_by_tna, expected)
+
     def test_held_by_id(self):
         self.record = Record(self.template_details)
         # patch raw data
@@ -640,28 +653,33 @@ class RecordModelTests(SimpleTestCase):
             ),
         )
 
-    def test_short_description(self):
+    def test_no_html_description(self):
         self.record = Record(self.template_details)
         # patch raw data
         self.record._raw["description"] = {
             "value": "",
-            "short": (
-                """This series contains the vast majority of registered wills """
-                """proved before the Prerogative Court of Canterbury and other """
-                """jurisdictions that exercised probate jurisdiction in the place """
-                """of the Court, the most important of which was the Court for Probate ..."""
+            "noHtml": (
+                """These records are the service records of individuals serving """
+                """in the Home Guard in the Second World War. The records are the """
+                """Form of Enrolment - Army Form W3066 - and contain personal """
+                """information and other service information such as length of """
+                """service in the Home Guard and discharge details for each individual. """
+                """This is a digital-only accession. Durham Home Guard 1939-1945 records """
+                """are available to search and download."""
             ),
         }
         self.assertEqual(
-            self.record.short_description,
+            self.record.no_html_description,
             (
-                """This series contains the vast majority of registered wills """
-                """proved before the Prerogative Court of Canterbury and other """
-                """jurisdictions that exercised probate jurisdiction in the place """
-                """of the Court, the most important of which was the Court for Probate ..."""
+                """These records are the service records of individuals serving """
+                """in the Home Guard in the Second World War. The records are the """
+                """Form of Enrolment - Army Form W3066 - and contain personal """
+                """information and other service information such as length of """
+                """service in the Home Guard and discharge details for each individual. """
+                """This is a digital-only accession. Durham Home Guard 1939-1945 records """
+                """are available to search and download."""
             ),
         )
-        self.assertTrue(self.record.short_description.endswith("..."))
 
     def test_raw_description(self):
         self.record = Record(self.template_details)
