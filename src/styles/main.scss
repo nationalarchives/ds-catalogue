@@ -1,5 +1,6 @@
 @use "@nationalarchives/frontend/nationalarchives/tools/borders";
 @use "@nationalarchives/frontend/nationalarchives/tools/colour";
+@use "@nationalarchives/frontend/nationalarchives/tools/spacing";
 
 @use "@nationalarchives/frontend/nationalarchives/all";
 
@@ -23,4 +24,11 @@
 
 .tna-\!--align-centre {
   text-align: center !important;
+}
+
+.development-notice {
+  padding: spacing.space(1);
+
+  border: 0.2em #00b0ff solid;
+  @include borders.rounded-border;
 }

@@ -4,6 +4,7 @@
 {%- from 'components/card/macro.html' import tnaCard -%}
 {%- from 'components/search-field/macro.html' import tnaSearchField %}
 {%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
+{%- from 'macros/under_development_banner.html' import under_development_banner -%}
 
 {%- set pageTitle = 'Search our catalogue' -%}
 
@@ -199,14 +200,7 @@ hiding this work for now 22.09.2025-->
   <div class="tna-container">
     <div class="tna-column tna-column--full">
 
-      <div class="development-notice">
-        
-          <h2 class="tna-heading-m">
-            This site is still under development
-          </h2>
-          <p>Read our <a href="https://www.nationalarchives.gov.uk/blogs/digital/welcome-to-the-new-national-archives-catalogue/">blog post</a> for more information and help us out by providing <a href="https://www.smartsurvey.co.uk/s/beta-search-feedback/">feedback</a>.</p>
-        
-      </div>
+      {{ under_development_banner() }}
 
     </div>
     
