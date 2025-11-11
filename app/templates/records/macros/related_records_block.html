@@ -1,42 +1,37 @@
-{% macro related_records_block(record) %}
-<div class="tna-container">
-  <div class="tna-column tna-column--full tna-!--margin-top-l">
-    <h2 class="tna-heading-l">Related records</h2>
-  </div>
-</div>
-  <div class="tna-container related-records">
-    <div class="tna-column tna-column--width-1-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
-      <div class="tna-aside tna-aside--tight tna-background-contrast full-height-aside">
-        <hgroup class="tna-hgroup-m">
-          <p class="tna-hgroup__supertitle">SERIES</p>
-          <h3 class="tna-hgroup__title"><a href="">Copyright Office: Entry forms, etc</a></h3>
-        </hgroup>
-        <p>Catalogue reference : COPY 1/280</p>
-        <p>The original forms of application for the registration of proprietorship at Stationers' Hall undeer the Copyright Acts in force from 1842 to 1912...</p>
-        <p><a href="">See more</a></p>
-     </div>
+{% macro related_records_block(record, related_records) %}
+  {# Only display if there are related records #}
+  {% if related_records %}
+    <div class="tna-section tna-background-accent-">
+      <div class="tna-container">
+        <div class="tna-column tna-column--full tna-!--margin-top-l">
+          <h2 class="tna-heading-l">Related records</h2>
+          <p>Records that share similar topics with this record.</p>
+        </div>
+      </div>
+      <div class="tna-container related-records">
+        {% for related_record in related_records %}
+          <div class="tna-column tna-column--width-1-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
+            <div class="tna-aside tna-aside--tight tna-background-contrast full-height-aside">
+              <hgroup class="tna-hgroup-m">
+                <p class="tna-hgroup__supertitle">{{ related_record.level | upper }}</p>
+                <h3 class="tna-hgroup__title">
+                  <a href="{{ related_record.url }}">{{ related_record.summary_title | striptags }}</a>
+                </h3>
+              </hgroup>
+              <p><strong>Catalogue reference:</strong> {{ related_record.reference_number }}</p>
+              {% if related_record.date_covering %}
+                <p><strong>Date:</strong> {{ related_record.date_covering }}</p>
+              {% endif %}
+              {% if related_record.clean_description %}
+                <p>{{ related_record.clean_description | striptags | truncate(150) }}</p>
+              {% elif related_record.description %}
+                <p>{{ related_record.description | striptags | truncate(150) }}</p>
+              {% endif %}
+              <p><a href="{{ related_record.url }}">See more</a></p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
     </div>
-    <div class="tna-column tna-column--width-1-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
-      <div class="tna-aside tna-aside--tight tna-background-contrast full-height-aside">
-        <hgroup class="tna-hgroup-m">
-          <p class="tna-hgroup__supertitle">ITEM</p>
-          <h3 class="tna-hgroup__title"><a href="">Paintings and drawings</a></h3>
-        </hgroup>
-        <p>Catalogue reference : COPY 1/281</p>
-        <p>Paintings and Drawings Commercial, 1909 May.</p>
-        <p><a href="">See more</a></p>
-     </div>
-    </div>
-    <div class="tna-column tna-column--width-1-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
-      <div class="tna-aside tna-aside--tight tna-background-contrast full-height-aside">
-        <hgroup class="tna-hgroup-m">
-          <p class="tna-hgroup__supertitle">ITEM</p>
-          <h3 class="tna-hgroup__title"><a href="">Paintings and drawings</a></h3>
-        </hgroup>
-        <p>Catalogue reference : COPY 1/281</p>
-        <p>Paintings and Drawings Commercial, 1909 May.</p>
-        <p><a href="">See more</a></p>
-     </div>
-    </div>
-  </div>
+  {% endif %}
 {% endmacro %}
