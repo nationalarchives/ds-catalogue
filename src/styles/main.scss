@@ -3,6 +3,8 @@
 
 @use "@nationalarchives/frontend/nationalarchives/all";
 
+@use "main/global-alert";
+
 .etna-rounded-corners {
   @include borders.rounded-border;
 }
