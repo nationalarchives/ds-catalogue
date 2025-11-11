@@ -385,6 +385,19 @@ class RecordModelTests(SimpleTestCase):
         self.record._raw["heldBy"] = "National Maritime Museum"
         self.assertEqual(self.record.held_by, "National Maritime Museum")
 
+    def test_is_held_by_tna(self):
+        cases = [
+            ("The National Archives", True),
+            ("The National Archives, Kew", True),
+            ("Another Archive", False),
+            ("", False),
+        ]
+        for held_by, expected in cases:
+            with self.subTest(held_by=held_by):
+                record = Record(self.template_details)
+                record._raw["heldBy"] = held_by
+                self.assertEqual(record.is_held_by_tna, expected)
+
     def test_held_by_id(self):
         self.record = Record(self.template_details)
         # patch raw data
