@@ -93,6 +93,8 @@ def _search_individual_subjects(
     """
 
     record_subject_list = list(current_record.subjects)
+
+    # By using a random shuffle, we won't get the same related records appearing over and again
     random.shuffle(record_subject_list)
 
     for subject in record_subject_list:

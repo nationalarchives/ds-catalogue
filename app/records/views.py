@@ -16,6 +16,7 @@ from django.views.generic import TemplateView
 logger = logging.getLogger(__name__)
 
 
+# TODO: some of these mixins are too small and should be refactored.
 class RecordDetailView(
     DistressingContentMixin,
     DeliveryOptionsMixin,
@@ -64,6 +65,7 @@ class RecordDetailView(
         return context
 
 
+# TODO: use this view for related records as originally intended
 class RelatedRecordsView(RecordContextMixin, TemplateView):
     """
     View for rendering a record's related records page.
@@ -72,7 +74,7 @@ class RelatedRecordsView(RecordContextMixin, TemplateView):
     hierarchical or associative relationships.
     """
 
-    template_name = "records/related_records_block.html"
+    template_name = "records/related_records.html"
 
 
 class RecordsHelpView(RecordContextMixin, TemplateView):
