@@ -198,8 +198,8 @@ class CatalogueSearchViewDefaultTests(TestCase):
             sort_field.items,
             [
                 {"text": "Relevance", "value": "", "checked": True},
-                {"text": "Date (newest first)", "value": "date:desc"},
-                {"text": "Date (oldest first)", "value": "date:asc"},
+                {"text": "Date (newest first)", "value": "dateCovering:desc"},
+                {"text": "Date (oldest first)", "value": "dateCovering:asc"},
                 {"text": "Title (A–Z)", "value": "title:asc"},
                 {"text": "Title (Z–A)", "value": "title:desc"},
             ],

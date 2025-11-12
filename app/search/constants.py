@@ -13,8 +13,8 @@ class Sort(StrEnum):
     RELEVANCE = ""
     TITLE_ASC = "title:asc"
     TITLE_DESC = "title:desc"
-    DATE_ASC = "date:asc"
-    DATE_DESC = "date:desc"
+    DATE_ASC = "dateCovering:asc"
+    DATE_DESC = "dateCovering:desc"
 
 
 # date format for displaying dates in the UI (e.g. active filters, error message

@@ -60,9 +60,9 @@ class CatalogueSearchViewSortParamTests(TestCase):
                 },
                 {
                     "text": "Date (newest first)",
-                    "value": "date:desc",
+                    "value": "dateCovering:desc",
                 },
-                {"text": "Date (oldest first)", "value": "date:asc"},
+                {"text": "Date (oldest first)", "value": "dateCovering:asc"},
                 {"text": "Title (A–Z)", "value": "title:asc", "checked": True},
                 {"text": "Title (Z–A)", "value": "title:desc"},
             ],
