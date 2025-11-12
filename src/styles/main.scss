@@ -29,6 +29,7 @@
 .development-notice {
   padding: spacing.space(1);
 
-  border: 0.2em #00b0ff solid;
+  @include colour.blue-accent;
+  @include colour.thick-keyline-accent;
   @include borders.rounded-border;
 }
