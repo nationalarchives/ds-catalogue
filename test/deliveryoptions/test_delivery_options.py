@@ -476,6 +476,12 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_record.custom_record_type = None
         mock_record.subjects = []
         mock_record_details.return_value = mock_record
+        mock_record.level_code = 3
+        mock_record.level = "Series"
+        mock_record.hierarchy_series = Mock()
+        mock_record.hierarchy_series.reference_number = ""
+        mock_record.hierarchy_series.summary_title = ""
+        mock_record.summary_title = ""
 
         mock_delivery.return_value = [{"options": 3}]
         mock_distressing.return_value = False
@@ -504,6 +510,12 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_record.custom_record_type = "ARCHON"
         mock_record.subjects = []
         mock_record_details.return_value = mock_record
+        mock_record.level_code = 3
+        mock_record.level = "Series"
+        mock_record.hierarchy_series = Mock()
+        mock_record.hierarchy_series.reference_number = ""
+        mock_record.hierarchy_series.summary_title = ""
+        mock_record.summary_title = ""
 
         mock_distressing.return_value = False
 
@@ -532,6 +544,12 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_record.custom_record_type = None
         mock_record.subjects = []
         mock_record_details.return_value = mock_record
+        mock_record.level_code = 3
+        mock_record.level = "Series"
+        mock_record.hierarchy_series = Mock()
+        mock_record.hierarchy_series.reference_number = ""
+        mock_record.hierarchy_series.summary_title = ""
+        mock_record.summary_title = ""
 
         mock_distressing.return_value = True
 
