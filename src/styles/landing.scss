@@ -2,13 +2,6 @@
 @use "@nationalarchives/frontend/nationalarchives/tools/borders";
 @use "@nationalarchives/frontend/nationalarchives/tools/spacing";
 
-.development-notice {
-  padding: spacing.space(1);
-
-  border: 0.2em #00b0ff solid;
-  @include borders.rounded-border;
-}
-
 .choose-section {
   background-color: #dde5d5;
 }

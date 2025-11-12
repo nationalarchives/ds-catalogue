@@ -14,6 +14,7 @@
 {% from 'components/text-input/macro.html' import tnaTextInput %}
 
 {%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
+{%- from 'macros/under_development_banner.html' import under_development_banner -%}
 {% from 'search/macros/filters/search_within.html' import search_within %}
 {% from 'search/macros/filters/date_range.html' import date_range %}
 {% from 'search/macros/filters/date_input.html' import date_input %}
@@ -140,7 +141,9 @@
     </div>
     {% endif %}
 
-    <h2 class="tna-heading-l tna-!--no-margin-top tna-!--no-padding-top">Filters</h2>
+    {{ under_development_banner() }}
+
+    <h2 class="tna-heading-l tna-!--margin-top-xs">Filters</h2>
 
     {# This skip link is revealed on focus, including where a user has landed on it by using the 'Skip to search filters' link #}
     <div class="skip-from-filters-to-results">
