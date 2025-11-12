@@ -18,8 +18,12 @@
 {%- set pageTitle = (record.summary_title or '[No title]') | striptags -%}
 
 {% block head %}
-{{ super() }}
-    <link rel="canonical" href="{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.iaid})) }}">
+  {{ super() }}
+  {# Analytics meta #}
+  {% for property in analytics_data %}
+    <meta name="tna_root:{{ property }}" content="{{ analytics_data[property] | none_to_empty_string() }}">
+  {% endfor %}
+  <link rel="canonical" href="{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.iaid})) }}">
 {% endblock %}
 
 {% block stylesheets %}
