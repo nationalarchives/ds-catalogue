@@ -187,3 +187,14 @@ mark {
 .skip-from-filters-to-results:has(a:focus) {
   margin-top: spacing.space(1);
 }
+
+.etna-date-range {
+  .etna-date-range__hint {
+    @include typography.font-size(16);
+    @include colour.colour-font("font-light");
+
+    + .tna-fieldset {
+      margin-top: spacing.space(0.5);
+    }
+  }
+}

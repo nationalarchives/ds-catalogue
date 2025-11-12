@@ -183,15 +183,15 @@
     {% if form.fields.group.value==bucket_keys.TNA %}
       {{ online(request) }}
       {# {{ search_within(request) }} #}
-      {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
+      {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date', 'For example: 1997, 1997 and 1, or 1997 1 and 31') }}
       {{ checkboxes_with_submit(request, form.fields['collection']) }}
       {{ checkboxes_with_submit(request, form.fields['subject']) }}
       {{ checkboxes_with_submit(request, form.fields['level']) }}
-      {{ date_input(form.fields.opening_date_from, form.fields.opening_date_to, 'Filter by record opening date') }}
+      {{ date_input(form.fields.opening_date_from, form.fields.opening_date_to, 'Filter by record opening date', 'For example: 1997, 1997 and 1, or 1997 1 and 31') }}
       {{ checkboxes_with_submit(request, form.fields['closure']) }}
     {% elif form.fields.group.value==bucket_keys.NON_TNA %}
       {# {{ search_within(request) }} #}
-      {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
+      {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date', 'For example: 1997, 1997 and 1, or 1997 1 and 31') }}
       {{ checkboxes_with_submit(request, form.fields['held_by']) }}
     {% endif %}
     

@@ -3,9 +3,12 @@
 {% from "components/date-input/macro.html" import tnaDateInput %}
 
 
-{% macro date_input(date_from, date_to, title) %}
-<div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
+{% macro date_input(date_from, date_to, title, hint=False) %}
+<div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s etna-date-range">
   <h3 class="tna-heading-m">{{ title }}</h3>
+  {% if hint %}
+    <p class="etna-date-range__hint">{{ hint }}</p>
+  {% endif %}
     {{ tnaDateInput({
     'label': date_from.label,
     'headingLevel': 4,
