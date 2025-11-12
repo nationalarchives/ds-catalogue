@@ -184,15 +184,25 @@
       {{ online(request) }}
       {# {{ search_within(request) }} #}
       {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
-      {{ checkboxes_with_submit(request, form.fields['collection']) }}
-      {{ checkboxes_with_submit(request, form.fields['subject']) }}
-      {{ checkboxes_with_submit(request, form.fields['level']) }}
+      {% if form.fields['collection'].items %}
+        {{ checkboxes_with_submit(request, form.fields['collection']) }}
+      {% endif %}
+      {% if form.fields['subject'].items %}
+        {{ checkboxes_with_submit(request, form.fields['subject']) }}
+      {% endif %}
+      {% if form.fields['level'].items %}
+        {{ checkboxes_with_submit(request, form.fields['level']) }}
+      {% endif %}
       {{ date_input(form.fields.opening_date_from, form.fields.opening_date_to, 'Filter by record opening date') }}
-      {{ checkboxes_with_submit(request, form.fields['closure']) }}
+      {% if form.fields['closure'].items %}
+        {{ checkboxes_with_submit(request, form.fields['closure']) }}
+      {% endif %}
     {% elif form.fields.group.value==bucket_keys.NON_TNA %}
       {# {{ search_within(request) }} #}
       {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
-      {{ checkboxes_with_submit(request, form.fields['held_by']) }}
+      {% if form.fields['held_by'].items %}
+        {{ checkboxes_with_submit(request, form.fields['held_by']) }}
+      {% endif %}
     {% endif %}
     
     
