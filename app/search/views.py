@@ -522,7 +522,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         )
         try:
             context["global_alert"] = global_alerts_client.get(
-                f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}"
+                f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}/"
             )
         except Exception as e:
             logger.error(e)

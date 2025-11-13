@@ -66,12 +66,12 @@ class TestWagtailAPIIntegration(SimpleTestCase):
         # This would normally call the actual function, but we're mocking it
         # to test the pattern
         result = mock_handler(
-            "/article_tags", {"tags": "aviation", "limit": 10}
+            "/article_tags/", {"tags": "aviation", "limit": 10}
         )
 
         self.assertEqual(result, mock_response)
         mock_handler.assert_called_once_with(
-            "/article_tags", {"tags": "aviation", "limit": 10}
+            "/article_tags/", {"tags": "aviation", "limit": 10}
         )
 
     @override_settings(WAGTAIL_API_URL="https://test-api.example.com")
@@ -84,13 +84,13 @@ class TestWagtailAPIIntegration(SimpleTestCase):
         mock_client.get.return_value = {"items": [{"title": "Test Article"}]}
 
         # Call the actual function
-        result = wagtail_request_handler("/article_tags", {"tags": "aviation"})
+        result = wagtail_request_handler("/article_tags/", {"tags": "aviation"})
 
         # Verify client was created correctly
         mock_client_class.assert_called_once_with(
             "https://test-api.example.com", {"tags": "aviation"}
         )
-        mock_client.get.assert_called_once_with("/article_tags")
+        mock_client.get.assert_called_once_with("/article_tags/")
 
         self.assertEqual(result, {"items": [{"title": "Test Article"}]})
 
@@ -99,7 +99,7 @@ class TestWagtailAPIIntegration(SimpleTestCase):
         """Test wagtail_request_handler when WAGTAIL_API_URL is not set"""
 
         with self.assertRaisesMessage(Exception, "WAGTAIL_API_URL not set"):
-            wagtail_request_handler("/article_tags", {})
+            wagtail_request_handler("/article_tags/", {})
 
     @override_settings(WAGTAIL_API_URL="https://test-api.example.com")
     @patch("app.records.api.JSONAPIClient")
@@ -111,4 +111,4 @@ class TestWagtailAPIIntegration(SimpleTestCase):
         mock_client.get.side_effect = Exception("API Error")
 
         with self.assertRaisesMessage(Exception, "API Error"):
-            wagtail_request_handler("/article_tags", {"tags": "aviation"})
+            wagtail_request_handler("/article_tags/", {"tags": "aviation"})

@@ -59,7 +59,7 @@ class GlobalAlertsMixin:
         )
         try:
             return global_alerts_client.get(
-                f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}"
+                f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}/"
             )
         except Exception as e:
             logger.error(f"Failed to fetch global alerts: {e}")
@@ -246,8 +246,11 @@ class DeliveryOptionsMixin:
         Returns:
             True if delivery options should be included, False otherwise
         """
-        # Don't include for ARCHON or CREATORS record types
-        return record.custom_record_type not in ["ARCHON", "CREATORS"]
+        # Don't include for ARCHON or CREATORS record types or non-tna
+        return (
+            record.custom_record_type not in ["ARCHON", "CREATORS"]
+            and record.is_tna
+        )
 
     def get_context_data(self, **kwargs):
         """Add delivery options to context if applicable."""

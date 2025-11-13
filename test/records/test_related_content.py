@@ -138,7 +138,7 @@ class SubjectsEnrichmentTests(TestCase):
 
         # Check that handler was called with correct parameters
         mock_wagtail_handler.assert_called_once_with(
-            "/article_tags",
+            "/article_tags/",
             {
                 "tags": "world-war-1939-1945,aviation,royal-air-force,military-operations",
                 "limit": 10,
