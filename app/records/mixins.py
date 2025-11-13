@@ -59,7 +59,7 @@ class GlobalAlertsMixin:
         )
         try:
             return global_alerts_client.get(
-                f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}"
+                f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}/"
             )
         except Exception as e:
             logger.error(f"Failed to fetch global alerts: {e}")
