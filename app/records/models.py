@@ -251,7 +251,7 @@ class Record(APIModel):
 
         if self.is_tna:
             # For TNA records, heldByCount ins't same as bucket count,
-            # so the presentation layer handles None differently.
+            # the presentation layer html handles this case separately.
             return None
 
         count = self.get("heldByCount", None)
