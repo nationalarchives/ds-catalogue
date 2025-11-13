@@ -8,8 +8,6 @@
 {%- from 'components/phase-banner/macro.html' import tnaPhaseBanner -%}
 
 {%- set theme = request.COOKIES['theme'] or 'system' -%}
-{# TODO: Remove once more pages can support dark mode #}
-{%- set theme = 'light' -%}
 {%- set themeAccent = themeAccent if themeAccent else 'green' -%}
 {%- set htmlAttributes = {
   'data-ga4id': app_config.GA4_ID or '',
@@ -94,7 +92,7 @@
 
 {% block footer %}
 {{ tnaFooter({
-  'themeSelector': False,
+  'themeSelector': True,
   'currentTheme': theme,
   'defaultContent': True,
   'defaultContentBaseURL': 'https://www.nationalarchives.gov.uk',
