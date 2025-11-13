@@ -250,7 +250,7 @@ class Record(APIModel):
         Usually expected to be present to show in the UI."""
 
         if self.is_tna:
-            # For TNA records, heldByCount ins't same as bucket count,
+            # For TNA records, heldByCount isn't same as bucket count,
             # the presentation layer html handles this case separately.
             return None
 
