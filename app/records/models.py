@@ -246,7 +246,8 @@ class Record(APIModel):
 
     @cached_property
     def held_by_count(self) -> str | None:
-        """Returns the api value formatted of the attr if found, default text otherwise.
+        """Returns None for TNA records, otherwise formatted api value
+        formatted. Siliently logs and returns default text if missing.
         Usually expected to be present to show in the UI."""
 
         if self.is_tna:
