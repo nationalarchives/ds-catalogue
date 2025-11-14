@@ -2,7 +2,11 @@ import logging
 from typing import Dict
 
 from app.deliveryoptions.api import delivery_options_request_handler
-from app.deliveryoptions.constants import AvailabilityCondition
+from app.deliveryoptions.constants import (
+    DELIVERY_OPTIONS_NON_TNA_LEVELS,
+    DELIVERY_OPTIONS_TNA_LEVELS,
+    AvailabilityCondition,
+)
 from app.deliveryoptions.delivery_options import (
     get_availability_group,
     has_distressing_content,
@@ -246,11 +250,21 @@ class DeliveryOptionsMixin:
         Returns:
             True if delivery options should be included, False otherwise
         """
+        include_delivery_options = False
         # Don't include for ARCHON or CREATORS record types or non-tna
-        return (
-            record.custom_record_type not in ["ARCHON", "CREATORS"]
-            and record.is_tna
-        )
+        if record.custom_record_type not in ["ARCHON", "CREATORS"]:
+            # Include for TNA piece/item or non-TNA series level records
+            if (
+                record.is_tna
+                and record.level_code in DELIVERY_OPTIONS_TNA_LEVELS
+            ):
+                include_delivery_options = True
+            elif (
+                not record.is_tna
+                and record.level_code in DELIVERY_OPTIONS_NON_TNA_LEVELS
+            ):
+                include_delivery_options = True
+        return include_delivery_options
 
     def get_context_data(self, **kwargs):
         """Add delivery options to context if applicable."""

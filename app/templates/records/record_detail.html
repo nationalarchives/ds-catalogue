@@ -75,7 +75,7 @@
     <div class="tna-column tna-column--full tna-margin-top-m">
       {% set accordion_items = [] %}
 
-      {% if delivery_options_heading and how_to_order(delivery_instructions, tna_discovery_link) %}
+      {% if delivery_option %}
         {% set accordion_items = accordion_items + [{
           'title': delivery_options_heading,
           'body': how_to_order(delivery_instructions, tna_discovery_link)
