@@ -193,4 +193,4 @@ delivery_option_tags = {
 
 # TODO: Refactor to use Enums throughout the codebase
 DELIVERY_OPTIONS_TNA_LEVELS = [6, 7]  # Piece and Item
-DELIVERY_OPTIONS_NON_TNA_LEVELS = [5]  # Series
+DELIVERY_OPTIONS_NON_TNA_LEVELS = [3]  # Sub-sub-fonds
