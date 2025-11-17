@@ -12,7 +12,7 @@ from app.deliveryoptions.delivery_options import (
     has_distressing_content,
 )
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
-from app.lib.api import JSONAPIClient
+from app.main.global_alert import fetch_global_alert_api_data
 from app.records.api import get_subjects_enrichment, record_details_by_id
 from app.records.models import Record
 from app.records.related import (
@@ -57,17 +57,8 @@ class GlobalAlertsMixin:
         Returns:
             Dictionary containing global_alert data, or empty dict on error
         """
-        global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
-        global_alerts_client.add_parameters(
-            {"fields": "_,global_alert,mourning_notice"}
-        )
-        try:
-            return global_alerts_client.get(
-                f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}/"
-            )
-        except Exception as e:
-            logger.error(f"Failed to fetch global alerts: {e}")
-            return {}
+        # TODO: temporary implementation to fetch global alert data with caching
+        return fetch_global_alert_api_data()
 
     def get_context_data(self, **kwargs):
         """Add global alerts to context."""

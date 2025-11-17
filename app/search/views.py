@@ -13,6 +13,7 @@ from app.lib.fields import (
     ToDateField,
 )
 from app.lib.pagination import pagination_object
+from app.main.global_alert import fetch_global_alert_api_data
 from app.records.constants import TNA_LEVELS
 from app.search.api import search_records
 from config.jinja2 import qs_remove_value, qs_replace_value, qs_toggle_value
@@ -516,17 +517,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
         self.selected_filters = self.build_selected_filters_list()
 
-        global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
-        global_alerts_client.add_parameters(
-            {"fields": "_,global_alert,mourning_notice"}
-        )
-        try:
-            context["global_alert"] = global_alerts_client.get(
-                f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}/"
-            )
-        except Exception as e:
-            logger.error(e)
-            context["global_alert"] = {}
+        context["global_alert"] = fetch_global_alert_api_data()
 
         context.update(
             {
