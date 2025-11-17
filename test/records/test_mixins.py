@@ -12,6 +12,7 @@ from app.records.mixins import (
 )
 from app.records.models import Record
 from django.conf import settings
+from django.core.cache import cache
 from django.test import RequestFactory, TestCase
 from django.views.generic import TemplateView
 
@@ -89,7 +90,7 @@ class TestGlobalAlertsMixin(TestCase):
 
         self.view_class = TestView
 
-    @patch("app.records.mixins.JSONAPIClient")
+    @patch("app.main.global_alert.JSONAPIClient")
     def test_get_global_alerts_success(self, mock_client):
         """Test successful global alerts fetch"""
         mock_client_instance = Mock()
@@ -105,9 +106,13 @@ class TestGlobalAlertsMixin(TestCase):
         self.assertIn("global_alert", alerts)
         self.assertEqual(alerts["global_alert"], "Test alert")
 
-    @patch("app.records.mixins.JSONAPIClient")
+    @patch("app.main.global_alert.JSONAPIClient")
     def test_get_global_alerts_failure(self, mock_client):
         """Test that failures return empty dict"""
+
+        # clear cache to ensure fresh fetch
+        cache.clear()
+
         mock_client_instance = Mock()
         mock_client_instance.get.side_effect = Exception("API Error")
         mock_client.return_value = mock_client_instance
@@ -322,7 +327,7 @@ class TestMixinIntegration(TestCase):
     @patch("app.records.mixins.delivery_options_request_handler")
     @patch("app.records.mixins.get_tna_related_records_by_subjects")
     @patch("app.records.mixins.get_subjects_enrichment")
-    @patch("app.records.mixins.JSONAPIClient")
+    @patch("app.main.global_alert.JSONAPIClient")
     @patch("app.records.mixins.record_details_by_id")
     def test_all_mixins_contribute_to_context(
         self,

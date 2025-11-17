@@ -465,7 +465,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     @patch("app.records.mixins.has_distressing_content")
     @patch("app.records.mixins.delivery_options_request_handler")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.records.mixins.JSONAPIClient")
+    @patch("app.main.global_alert.JSONAPIClient")
     def test_delivery_options_added_to_context(
         self, mock_client, mock_record_details, mock_delivery, mock_distressing
     ):
@@ -501,7 +501,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     @patch("app.records.mixins.has_distressing_content")
     @patch("app.records.mixins.delivery_options_request_handler")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.records.mixins.JSONAPIClient")
+    @patch("app.main.global_alert.JSONAPIClient")
     def test_no_delivery_options_for_archon_records(
         self, mock_client, mock_record_details, mock_delivery, mock_distressing
     ):
@@ -535,7 +535,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
 
     @patch("app.records.mixins.has_distressing_content")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.records.mixins.JSONAPIClient")
+    @patch("app.main.global_alert.JSONAPIClient")
     def test_distressing_content_flag_added_to_context(
         self, mock_client, mock_record_details, mock_distressing
     ):
