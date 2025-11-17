@@ -233,3 +233,11 @@ IMAGE_LIBRARY_URL = os.getenv(
 
 # Generated in the CI/CD process
 BUILD_VERSION = os.getenv("BUILD_VERSION", "")
+
+# TODO: Switch to a more robust cache backend such as Redis in production
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": "/tmp/django_cache",
+    }
+}
