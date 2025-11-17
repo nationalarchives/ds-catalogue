@@ -25,6 +25,6 @@ def fetch_global_alert_api_data():
             cache.set("global_alert_api_data", global_alert, timeout=GLOBAL_ALERT_CACHE_TIMEOUT)
         except Exception as e:
             logger.error(f"Failed to fetch global alerts: {e}")
-            global_alert = {}
+            global_alert = None
 
     return global_alert

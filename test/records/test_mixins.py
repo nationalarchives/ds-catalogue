@@ -120,7 +120,7 @@ class TestGlobalAlertsMixin(TestCase):
         view = self.view_class()
         alerts = view.get_global_alerts()
 
-        self.assertEqual(alerts, {})
+        self.assertEqual(alerts, None)
 
 
 class TestSubjectsEnrichmentMixin(TestCase):
