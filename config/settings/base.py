@@ -238,6 +238,6 @@ BUILD_VERSION = os.getenv("BUILD_VERSION", "")
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-        "LOCATION": "/tmp/django_cache",
+        "LOCATION": os.path.join(BASE_DIR, "django_cache"),
     }
 }
