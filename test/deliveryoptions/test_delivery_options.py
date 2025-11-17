@@ -478,7 +478,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_record_details.return_value = mock_record
         # for Non-TNA record, series level, do delivery options should be included
         mock_record.is_tna = False
-        mock_record.level_code = 3 # Sub-sub-fonds
+        mock_record.level_code = 3  # Sub-sub-fonds
         mock_record.level = "Series"
         mock_record.hierarchy_series = Mock()
         mock_record.hierarchy_series.reference_number = ""

@@ -253,7 +253,7 @@ class DeliveryOptionsMixin:
         include_delivery_options = False
         # Don't include for ARCHON or CREATORS record types or non-tna
         if record.custom_record_type not in ["ARCHON", "CREATORS"]:
-            # Include for TNA piece/item or non-TNA series level records
+            # Include according to level codes
             if (
                 record.is_tna
                 and record.level_code in DELIVERY_OPTIONS_TNA_LEVELS
