@@ -19,8 +19,10 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.custom_record_type, "")
         self.assertEqual(self.record.reference_number, "")
         self.assertEqual(self.record.title, "")
+        self.assertEqual(self.record.clean_title, "")
         self.assertEqual(self.record.summary_title, "")
         self.assertEqual(self.record.clean_summary_title, "")
+        self.assertEqual(self.record.clean_title_or_summary_title, "")
         self.assertEqual(self.record.date_covering, "")
         self.assertEqual(self.record.creator, [])
         self.assertEqual(self.record.dimensions, "")
@@ -153,6 +155,15 @@ class RecordModelTests(SimpleTestCase):
                 "Ministry of Defence: Joint Intelligence Bureau and Defence Intelligence Staff: "
                 "Intelligence Conferences, Committees and Working Parties: Reports and Papers."
             ),
+        )
+
+    def test_clean_title(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["cleanTitle"] = "Copy enrolled mortgage for £100"
+        self.assertEqual(
+            self.record.clean_title,
+            "Copy enrolled mortgage for £100",
         )
 
     def test_summary_title(self):
@@ -1151,3 +1162,65 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(
             second_result, ["Test subject"]
         )  # Original value, not modified
+
+
+class CleanTitleOrCleanSummaryTitleTests(SimpleTestCase):
+    maxDiff = None
+
+    def setUp(self):
+
+        self.template_details = {"some value": "some value"}
+
+    def test_clean_title_or_summary_title_with_empty_title(self):
+        self.record = Record(self.template_details)
+
+        # patch raw data
+        self.record._raw["cleanTitle"] = ""
+        self.record._raw["cleanSummaryTitle"] = (
+            "This is the clean summary title"
+        )
+        self.assertEqual(
+            self.record.clean_title_or_summary_title,
+            "This is the clean summary title",
+        )
+
+    def test_clean_title_or_summary_title_with_shorter_title(self):
+        self.record = Record(self.template_details)
+
+        # patch raw data
+        self.record._raw["cleanTitle"] = "This is the clean title"
+        self.record._raw["cleanSummaryTitle"] = (
+            "This is the clean summary title longer than title"
+        )
+        self.assertEqual(
+            self.record.clean_title_or_summary_title,
+            "This is the clean title",
+        )
+
+    def test_clean_title_or_summary_title_with_longer_title(self):
+        self.record = Record(self.template_details)
+
+        # patch raw data
+        self.record._raw["cleanTitle"] = (
+            "This is the clean title longer than summary title"
+        )
+        self.record._raw["cleanSummaryTitle"] = (
+            "This is the clean summary title"
+        )
+        self.assertEqual(
+            self.record.clean_title_or_summary_title,
+            "This is the clean summary title",
+        )
+
+    def test_clean_title_or_summary_title_with_same_length(self):
+        self.record = Record(self.template_details)
+
+        # patch raw data
+        self.record._raw["cleanTitle"] = "This   is   the   clean   title"
+        self.record._raw["cleanSummaryTitle"] = (
+            "This is the clean summary title"
+        )
+        self.assertEqual(
+            self.record.clean_title_or_summary_title,
+            "This   is   the   clean   title",
+        )
