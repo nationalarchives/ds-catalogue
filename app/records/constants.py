@@ -1,3 +1,5 @@
+# Some of these values are also used by Delivery Options
+# TODO: Refactor to use Enums throughout the codebase
 TNA_LEVELS = {
     "1": "Department",
     "2": "Division",
@@ -7,6 +9,10 @@ TNA_LEVELS = {
     "6": "Piece",
     "7": "Item",
 }
+
+
+# Some of these values are also used by Delivery Options
+# TODO: Refactor to use Enums throughout the codebase
 
 NON_TNA_LEVELS = {
     "1": "Fonds",

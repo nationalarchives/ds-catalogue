@@ -100,7 +100,7 @@ def get_subjects_enrichment(subjects_list: list[str], limit: int = 10) -> dict:
 
     try:
         params = {"tags": subjects_param, "limit": limit}
-        results = wagtail_request_handler("/article_tags", params)
+        results = wagtail_request_handler("/article_tags/", params)
         return results
     except ResourceNotFound:
         logger.warning(f"No subjects enrichment found for {subjects_param}")

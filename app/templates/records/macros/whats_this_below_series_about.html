@@ -6,7 +6,7 @@
         {%- if record.level == 'File' %}
           a <strong>{{ record.level | lower }}</strong>
         {%- endif %}
-        about the <strong>{{ record.clean_summary_title }}</strong>
+        about the <strong>{{ record.clean_title_or_summary_title }}</strong>
         {%- if record.date_covering %}
           dating from <strong>{{ record.date_covering }}</strong>
         {%- endif -%}

@@ -465,7 +465,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     @patch("app.records.mixins.has_distressing_content")
     @patch("app.records.mixins.delivery_options_request_handler")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.records.mixins.JSONAPIClient")
+    @patch("app.main.global_alert.JSONAPIClient")
     def test_delivery_options_added_to_context(
         self, mock_client, mock_record_details, mock_delivery, mock_distressing
     ):
@@ -473,17 +473,19 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_record = Mock()
         mock_record.iaid = "C123456"
         mock_record.reference_number = "TEST 123"
-        mock_record.custom_record_type = None
+        mock_record.custom_record_type = "CAT"
         mock_record.subjects = []
         mock_record_details.return_value = mock_record
-        mock_record.level_code = 3
+        # for Non-TNA record, series level, do delivery options should be included
+        mock_record.is_tna = False
+        mock_record.level_code = 3  # Sub-sub-fonds
         mock_record.level = "Series"
         mock_record.hierarchy_series = Mock()
         mock_record.hierarchy_series.reference_number = ""
         mock_record.hierarchy_series.summary_title = ""
         mock_record.summary_title = ""
 
-        mock_delivery.return_value = [{"options": 3}]
+        mock_delivery.return_value = [{"options": 25}]
         mock_distressing.return_value = False
 
         mock_client_instance = Mock()
@@ -499,7 +501,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     @patch("app.records.mixins.has_distressing_content")
     @patch("app.records.mixins.delivery_options_request_handler")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.records.mixins.JSONAPIClient")
+    @patch("app.main.global_alert.JSONAPIClient")
     def test_no_delivery_options_for_archon_records(
         self, mock_client, mock_record_details, mock_delivery, mock_distressing
     ):
@@ -533,7 +535,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
 
     @patch("app.records.mixins.has_distressing_content")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.records.mixins.JSONAPIClient")
+    @patch("app.main.global_alert.JSONAPIClient")
     def test_distressing_content_flag_added_to_context(
         self, mock_client, mock_record_details, mock_distressing
     ):
