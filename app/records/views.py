@@ -11,19 +11,18 @@ from app.records.mixins import (
     RelatedRecordsMixin,
     SubjectsEnrichmentMixin,
 )
+from app.records.mixins_two_phase import TwoPhaseParallelMixin
 from django.views.generic import TemplateView
-
-logger = logging.getLogger(__name__)
 
 
 # TODO: some of these mixins are too small and should be refactored.
 class RecordDetailView(
+    TwoPhaseParallelMixin,
     DistressingContentMixin,
     DeliveryOptionsMixin,
     RelatedRecordsMixin,
     SubjectsEnrichmentMixin,
     GlobalAlertsMixin,
-    RecordContextMixin,
     TemplateView,
 ):
     """
@@ -111,8 +110,10 @@ class RecordDetailView(
         Returns:
             List containing the appropriate template name
         """
-        # Get the record to determine template
-        record = self.get_record()
+        # Get the record from context (already fetched by TwoPhaseParallelMixin)
+        record = (
+            self._record
+        )  # Use the cached record instead of calling get_record()
 
         if record.custom_record_type == "ARCHON":
             return ["records/archon_detail.html"]
