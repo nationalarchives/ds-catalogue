@@ -150,8 +150,8 @@ class Record(APIModel):
         otherwise returns clean_summary_title."""
 
         clean_value = ""
-        clean_title_length = len(self.clean_title.strip())
-        clean_summary_title_length = len(self.clean_summary_title.strip())
+        clean_title_length = len(self.clean_title)
+        clean_summary_title_length = len(self.clean_summary_title)
         if (
             clean_title_length > 0
             and clean_title_length <= clean_summary_title_length
