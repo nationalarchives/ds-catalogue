@@ -2,7 +2,6 @@ import logging
 import re
 from typing import Any, Dict
 
-from app.records.converters import IDConverter
 from django.urls import NoReverseMatch, reverse
 from pyquery import PyQuery as pq
 
@@ -18,7 +17,8 @@ def format_link(link_html: str, inc_msg: str = "") -> Dict[str, str]:
     Ex:inc_msg <method_name>:Record(<id):"
     """
     document = pq(link_html)
-    iaid = document.attr("href")
+    # if None, return empty value
+    iaid = document.attr("href") or ""
     try:
         href = reverse("records:details", kwargs={"id": iaid})
     except NoReverseMatch:
@@ -31,7 +31,7 @@ def format_link(link_html: str, inc_msg: str = "") -> Dict[str, str]:
 
 
 def format_extref_links(html: str) -> str:
-    regex = re.compile(f'<a class="extref" href="{IDConverter.regex}"')
+    regex = re.compile('<a class="extref" href="">')
     html = re.sub(
         regex,
         lambda m: f'<a class="extref" href="{reverse("records:details", kwargs={"id": m.group(1)})}"',
@@ -43,7 +43,7 @@ def format_extref_links(html: str) -> str:
 def change_discovery_record_details_links(html: str) -> str:
     regex = re.compile(
         r'href="https?://discovery.nationalarchives.gov.uk/(details/r/|SearchUI/details\?Uri=)'
-        + IDConverter.regex
+        + r'([^"/]+)'  # Capture the id part
         + r'/?"( title="Opens in a new tab")?( target="_blank")?',
         re.IGNORECASE,
     )
