@@ -1,12 +1,9 @@
-import re
-
-from app.records.converters import IDConverter
 from django.test import SimpleTestCase
+from django.urls import reverse
 
 
 class TestIDFormats(SimpleTestCase):
-    def test_valid_formats(self):
-        id_regex = re.compile(IDConverter.regex)
+    def test_known_formats(self):
         for label, value in (
             ("longformat", "3717ee38900740728076a61a398fcb84"),
             ("guid", "4d8dae2c-b417-4614-8ed8-924b9b4beeac"),
@@ -16,6 +13,9 @@ class TestIDFormats(SimpleTestCase):
             ("iaid_D", "D431198"),
             ("iaid_F", "F257629"),
             ("iaid_N", "N14562581"),
+            ("iaid_Z", "Z4CRL"),
         ):
             with self.subTest(label):
-                self.assertTrue(id_regex.match(value))
+                url = reverse("records:details", kwargs={"id": value})
+                self.assertTrue(url.startswith("/catalogue/id/"))
+                self.assertIn(value, url)

@@ -8,10 +8,10 @@ from django.test import TestCase, override_settings
 
 class TestRecordViewExceptions(TestCase):
 
-    @prevent_request_warnings  # suppress test output: Not Found: /catalogue/id/Z123456/
-    def test_no_matches_respond_with_404(self):
+    @prevent_request_warnings  # suppress test output: Not Found: /catalogue/id//
+    def test_no_id_respond_with_404(self):
 
-        response = self.client.get("/catalogue/id/Z123456/")
+        response = self.client.get("/catalogue/id//")
 
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
