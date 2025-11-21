@@ -1,5 +1,6 @@
 import logging
 import random
+import time
 from typing import List
 
 from app.records.constants import RELATED_RECORDS_FETCH_LIMIT, TNA_LEVELS

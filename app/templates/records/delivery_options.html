@@ -1,23 +1,63 @@
-{# Temporary replacement for delivery options panel #}
-{% from 'components/button/macro.html' import tnaButton %}
-
-{% if delivery_instructions %}
-    <ol class="tna-ol">
-        {% for instruction in delivery_instructions %}
-            <li>{{ instruction }}</li>
-        {% endfor %}
-    </ol>
-{% endif %}
-
-
-{% if tna_discovery_link %}
-    <div class="tna-button-group tna-!--margin-top-s">
-        {{ tnaButton({
-            'text': 'View this record page',
-            'href': tna_discovery_link,
-            'target': '_blank',
-            'classes':'discovery-link',
-        }) }}
-    </div>
-{% endif %}
-
+{% macro delivery_options_accordion_item(delivery_options_heading, delivery_instructions, tna_discovery_link, progressive_loading_enabled, delivery_options_progressive) %}
+  {# Container for delivery options - shown for both progressive and non-progressive #}
+  <div id="delivery-options-container" {% if progressive_loading_enabled and delivery_options_progressive %}style="display: none;"{% endif %}>
+    
+    {% if progressive_loading_enabled and delivery_options_progressive %}
+      {# Progressive loading mode: Show placeholder (skeleton loader) #}
+      <div id="delivery-options-placeholder" class="tna-container tna-!--margin-top-m">
+        <div class="tna-column tna-column--full tna-margin-top-m">
+          <div class="tna-accordion">
+            <div class="tna-accordion__item">
+              <div class="tna-accordion__heading">
+                <div class="skeleton skeleton-title" style="width: 200px;"></div>
+              </div>
+              <div class="tna-accordion__content">
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text" style="width: 80%;"></div>
+                <div class="skeleton skeleton-text" style="width: 90%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    {% else %}
+      {# Non-progressive mode or delivery options loaded server-side #}
+      {% if delivery_options_heading %}
+        <div class="tna-container tna-!--margin-top-m">
+          <div class="tna-column tna-column--full tna-margin-top-m">
+            <div class="tna-accordion__item">
+              <div class="tna-accordion__heading">
+                <button type="button" class="tna-accordion__button" aria-expanded="false">
+                  <span class="tna-accordion__button-text">{{ delivery_options_heading }}</span>
+                  <i class="fa-solid fa-chevron-down tna-accordion__icon" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="tna-accordion__content" hidden>
+                {% if delivery_instructions %}
+                  <ol class="tna-ol">
+                    {% for instruction in delivery_instructions %}
+                      <li>{{ instruction }}</li>
+                    {% endfor %}
+                  </ol>
+                {% endif %}
+                
+                {% if tna_discovery_link %}
+                  {% from 'components/button/macro.html' import tnaButton %}
+                  <div class="tna-button-group tna-!--margin-top-s">
+                    {{ tnaButton({
+                        'text': 'View this record page',
+                        'href': tna_discovery_link,
+                        'target': '_blank',
+                        'classes':'discovery-link',
+                    }) }}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+{% endmacro %}

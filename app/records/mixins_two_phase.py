@@ -1,10 +1,13 @@
 """
-Two-phase optimization for record detail page.
+Two-phase optimization with progressive loading support.
 
 Phase 1: Fetch record (sequential - required first)
-Phase 2: Fetch everything else in parallel (5 calls across 3 APIs)
+Phase 2: Fetch critical data in parallel (alerts, delivery options, distressing content)
+Phase 3 (Optional): Client-side progressive loading for related records and subjects
 
-This works with WSGI because we're hitting different domains in parallel.
+This implementation supports graceful degradation:
+- With JS enabled: Loads related/subjects via AJAX for faster initial page load
+- With JS disabled: Falls back to server-side parallel fetching of all data
 """
 
 import logging
@@ -24,16 +27,6 @@ from app.deliveryoptions.delivery_options import (
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
 from app.lib.api import JSONAPIClient
 from app.records.api import get_subjects_enrichment, record_details_by_id
-
-# Import original mixins for backward compatibility
-from app.records.mixins import (
-    DeliveryOptionsMixin,
-    DistressingContentMixin,
-    GlobalAlertsMixin,
-    RecordContextMixin,
-    RelatedRecordsMixin,
-    SubjectsEnrichmentMixin,
-)
 from app.records.models import Record
 from app.records.related import (
     get_related_records_by_series,
@@ -46,21 +39,27 @@ logger = logging.getLogger(__name__)
 
 class TwoPhaseParallelMixin:
     """
-    Two-phase optimization:
+    Two-phase optimization with progressive loading support.
 
-    Phase 1 (sequential): Fetch the record
-    Phase 2 (parallel): Fetch everything that depends on the record
+    With JavaScript enabled:
+    - Phase 1 (sequential): Fetch the record
+    - Phase 2 (parallel): Fetch critical data only (alerts, delivery options)
+    - Phase 3 (client-side): Progressive load related records and subjects
 
-    This creates 5 parallel threads in Phase 2, hitting 3 different APIs:
-    - Wagtail (alerts + related content)
-    - Rosetta (2x related record searches)
-    - Delivery Options (1x delivery options)
+    Without JavaScript (fallback):
+    - Phase 1 (sequential): Fetch the record
+    - Phase 2 (parallel): Fetch ALL data (alerts, delivery, related, subjects)
     """
 
     related_records_limit = 3
 
+    # Feature flag for progressive loading
+    enable_progressive_loading = getattr(
+        settings, "ENABLE_PROGRESSIVE_LOADING", True
+    )
+
     def get_context_data(self, **kwargs):
-        """Fetch data in two phases."""
+        """Fetch data in two phases with progressive loading support."""
         context = super().get_context_data(**kwargs)
 
         total_start = time.time()
@@ -69,13 +68,50 @@ class TwoPhaseParallelMixin:
         # Phase 1: Fetch the record (must be first)
         record = self._execute_phase1(record_id, context)
 
-        # Phase 2: Fetch everything else in parallel (5 calls)
-        self._execute_phase2(record, context)
+        # Detect if JavaScript is enabled via cookie or query param
+        # Default to assuming JS is enabled for progressive loading
+        js_enabled = self._detect_javascript_enabled()
+        print(f"Javascript enabled: {js_enabled}")
+        print(f"Progressive loading enabled: {self.enable_progressive_loading}")
+
+        # Phase 2: Fetch data based on JS availability
+        if self.enable_progressive_loading and js_enabled:
+            # JS enabled: Fetch only critical data
+            self._execute_phase2_progressive(record, context)
+            context["progressive_loading_enabled"] = True
+        else:
+            # JS disabled or feature disabled: Fetch everything
+            self._execute_phase2_full(record, context)
+            context["progressive_loading_enabled"] = False
 
         total_time = (time.time() - total_start) * 1000
-        logger.info(f"[PERFORMANCE] Total: {total_time:.0f}ms")
+        logger.info(
+            f"[PERFORMANCE] Total: {total_time:.0f}ms (JS: {js_enabled})"
+        )
 
         return context
+
+    def _detect_javascript_enabled(self) -> bool:
+        """
+        Detect if JavaScript is enabled in the user's browser.
+
+        Uses a cookie that should be set by JavaScript on first visit.
+        If cookie is absent, assume JS is enabled (optimistic default).
+        If cookie is present and set to 'false', JS is disabled.
+
+        Returns:
+            True if JavaScript appears to be enabled, False otherwise
+        """
+        # Check for a JS detection cookie
+        js_cookie = self.request.COOKIES.get("js_enabled", None)
+
+        # If cookie exists and is explicitly 'false', JS is disabled
+        if js_cookie == "false":
+            return False
+
+        # Default to True (optimistic - assume JS is enabled)
+        # Most users have JS enabled, and this gives better performance
+        return True
 
     def _execute_phase1(self, record_id: str, context: dict) -> Record:
         """Execute Phase 1: Fetch the record."""
@@ -94,12 +130,81 @@ class TwoPhaseParallelMixin:
 
         return record
 
-    def _execute_phase2(self, record: Record, context: dict) -> None:
-        """Execute Phase 2: Fetch everything else in parallel."""
+    def _execute_phase2_progressive(
+        self, record: Record, context: dict
+    ) -> None:
+        """
+        Execute Phase 2: Fetch critical data including delivery options (for progressive loading).
+
+        Fetches in parallel:
+        - Global alerts (needed for banner)
+        - Distressing content check (needed for warning)
+        - Delivery options (needed for availability boxes - fetched once, rendered client-side)
+
+        Skips (will be loaded client-side):
+        - Related records
+        - Subjects enrichment
+        """
+        phase2_start = time.time()
+
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            # Submit critical tasks including delivery options
+            futures = {
+                "alerts": executor.submit(self._fetch_global_alerts),
+                "distressing": executor.submit(
+                    has_distressing_content, record.reference_number
+                ),
+                "delivery": executor.submit(
+                    self._fetch_delivery_options, record
+                ),
+            }
+
+            # Collect results
+            context["global_alert"] = self._get_result_safe(
+                futures["alerts"], {}, "global alerts"
+            )
+
+            context["distressing_content"] = self._get_result_safe(
+                futures["distressing"], False, "distressing content"
+            )
+
+            # Delivery options - fetch data for availability boxes
+            delivery_context = self._get_result_safe(
+                futures["delivery"], {}, "delivery options"
+            )
+            if delivery_context and self._should_include_delivery_options(
+                record
+            ):
+                context.update(delivery_context)
+                context.update(
+                    self._get_temporary_delivery_options_context(record)
+                )
+
+        # Set empty/placeholder values for progressive content (will be loaded client-side)
+        context["related_records"] = []
+        context["do_availability_group"] = None
+        record._subjects_enrichment = {}
+
+        phase2_time = (time.time() - phase2_start) * 1000
+        logger.info(
+            f"[PERFORMANCE] Phase 2 (3 parallel critical calls): {phase2_time:.0f}ms"
+        )
+
+    def _execute_phase2_full(self, record: Record, context: dict) -> None:
+        """
+        Execute Phase 2: Fetch ALL data (fallback for no-JS users).
+
+        Fetches everything in parallel:
+        - Global alerts
+        - Delivery options
+        - Distressing content
+        - Related records (subjects + series)
+        - Subjects enrichment
+        """
         phase2_start = time.time()
 
         with ThreadPoolExecutor(max_workers=5) as executor:
-            # Submit all parallel tasks
+            # Submit all tasks
             futures = self._submit_phase2_tasks(executor, record)
 
             # Collect results
@@ -107,17 +212,20 @@ class TwoPhaseParallelMixin:
 
         phase2_time = (time.time() - phase2_start) * 1000
         logger.info(
-            f"[PERFORMANCE] Phase 2 (5 parallel calls): {phase2_time:.0f}ms"
+            f"[PERFORMANCE] Phase 2 (5 parallel calls - full): {phase2_time:.0f}ms"
         )
 
     def _submit_phase2_tasks(self, executor, record: Record) -> dict:
-        """Submit all Phase 2 tasks to the executor."""
+        """Submit all Phase 2 tasks to the executor (for full load)."""
         return {
             "alerts": executor.submit(self._fetch_global_alerts),
             "subjects": executor.submit(
                 self._fetch_subjects_enrichment, record
             ),
             "delivery": executor.submit(self._fetch_delivery_options, record),
+            "distressing": executor.submit(
+                has_distressing_content, record.reference_number
+            ),
             "related_subjects": executor.submit(
                 get_tna_related_records_by_subjects,
                 record,
@@ -133,7 +241,7 @@ class TwoPhaseParallelMixin:
     def _collect_phase2_results(
         self, futures: dict, record: Record, context: dict
     ) -> None:
-        """Collect and process results from Phase 2 tasks."""
+        """Collect and process results from Phase 2 tasks (for full load)."""
         # Global alerts
         context["global_alert"] = self._get_result_safe(
             futures["alerts"], {}, "global alerts"
@@ -152,6 +260,11 @@ class TwoPhaseParallelMixin:
             context.update(delivery_context)
             context.update(self._get_temporary_delivery_options_context(record))
 
+        # Distressing content
+        context["distressing_content"] = self._get_result_safe(
+            futures["distressing"], False, "distressing content"
+        )
+
         # Related records
         subjects_records = self._get_result_safe(
             futures["related_subjects"], [], "subject-based related records"
@@ -162,15 +275,6 @@ class TwoPhaseParallelMixin:
         context["related_records"] = self._combine_related_records(
             subjects_records, series_records
         )
-
-        # Distressing content
-        try:
-            context["distressing_content"] = has_distressing_content(
-                record.reference_number
-            )
-        except Exception as e:
-            logger.warning(f"Failed to check distressing content: {e}")
-            context["distressing_content"] = False
 
     def _get_result_safe(self, future, default, description: str):
         """Safely get result from a future with error handling."""
@@ -201,7 +305,7 @@ class TwoPhaseParallelMixin:
     # ========================================================================
 
     def _fetch_global_alerts(self) -> dict:
-        """2a. Fetch global alerts from Wagtail."""
+        """Fetch global alerts from Wagtail."""
         try:
             client = JSONAPIClient(settings.WAGTAIL_API_URL)
             client.add_parameters({"fields": "_,global_alert,mourning_notice"})
@@ -211,7 +315,7 @@ class TwoPhaseParallelMixin:
             return {}
 
     def _fetch_subjects_enrichment(self, record: Record) -> dict:
-        """2b. Fetch subjects enrichment from Wagtail."""
+        """Fetch subjects enrichment from Wagtail."""
         if not record.subjects:
             return {}
 
@@ -224,7 +328,7 @@ class TwoPhaseParallelMixin:
             return {}
 
     def _fetch_delivery_options(self, record: Record) -> dict:
-        """2c. Fetch delivery options."""
+        """Fetch delivery options."""
         if not self._should_include_delivery_options(record):
             return {}
 

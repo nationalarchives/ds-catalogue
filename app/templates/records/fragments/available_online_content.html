@@ -1,0 +1,4 @@
+{%- from 'records/macros/available_online.html' import available_online_inner -%}
+
+{# Fragment for API use - uses the inner macro to avoid code duplication #}
+{{ available_online_inner(record, do_availability_group) }}

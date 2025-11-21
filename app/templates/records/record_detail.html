@@ -15,7 +15,7 @@
 {% from 'records/macros/related_content_block.html' import related_content_block %}
 {% from 'records/macros/content_warning.html' import content_warning %}
 
-{%- set pageTitle = (record.summary_title or '[No title]') | striptags -%}
+{%- set pageTitle = (record.clean_title_or_summary_title or '[No title]') | striptags -%}
 
 {% block head %}
   {{ super() }}
@@ -29,6 +29,9 @@
 {% block stylesheets %}
 {{ super() }}
     <link rel="stylesheet" href="{{ static('record-details.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
+    {% if progressive_loading_enabled %}
+    <link rel="stylesheet" href="{{ static('skeleton-loaders.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
+    {% endif %}
 {% endblock %}
 
 {% block beforeContent %}
@@ -36,6 +39,14 @@
 {% endblock %}
 
 {% block content %}
+{# Configuration div for progressive loading - hidden via CSS class, not inline style #}
+<div id="progressive-loading-config" 
+     class="progressive-config-hidden"
+     data-progressive-loading="{{ 'true' if progressive_loading_enabled else 'false' }}" 
+     data-record-id="{{ record.iaid }}"
+     data-api-prefix="/catalogue">
+</div>
+
 <div class="tna-background-accent-">
   {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
 </div>
@@ -64,9 +75,8 @@
   {% else %}
     <div class="tna-container">
       {{ whats_this_below_series_about(record) }}
-      {{ available_online(record, do_availability_group) }}
-      {{ available_in_person(record, do_availability_group) }}
-    </div>
+      {{ available_online(record, do_availability_group, progressive_loading_enabled) }}
+      {{ available_in_person(record, do_availability_group, progressive_loading_enabled) }}    </div>
   {% endif %}
 
   {{ detail_fields(record, field_labels, request) }}
@@ -103,15 +113,15 @@
   </div>
 </div>
 
-{% if record.has_subjects_enrichment %}
-  {{ related_content_block(record) }}
-{% endif %}
-
-{{ related_records_block(record, related_records) }}
+{{ related_content_block(record, progressive_loading_enabled) }}
+{{ related_records_block(record, related_records, progressive_loading_enabled) }}
 
 {% endblock %}
 
 {% block bodyEnd %}
 {{ super() }}
     <script src="{{ static('record-details.min.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
+    {% if progressive_loading_enabled %}
+    <script src="{{ static('record-details-progressive.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
+    {% endif %}
 {% endblock %}

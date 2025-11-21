@@ -1,53 +1,86 @@
 {%- from 'components/card/macro.html' import tnaCard -%}
 
-{% macro related_content_block(record) %}
-<div class="tna-container">
-  <div class="tna-column tna-column--full tna-!--margin-top-l">
-    <h2 class="tna-heading-l">You may be interested in</h2>
-  </div>
-</div>
-<ul class="tna-container">
-  {% if record.has_subjects_enrichment %}
-    {% set filtered_subjects = [] %}
-    {% for subject_item in record.subjects_enrichment %}
-      {% if not subject_item.is_newly_published %}
-        {% set _ = filtered_subjects.append(subject_item) %}
-      {% endif %}
-    {% endfor %}
+{% macro related_content_block(record, progressive_loading_enabled) %}
+  {# Container for subjects enrichment - shown for both progressive and non-progressive #}
+  {# Use CSS class instead of inline style for CSP compliance #}
+  <div id="subjects-enrichment-container" class="{% if progressive_loading_enabled and not record.has_subjects_enrichment %}progressive-config-hidden{% endif %}">
     
-    {% for subject_item in filtered_subjects[:3] %}
-      <li class="tna-column tna-column--width-1-3 tna-column--width-1-2-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
-        {% set card_content = {
-          'supertitle': subject_item.type_label,
-          'title': subject_item.title,
-          'headingLevel': 3,
-          'headingSize': 'm',
-          'href': subject_item.full_url,
-          'body': subject_item.teaser_text | safe,
-          'fullAreaClick': True,
-          'style': 'accent',
-          'classes': 'tna-card--full-height'
-        } %}
-        {%- if subject_item.teaser_image %}
-          {% set card_content = dict(card_content, **{
-            'imageAlt': '',
-            'imageSrc': subject_item.teaser_image.jpeg.full_url,
-            'imageWidth': subject_item.teaser_image.jpeg.width,
-            'imageHeight': subject_item.teaser_image.jpeg.height,
-            'imageSources': [
-              {
-                'src': subject_item.teaser_image.webp.full_url,
-                'type': 'image/webp',
-                'width': subject_item.teaser_image.webp.width,
-                'height': subject_item.teaser_image.webp.height
-              }
-            ],
-            'lazyImage': True
-          }) %}
-        {%- endif %}
-        {{ tnaCard(card_content) }}
-      </li>
-    {% endfor %}
-  {% endif %}
-</ul>
+    {% if progressive_loading_enabled %}
+      {# Progressive loading mode: Show placeholder (skeleton loader) #}
+      {% if not record.has_subjects_enrichment %}
+        <div id="subjects-enrichment-placeholder">
+          <div class="tna-container">
+            <div class="tna-column tna-column--full tna-!--margin-top-l">
+              <h2 class="tna-heading-l">You may be interested in</h2>
+            </div>
+          </div>
+          <ul class="tna-container">
+            {# Skeleton loaders for 3 cards #}
+            {% for i in range(3) %}
+              <li class="tna-column tna-column--width-1-3 tna-column--width-1-2-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
+                <div class="skeleton-card">
+                  <div class="skeleton skeleton-image"></div>
+                  <div class="skeleton skeleton-title"></div>
+                  <div class="skeleton skeleton-text"></div>
+                  <div class="skeleton skeleton-text"></div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+      
+    {% else %}
+      {# Non-progressive mode: Show actual subjects enrichment if available #}
+      {% if record.has_subjects_enrichment %}
+        <div class="tna-container">
+          <div class="tna-column tna-column--full tna-!--margin-top-l">
+            <h2 class="tna-heading-l">You may be interested in</h2>
+          </div>
+        </div>
+        <ul class="tna-container">
+          {% set filtered_subjects = [] %}
+          {% for subject_item in record.subjects_enrichment %}
+            {% if not subject_item.is_newly_published %}
+              {% set _ = filtered_subjects.append(subject_item) %}
+            {% endif %}
+          {% endfor %}
+          
+          {% for subject_item in filtered_subjects[:3] %}
+            <li class="tna-column tna-column--width-1-3 tna-column--width-1-2-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
+              {% set card_content = {
+                'supertitle': subject_item.type_label,
+                'title': subject_item.title,
+                'headingLevel': 3,
+                'headingSize': 'm',
+                'href': subject_item.full_url,
+                'body': subject_item.teaser_text | safe,
+                'fullAreaClick': True,
+                'style': 'accent',
+                'classes': 'tna-card--full-height'
+              } %}
+              {%- if subject_item.teaser_image %}
+                {% set card_content = dict(card_content, **{
+                  'imageAlt': '',
+                  'imageSrc': subject_item.teaser_image.jpeg.full_url,
+                  'imageWidth': subject_item.teaser_image.jpeg.width,
+                  'imageHeight': subject_item.teaser_image.jpeg.height,
+                  'imageSources': [
+                    {
+                      'src': subject_item.teaser_image.webp.full_url,
+                      'type': 'image/webp',
+                      'width': subject_item.teaser_image.webp.width,
+                      'height': subject_item.teaser_image.webp.height
+                    }
+                  ],
+                  'lazyImage': True
+                }) %}
+              {%- endif %}
+              {{ tnaCard(card_content) }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endif %}
+  </div>
 {% endmacro %}

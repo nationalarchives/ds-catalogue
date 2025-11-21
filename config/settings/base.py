@@ -178,12 +178,21 @@ GA4_ID = os.environ.get("GA4_ID", "")
 
 ROSETTA_API_URL = os.getenv("ROSETTA_API_URL")
 
+# Enable/disable progressive loading feature
+# When True: Related records and subjects enrichment load via AJAX after page render
+# When False: All data loaded server-side (fallback for no-JS users)
+# Default: True
+ENABLE_PROGRESSIVE_LOADING = True
+
 # Maximum number of subject/article_tags returned from Wagtail
 MAX_SUBJECTS_PER_RECORD: int = int(os.getenv("MAX_SUBJECTS_PER_RECORD", 20))
 WAGTAIL_API_TIMEOUT: int = int(os.getenv("WAGTAIL_API_TIMEOUT", 5))
 
 # DORIS is TNA's Document Ordering System that contains Delivery Options data
-DELIVERY_OPTIONS_API_URL = os.getenv("DELIVERY_OPTIONS_API_URL")
+DELIVERY_OPTIONS_API_URL = os.getenv(
+    "DELIVERY_OPTIONS_API_URL",
+    "http://ds-api.live.local/delivery-options-api/api/DeliveryOptions",
+)
 
 # List of IP address for identifying staff members within the organisation
 STAFFIN_IP_ADDRESSES = list(
