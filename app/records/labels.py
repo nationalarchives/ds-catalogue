@@ -1,31 +1,35 @@
 FIELD_LABELS = {
     "access_condition": {
         "title": "Access conditions",
-        "description": "Information on conditions that restrict or affect access to the records",
+        "description": "Information on conditions that restrict or affect access to the record",
     },
     "accumulation_dates": {
         "title": "Accumulation dates",
-        "description": "The dates the records were accumulated ",
+        "description": "The dates the record was accumulated",
     },
     "accruals": {
         "title": "Accruals",
-        "description": "Indicates whether the archives expects to receive further records in future",
+        "description": "Indicates whether the archive expects to receive further records in future",
     },
     "administrative_background": {
         "title": "Administrative / biographical background",
-        "description": "Historical or biographical information about the creator of the records and the context of their creation",
+        "description": "Historical or biographical information about the creator of the record and the context of its creation",
     },
     "appraisal_information": {
         "title": "Selection and destruction information",
-        "description": "Information about how the records were selected for archiving",
+        "description": "Information about how the record was selected for archiving",
     },
     "arrangement": {
         "title": "Arrangement",
-        "description": "Information about the filing sequence or logical order of the records",
+        "description": "Information about the filing sequence or logical order of the record",
+    },
+    "closure_code": {
+        "title": "Closure code",
+        "description": "A number associated with the access conditions of the record",
     },
     "closure_status": {
         "title": "Closure status",
-        "description": "Whether records are ‘open’ (available to the public) or ‘closed’ (not available due to a legal exemption)",
+        "description": "Whether the record is ‘open’ (available to the public) or ‘closed’ (not available due to a legal exemption)",
     },
     "copies_information": {
         "title": "Copies information",
@@ -33,15 +37,15 @@ FIELD_LABELS = {
     },
     "creator": {
         "title": "Creator(s)",
-        "description": "The creator of the records",
+        "description": "The creator of the record",
     },
     "custodial_history": {
         "title": "Custodial history",
-        "description": "Describes where and how records have been held from creation to transfer to The National Archives",
+        "description": "Describes where and how the record has been held from creation to transfer to The National Archives",
     },
     "date_covering": {
         "title": "Date",
-        "description": "When the records were created",
+        "description": "When the record was created",
     },
     "description": {
         "title": "Description",
@@ -49,7 +53,7 @@ FIELD_LABELS = {
     },
     "dimensions": {
         "title": "Dimensions",
-        "description": "The size of the records",
+        "description": "The size of the record",
     },
     "former_department_reference": {
         "title": "Former department reference",
@@ -57,25 +61,25 @@ FIELD_LABELS = {
     },
     "former_pro_reference": {
         "title": "Former reference",
-        "description": "Former reference given to the records",
+        "description": "Former reference given to the record",
     },
     "held_by": {"title": "Held by", "description": "Who holds the record"},
     "hierarchy": {"title": "Where am I in the catalogue?"},
     "immediate_source_of_acquisition": {
         "title": "Immediate source of acquisition",
-        "description": "When and where the records were acquired from",
+        "description": "When and where the record was acquired from",
     },
     "language": {
         "title": "Language",
-        "description": "The language of the records",
+        "description": "The language of the record",
     },
     "legal_status": {
         "title": "Legal status",
-        "description": "If the record is available to the public",
+        "description": "A note as to whether the record being described is a Public Record or not",
     },
     "location_of_originals": {
         "title": "Originals held at",
-        "description": "The organisation that holds the original records",
+        "description": "The organisation that holds the original record",
     },
     "map_designation": {
         "title": "Map designation",
@@ -88,21 +92,25 @@ FIELD_LABELS = {
     "next": {"title": "Next"},
     "note": {
         "title": "Note",
-        "description": "Additional information about the records",
+        "description": "Additional information about the record",
     },
     "parent": {"title": "This record is in"},
     "physical_condition": {
         "title": "Physical condition",
-        "description": "Aspects of the physical condition of the records that may affect or limit their use",
+        "description": "Aspects of the physical condition of the record that may affect or limit its use",
     },
     "physical_description": {
         "title": "Physical description",
-        "description": "The amount and form of the records",
+        "description": "The amount and form of the record",
+    },
+    "place_of_deposit": {
+        "title": "Place of deposit",
+        "description": "Where the record is",
     },
     "previous": {"title": "Previous"},
     "publication_note": {
         "title": "Publication note(s)",
-        "description": "A note of publications related to the records",
+        "description": "A note of publications related to the record",
     },
     "record_opening": {
         "title": "Record opening date",
@@ -110,7 +118,7 @@ FIELD_LABELS = {
     },
     "reference_number": {
         "title": "Reference",
-        "description": "The unique identifier to the records described, used to order and refer to them",
+        "description": "The unique identifier to the record described, used to order and refer to it",
     },
     "related_articles": {
         "title": "You may be interested in",
@@ -134,9 +142,9 @@ FIELD_LABELS = {
         "description": "Categories and themes found in our collection (our subject list is under development, and some records may have no subjects or fewer than expected)",
     },
     "summary_title": {"title": "Summary title"},
-    "title": {"title": "Title", "description": "The name of the records"},
+    "title": {"title": "Title", "description": "The name of the record"},
     "unpublished_finding_aids": {
         "title": "Unpublished finding aids",
-        "description": "A note of unpublished indexes, lists or guides  to the records",
+        "description": "A note of unpublished indexes, lists or guides to the record",
     },
 }
