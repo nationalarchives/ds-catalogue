@@ -29,9 +29,10 @@ class JSONAPIClient:
     api_url = ""
     params = {}
 
-    def __init__(self, api_url, params={}):
+    def __init__(self, api_url, params={}, timeout=None):
         self.api_url = api_url
         self.params = params
+        self.timeout = timeout
 
     def add_parameter(self, key, value):
         self.params[key] = value
@@ -52,6 +53,7 @@ class JSONAPIClient:
                 url,
                 params=self.params,
                 headers=headers,
+                timeout=self.timeout,
             )
         except ConnectionError:
             logger.error("JSON API connection error")
