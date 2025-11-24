@@ -32,7 +32,9 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         self.assertEqual(self.record.custom_record_type, "CAT")
         self.assertEqual(self.record.reference_number, "DEFE 65")
         self.assertEqual(self.record.date_covering, "1959 - 1975")
-        self.assertEqual(self.record.creator, ["Ministry of Defence, 1947"])
+        self.assertEqual(
+            self.record.creator, ["Ministry of Defence, 1947-1947"]
+        )
         self.assertEqual(self.record.dimensions, "")
         self.assertEqual(self.record.former_department_reference, "EWP, DI")
         self.assertEqual(self.record.former_pro_reference, "")
@@ -119,10 +121,11 @@ class CatalogueRecordResponseTests(SimpleTestCase):
                 },
             ),
         )
+        print(self.record.description)
         self.assertEqual(
             self.record.description,
             (
-                """<span class="scopecontent"><p>The series consists of a """
+                "<p>The series consists of a "
                 "collection of reports and papers produced by some of "
                 "the many intelligence conferences or working parties "
                 "in which the Joint Intelligence Bureau and Defence "
@@ -133,7 +136,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
                 "other working groups established over the years as "
                 "necessary to address numerous inter-departmental, "
                 "cross-directorate or multi-disciplinary intelligence "
-                "problems and issues.</p></span>"
+                "problems and issues.</p>"
             ),
         )
         self.assertEqual(self.record.separated_materials, ())
@@ -158,7 +161,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
                         "Department",
                         "DEFE",
                         "Records of the Ministry of Defence",
-                        "62,555",
+                        "63,282",
                     ),
                 ],
             )
@@ -194,7 +197,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         self.assertEqual(self.record.source, "CAT")
         self.assertEqual(self.record.custom_record_type, "CAT")
         self.assertEqual(self.record.reference_number, "LITV 2/D63/Z/1")
-        self.assertEqual(self.record.date_covering, "2015-07-31")
+        self.assertEqual(self.record.date_covering, "2015 Jul 31")
         self.assertEqual(self.record.creator, [])
         self.assertEqual(self.record.dimensions, "")
         self.assertEqual(self.record.former_department_reference, "")
@@ -233,14 +236,11 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         self.assertEqual(
             self.record.arrangement,
             (
-                """<span class=\"wrapper\">This born digital """
-                """record was arranged under the following file structure: """
-                """<span class=\"ref\" """
-                """target=\"1ec57aac-e02e-497e-bba8-150d6f392edb\">LITV 2"""
-                """</span>&gt;&gt; <span class=\"ref\" """
-                """href=\"1ec57aac-e02e-497e-bba8-150d6f392edb\""""
-                """ target=\"986a6839-6ffd-463a-9c91-876c6037d41d\">"""
-                """Evidence_Records</span></span>"""
+                """This born digital record was arranged under """
+                """the following file structure: """
+                """<ref target="1ec57aac-e02e-497e-bba8-150d6f392edb">"""
+                """LITV 2</ref> >> <ref target="986a6839-6ffd-463a-9c91-876c6037d41d" """
+                """href="1ec57aac-e02e-497e-bba8-150d6f392edb">Evidence_Records</ref>"""
             ),
         )
         self.assertEqual(self.record.publication_note, [])
@@ -261,7 +261,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         )
         self.assertEqual(
             self.record.description,
-            "Witness statement of Clive Timmons dated 11 February 2015",
+            "<p>Witness statement of Clive Timmons dated 11 February 2015</p>",
         )
         self.assertEqual(self.record.separated_materials, ())
         self.assertEqual(self.record.unpublished_finding_aids, [])

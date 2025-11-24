@@ -3,17 +3,17 @@ from django.urls import path
 
 urlpatterns = [
     path(
-        r"id/<id:id>/",
+        r"id/<id>/",
         views.RecordDetailView.as_view(),
         name="details",
     ),
     path(
-        r"id/<id:id>/related/",
+        r"id/<id>/related/",
         views.RelatedRecordsView.as_view(),
         name="related",
     ),
     path(
-        r"id/<id:id>/help/",
+        r"id/<id>/help/",
         views.RecordsHelpView.as_view(),
         name="help",
     ),

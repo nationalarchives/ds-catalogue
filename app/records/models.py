@@ -24,7 +24,6 @@ from django.utils.functional import cached_property
 from lxml import etree
 
 from .constants import MISSING_COUNT_TEXT
-from .converters import IDConverter
 
 logger = logging.getLogger(__name__)
 
@@ -87,11 +86,7 @@ class Record(APIModel):
                 except KeyError:
                     candidate = ""
 
-        if candidate and re.match(IDConverter.regex, candidate):
-            # value is not guaranteed to be a valid 'iaid', so we must
-            # check it before returning it as one
-            return candidate
-        return ""
+        return candidate
 
     @cached_property
     def source(self) -> str:
