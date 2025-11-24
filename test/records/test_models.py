@@ -640,11 +640,6 @@ class RecordModelTests(SimpleTestCase):
                 """on Discovery, see <a class=\"extref\" """
                 """href=\"f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
                 """"C16248: Also see the Royal Botanic Gardens, Kew """
-                """<a class=\"extref\" href=\"https://www2.calmview.co.uk/kew/calmview"""
-                """/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">online catalogue</a>"""
-                """C244: <span class=\"emph-italic\">Censuses of Population</span>"""
-                """C244: <span class=\"list\"><span class=\"item\">Correspondence and """
-                """papers</span></span>"""
             ),
             "schema": "",
             "raw": "",
@@ -654,13 +649,8 @@ class RecordModelTests(SimpleTestCase):
             (
                 """C16248: Online descriptions of individual records can be viewed """
                 """on Discovery, see <a class=\"extref\" """
-                """href=\"f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
+                """href="/catalogue/id/f41eb-1496-446c-8bf8-21dc681223da/"RM 2</a>."""
                 """"C16248: Also see the Royal Botanic Gardens, Kew """
-                """<a class=\"extref\" href=\"https://www2.calmview.co.uk/kew/calmview"""
-                """/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">online catalogue</a>"""
-                """C244: <span class=\"emph-italic\">Censuses of Population</span>"""
-                """C244: <span class=\"list\"><span class=\"item\">Correspondence and """
-                """papers</span></span>"""
             ),
         )
 

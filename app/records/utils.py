@@ -31,7 +31,7 @@ def format_link(link_html: str, inc_msg: str = "") -> Dict[str, str]:
 
 
 def format_extref_links(html: str) -> str:
-    regex = re.compile('<a class="extref" href="">')
+    regex = re.compile('<a class="extref" href="([^"]+)">')
     html = re.sub(
         regex,
         lambda m: f'<a class="extref" href="{reverse("records:details", kwargs={"id": m.group(1)})}"',
