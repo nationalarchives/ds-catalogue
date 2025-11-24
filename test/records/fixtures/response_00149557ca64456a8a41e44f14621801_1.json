@@ -4,19 +4,22 @@
       "@template": {
         "details": {
           "accessCondition": "Open on Transfer",
-          "arrangement": "<span class=\"wrapper\">This born digital record was arranged under the following file structure: <span class=\"ref\" target=\"1ec57aac-e02e-497e-bba8-150d6f392edb\">LITV 2</span>&gt;&gt; <span class=\"ref\" href=\"1ec57aac-e02e-497e-bba8-150d6f392edb\" target=\"986a6839-6ffd-463a-9c91-876c6037d41d\">Evidence_Records</span></span>",
+          "arrangement": "This born digital record was arranged under the following file structure: <ref target=\"1ec57aac-e02e-497e-bba8-150d6f392edb\">LITV 2</ref> >> <ref target=\"986a6839-6ffd-463a-9c91-876c6037d41d\" href=\"1ec57aac-e02e-497e-bba8-150d6f392edb\">Evidence_Records</ref>",
           "catalogueContext": [
             "Records of the Inquiry into the death of Alexander Litvinenko on 23 November 2006:...",
             "Records of the Inquest and Inquiry into the death of Alexander Litvinenko on 23 November..."
           ],
           "closureStatus": "Open Document, Open Description",
-          "dateCovering": "2015-07-31",
+          "dateCovering": "2015 Jul 31",
           "deliveryOption": "No availability condition provisioned for this record",
           "description": {
             "value": "Witness statement of Clive Timmons dated 11 February 2015",
-            "schema": ""
+            "raw": "Witness statement of Clive Timmons dated 11 February 2015",
+            "short": "Witness statement of Clive Timmons dated 11 February 2015",
+            "noHtml": "Witness statement of Clive Timmons dated 11 February 2015"
           },
           "digitised": true,
+          "group": "tna",
           "groupArray": [
             {
               "value": "record"
@@ -30,7 +33,7 @@
           ],
           "heldBy": "The National Archives, Kew",
           "heldById": "A13530124",
-          "heldByCount": 25695139,
+          "heldByCount": 27219565,
           "@hierarchy": [
             {
               "@admin": {
@@ -132,14 +135,12 @@
           ],
           "source": "CAT",
           "summaryTitle": "INQ019885.pdf",
+          "cleanTitle": "INQ019885.pdf",
           "title": "INQ019885.pdf",
           "type": "record",
           "@previous": {
             "@admin": {
               "id": "00149557ca64456a8a41e44f14621801"
-            },
-            "summary": {
-              "title": "INQ019885.pdf"
             },
             "level": {
               "code": 6
