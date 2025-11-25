@@ -194,5 +194,3 @@ delivery_option_tags = {
 # TODO: Refactor to use Enums throughout the codebase
 DELIVERY_OPTIONS_TNA_LEVELS = [6, 7]  # Piece and Item
 DELIVERY_OPTIONS_NON_TNA_LEVELS = [3]  # Sub-sub-fonds
-
-DELIVERY_OPTIONS_API_TIMEOUT = 30 # Seconds

@@ -13,7 +13,9 @@ GLOBAL_ALERT_CACHE_TIMEOUT = 60 * 15  # 15 minutes
 def fetch_global_alert_api_data():
     global_alert = cache.get("global_alert_api_data")
     if global_alert is None:
-        global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
+        global_alerts_client = JSONAPIClient(
+            settings.WAGTAIL_API_URL, timeout=settings.WAGTAIL_API_TIMEOUT
+        )
         global_alerts_client.add_parameters(
             {"fields": "_,global_alert,mourning_notice"}
         )

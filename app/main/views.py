@@ -20,7 +20,9 @@ def catalogue(request):
     template = loader.get_template("main/catalogue.html")
     context = {}
 
-    pages_client = JSONAPIClient(settings.WAGTAIL_API_URL)
+    pages_client = JSONAPIClient(
+        settings.WAGTAIL_API_URL, timeout=settings.WAGTAIL_API_TIMEOUT
+    )
     pages_client.add_parameters(
         {
             "child_of": settings.WAGTAIL_EXPLORE_THE_COLLECTION_STORIES_PAGE_ID,
@@ -35,7 +37,9 @@ def catalogue(request):
         logger.error(e)
         context["pages"] = []
 
-    top_pages_client = JSONAPIClient(settings.WAGTAIL_API_URL)
+    top_pages_client = JSONAPIClient(
+        settings.WAGTAIL_API_URL, timeout=settings.WAGTAIL_API_TIMEOUT
+    )
     top_pages_client.add_parameters(
         {
             "child_of": settings.WAGTAIL_EXPLORE_THE_COLLECTION_PAGE_ID,

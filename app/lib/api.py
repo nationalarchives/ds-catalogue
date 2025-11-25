@@ -93,7 +93,8 @@ def rosetta_request_handler(uri, params={}) -> dict:
     api_url = settings.ROSETTA_API_URL
     if not api_url:
         raise Exception("ROSETTA_API_URL not set")
-    client = JSONAPIClient(api_url)
-    client.add_parameters(params)
+    client = JSONAPIClient(
+        api_url, params=params, timeout=settings.ROSETTA_API_TIMEOUT
+    )
     data = client.get(uri)
     return data

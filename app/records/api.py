@@ -73,7 +73,9 @@ def wagtail_request_handler(uri: str, params: dict = {}) -> dict:
     if not api_url:
         raise Exception("WAGTAIL_API_URL not set")
 
-    client = JSONAPIClient(api_url, params)
+    client = JSONAPIClient(
+        api_url, params=params, timeout=settings.WAGTAIL_API_TIMEOUT
+    )
     return client.get(uri)
 
 

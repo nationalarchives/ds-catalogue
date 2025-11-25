@@ -4,7 +4,6 @@ from typing import Any, Dict, List, Optional
 from app.lib.api import JSONAPIClient, ResourceNotFound
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from app.deliveryoptions.constants import DELIVERY_OPTIONS_API_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +33,12 @@ def delivery_options_request_handler(
         raise ImproperlyConfigured("DELIVERY_OPTIONS_API_URL not set")
 
     try:
-        # Create API client
-        client = JSONAPIClient(api_url, timeout=DELIVERY_OPTIONS_API_TIMEOUT)
-        client.add_parameters({"iaid": iaid})
+        # Create API client with timeout from settings
+        client = JSONAPIClient(
+            api_url,
+            params={"iaid": iaid},
+            timeout=settings.DELIVERY_OPTIONS_API_TIMEOUT,
+        )
 
         # Attempt to get data with specific error handling
         data = client.get()

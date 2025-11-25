@@ -78,15 +78,19 @@ See [Sentry's official guide](https://docs.sentry.io/platforms/python/guides/dja
 
 `.env` variables:
 
-| Variable                   | Purpose                                                                    |
-| -------------------------- | -------------------------------------------------------------------------- |
-| `ROSETTA_API_URL`          | The base API URL for Rosetta, including the `/rosetta/data` path           |
-| `WAGTAIL_API_URL`          | The base API URL for Wagtail                                               |
-| `WAGTAIL_API_TIMEOUT`      | Maximum timeout of Wagtail api (seconds)                                   |
-| `DELIVERY_OPTIONS_API_URL` | Api for Delivery options                                                   |
-| `DCS_PREFIXES`             | Comma separated list of document prefixes for distressing content          |
-| `STAFFIN_IP_ADDRESSES`     | Comma separated list of CIDR format IP addresses identifying staff access  |
-| `ONSITE_IP_ADDRESSES`      | Comma separated list of CIDR format IP addresses identifying onsite access |
-| `MAX_SUBJECTS_PER_RECORD`  | Maximum number of subjects displayed on details screen                     |
+| Variable                       | Purpose                                                                      |
+| ------------------------------ | ---------------------------------------------------------------------------- |
+| `ROSETTA_API_URL`              | The base API URL for Rosetta, including the `/rosetta/data` path             |
+| `WAGTAIL_API_URL`              | The base API URL for Wagtail                                                 |
+| `DELIVERY_OPTIONS_API_URL`     | Api for Delivery options                                                     |
+| `WAGTAIL_API_TIMEOUT`          | Maximum timeout of Wagtail api (seconds) - not setting results in no timeout |
+| `ROSETTA_API_TIMEOUT`          | Maximum timeout of Rosetta api (seconds) - ditto                             |
+| `DELIVERY_OPTIONS_API_TIMEOUT` | Maximum timeout of Delivery Options api (seconds) - ditto                    |
+| `DCS_PREFIXES`                 | Comma separated list of document prefixes for distressing content            |
+| `STAFFIN_IP_ADDRESSES`         | Comma separated list of CIDR format IP addresses identifying staff access    |
+| `ONSITE_IP_ADDRESSES`          | Comma separated list of CIDR format IP addresses identifying onsite access   |
+| `MAX_SUBJECTS_PER_RECORD`      | Maximum number of subjects displayed on details screen                       |
 
 TODO: Find where the IP_ADDRESSES are documented and link to document here
+
+TODO: Find out where the DCS_PREFIXES are documented and link to document here.

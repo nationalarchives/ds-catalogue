@@ -88,7 +88,9 @@ class TestWagtailAPIIntegration(SimpleTestCase):
 
         # Verify client was created correctly
         mock_client_class.assert_called_once_with(
-            "https://test-api.example.com", {"tags": "aviation"}
+            "https://test-api.example.com",
+            params={"tags": "aviation"},
+            timeout=None,
         )
         mock_client.get.assert_called_once_with("/article_tags/")
 

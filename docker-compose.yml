@@ -24,6 +24,7 @@ services:
       - FEATURE_PHASE_BANNER=False
       - WAGTAIL_API_URL=https://wagtail.nationalarchives.gov.uk/api/v2
       # - WAGTAIL_API_URL=http://host.docker.internal:8000/api/v2
+      # - DELIVERY_OPTIONS_API_URL=http://ds-api.dev.local/delivery-options-api/api/DeliveryOptions
       - DELIVERY_OPTIONS_API_URL=http://mock-delivery-options-api:8080/rosetta/data
     ports:
       - 65533:8080

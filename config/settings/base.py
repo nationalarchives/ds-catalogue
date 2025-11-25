@@ -5,6 +5,17 @@ from sysconfig import get_path
 from config.util import strtobool
 from csp.constants import NONE, SELF
 
+
+def getenv_int(name):
+    val = os.getenv(name)
+    if val is None or val == "":
+        return None
+    try:
+        return int(val)
+    except ValueError:
+        return None
+
+
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 
@@ -180,7 +191,11 @@ ROSETTA_API_URL = os.getenv("ROSETTA_API_URL")
 
 # Maximum number of subject/article_tags returned from Wagtail
 MAX_SUBJECTS_PER_RECORD: int = int(os.getenv("MAX_SUBJECTS_PER_RECORD", 20))
-WAGTAIL_API_TIMEOUT: int = int(os.getenv("WAGTAIL_API_TIMEOUT", 5))
+
+# API timeout settings (in seconds, None means no timeout)
+WAGTAIL_API_TIMEOUT = getenv_int("WAGTAIL_API_TIMEOUT")
+ROSETTA_API_TIMEOUT = getenv_int("ROSETTA_API_TIMEOUT")
+DELIVERY_OPTIONS_API_TIMEOUT = getenv_int("DELIVERY_OPTIONS_API_TIMEOUT")
 
 # DORIS is TNA's Document Ordering System that contains Delivery Options data
 DELIVERY_OPTIONS_API_URL = os.getenv("DELIVERY_OPTIONS_API_URL")
