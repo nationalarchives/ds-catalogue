@@ -256,19 +256,6 @@ class TimeoutConfigurationTests(TestCase):
             client.timeout, 10, f"Expected timeout=10, got {client.timeout}"
         )
 
-    def test_json_api_client_timeout_can_be_zero(self):
-        """
-        Test that JSONAPIClient accepts timeout=0 (though this is not recommended).
-
-        Note: timeout=0 has undefined behaviour in requests library.
-        This test just confirms the parameter is stored correctly.
-        """
-        client = JSONAPIClient("https://api.test.com", timeout=0)
-
-        self.assertEqual(
-            client.timeout, 0, f"Expected timeout=0, got {client.timeout}"
-        )
-
 
 class TimeoutBehaviorTests(TestCase):
     """Tests to verify timeout behaviour when requests actually time out."""

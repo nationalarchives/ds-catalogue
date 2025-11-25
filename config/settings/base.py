@@ -4,8 +4,9 @@ from sysconfig import get_path
 
 from config.util import strtobool
 from csp.constants import NONE, SELF
+from django.core.exceptions import ImproperlyConfigured
 
-
+# Converts environment variable to integer. 
 def getenv_int(name):
     val = os.getenv(name)
     if val is None or val == "":
@@ -194,8 +195,16 @@ MAX_SUBJECTS_PER_RECORD: int = int(os.getenv("MAX_SUBJECTS_PER_RECORD", 20))
 
 # API timeout settings (in seconds, None means no timeout)
 WAGTAIL_API_TIMEOUT = getenv_int("WAGTAIL_API_TIMEOUT")
+if WAGTAIL_API_TIMEOUT is not None and WAGTAIL_API_TIMEOUT <= 0:
+    raise ImproperlyConfigured("WAGTAIL_API_TIMEOUT cannot be 0 or less...")
+    
 ROSETTA_API_TIMEOUT = getenv_int("ROSETTA_API_TIMEOUT")
+if ROSETTA_API_TIMEOUT is not None and ROSETTA_API_TIMEOUT <= 0:
+    raise ImproperlyConfigured("ROSETTA_API_TIMEOUT cannot be 0 or less..")
+    
 DELIVERY_OPTIONS_API_TIMEOUT = getenv_int("DELIVERY_OPTIONS_API_TIMEOUT")
+if DELIVERY_OPTIONS_API_TIMEOUT is not None and DELIVERY_OPTIONS_API_TIMEOUT <= 0:
+    raise ImproperlyConfigured("DELIVERY_OPTIONS_API_TIMEOUT cannot be 0 or less...")
 
 # DORIS is TNA's Document Ordering System that contains Delivery Options data
 DELIVERY_OPTIONS_API_URL = os.getenv("DELIVERY_OPTIONS_API_URL")
