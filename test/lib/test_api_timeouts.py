@@ -15,6 +15,7 @@ from app.records.api import rosetta_request_handler, wagtail_request_handler
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
+from requests import Timeout
 
 
 class TimeoutConfigurationTests(TestCase):
@@ -271,7 +272,6 @@ class TimeoutBehaviorTests(TestCase):
 
         This verifies the error handling works correctly with timeouts.
         """
-        from requests import Timeout
 
         # Mock a timeout
         mock_get.side_effect = Timeout("Connection timed out")
@@ -293,7 +293,6 @@ class TimeoutBehaviorTests(TestCase):
 
         This verifies the timeout exception handling in the base client.
         """
-        from requests import Timeout
 
         # Mock a timeout
         mock_get.side_effect = Timeout("Connection timed out")
