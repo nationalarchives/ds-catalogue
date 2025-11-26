@@ -31,9 +31,7 @@
         {% endif %}
         {# Show this for records held by other archives #}
         {% if do_availability_group == "RECORDS_AT_OTHER_ARCHIVES" %}
-          <p>Maybe, but not on The National Archives website. This record is held at {{ record.held_by }}. <a
-            href="#record-extended-details-heading-1">How to view
-            it</a>.</p>
+          <p>Maybe, but not on The National Archives website. This record is held at {{ record.held_by }}.</p>
         {% endif %}
         {# Show this where the record is closed #}
         {% if do_availability_group == "CLOSED_TNA_OR_PA" %}
@@ -44,9 +42,7 @@
         {% endif %}
       {% else %}
         <p>
-        Maybe, but not on The National Archives website. This record is held at {{ record.held_by }}. <a
-            href="#record-extended-details-heading-1">How to view
-            it</a>
+        Maybe, but not on The National Archives website. This record is held at {{ record.held_by }}.
         </p>
       {% endif %}
     </div>
