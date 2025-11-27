@@ -52,6 +52,8 @@ docker compose exec dev format
 
 ## Environment variables
 
+**Caution:** Do not use sensitive environment variables outside the `.env` file.
+
 In addition to the [base Docker image variables](https://github.com/nationalarchives/docker/blob/main/docker/tna-python-django/README.md#environment-variables), this application has support for:
 
 | Variable                          | Purpose                                               | Default                                                     |
@@ -76,7 +78,8 @@ In addition to the [base Docker image variables](https://github.com/nationalarch
 
 See [Sentry's official guide](https://docs.sentry.io/platforms/python/guides/django/) for further information on configuring Sentry for Django projects.
 
-`.env` variables:
+### `.env` variables:
+**Note**: Only sensitive values need to go in the `.env` file.
 
 | Variable                   | Purpose                                                                    |
 | -------------------------- | -------------------------------------------------------------------------- |
