@@ -3,8 +3,9 @@ services:
     build:
       context: .
       args:
-        IMAGE: ghcr.io/nationalarchives/tna-python-django-root
-        IMAGE_TAG: 0
+        IMAGE: ghcr.io/nationalarchives/tna-python-dev
+        # IMAGE_TAG: latest
+        IMAGE_TAG: image-refactor # TEMP: Until new images are merged
     env_file:
       - .env
     environment:
@@ -29,16 +30,16 @@ services:
       - 65533:8080
     volumes:
       - ./:/app
+    healthcheck:
+      start_period: 10s
+      start_interval: 2s
+
   mock-delivery-options-api:
     image: wiremock/wiremock:3.13.1
     volumes:
       - ./wiremock:/home/wiremock
     ports:
       - 65501:8080
-  dev:
-    image: ghcr.io/nationalarchives/tna-python-dev:preview
-    volumes:
-      - ./:/app
 
   docs:
     image: squidfunk/mkdocs-material

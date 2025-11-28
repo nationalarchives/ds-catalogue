@@ -23,14 +23,8 @@ lxml = "^5.3.1"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.1.1"
 requests-mock = "^1.12.1"
-
-[tool.poetry.group.root]
-optional = true
-
-[tool.poetry.group.root.dependencies]
-django-debug-toolbar = "^4.4.6"
+pytest-django = "^4.11.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -44,3 +38,4 @@ include = '\.pyi?$'
 testpaths = [
     "test",
 ]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
