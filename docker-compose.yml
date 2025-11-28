@@ -6,8 +6,6 @@ services:
         IMAGE: ghcr.io/nationalarchives/tna-python-dev
         # IMAGE_TAG: latest
         IMAGE_TAG: image-refactor # TEMP: Until new images are merged
-    env_file:
-      - .env
     environment:
       - RUNTIME=develop
       - ENVIRONMENT_NAME=localhost
