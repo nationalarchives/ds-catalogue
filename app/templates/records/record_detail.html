@@ -36,9 +36,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="tna-background-accent-">
-  {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
-</div>
+{{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
 <div class="tna-section tna-!--padding-top-{{ 's' if distressing_content else 'l' }}">
   <div class="tna-container">
     {{ content_warning(
