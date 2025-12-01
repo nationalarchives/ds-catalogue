@@ -17,7 +17,7 @@ class SearchRecordsTests(SimpleTestCase):
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
             json={
-                "data": [{"@template": {"details": {"iaid": "C198022"}}}],
+                "data": [{"@template": {"details": {"id": "C198022"}}}],
                 "buckets": [
                     {
                         "name": "group",
@@ -62,7 +62,7 @@ class SearchRecordsTests(SimpleTestCase):
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
             json={
-                "data": [{"@template": {"details": {"iaid": "C198022"}}}],
+                "data": [{"@template": {"details": {"id": "C198022"}}}],
                 "stats": {
                     "total": 1,
                     "results": 1,

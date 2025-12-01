@@ -27,7 +27,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         self.response = APIResponse(deepcopy(fixture_contents["data"][0]))
         self.record = self.response.record
 
-        self.assertEqual(self.record.iaid, "C15836")
+        self.assertEqual(self.record.id, "C15836")
         self.assertEqual(self.record.source, "CAT")
         self.assertEqual(self.record.custom_record_type, "CAT")
         self.assertEqual(self.record.reference_number, "DEFE 65")
@@ -172,7 +172,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
                 self.assertEqual(
                     (
                         hierarchy_record.is_tna,
-                        hierarchy_record.iaid,
+                        hierarchy_record.id,
                         hierarchy_record.url,
                         hierarchy_record.level_code,
                         hierarchy_record.level,
@@ -193,7 +193,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
             fixture_contents = json.loads(f.read())
         self.response = APIResponse(deepcopy(fixture_contents["data"][0]))
         self.record = self.response.record
-        self.assertEqual(self.record.iaid, "00149557ca64456a8a41e44f14621801_1")
+        self.assertEqual(self.record.id, "00149557ca64456a8a41e44f14621801_1")
         self.assertEqual(self.record.source, "CAT")
         self.assertEqual(self.record.custom_record_type, "CAT")
         self.assertEqual(self.record.reference_number, "LITV 2/D63/Z/1")
@@ -306,7 +306,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
                 self.assertEqual(
                     (
                         hierarchy_record.is_tna,
-                        hierarchy_record.iaid,
+                        hierarchy_record.id,
                         hierarchy_record.url,
                         hierarchy_record.level_code,
                         hierarchy_record.level,
