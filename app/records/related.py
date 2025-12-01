@@ -69,8 +69,8 @@ def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
         )
 
         for record in api_result.records:
-            if record.iaid != current_record.iaid:
-                record_matches[record.iaid] = record
+            if record.id != current_record.id:
+                record_matches[record.id] = record
 
     except Exception as e:
         logger.debug(f"Failed to search with all subjects: {e}")
@@ -117,11 +117,11 @@ def _search_individual_subjects(
             )
 
             for record in api_result.records:
-                if record.iaid == current_record.iaid:
+                if record.id == current_record.id:
                     continue
 
-                if record.iaid not in record_matches:
-                    record_matches[record.iaid] = record
+                if record.id not in record_matches:
+                    record_matches[record.id] = record
 
         except Exception as e:
             logger.debug(f"Failed to search for subject '{subject}': {e}")
@@ -181,8 +181,8 @@ def get_related_records_by_series(
 
     if not series_ref:
         logger.warning(
-            f"Series {series.iaid} found but has no reference number "
-            f"for record {current_record.iaid}"
+            f"Series {series.id} found but has no reference number "
+            f"for record {current_record.id}"
         )
         return []
 
@@ -204,7 +204,7 @@ def get_related_records_by_series(
         results = []
         for record in api_result.records:
             # Skip current record
-            if record.iaid != current_record.iaid:
+            if record.id != current_record.id:
                 results.append(record)
 
             if len(results) >= limit:
