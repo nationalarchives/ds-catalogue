@@ -25,7 +25,7 @@ class SubjectsEnrichmentTests(TestCase):
     def setUp(self):
         # Sample record data like what comes from your API
         self.sample_record_data = {
-            "iaid": "C123456",
+            "id": "C123456",
             "title": "RAF Operations File",
             "subjects": [
                 "World War, 1939-1945",
@@ -400,7 +400,7 @@ class SubjectsEnrichmentTests(TestCase):
         """Test record detail view when record has no subjects"""
         # Record data without subjects
         record_data_no_subjects = {
-            "iaid": "C123456",
+            "id": "C123456",
             "title": "Record without subjects",
             "subjects": [],
         }

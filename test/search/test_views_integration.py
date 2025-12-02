@@ -19,7 +19,7 @@ class CatalogueSearchViewIntegrationTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "source": "CAT",
                             }
                         }

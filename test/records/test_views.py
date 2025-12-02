@@ -21,7 +21,7 @@ class TestRecordView(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "title": "Test Title",
                                 "source": "CAT",
                                 "heldByCount": 100,
@@ -52,7 +52,7 @@ class TestRecordView(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "A13530600",
+                                "id": "A13530600",
                                 "title": "Test Title",
                                 "source": "ARCHON",
                             }
@@ -82,7 +82,7 @@ class TestSubjectLinks(TestCase):
                 {
                     "@template": {
                         "details": {
-                            "iaid": "C123456",
+                            "id": "C123456",
                             "referenceNumber": "ADM 363/540/126",
                             "title": "Test Record with Subjects",
                             "summaryTitle": "Test Record",
@@ -132,7 +132,7 @@ class TestSubjectLinks(TestCase):
                 {
                     "@template": {
                         "details": {
-                            "iaid": "C789012",
+                            "id": "C789012",
                             "source": "CAT",
                             "heldByCount": 100,
                             "subjects": [
@@ -190,7 +190,7 @@ class TestSubjectLinks(TestCase):
                 {
                     "@template": {
                         "details": {
-                            "iaid": "C456789",
+                            "id": "C456789",
                             "source": "CAT",
                             "heldByCount": 100,
                             "subjects": [],

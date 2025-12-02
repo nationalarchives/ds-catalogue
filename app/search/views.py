@@ -80,7 +80,7 @@ class APIMixin:
         # filter records for a bucket
         add_filter(params, f"group:{current_bucket.key}")
 
-        # applies to catalogue records to filter records with iaid in the results
+        # applies to catalogue records to filter records with id in the results
         if current_bucket.key == BucketKeys.NON_TNA.value:
             add_filter(params, FILTER_DATATYPE_RECORD)
 

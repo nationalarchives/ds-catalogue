@@ -13,7 +13,7 @@ def record_details_by_id(id: str, params: dict = {}) -> Record:
     Fetches a record by its ID from the Rosetta API.
 
     Args:
-        id: The record IAID to fetch
+        id: The record id to fetch
         params: Optional additional parameters for the API request
 
     Returns:

@@ -3,10 +3,10 @@
   <ul class="etna-results etna-results--{{ display_mode }}">
     {% for result in results %}
 
-      {% set details_url = url('records:details', kwargs={'id': result.iaid}) + '?search=' + encodedQuery %}
+      {% set details_url = url('records:details', kwargs={'id': result.id}) + '?search=' + encodedQuery %}
 
       {% if display_mode == 'grid' %}
-        <li id="record-{{ result.iaid }}">
+        <li id="record-{{ result.id }}">
           <h3 class="tna-heading-s"><a href="{{ details_url }}">{{ result.summary_title | safe }}</a></h3>
           <dl class="etna-result-attributes etna-result-attributes--grid">
             <dt>Held by</dt>
@@ -18,7 +18,7 @@
           </dl>
         </li>
       {% else %}
-        <li id="record-{{ result.iaid }}">
+        <li id="record-{{ result.id }}">
           <dl class="tna-dl-chips">
             <dt>Catalogue level</dt>
             <dd>

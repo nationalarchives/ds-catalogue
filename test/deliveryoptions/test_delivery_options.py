@@ -471,7 +471,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     ):
         """Test that delivery options are added to context for standard records."""
         mock_record = Mock()
-        mock_record.iaid = "C123456"
+        mock_record.id = "C123456"
         mock_record.reference_number = "TEST 123"
         mock_record.custom_record_type = "CAT"
         mock_record.subjects = []
@@ -507,7 +507,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     ):
         """Test that delivery options are not fetched for ARCHON records."""
         mock_record = Mock()
-        mock_record.iaid = "C123456"
+        mock_record.id = "C123456"
         mock_record.reference_number = "TEST 123"
         mock_record.custom_record_type = "ARCHON"
         mock_record.subjects = []
@@ -541,7 +541,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     ):
         """Test that distressing content flag is added to context."""
         mock_record = Mock()
-        mock_record.iaid = "C123456"
+        mock_record.id = "C123456"
         mock_record.reference_number = "HO 616/123"
         mock_record.custom_record_type = None
         mock_record.subjects = []

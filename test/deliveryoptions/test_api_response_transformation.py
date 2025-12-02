@@ -30,7 +30,7 @@ class DeliveryOptionsTestCase(unittest.TestCase):
 
         # Create sample record
         self.record = MagicMock(spec=Record)
-        self.record.iaid = "C123456"
+        self.record.id = "C123456"
         self.record.reference_number = "TEST 123/456"
         self.record.access_condition = "Open Document, Open Description"
         self.record.held_by = "The National Archives, Kew"

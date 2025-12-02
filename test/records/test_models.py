@@ -14,7 +14,7 @@ class RecordModelTests(SimpleTestCase):
     def test_empty_for_optional_attributes(self):
         self.record = Record(self.template_details)
 
-        self.assertEqual(self.record.iaid, "")
+        self.assertEqual(self.record.id, "")
         self.assertEqual(self.record.source, "")
         self.assertEqual(self.record.custom_record_type, "")
         self.assertEqual(self.record.reference_number, "")
@@ -71,16 +71,16 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.subjects_enrichment, {})
         self.assertEqual(self.record.has_subjects_enrichment, False)
 
-    def test_iaid(self):
+    def test_id(self):
 
         self.record = Record(self.template_details)
 
         # patch raw data
-        self.record._raw["iaid"] = "C123456"
+        self.record._raw["id"] = "C123456"
 
-        self.assertEqual(self.record.iaid, "C123456")
+        self.assertEqual(self.record.id, "C123456")
 
-    def test_iaid_other_places(self):
+    def test_id_other_places(self):
         self.record = Record(self.template_details)
         # patch raw data
         self.record._raw["@previous"] = {
@@ -91,9 +91,9 @@ class RecordModelTests(SimpleTestCase):
         }
         self.record._raw["parent"] = {"@admin": {"id": "C199"}}
 
-        self.assertEqual(self.record.previous.iaid, "C11827824")
-        self.assertEqual(self.record.next.iaid, "C11827826")
-        self.assertEqual(self.record.parent.iaid, "C199")
+        self.assertEqual(self.record.previous.id, "C11827824")
+        self.assertEqual(self.record.next.id, "C11827826")
+        self.assertEqual(self.record.parent.id, "C199")
 
     def test_source(self):
         self.record = Record(self.template_details)
@@ -175,7 +175,7 @@ class RecordModelTests(SimpleTestCase):
     def test_summary_title_other_places(self):
         self.record = Record(self.template_details)
         # patch raw data
-        self.record._raw["iaid"] = "C11827825"
+        self.record._raw["id"] = "C11827825"
         self.record._raw["groupArray"] = [
             {"value": "record"},
             {"value": "tna"},
@@ -334,7 +334,7 @@ class RecordModelTests(SimpleTestCase):
     def test_level_code_other_places(self):
         self.record = Record(self.template_details)
         # patch raw data
-        self.record._raw["iaid"] = "C11827825"
+        self.record._raw["id"] = "C11827825"
         self.record._raw["groupArray"] = [
             {"value": "record"},
             {"value": "tna"},
@@ -640,11 +640,6 @@ class RecordModelTests(SimpleTestCase):
                 """on Discovery, see <a class=\"extref\" """
                 """href=\"f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
                 """"C16248: Also see the Royal Botanic Gardens, Kew """
-                """<a class=\"extref\" href=\"https://www2.calmview.co.uk/kew/calmview"""
-                """/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">online catalogue</a>"""
-                """C244: <span class=\"emph-italic\">Censuses of Population</span>"""
-                """C244: <span class=\"list\"><span class=\"item\">Correspondence and """
-                """papers</span></span>"""
             ),
             "schema": "",
             "raw": "",
@@ -654,13 +649,8 @@ class RecordModelTests(SimpleTestCase):
             (
                 """C16248: Online descriptions of individual records can be viewed """
                 """on Discovery, see <a class=\"extref\" """
-                """href=\"f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
+                """href="/catalogue/id/f41eb-1496-446c-8bf8-21dc681223da/"RM 2</a>."""
                 """"C16248: Also see the Royal Botanic Gardens, Kew """
-                """<a class=\"extref\" href=\"https://www2.calmview.co.uk/kew/calmview"""
-                """/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">online catalogue</a>"""
-                """C244: <span class=\"emph-italic\">Censuses of Population</span>"""
-                """C244: <span class=\"list\"><span class=\"item\">Correspondence and """
-                """papers</span></span>"""
             ),
         )
 
@@ -800,7 +790,7 @@ class RecordModelTests(SimpleTestCase):
     def test_hierarchy(self):
         self.record = Record(self.template_details)
         # patch raw data
-        self.record._raw["iaid"] = "C11827825"
+        self.record._raw["id"] = "C11827825"
         self.record._raw["groupArray"] = [
             {"value": "record"},
             {"value": "tna"},
@@ -921,7 +911,7 @@ class RecordModelTests(SimpleTestCase):
                 self.assertEqual(
                     (
                         hierarchy_record.is_tna,
-                        hierarchy_record.iaid,
+                        hierarchy_record.id,
                         hierarchy_record.url,
                         hierarchy_record.level_code,
                         hierarchy_record.level,
@@ -935,7 +925,7 @@ class RecordModelTests(SimpleTestCase):
     def test_next(self):
         self.record = Record(self.template_details)
         # patch raw data
-        self.record._raw["iaid"] = "C11827825"
+        self.record._raw["id"] = "C11827825"
         self.record._raw["groupArray"] = [
             {"value": "record"},
             {"value": "tna"},
@@ -950,7 +940,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertIsInstance(self.record.next, Record)
         self.assertEqual(
             (
-                self.record.next.iaid,
+                self.record.next.id,
                 self.record.next.url,
                 self.record.next.level_code,
                 self.record.next.level,
@@ -970,7 +960,7 @@ class RecordModelTests(SimpleTestCase):
     def test_previous(self):
         self.record = Record(self.template_details)
         # patch raw data
-        self.record._raw["iaid"] = "C11827825"
+        self.record._raw["id"] = "C11827825"
         self.record._raw["groupArray"] = [
             {"value": "record"},
             {"value": "tna"},
@@ -986,7 +976,7 @@ class RecordModelTests(SimpleTestCase):
 
         self.assertEqual(
             (
-                self.record.previous.iaid,
+                self.record.previous.id,
                 self.record.previous.url,
                 self.record.previous.level_code,
                 self.record.previous.level,
@@ -1021,7 +1011,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertIsInstance(self.record.parent, Record)
         self.assertEqual(
             (
-                self.record.parent.iaid,
+                self.record.parent.id,
                 self.record.parent.reference_number,
                 self.record.parent.summary_title,
             ),
@@ -1066,7 +1056,7 @@ class RecordModelTests(SimpleTestCase):
         self.record = Record(self.template_details)
 
         # patch raw data
-        self.record._raw["iaid"] = "C11827825"
+        self.record._raw["id"] = "C11827825"
 
         self.assertEqual(
             self.record.url,

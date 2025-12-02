@@ -22,7 +22,7 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "source": "CAT",
                             }
                         }
@@ -30,7 +30,7 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C7890",
+                                "id": "C7890",
                                 "source": "CAT",
                             }
                         }
@@ -143,7 +143,7 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "source": "CAT",
                             }
                         }

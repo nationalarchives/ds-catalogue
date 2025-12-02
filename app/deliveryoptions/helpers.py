@@ -192,7 +192,7 @@ def get_browse_url(record: Record) -> str:
     TODO: This will be the browse URL for the hierarchy we are currently in.
           On Discovery, an example would be https://discovery.nationalarchives.gov.uk/browse/r/h/C325982
     """
-    return f"{BASE_TNA_HOME_URL}/browse/tbd/{record.iaid}/"
+    return f"{BASE_TNA_HOME_URL}/browse/tbd/{record.id}/"
 
 
 def get_contact_form_url_mould(record: Record) -> str:
@@ -489,7 +489,9 @@ def get_paid_search_url(record: Record) -> str:
 
     TODO: URL will undoubtedly change with Etna
     """
-    return f"{BASE_TNA_HOME_URL}/paidsearch/foirequest/{record.iaid}?type=foirequest"
+    return (
+        f"{BASE_TNA_HOME_URL}/paidsearch/foirequest/{record.id}?type=foirequest"
+    )
 
 
 def get_price() -> str:
@@ -534,7 +536,7 @@ def get_record_copying_url(record: Record) -> str:
 
     TODO: URL will undoubtedly change with Etna
     """
-    return f"{BASE_TNA_DISCOVERY_URL}/pagecheck/start/{record.iaid}/"
+    return f"{BASE_TNA_DISCOVERY_URL}/pagecheck/start/{record.id}/"
 
 
 def get_record_information_type() -> str:
@@ -579,7 +581,7 @@ def get_record_url(record: Record) -> str:
 
     TODO: URL may change with Etna
     """
-    return f"{BASE_TNA_HOME_URL}/details/r/{record.iaid}/"
+    return f"{BASE_TNA_HOME_URL}/details/r/{record.id}/"
 
 
 def get_first_website_url(api_surrogate_list: List) -> str:

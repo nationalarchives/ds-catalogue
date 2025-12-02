@@ -326,7 +326,7 @@ def construct_delivery_options(
 
     if api_length := len(api_result) != 1:
         raise ValueError(
-            f"Expected one record only ({api_length}) from DORIS database for IAID {record.iaid}"
+            f"Expected one record only ({api_length}) from DORIS database for IAID {record.id}"
         )
 
     delivery_options_context_dict = {}

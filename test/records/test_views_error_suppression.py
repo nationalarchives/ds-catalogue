@@ -19,7 +19,7 @@ class TestRecordViewForSuppressedErrorsLogged(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "title": "Test Title",
                                 "source": "CAT",
                             }
@@ -54,7 +54,7 @@ class TestRecordViewForSuppressedErrorsLogged(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "title": "Test Title",
                                 "source": "CAT",
                                 "heldByCount": 100,

@@ -164,7 +164,7 @@
         <dt>
           <div class="record-details__label">Record URL</div>
         </dt>
-        <dd><span class="copy-url">{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.iaid})) }}</span></dd>
+        <dd><span class="copy-url">{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.id})) }}</span></dd>
       </dl>
     </div>
   </div>

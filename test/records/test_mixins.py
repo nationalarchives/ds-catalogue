@@ -33,7 +33,7 @@ class TestRecordContextMixin(TestCase):
     def test_get_record_fetches_by_id(self, mock_record_details):
         """Test that get_record fetches record by ID from kwargs"""
         mock_record = Mock(spec=Record)
-        mock_record.iaid = "C123456"
+        mock_record.id = "C123456"
         mock_record_details.return_value = mock_record
 
         request = self.factory.get("/test/")
@@ -44,7 +44,7 @@ class TestRecordContextMixin(TestCase):
         record = view.get_record()
 
         mock_record_details.assert_called_once_with(id="C123456")
-        self.assertEqual(record.iaid, "C123456")
+        self.assertEqual(record.id, "C123456")
 
     @patch("app.records.mixins.record_details_by_id")
     def test_get_record_caches_result(self, mock_record_details):
@@ -181,7 +181,7 @@ class TestRelatedRecordsMixin(TestCase):
         self, mock_by_subjects, mock_by_series
     ):
         """Test getting related records when subjects return enough results"""
-        mock_records = [Mock(spec=Record, iaid=f"C{i}") for i in range(1, 4)]
+        mock_records = [Mock(spec=Record, id=f"C{i}") for i in range(1, 4)]
         mock_by_subjects.return_value = mock_records
 
         mock_record = Mock(spec=Record)
@@ -201,12 +201,12 @@ class TestRelatedRecordsMixin(TestCase):
     ):
         """Test backfilling from series when subjects return insufficient results"""
         # Subjects returns only 1 record
-        mock_by_subjects.return_value = [Mock(spec=Record, iaid="C111")]
+        mock_by_subjects.return_value = [Mock(spec=Record, id="C111")]
 
         # Series returns 2 more records
         mock_by_series.return_value = [
-            Mock(spec=Record, iaid="C222"),
-            Mock(spec=Record, iaid="C333"),
+            Mock(spec=Record, id="C222"),
+            Mock(spec=Record, id="C333"),
         ]
 
         mock_record = Mock(spec=Record)
@@ -341,7 +341,7 @@ class TestMixinIntegration(TestCase):
         """Test that all mixins properly contribute to context"""
         # Setup mocks
         mock_record = Mock(spec=Record)
-        mock_record.iaid = "C123456"
+        mock_record.id = "C123456"
         mock_record.reference_number = "TEST 123"
         mock_record.subjects = ["Army"]
         mock_record.custom_record_type = None
