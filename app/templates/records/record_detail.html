@@ -23,7 +23,7 @@
   {% for property in analytics_data %}
     <meta name="tna_root:{{ property }}" content="{{ analytics_data[property] | none_to_empty_string() }}">
   {% endfor %}
-  <link rel="canonical" href="{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.iaid})) }}">
+  <link rel="canonical" href="{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.id})) }}">
 {% endblock %}
 
 {% block stylesheets %}

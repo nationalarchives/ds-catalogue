@@ -228,7 +228,7 @@ class DeliveryOptionsMixin:
                 "Check viewing and downloading options",
                 "Select an option and follow instructions",
             ],
-            "tna_discovery_link": f"{BASE_TNA_DISCOVERY_URL}/details/r/{record.iaid}",
+            "tna_discovery_link": f"{BASE_TNA_DISCOVERY_URL}/details/r/{record.id}",
         }
 
     def should_include_delivery_options(self, record: Record) -> bool:
@@ -269,7 +269,7 @@ class DeliveryOptionsMixin:
                     self.get_temporary_delivery_options_context(record)
                 )
                 # Add actual delivery options context
-                context.update(self.get_delivery_options_context(record.iaid))
+                context.update(self.get_delivery_options_context(record.id))
         return context
 
 

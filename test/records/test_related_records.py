@@ -15,7 +15,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
     def setUp(self):
         """Set up common test data"""
         self.current_record_data = {
-            "iaid": "C123456",
+            "id": "C123456",
             "referenceNumber": "WO 95/1234",
             "summaryTitle": "Test War Diary",
             "subjects": ["Army", "Europe and Russia", "Conflict", "Diaries"],
@@ -32,7 +32,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
         mock_api_response.records = [
             Record(
                 {
-                    "iaid": "C789012",
+                    "id": "C789012",
                     "summaryTitle": "Related War Diary 1",
                     "subjects": ["Army", "Conflict"],
                     "level": {"code": 7},
@@ -40,7 +40,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
             ),
             Record(
                 {
-                    "iaid": "C345678",
+                    "id": "C345678",
                     "summaryTitle": "Related War Diary 2",
                     "subjects": ["Army", "Diaries"],
                     "level": {"code": 7},
@@ -48,7 +48,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
             ),
             Record(
                 {
-                    "iaid": "C999999",
+                    "id": "C999999",
                     "summaryTitle": "Related War Diary 3",
                     "subjects": ["Army", "Conflict", "Diaries"],
                     "level": {"code": 7},
@@ -56,7 +56,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
             ),
             Record(
                 {
-                    "iaid": "C888888",
+                    "id": "C888888",
                     "summaryTitle": "Related War Diary 4",
                     "subjects": ["Army"],
                     "level": {"code": 6},
@@ -64,7 +64,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
             ),
             Record(
                 {
-                    "iaid": "C777777",
+                    "id": "C777777",
                     "summaryTitle": "Related War Diary 5",
                     "subjects": ["Diaries"],
                     "level": {"code": 8},
@@ -72,7 +72,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
             ),
             Record(
                 {
-                    "iaid": "C666666",
+                    "id": "C666666",
                     "summaryTitle": "Related War Diary 6",
                     "subjects": ["Conflict"],
                     "level": {"code": 7},
@@ -80,7 +80,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
             ),
             Record(
                 {
-                    "iaid": "C555555",
+                    "id": "C555555",
                     "summaryTitle": "Related War Diary 7",
                     "subjects": ["Army", "Conflict"],
                     "level": {"code": 6},
@@ -88,7 +88,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
             ),
             Record(
                 {
-                    "iaid": "C444444",
+                    "id": "C444444",
                     "summaryTitle": "Related War Diary 8",
                     "subjects": ["Army", "Diaries"],
                     "level": {"code": 8},
@@ -96,7 +96,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
             ),
             Record(
                 {
-                    "iaid": "C333333",
+                    "id": "C333333",
                     "summaryTitle": "Related War Diary 9",
                     "subjects": ["Conflict", "Diaries"],
                     "level": {"code": 7},
@@ -104,7 +104,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
             ),
             Record(
                 {
-                    "iaid": "C222222",
+                    "id": "C222222",
                     "summaryTitle": "Related War Diary 10",
                     "subjects": ["Army"],
                     "level": {"code": 6},
@@ -135,7 +135,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
             "C222222",
         ]
         for record in result:
-            self.assertIn(record.iaid, all_iaids)
+            self.assertIn(record.id, all_iaids)
 
         # New behavior: only 1 call with ALL subjects since we return 10 records
         self.assertEqual(mock_search.call_count, 1)
@@ -163,14 +163,14 @@ class RelatedRecordsBySubjectsTests(TestCase):
         mock_api_response.records = [
             Record(
                 {
-                    "iaid": "C123456",  # Same as current record
+                    "id": "C123456",  # Same as current record
                     "summaryTitle": "Current Record",
                     "level": {"code": 7},
                 }
             ),
             Record(
                 {
-                    "iaid": "C789012",
+                    "id": "C789012",
                     "summaryTitle": "Different Record",
                     "level": {"code": 7},
                 }
@@ -184,7 +184,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
 
         # Should only return the different record
         self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].iaid, "C789012")
+        self.assertEqual(result[0].id, "C789012")
 
     @patch("app.records.related.search_records")
     def test_respects_limit(self, mock_search):
@@ -192,7 +192,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
         mock_api_response = Mock(spec=APISearchResponse)
         # Return 5 records
         mock_api_response.records = [
-            Record({"iaid": f"C{i}", "level": {"code": 7}}) for i in range(1, 6)
+            Record({"id": f"C{i}", "level": {"code": 7}}) for i in range(1, 6)
         ]
         mock_search.return_value = mock_api_response
 
@@ -207,7 +207,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
         """Test that non-TNA records return empty list"""
         non_tna_record = Record(
             {
-                "iaid": "C123456",
+                "id": "C123456",
                 "subjects": ["Test Subject"],
                 "groupArray": [{"value": "nonTna"}],
             }
@@ -221,7 +221,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
         """Test that records without subjects return empty list"""
         record_without_subjects = Record(
             {
-                "iaid": "C123456",
+                "id": "C123456",
                 "subjects": [],
                 "groupArray": [{"value": "tna"}],
                 "level": {"code": 7},
@@ -238,7 +238,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
         """Test that records without level_code return empty list"""
         record_without_level = Record(
             {
-                "iaid": "C123456",
+                "id": "C123456",
                 "subjects": ["Test Subject"],
                 "groupArray": [{"value": "tna"}],
                 # No level.code
@@ -295,14 +295,14 @@ class RelatedRecordsBySeriesTests(TestCase):
         """Set up common test data"""
         # Create a mock series record
         self.series_record_data = {
-            "iaid": "C10958",
+            "id": "C10958",
             "referenceNumber": "MH 115",
             "summaryTitle": "Ministry of Health Series",
             "level": {"code": 3},
         }
 
         self.current_record_data = {
-            "iaid": "C1717132",
+            "id": "C1717132",
             "referenceNumber": "MH 115/646",
             "summaryTitle": "Wantage Hospital",
             "groupArray": [{"value": "tna"}],
@@ -325,7 +325,7 @@ class RelatedRecordsBySeriesTests(TestCase):
         mock_api_response.records = [
             Record(
                 {
-                    "iaid": "C1717133",
+                    "id": "C1717133",
                     "referenceNumber": "MH 115/647",
                     "summaryTitle": "Another Hospital",
                     "level": {"code": 6},
@@ -333,7 +333,7 @@ class RelatedRecordsBySeriesTests(TestCase):
             ),
             Record(
                 {
-                    "iaid": "C1717134",
+                    "id": "C1717134",
                     "referenceNumber": "MH 115/648",
                     "summaryTitle": "Yet Another Hospital",
                     "level": {"code": 6},
@@ -345,8 +345,8 @@ class RelatedRecordsBySeriesTests(TestCase):
         result = get_related_records_by_series(self.current_record, limit=3)
 
         self.assertEqual(len(result), 2)
-        self.assertEqual(result[0].iaid, "C1717133")
-        self.assertEqual(result[1].iaid, "C1717134")
+        self.assertEqual(result[0].id, "C1717133")
+        self.assertEqual(result[1].id, "C1717134")
         self.assertEqual(mock_search.call_count, 1)
 
         # Verify all calls use the series reference
@@ -360,14 +360,14 @@ class RelatedRecordsBySeriesTests(TestCase):
         mock_api_response.records = [
             Record(
                 {
-                    "iaid": "C1717132",  # Current record
+                    "id": "C1717132",  # Current record
                     "referenceNumber": "MH 115/646",
                     "level": {"code": 6},
                 }
             ),
             Record(
                 {
-                    "iaid": "C1717133",
+                    "id": "C1717133",
                     "referenceNumber": "MH 115/647",
                     "level": {"code": 6},
                 }
@@ -378,13 +378,13 @@ class RelatedRecordsBySeriesTests(TestCase):
         result = get_related_records_by_series(self.current_record, limit=3)
 
         self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].iaid, "C1717133")
+        self.assertEqual(result[0].id, "C1717133")
 
     def test_returns_empty_list_when_no_series(self):
         """Test that records without hierarchy_series return empty list"""
         record_without_series = Record(
             {
-                "iaid": "C123456",
+                "id": "C123456",
                 "groupArray": [{"value": "tna"}],
                 "level": {"code": 7},
                 # No @hierarchy
@@ -398,7 +398,7 @@ class RelatedRecordsBySeriesTests(TestCase):
     def test_returns_empty_list_when_series_has_no_reference(self):
         """Test handling when series exists but has no reference number"""
         record_data = {
-            "iaid": "C123456",
+            "id": "C123456",
             "groupArray": [{"value": "tna"}],
             "level": {"code": 7},
             "@hierarchy": [
@@ -420,7 +420,7 @@ class RelatedRecordsBySeriesTests(TestCase):
         """Test that limit parameter is respected"""
         mock_api_response = Mock(spec=APISearchResponse)
         mock_api_response.records = [
-            Record({"iaid": f"C{i}", "level": {"code": 6}}) for i in range(1, 6)
+            Record({"id": f"C{i}", "level": {"code": 6}}) for i in range(1, 6)
         ]
         mock_search.return_value = mock_api_response
 
@@ -454,7 +454,7 @@ class RelatedRecordsIntegrationTests(TestCase):
                 {
                     "@template": {
                         "details": {
-                            "iaid": "C123456",
+                            "id": "C123456",
                             "summaryTitle": "Test Record",
                             "subjects": ["Army", "Conflict"],
                             "groupArray": [{"value": "tna"}],
@@ -471,14 +471,14 @@ class RelatedRecordsIntegrationTests(TestCase):
         mock_api_response.records = [
             Record(
                 {
-                    "iaid": "C789012",
+                    "id": "C789012",
                     "summaryTitle": "Related Record 1",
                     "level": {"code": 7},
                 }
             ),
             Record(
                 {
-                    "iaid": "C345678",
+                    "id": "C345678",
                     "summaryTitle": "Related Record 2",
                     "level": {"code": 7},
                 }
@@ -494,8 +494,8 @@ class RelatedRecordsIntegrationTests(TestCase):
         self.assertIn("related_records", response.context_data)
         related = response.context_data["related_records"]
         self.assertEqual(len(related), 2)
-        self.assertEqual(related[0].iaid, "C789012")
-        self.assertEqual(related[1].iaid, "C345678")
+        self.assertEqual(related[0].id, "C789012")
+        self.assertEqual(related[1].id, "C345678")
 
     @patch("app.records.api.rosetta_request_handler")
     @patch("app.records.related.search_records")
@@ -509,7 +509,7 @@ class RelatedRecordsIntegrationTests(TestCase):
                 {
                     "@template": {
                         "details": {
-                            "iaid": "C123456",
+                            "id": "C123456",
                             "summaryTitle": "Test Record",
                             "subjects": ["Army"],
                             "groupArray": [{"value": "tna"}],
@@ -535,7 +535,7 @@ class RelatedRecordsIntegrationTests(TestCase):
         subject_response_first.records = [
             Record(
                 {
-                    "iaid": "C111",
+                    "id": "C111",
                     "level": {"code": 7},
                     "groupArray": [{"value": "tna"}],
                 }
@@ -547,7 +547,7 @@ class RelatedRecordsIntegrationTests(TestCase):
         subject_response_second.records = [
             Record(
                 {
-                    "iaid": "C111",  # Same record - will be deduplicated
+                    "id": "C111",  # Same record - will be deduplicated
                     "level": {"code": 7},
                     "groupArray": [{"value": "tna"}],
                 }
@@ -559,21 +559,21 @@ class RelatedRecordsIntegrationTests(TestCase):
         series_response.records = [
             Record(
                 {
-                    "iaid": "C123456",  # Current record (will be filtered out)
+                    "id": "C123456",  # Current record (will be filtered out)
                     "level": {"code": 6},
                     "groupArray": [{"value": "tna"}],
                 }
             ),
             Record(
                 {
-                    "iaid": "C222",
+                    "id": "C222",
                     "level": {"code": 6},
                     "groupArray": [{"value": "tna"}],
                 }
             ),
             Record(
                 {
-                    "iaid": "C333",
+                    "id": "C333",
                     "level": {"code": 6},
                     "groupArray": [{"value": "tna"}],
                 }
@@ -595,9 +595,9 @@ class RelatedRecordsIntegrationTests(TestCase):
         related = response.context_data["related_records"]
 
         self.assertEqual(len(related), 3)
-        self.assertEqual(related[0].iaid, "C111")  # From subjects
-        self.assertEqual(related[1].iaid, "C222")  # From series
-        self.assertEqual(related[2].iaid, "C333")  # From series
+        self.assertEqual(related[0].id, "C111")  # From subjects
+        self.assertEqual(related[1].id, "C222")  # From series
+        self.assertEqual(related[2].id, "C333")  # From series
 
     @patch("app.records.api.rosetta_request_handler")
     def test_no_related_records_for_non_tna(self, mock_rosetta):
@@ -607,7 +607,7 @@ class RelatedRecordsIntegrationTests(TestCase):
                 {
                     "@template": {
                         "details": {
-                            "iaid": "C123456",
+                            "id": "C123456",
                             "summaryTitle": "Non-TNA Record",
                             "groupArray": [{"value": "nonTna"}],
                             "heldByCount": 100,
