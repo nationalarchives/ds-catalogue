@@ -14,6 +14,7 @@ class RecordModelTests(SimpleTestCase):
     def test_empty_for_optional_attributes(self):
         self.record = Record(self.template_details)
 
+        self.assertEqual(self.record.id, "")
         self.assertEqual(self.record.source, "")
         self.assertEqual(self.record.custom_record_type, "")
         self.assertEqual(self.record.reference_number, "")
