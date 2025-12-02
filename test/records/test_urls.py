@@ -16,7 +16,7 @@ class TestMachineReadableDetailsRouteResolution(TestCase):
         self.assertEqual(resolver.kwargs["id"], "C123456")
 
     def test_resolves_uuid(self):
-        # Some Id's are UUIDs. Tested Id is a real example
+        # Some IDs are UUIDs. Tested ID is a real example
         resolver = resolve(
             "/catalogue/id/43f766a9-e968-4b82-93dc-8cf11a841d41/"
         )
