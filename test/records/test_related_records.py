@@ -16,7 +16,6 @@ class RelatedRecordsBySubjectsTests(TestCase):
         """Set up common test data"""
         self.current_record_data = {
             "id": "C123456",
-            "id": "C123456",
             "referenceNumber": "WO 95/1234",
             "summaryTitle": "Test War Diary",
             "subjects": ["Army", "Europe and Russia", "Conflict", "Diaries"],
