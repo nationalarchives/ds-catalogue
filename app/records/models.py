@@ -239,7 +239,7 @@ class Record(APIModel):
         if self.held_by_id:
             # TODO: Temporary link to Discovery until archon template is ready
             return f"https://discovery.nationalarchives.gov.uk/details/a/{self.held_by_id}"
-            # commented out until archon template is ready
+            # TODO: commented out until archon template is ready
             # try:
             #     return reverse(
             #         "records:details",
