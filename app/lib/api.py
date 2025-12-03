@@ -80,7 +80,7 @@ class JSONAPIClient:
                     if len(response.text) > number_of_characters_to_log
                     else ""
                 )
-                logger.debug(f"Non-JSON response: {truncated_text}{suffix}")
+                logger.error(f"Non-JSON response: {truncated_text}{suffix}")
 
                 raise Exception("Non-JSON response provided")
 
