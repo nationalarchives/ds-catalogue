@@ -71,6 +71,8 @@ class JSONAPIClient:
                 return response.json()
             except JSONDecodeError:
                 logger.error("JSON API provided non-JSON response")
+                # TODO: Consider logging the full response somewhere secure for debugging
+                logger.debug(f"Truncated non-JSON response: {response.text[:100]} ... [truncated]")
                 raise Exception("Non-JSON response provided")
 
         if response.status_code == HTTPStatus.BAD_REQUEST:
