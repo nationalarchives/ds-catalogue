@@ -71,13 +71,17 @@ class JSONAPIClient:
                 return response.json()
             except JSONDecodeError:
                 logger.error("JSON API provided non-JSON response")
-                
+
                 # TODO: Consider logging the full response somewhere secure for debugging
                 number_of_characters_to_log = 100
                 truncated_text = response.text[:number_of_characters_to_log]
-                suffix = " ... [truncated]" if len(response.text) > number_of_characters_to_log else ""
+                suffix = (
+                    " ... [truncated]"
+                    if len(response.text) > number_of_characters_to_log
+                    else ""
+                )
                 logger.debug(f"Non-JSON response: {truncated_text}{suffix}")
-                
+
                 raise Exception("Non-JSON response provided")
 
         if response.status_code == HTTPStatus.BAD_REQUEST:
