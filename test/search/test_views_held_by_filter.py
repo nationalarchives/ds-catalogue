@@ -25,7 +25,7 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "89d4c544-3d43-43a7-ae95-79e3bba0c25b",
+                                "id": "89d4c544-3d43-43a7-ae95-79e3bba0c25b",
                                 "heldBy": "Devon Archives and Local Studies Service (South West Heritage Trust)",
                                 "referenceNumber": "4420M/Z 13",
                             }
@@ -34,7 +34,7 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C3828406",
+                                "id": "C3828406",
                                 "heldBy": "National Library of Wales: Department of Collection Services",
                                 "referenceNumber": "WALE 20/160",
                             }

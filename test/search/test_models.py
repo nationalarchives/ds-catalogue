@@ -44,7 +44,7 @@ class APISearchResponseTests(SimpleTestCase):
                 {
                     "@template": {
                         "details": {
-                            "iaid": "C11175621",
+                            "id": "C11175621",
                         }
                     }
                 }

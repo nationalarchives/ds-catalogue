@@ -16,7 +16,7 @@ class DeliveryOptionsIntegrationTestCase(unittest.TestCase):
         """Set up test fixtures before each test method."""
         # Create sample record
         self.record = MagicMock(spec=Record)
-        self.record.iaid = "C123456"
+        self.record.id = "C123456"
         self.record.reference_number = "TEST 123/456"
         self.record.access_condition = "Open Document, Open Description"
         self.record.held_by = "The National Archives, Kew"
@@ -50,7 +50,7 @@ class DeliveryOptionsIntegrationTestCase(unittest.TestCase):
         mock_get.return_value = mock_response
 
         # Call the function under test
-        api_result = delivery_options_request_handler(self.record.iaid)
+        api_result = delivery_options_request_handler(self.record.id)
 
         # Verify the returned data matches the expected response
         self.assertEqual(len(api_result), 1)
@@ -175,7 +175,7 @@ class DeliveryOptionsAdditionalTests(unittest.TestCase):
         """Set up test fixtures before each test method."""
         # Create sample record
         self.record = MagicMock(spec=Record)
-        self.record.iaid = "C123456"
+        self.record.id = "C123456"
 
     @patch("app.lib.api.get")
     @patch(
@@ -192,7 +192,7 @@ class DeliveryOptionsAdditionalTests(unittest.TestCase):
 
         # Instead of expecting ValueError
         with self.assertRaises(Exception) as context:
-            delivery_options_request_handler(self.record.iaid)
+            delivery_options_request_handler(self.record.id)
         # Check for the actual error message
         self.assertEqual(
             "Delivery Options database is currently unavailable",
@@ -214,7 +214,7 @@ class DeliveryOptionsAdditionalTests(unittest.TestCase):
 
         # Instead of expecting ValueError
         with self.assertRaises(Exception) as context:
-            delivery_options_request_handler(self.record.iaid)
+            delivery_options_request_handler(self.record.id)
         # Check for the actual error message
         self.assertEqual(
             "Delivery Options database is currently unavailable",
@@ -226,7 +226,7 @@ class DeliveryOptionsAdditionalTests(unittest.TestCase):
         """Test handling when DELIVERY_OPTIONS_API_URL is not set."""
         # Expect an ImproperlyConfigured exception
         with self.assertRaises(ImproperlyConfigured) as context:
-            delivery_options_request_handler(self.record.iaid)
+            delivery_options_request_handler(self.record.id)
 
         # Check the error message
         self.assertIn(

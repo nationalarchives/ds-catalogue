@@ -10,14 +10,17 @@
             "Communications and Intelligence Records",
             "Records of the Ministry of Defence"
           ],
-          "creator": ["Ministry of Defence, 1947"],
+          "creator": ["Ministry of Defence, 1947-1947"],
           "dateCovering": "1959 - 1975",
           "description": {
             "value": "<span class=\"scopecontent\"><p>The series consists of a collection of reports and papers produced by some of the many intelligence conferences or working parties in which the Joint Intelligence Bureau and Defence Intelligence Staff participated, often in collaboration with the United Kingdom's intelligence allies and partners, and by a wide range of intelligence committees, sub-committees or other working groups established over the years as necessary to address numerous inter-departmental, cross-directorate or multi-disciplinary intelligence problems and issues.</p></span>",
-            "schema": ""
+            "raw": "<scopecontent><p>The series consists of a collection of reports and papers produced by some of the many intelligence conferences or working parties in which the Joint Intelligence Bureau and Defence Intelligence Staff participated, often in collaboration with the United Kingdom's intelligence allies and partners, and by a wide range of intelligence committees, sub-committees or other working groups established over the years as necessary to address numerous inter-departmental, cross-directorate or multi-disciplinary intelligence problems and issues.</p></scopecontent>",
+            "short": "The series consists of a collection of reports and papers produced by some of the many intelligence conferences or working parties in which the Joint Intelligence Bureau and Defence Intelligence Staff participated, often in collaboration with the ",
+            "noHtml": "The series consists of a collection of reports and papers produced by some of the many intelligence conferences or working parties in which the Joint Intelligence Bureau and Defence Intelligence Staff participated, often in collaboration with the United Kingdom's intelligence allies and partners, and by a wide range of intelligence committees, sub-committees or other working groups established over the years as necessary to address numerous inter-departmental, cross-directorate or multi-disciplinary intelligence problems and issues."
           },
           "digitised": false,
           "formerDepartmentReference": "EWP, DI",
+          "group": "tna",
           "groupArray": [
             {
               "value": "aggregation"
@@ -28,7 +31,7 @@
           ],
           "heldBy": "The National Archives, Kew",
           "heldById": "A13530124",
-          "heldByCount": 25695139,
+          "heldByCount": 27219565,
           "@hierarchy": [
             {
               "@admin": {
@@ -48,7 +51,7 @@
               "summary": {
                 "title": "Records of the Ministry of Defence"
               },
-              "count": 62555
+              "count": 63282
             },
             {
               "@admin": {
@@ -87,6 +90,7 @@
             }
           ],
           "iaid": "C15836",
+          "id": "C15836",
           "immediateSourceOfAcquisition": "<p>From 2003  Ministry of Defence</p>",
           "language": "English",
           "legalStatus": "Public Record(s)",
@@ -123,7 +127,13 @@
             }
           ],
           "source": "CAT",
+          "subjects": [
+            "Court of King's Bench: Plea Side: Affidavits of Due Execution of Articles of Clerkship,...",
+            "Department of Employment and predecessors: Establishment Division and predecessors:...",
+            "Court of King's Bench: Rules in Ejectment Series II"
+          ],
           "summaryTitle": "Ministry of Defence: Joint Intelligence Bureau and Defence Intelligence Staff: Intelligence...",
+          "cleanTitle": "Ministry of Defence: Joint Intelligence Bureau and Defence Intelligence Staff: Intelligence Conferences, Committees and Working Parties: Reports and Papers.",
           "title": "<span class=\"unittitle\">Ministry of Defence: Joint Intelligence Bureau and Defence Intelligence Staff: Intelligence Conferences, Committees and Working Parties: Reports and Papers.</span>",
           "type": "aggregation",
           "@previous": {
@@ -131,7 +141,7 @@
               "id": "C15835"
             },
             "summary": {
-              "title": "Ministry of Defence - Defence Intelligence Staff: Directorate of Economic Intelligence:..."
+              "title": "Ministry of Defence - Defence Intelligence Staff: Directorate of Economic Intelligence: Intelligence Assessments, Reports and Studies"
             },
             "level": {
               "code": 3
