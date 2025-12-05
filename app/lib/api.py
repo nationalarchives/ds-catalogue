@@ -29,9 +29,10 @@ class JSONAPIClient:
     api_url = ""
     params = {}
 
-    def __init__(self, api_url, params={}):
+    def __init__(self, api_url, params={}, timeout=None):
         self.api_url = api_url
         self.params = params
+        self.timeout = timeout
 
     def add_parameter(self, key, value):
         self.params[key] = value
@@ -52,6 +53,7 @@ class JSONAPIClient:
                 url,
                 params=self.params,
                 headers=headers,
+                timeout=self.timeout,
             )
         except ConnectionError:
             logger.error("JSON API connection error")
@@ -102,7 +104,8 @@ def rosetta_request_handler(uri, params={}) -> dict:
     api_url = settings.ROSETTA_API_URL
     if not api_url:
         raise Exception("ROSETTA_API_URL not set")
-    client = JSONAPIClient(api_url)
-    client.add_parameters(params)
+    client = JSONAPIClient(
+        api_url, params=params, timeout=settings.ROSETTA_API_TIMEOUT
+    )
     data = client.get(uri)
     return data

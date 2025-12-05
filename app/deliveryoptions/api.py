@@ -33,9 +33,12 @@ def delivery_options_request_handler(
         raise ImproperlyConfigured("DELIVERY_OPTIONS_API_URL not set")
 
     try:
-        # Create API client
-        client = JSONAPIClient(api_url)
-        client.add_parameters({"iaid": iaid})
+        # Create API client with timeout from settings
+        client = JSONAPIClient(
+            api_url,
+            params={"iaid": iaid},
+            timeout=settings.DELIVERY_OPTIONS_API_TIMEOUT,
+        )
 
         # Attempt to get data with specific error handling
         data = client.get()
