@@ -183,21 +183,16 @@ class DeliveryOptionsAdditionalTests(unittest.TestCase):
         "https://api.test.com/delivery-options",
     )
     def test_empty_api_response(self, mock_get):
-        """Test handling of an empty API response."""
+        """Test handling of an empty API response returns None gracefully."""
         # Setup mock response with an empty list
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
 
-        # Instead of expecting ValueError
-        with self.assertRaises(Exception) as context:
-            delivery_options_request_handler(self.record.iaid)
-        # Check for the actual error message
-        self.assertEqual(
-            "Delivery Options database is currently unavailable",
-            str(context.exception),
-        )
+        # Should return None gracefully - page will load without delivery options
+        result = delivery_options_request_handler(self.record.iaid)
+        self.assertIsNone(result)
 
     @patch("app.lib.api.get")
     @patch(
@@ -205,21 +200,16 @@ class DeliveryOptionsAdditionalTests(unittest.TestCase):
         "https://api.test.com/delivery-options",
     )
     def test_malformed_api_response(self, mock_get):
-        """Test handling of an API response with missing required keys."""
+        """Test handling of an API response with missing required keys returns None gracefully."""
         # Setup mock response with malformed data
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = [{"invalid_key": "value"}]
         mock_get.return_value = mock_response
 
-        # Instead of expecting ValueError
-        with self.assertRaises(Exception) as context:
-            delivery_options_request_handler(self.record.iaid)
-        # Check for the actual error message
-        self.assertEqual(
-            "Delivery Options database is currently unavailable",
-            str(context.exception),
-        )
+        # Should return None gracefully - page will load without delivery options
+        result = delivery_options_request_handler(self.record.iaid)
+        self.assertIsNone(result)
 
     @patch("django.conf.settings.DELIVERY_OPTIONS_API_URL", None)
     def test_api_url_not_set(self):

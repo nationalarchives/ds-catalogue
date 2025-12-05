@@ -19,12 +19,14 @@ def delivery_options_request_handler(
         iaid: The item archive ID to retrieve delivery options for
 
     Returns:
-        The delivery options data for the specified item, or None if no
-        delivery options are available for this record (404)
+        The delivery options data for the specified item, or None if:
+        - No delivery options are available for this record (404)
+        - The API times out
+        - The API returns invalid/malformed data
+        - Any other API error occurs
 
     Raises:
         ImproperlyConfigured: If the DELIVERY_OPTIONS_API_URL setting is not configured
-        Exception: If the delivery options service is unavailable or returns invalid data
     """
     # Validate API URL configuration
     api_url = settings.DELIVERY_OPTIONS_API_URL
@@ -43,25 +45,32 @@ def delivery_options_request_handler(
         # Attempt to get data with specific error handling
         data = client.get()
 
-        # Validate response structure
+        # Validate response structure - return None if invalid
         if not data or not isinstance(data, list):
-            raise ValueError(
-                "Invalid API response format: expected a non-empty list"
+            logger.warning(
+                f"Invalid API response format for iaid {iaid}: expected a non-empty list"
             )
+            return None
 
         # Ensure each item in the list has the required keys
         for item in data:
             if not all(key in item for key in ["options", "surrogateLinks"]):
-                raise ValueError("Invalid API response: missing required keys")
+                logger.warning(
+                    f"Invalid API response for iaid {iaid}: missing required keys"
+                )
+                return None
 
         return data
 
     except ResourceNotFound:
-        # 404 - This record doesn't have delivery options, which is normal
+        # 404 - This record doesn't have delivery options, which is OK
         logger.info(f"No delivery options found for iaid {iaid}")
         return None
 
     except Exception as e:
-        # Log the original exception for debugging
-        logger.error(f"Delivery options request error: {str(e)}")
-        raise Exception("Delivery Options database is currently unavailable")
+        # Handle timeouts, connection errors, and all other errors gracefully
+        # This is a non-critical API - page should still load without delivery options
+        logger.warning(
+            f"Delivery options unavailable for iaid {iaid}: {str(e)}"
+        )
+        return None

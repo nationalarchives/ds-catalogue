@@ -266,25 +266,21 @@ class TimeoutBehaviorTests(TestCase):
         DELIVERY_OPTIONS_API_URL="https://api.test.com/delivery-options",
         DELIVERY_OPTIONS_API_TIMEOUT=30,
     )
-    def test_delivery_options_timeout_raises_exception(self, mock_get):
+    def test_delivery_options_timeout_returns_none(self, mock_get):
         """
-        Test that when delivery options times out, it raises a proper exception.
+        Test that when delivery options times out, it returns None gracefully.
 
-        This verifies the error handling works correctly with timeouts.
+        This ensures that timeout errors don't break the record detail page.
+        The page will load successfully but without delivery options information.
         """
-
         # Mock a timeout
         mock_get.side_effect = Timeout("Connection timed out")
 
-        # Call the handler and expect an exception
-        with self.assertRaises(Exception) as context:
-            delivery_options_request_handler("C123456")
+        # Call the handler - should return None, not raise exception
+        result = delivery_options_request_handler("C123456")
 
-        # Verify the exception message mentions unavailability
-        self.assertIn(
-            "Delivery Options database is currently unavailable",
-            str(context.exception),
-        )
+        # Verify it returns None for graceful degradation
+        self.assertIsNone(result, "Expected None when API times out")
 
     @patch("app.lib.api.get")
     def test_json_api_client_handles_timeout_exception(self, mock_get):

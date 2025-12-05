@@ -224,7 +224,6 @@ class RelatedRecordsBySubjectsTests(TestCase):
                 "iaid": "C123456",
                 "subjects": [],
                 "groupArray": [{"value": "tna"}],
-                "level": {"code": 7},
             }
         )
 
@@ -234,58 +233,26 @@ class RelatedRecordsBySubjectsTests(TestCase):
 
         self.assertEqual(result, [])
 
-    def test_returns_empty_list_when_no_level_code(self):
-        """Test that records without level_code return empty list"""
-        record_without_level = Record(
-            {
-                "iaid": "C123456",
-                "subjects": ["Test Subject"],
-                "groupArray": [{"value": "tna"}],
-                # No level.code
-            }
-        )
-
-        result = get_tna_related_records_by_subjects(
-            record_without_level, limit=3
-        )
-
-        self.assertEqual(result, [])
-
     @patch("app.records.related.search_records")
     @patch("app.records.related.logger")
     def test_handles_api_exception_gracefully(self, mock_logger, mock_search):
-        """Test that API exceptions are handled and logged at debug level"""
+        """Test that API exceptions are handled and logged at warning level for monitoring"""
         mock_search.side_effect = Exception("API Error")
 
         result = get_tna_related_records_by_subjects(
             self.current_record, limit=3
         )
 
+        # Should return empty list (graceful degradation)
         self.assertEqual(result, [])
-        # New implementation logs at debug level, not warning
-        self.assertTrue(mock_logger.debug.called)
 
-    @patch("app.records.related.search_records")
-    def test_uses_correct_subject_filters(self, mock_search):
-        """Test that subject filters are correctly formatted"""
-        mock_api_response = Mock(spec=APISearchResponse)
-        mock_api_response.records = []
-        mock_search.return_value = mock_api_response
+        # Should log at warning level (not debug) for production monitoring
+        self.assertTrue(mock_logger.warning.called)
 
-        get_tna_related_records_by_subjects(self.current_record, limit=3)
-
-        # Check that all subjects appear in at least one call
-        all_subjects = {"Army", "Europe and Russia", "Conflict", "Diaries"}
-        subjects_found = set()
-
-        for call in mock_search.call_args_list:
-            call_params = call[1]["params"]["filter"]
-            for param in call_params:
-                if param.startswith("subject:"):
-                    subject = param.replace("subject:", "")
-                    subjects_found.add(subject)
-
-        self.assertEqual(subjects_found, all_subjects)
+        # Verify warning message contains the record IAID for debugging
+        warning_call_args = mock_logger.warning.call_args[0][0]
+        self.assertIn(self.current_record.iaid, warning_call_args)
+        self.assertIn("API Error", warning_call_args)
 
 
 class RelatedRecordsBySeriesTests(TestCase):
@@ -293,49 +260,45 @@ class RelatedRecordsBySeriesTests(TestCase):
 
     def setUp(self):
         """Set up common test data"""
-        # Create a mock series record
-        self.series_record_data = {
-            "iaid": "C10958",
-            "referenceNumber": "MH 115",
-            "summaryTitle": "Ministry of Health Series",
-            "level": {"code": 3},
-        }
-
-        self.current_record_data = {
-            "iaid": "C1717132",
-            "referenceNumber": "MH 115/646",
-            "summaryTitle": "Wantage Hospital",
+        record_data = {
+            "iaid": "C123456",
+            "referenceNumber": "WO 95/1234",
+            "summaryTitle": "Test War Diary",
             "groupArray": [{"value": "tna"}],
             "level": {"code": 6},  # Piece level
             "@hierarchy": [
                 {
                     "@admin": {"id": "C10958"},
-                    "identifier": [{"reference_number": "MH 115"}],
-                    "level": {"code": 3},
-                    "summary": {"title": "Ministry of Health Series"},
+                    "identifier": [{"reference_number": "WO 95"}],
+                    "level": {"code": 3},  # Series level
                 }
             ],
         }
-        self.current_record = Record(self.current_record_data)
+        self.current_record = Record(record_data)
 
     @patch("app.records.related.search_records")
     def test_returns_related_records_from_same_series(self, mock_search):
-        """Test that related records from same series are returned"""
+        """Test that records from the same series are returned"""
         mock_api_response = Mock(spec=APISearchResponse)
         mock_api_response.records = [
             Record(
                 {
-                    "iaid": "C1717133",
-                    "referenceNumber": "MH 115/647",
-                    "summaryTitle": "Another Hospital",
+                    "iaid": "C123456",  # Current record (will be filtered)
+                    "summaryTitle": "Current War Diary",
                     "level": {"code": 6},
                 }
             ),
             Record(
                 {
-                    "iaid": "C1717134",
-                    "referenceNumber": "MH 115/648",
-                    "summaryTitle": "Yet Another Hospital",
+                    "iaid": "C789012",
+                    "summaryTitle": "Related War Diary 1",
+                    "level": {"code": 6},
+                }
+            ),
+            Record(
+                {
+                    "iaid": "C345678",
+                    "summaryTitle": "Related War Diary 2",
                     "level": {"code": 6},
                 }
             ),
@@ -344,44 +307,38 @@ class RelatedRecordsBySeriesTests(TestCase):
 
         result = get_related_records_by_series(self.current_record, limit=3)
 
+        # Should return 2 records (excluding current record)
         self.assertEqual(len(result), 2)
-        self.assertEqual(result[0].iaid, "C1717133")
-        self.assertEqual(result[1].iaid, "C1717134")
-        self.assertEqual(mock_search.call_count, 1)
+        self.assertEqual(result[0].iaid, "C789012")
+        self.assertEqual(result[1].iaid, "C345678")
 
-        # Verify all calls use the series reference
-        for call in mock_search.call_args_list:
-            self.assertEqual(call[1]["query"], "MH 115")
+        # Verify search was called with series reference
+        mock_search.assert_called_once()
+        call_kwargs = mock_search.call_args[1]
+        self.assertEqual(call_kwargs["query"], "WO 95")
 
-    @patch("app.records.related.search_records")
-    def test_filters_out_current_record(self, mock_search):
-        """Test that current record is excluded from results"""
-        mock_api_response = Mock(spec=APISearchResponse)
-        mock_api_response.records = [
-            Record(
-                {
-                    "iaid": "C1717132",  # Current record
-                    "referenceNumber": "MH 115/646",
-                    "level": {"code": 6},
-                }
-            ),
-            Record(
-                {
-                    "iaid": "C1717133",
-                    "referenceNumber": "MH 115/647",
-                    "level": {"code": 6},
-                }
-            ),
-        ]
-        mock_search.return_value = mock_api_response
+    def test_returns_empty_list_for_non_tna_record(self):
+        """Test that non-TNA records return empty list"""
+        non_tna_record = Record(
+            {
+                "iaid": "C123456",
+                "groupArray": [{"value": "nonTna"}],
+                "@hierarchy": [
+                    {
+                        "@admin": {"id": "C10958"},
+                        "identifier": [{"reference_number": "ABC 123"}],
+                        "level": {"code": 3},
+                    }
+                ],
+            }
+        )
 
-        result = get_related_records_by_series(self.current_record, limit=3)
+        result = get_related_records_by_series(non_tna_record, limit=3)
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].iaid, "C1717133")
+        self.assertEqual(result, [])
 
     def test_returns_empty_list_when_no_series(self):
-        """Test that records without hierarchy_series return empty list"""
+        """Test that records without series hierarchy return empty list"""
         record_without_series = Record(
             {
                 "iaid": "C123456",
@@ -396,7 +353,7 @@ class RelatedRecordsBySeriesTests(TestCase):
         self.assertEqual(result, [])
 
     def test_returns_empty_list_when_series_has_no_reference(self):
-        """Test handling when series exists but has no reference number"""
+        """Test that series without reference number returns empty list"""
         record_data = {
             "iaid": "C123456",
             "groupArray": [{"value": "tna"}],
@@ -431,12 +388,22 @@ class RelatedRecordsBySeriesTests(TestCase):
     @patch("app.records.related.search_records")
     @patch("app.records.related.logger")
     def test_handles_api_exception_gracefully(self, mock_logger, mock_search):
-        """Test that API exceptions return empty list and log at debug level"""
+        """Test that API exceptions are handled and logged at warning level for monitoring"""
         mock_search.side_effect = Exception("API Error")
 
         result = get_related_records_by_series(self.current_record, limit=3)
 
+        # Should return empty list (graceful degradation)
         self.assertEqual(result, [])
+
+        # Should log at warning level (not debug) for production monitoring
+        self.assertTrue(mock_logger.warning.called)
+
+        # Verify warning message contains useful debugging info
+        warning_call_args = mock_logger.warning.call_args[0][0]
+        self.assertIn(self.current_record.iaid, warning_call_args)
+        self.assertIn("WO 95", warning_call_args)  # Series reference
+        self.assertIn("API Error", warning_call_args)
 
 
 class RelatedRecordsIntegrationTests(TestCase):

@@ -73,6 +73,15 @@ In addition to the [base Docker image variables](https://github.com/nationalarch
 | `ENVIRONMENT_NAME`                | The name of the environment (for reporting purposes)  | `production`                                                |
 | `SENTRY_DSN`                      | The ID of the Sentry client project to catch issues   | _none_                                                      |
 | `SENTRY_SAMPLE_RATE`              | How often to sample traces and profiles (0-1.0)       | production: `0.1`, staging: `0.25`, develop: `1`, test: `0` |
+| `ROSETTA_API_URL`                 | Base API URL for Rosetta, inc. `/rosetta/data` path   | TODO: document api end points                               |
+| `WAGTAIL_API_URL`                 | Base API URL for Wagtail                              | TODO: document api end points                               |
+| `DELIVERY_OPTIONS_API_URL`        | Base API URL for Delivery options                     | TODO: document api end points                               |
+| `WAGTAIL_API_TIMEOUT`             | Max timeout Wagtail api (seconds)                     | 5 seconds                                                   |
+| `ROSETTA_API_TIMEOUT`             | Max timeout Rosetta api (seconds)                     | 5 seconds                                                   |
+| `DELIVERY_OPTIONS_API_TIMEOUT`    | Max timeout Delivery Options api (seconds)            | 5 seconds                                                   |
+| `DCS_PREFIXES`                    | List of doc prefixes for Distressing Content          | TODO: Document to maintain list of prefixes                 |
+| `MAX_SUBJECTS_PER_RECORD`         | Max num of subjects displayed on details screen       | 20                                                          |
+| --------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------- |
 
 See [Sentry's official guide](https://docs.sentry.io/platforms/python/guides/django/) for further information on configuring Sentry for Django projects.
 
@@ -80,16 +89,9 @@ See [Sentry's official guide](https://docs.sentry.io/platforms/python/guides/dja
 
 | Variable                       | Purpose                                                                      |
 | ------------------------------ | ---------------------------------------------------------------------------- |
-| `ROSETTA_API_URL`              | The base API URL for Rosetta, including the `/rosetta/data` path             |
-| `WAGTAIL_API_URL`              | The base API URL for Wagtail                                                 |
-| `DELIVERY_OPTIONS_API_URL`     | Api for Delivery options                                                     |
-| `WAGTAIL_API_TIMEOUT`          | Maximum timeout of Wagtail api (seconds) - not setting results in no timeout |
-| `ROSETTA_API_TIMEOUT`          | Maximum timeout of Rosetta api (seconds) - ditto                             |
-| `DELIVERY_OPTIONS_API_TIMEOUT` | Maximum timeout of Delivery Options api (seconds) - ditto                    |
-| `DCS_PREFIXES`                 | Comma separated list of document prefixes for distressing content            |
 | `STAFFIN_IP_ADDRESSES`         | Comma separated list of CIDR format IP addresses identifying staff access    |
 | `ONSITE_IP_ADDRESSES`          | Comma separated list of CIDR format IP addresses identifying onsite access   |
-| `MAX_SUBJECTS_PER_RECORD`      | Maximum number of subjects displayed on details screen                       |
+| ------------------------------ | ---------------------------------------------------------------------------- |
 
 TODO: Find where the IP_ADDRESSES are documented and link to document here
 

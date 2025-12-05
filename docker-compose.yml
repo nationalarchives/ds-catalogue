@@ -10,7 +10,7 @@ services:
     environment:
       - RUNTIME=develop
       - ENVIRONMENT_NAME=localhost
-      - DEBUG=True
+      - DEBUG=False
       - DJANGO_SETTINGS_MODULE=config.settings.develop
       - SECRET_KEY=abc123
       - NPM_DEVELOP_COMMAND=dev
@@ -23,8 +23,16 @@ services:
       - CSP_FRAME_SRC='self',www.youtube.com
       - FEATURE_PHASE_BANNER=False
       - WAGTAIL_API_URL=https://wagtail.nationalarchives.gov.uk/api/v2
-      # - WAGTAIL_API_URL=http://host.docker.internal:8000/api/v2
-      - DELIVERY_OPTIONS_API_URL=http://mock-delivery-options-api:8080/rosetta/data
+      - ROSETTA_API_URL=https://rosetta-staging.k-int.com/rosetta/data
+      - WAGTAIL_API_URL=https://wagtail.nationalarchives.gov.uk/api/v2
+      - DELIVERY_OPTIONS_API_URL=http://ds-api.dev.local/delivery-options-api/api/DeliveryOptions
+      # - DELIVERY_OPTIONS_API_URL=http://mock-delivery-options-api:8080/rosetta/data
+      - ROSETTA_API_TIMEOUT=5
+      - WAGTAIL_API_TIMEOUT=5
+      - DELIVERY_OPTIONS_API_TIMEOUT=5
+      # Distressing content catalogue prefixes
+      - DCS_PREFIXES="HO 616,AB 41,J 14,LOC 5,HO 397,ILB 2,LEV 1,GTI 2,GTI 102,ICSA 1,ICSA 2,ICSA 3,ICSA 4,ICSA 5,ICSA 6,ICSA 7,ES 38" # Must be comma separated if more than one.
+      - MAX_SUBJECTS_PER_RECORD=20
     ports:
       - 65533:8080
     volumes:

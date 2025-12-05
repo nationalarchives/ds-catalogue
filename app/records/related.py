@@ -26,27 +26,42 @@ def get_tna_related_records_by_subjects(
         limit: Maximum number of related records to return (default 3)
 
     Returns:
-        List of related Record objects (random selection), or empty list if none found
+        List of related Record objects (random selection), or empty list if:
+        - Record is not TNA
+        - Record has no subjects
+        - API calls fail (graceful degradation)
     """
     # Only TNA records have subjects
     if not current_record.is_tna or not current_record.subjects:
         return []
 
-    # Fetch 10 candidates
-    list_of_related_records = _search_by_subject_matches(
-        current_record,
-        fetch_limit=RELATED_RECORDS_FETCH_LIMIT,
-    )
+    try:
+        # Fetch 10 candidates
+        list_of_related_records = _search_by_subject_matches(
+            current_record,
+            fetch_limit=RELATED_RECORDS_FETCH_LIMIT,
+        )
 
-    # Randomly select up to 'limit' records from the candidates
-    if len(list_of_related_records) <= limit:
-        return list_of_related_records
+        # Randomly select up to 'limit' records from the candidates
+        if len(list_of_related_records) <= limit:
+            return list_of_related_records
 
-    return random.sample(list_of_related_records, limit)
+        return random.sample(list_of_related_records, limit)
+
+    except Exception as e:
+        logger.warning(
+            f"Failed to fetch related records by subjects for {current_record.iaid}: {e}"
+        )
+        return []
 
 
 def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
-    """Search for records matching ALL subjects."""
+    """
+    Search for records matching ALL subjects.
+
+    Returns:
+        Dictionary of matching records, or empty dict on failure
+    """
     record_matches = {}
 
     filters = ["group:tna"]
@@ -73,7 +88,9 @@ def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
                 record_matches[record.iaid] = record
 
     except Exception as e:
-        logger.debug(f"Failed to search with all subjects: {e}")
+        logger.warning(
+            f"Failed to fetch related records with all subjects for {current_record.iaid}: {e}"
+        )
 
     return record_matches
 
@@ -81,7 +98,8 @@ def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
 def _search_individual_subjects(
     current_record: Record, fetch_limit: int, record_matches: dict
 ) -> dict:
-    """Search by individual subjects until enough matches are found.
+    """
+    Search by individual subjects until enough matches are found.
 
     Args:
         current_record: The TNA record to find relations for
@@ -89,7 +107,7 @@ def _search_individual_subjects(
         record_matches: Existing matches to add to
 
     Returns:
-        Updated dictionary of record matches
+        Updated dictionary of record matches, with graceful handling of API failures
     """
 
     record_subject_list = list(current_record.subjects)
@@ -124,7 +142,11 @@ def _search_individual_subjects(
                     record_matches[record.iaid] = record
 
         except Exception as e:
-            logger.debug(f"Failed to search for subject '{subject}': {e}")
+            logger.warning(
+                f"Failed to fetch related records for subject '{subject}' "
+                f"on record {current_record.iaid}: {e}"
+            )
+            # Continue to next subject - partial results are better than none
 
     return record_matches
 
@@ -134,14 +156,15 @@ def _search_by_subject_matches(
 ) -> list[Record]:
     """
     Search for TNA records with matching subjects.
-    First tries ALL subjects (logical AND, pending implementation), then falls back to individual subjects until enough matches found.
+    First tries ALL subjects (logical AND, pending implementation),
+    then falls back to individual subjects until enough matches found.
 
     Args:
         current_record: The TNA record to find relations for
         fetch_limit: Maximum number of candidates to fetch
 
     Returns:
-        List of records (unsorted)
+        List of records (unsorted), or empty list on complete failure
     """
     # TODO: When filter logical AND is implemented, this function will provide even more closely related records
 
@@ -170,7 +193,11 @@ def get_related_records_by_series(
         limit: Maximum number of related records to return (default 3)
 
     Returns:
-        List of related Record objects from the same series
+        List of related Record objects from the same series, or empty list if:
+        - Record is not TNA
+        - Record has no series in hierarchy
+        - Series has no reference number
+        - API call fails (graceful degradation)
     """
     # Only proceed if record has a series in its hierarchy
     if not current_record.is_tna or not current_record.hierarchy_series:
@@ -213,7 +240,8 @@ def get_related_records_by_series(
         return results
 
     except Exception as e:
-        logger.debug(
-            f"Failed to search for series records with ref '{series_ref}': {e}"
+        logger.warning(
+            f"Failed to fetch related records by series '{series_ref}' "
+            f"for record {current_record.iaid}: {e}"
         )
         return []
