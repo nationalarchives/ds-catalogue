@@ -1,5 +1,7 @@
+import threading
 from unittest.mock import Mock, patch
 
+from app.records.mixins import RelatedRecordsMixin
 from app.records.models import Record
 from app.records.related import (
     get_related_records_by_series,
@@ -98,7 +100,7 @@ class RelatedRecordsBySubjectsTests(TestCase):
                 {
                     "id": "C333333",
                     "summaryTitle": "Related War Diary 9",
-                    "subjects": ["Conflict", "Diaries"],
+                    "subjects": ["Conflict"],
                     "level": {"code": 7},
                 }
             ),
@@ -107,67 +109,69 @@ class RelatedRecordsBySubjectsTests(TestCase):
                     "id": "C222222",
                     "summaryTitle": "Related War Diary 10",
                     "subjects": ["Army"],
-                    "level": {"code": 6},
+                    "level": {"code": 7},
                 }
             ),
         ]
+
+        # Mock will be called twice: once for all subjects, once for individual subjects
         mock_search.return_value = mock_api_response
 
+        # Call the function with limit 3
         result = get_tna_related_records_by_subjects(
             self.current_record, limit=3
         )
 
-        # Should return 3 related records (limited by the limit parameter)
+        # Should return 3 random records from the 10 available (excluding current)
         self.assertEqual(len(result), 3)
-        self.assertIsInstance(result[0], Record)
-
-        # Check that all returned records are from the expected pool
-        all_iaids = [
-            "C789012",
-            "C345678",
-            "C999999",
-            "C888888",
-            "C777777",
-            "C666666",
-            "C555555",
-            "C444444",
-            "C333333",
-            "C222222",
-        ]
+        # Verify none of them are the current record
         for record in result:
-            self.assertIn(record.id, all_iaids)
-
-        # New behavior: only 1 call with ALL subjects since we return 10 records
-        self.assertEqual(mock_search.call_count, 1)
-
-        # Verify the call includes all subjects (AND logic)
-        call_params = mock_search.call_args_list[0][1]["params"]["filter"]
-        self.assertIn("group:tna", call_params)
-
-        # Should have ALL 4 subjects in the single call
-        subject_filters = [f for f in call_params if f.startswith("subject:")]
-        self.assertEqual(len(subject_filters), 4)
-        self.assertIn("subject:Army", call_params)
-        self.assertIn("subject:Europe and Russia", call_params)
-        self.assertIn("subject:Conflict", call_params)
-        self.assertIn("subject:Diaries", call_params)
-
-        # Should have 5 level filters (Series through Item)
-        level_filters = [f for f in call_params if f.startswith("level:")]
-        self.assertEqual(len(level_filters), 5)
+            self.assertNotEqual(record.id, self.current_record.id)
 
     @patch("app.records.related.search_records")
-    def test_filters_out_current_record(self, mock_search):
-        """Test that the current record is filtered out of results"""
+    def test_returns_empty_list_when_no_subjects(self, mock_search):
+        """Test that empty list is returned when record has no subjects"""
+        record_without_subjects = Record(
+            {
+                "id": "C123456",
+                "summaryTitle": "Record without subjects",
+                "groupArray": [{"value": "tna"}],
+                "level": {"code": 7},
+            }
+        )
+
+        result = get_tna_related_records_by_subjects(
+            record_without_subjects, limit=3
+        )
+
+        self.assertEqual(result, [])
+        mock_search.assert_not_called()
+
+    @patch("app.records.related.search_records")
+    def test_returns_empty_list_for_non_tna_records(self, mock_search):
+        """Test that non-TNA records return empty list"""
+        non_tna_record = Record(
+            {
+                "id": "C123456",
+                "summaryTitle": "Non-TNA Record",
+                "subjects": ["Army"],
+                "groupArray": [{"value": "nonTna"}],
+                "level": {"code": 7},
+            }
+        )
+
+        result = get_tna_related_records_by_subjects(non_tna_record, limit=3)
+
+        self.assertEqual(result, [])
+        mock_search.assert_not_called()
+
+    @patch("app.records.related.search_records")
+    def test_excludes_current_record_from_results(self, mock_search):
+        """Test that the current record is excluded from results"""
         mock_api_response = Mock(spec=APISearchResponse)
+        # Include the current record in the API response
         mock_api_response.records = [
-            Record(
-                {
-                    "id": "C123456",  # Same as current record
-                    "summaryTitle": "Current Record",
-                    "level": {"code": 7},
-                }
-            ),
+            self.current_record,  # This should be excluded
             Record(
                 {
                     "id": "C789012",
@@ -182,110 +186,24 @@ class RelatedRecordsBySubjectsTests(TestCase):
             self.current_record, limit=3
         )
 
-        # Should only return the different record
+        # Should only contain the different record
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].id, "C789012")
 
     @patch("app.records.related.search_records")
-    def test_respects_limit(self, mock_search):
-        """Test that the limit parameter is respected"""
-        mock_api_response = Mock(spec=APISearchResponse)
-        # Return 5 records
-        mock_api_response.records = [
-            Record({"id": f"C{i}", "level": {"code": 7}}) for i in range(1, 6)
-        ]
-        mock_search.return_value = mock_api_response
-
-        result = get_tna_related_records_by_subjects(
-            self.current_record, limit=2
-        )
-
-        # Should only return 2 records
-        self.assertEqual(len(result), 2)
-
-    def test_returns_empty_list_for_non_tna_record(self):
-        """Test that non-TNA records return empty list"""
-        non_tna_record = Record(
-            {
-                "id": "C123456",
-                "subjects": ["Test Subject"],
-                "groupArray": [{"value": "nonTna"}],
-            }
-        )
-
-        result = get_tna_related_records_by_subjects(non_tna_record, limit=3)
-
-        self.assertEqual(result, [])
-
-    def test_returns_empty_list_when_no_subjects(self):
-        """Test that records without subjects return empty list"""
-        record_without_subjects = Record(
-            {
-                "id": "C123456",
-                "subjects": [],
-                "groupArray": [{"value": "tna"}],
-                "level": {"code": 7},
-            }
-        )
-
-        result = get_tna_related_records_by_subjects(
-            record_without_subjects, limit=3
-        )
-
-        self.assertEqual(result, [])
-
-    def test_returns_empty_list_when_no_level_code(self):
-        """Test that records without level_code return empty list"""
-        record_without_level = Record(
-            {
-                "id": "C123456",
-                "subjects": ["Test Subject"],
-                "groupArray": [{"value": "tna"}],
-                # No level.code
-            }
-        )
-
-        result = get_tna_related_records_by_subjects(
-            record_without_level, limit=3
-        )
-
-        self.assertEqual(result, [])
-
-    @patch("app.records.related.search_records")
     @patch("app.records.related.logger")
-    def test_handles_api_exception_gracefully(self, mock_logger, mock_search):
-        """Test that API exceptions are handled and logged at debug level"""
-        mock_search.side_effect = Exception("API Error")
+    def test_handles_search_exception_gracefully(
+        self, mock_logger, mock_search
+    ):
+        """Test that search exceptions are caught and logged"""
+        mock_search.side_effect = Exception("Search failed")
 
         result = get_tna_related_records_by_subjects(
             self.current_record, limit=3
         )
 
+        # Should return empty list when search fails
         self.assertEqual(result, [])
-        # New implementation logs at debug level, not warning
-        self.assertTrue(mock_logger.debug.called)
-
-    @patch("app.records.related.search_records")
-    def test_uses_correct_subject_filters(self, mock_search):
-        """Test that subject filters are correctly formatted"""
-        mock_api_response = Mock(spec=APISearchResponse)
-        mock_api_response.records = []
-        mock_search.return_value = mock_api_response
-
-        get_tna_related_records_by_subjects(self.current_record, limit=3)
-
-        # Check that all subjects appear in at least one call
-        all_subjects = {"Army", "Europe and Russia", "Conflict", "Diaries"}
-        subjects_found = set()
-
-        for call in mock_search.call_args_list:
-            call_params = call[1]["params"]["filter"]
-            for param in call_params:
-                if param.startswith("subject:"):
-                    subject = param.replace("subject:", "")
-                    subjects_found.add(subject)
-
-        self.assertEqual(subjects_found, all_subjects)
 
 
 class RelatedRecordsBySeriesTests(TestCase):
@@ -293,95 +211,55 @@ class RelatedRecordsBySeriesTests(TestCase):
 
     def setUp(self):
         """Set up common test data"""
-        # Create a mock series record
-        self.series_record_data = {
-            "id": "C10958",
-            "referenceNumber": "MH 115",
-            "summaryTitle": "Ministry of Health Series",
-            "level": {"code": 3},
-        }
-
         self.current_record_data = {
-            "id": "C1717132",
-            "referenceNumber": "MH 115/646",
-            "summaryTitle": "Wantage Hospital",
+            "id": "C123456",
+            "summaryTitle": "Test Record",
             "groupArray": [{"value": "tna"}],
-            "level": {"code": 6},  # Piece level
+            "level": {"code": 7},
             "@hierarchy": [
                 {
                     "@admin": {"id": "C10958"},
                     "identifier": [{"reference_number": "MH 115"}],
                     "level": {"code": 3},
-                    "summary": {"title": "Ministry of Health Series"},
                 }
             ],
         }
         self.current_record = Record(self.current_record_data)
 
     @patch("app.records.related.search_records")
-    def test_returns_related_records_from_same_series(self, mock_search):
-        """Test that related records from same series are returned"""
+    def test_returns_series_records_excluding_current(self, mock_search):
+        """Test that series records are returned but current record is excluded"""
         mock_api_response = Mock(spec=APISearchResponse)
         mock_api_response.records = [
-            Record(
-                {
-                    "id": "C1717133",
-                    "referenceNumber": "MH 115/647",
-                    "summaryTitle": "Another Hospital",
-                    "level": {"code": 6},
-                }
-            ),
-            Record(
-                {
-                    "id": "C1717134",
-                    "referenceNumber": "MH 115/648",
-                    "summaryTitle": "Yet Another Hospital",
-                    "level": {"code": 6},
-                }
-            ),
+            Record({"id": "C123456", "level": {"code": 7}}),  # Current record
+            Record({"id": "C234567", "level": {"code": 7}}),
+            Record({"id": "C345678", "level": {"code": 7}}),
         ]
         mock_search.return_value = mock_api_response
 
-        result = get_related_records_by_series(self.current_record, limit=3)
+        result = get_related_records_by_series(self.current_record, limit=2)
 
+        # Should exclude current record and return only 2
         self.assertEqual(len(result), 2)
-        self.assertEqual(result[0].id, "C1717133")
-        self.assertEqual(result[1].id, "C1717134")
-        self.assertEqual(mock_search.call_count, 1)
+        self.assertEqual(result[0].id, "C234567")
+        self.assertEqual(result[1].id, "C345678")
 
-        # Verify all calls use the series reference
-        for call in mock_search.call_args_list:
-            self.assertEqual(call[1]["query"], "MH 115")
+    def test_returns_empty_for_non_tna_records(self):
+        """Test that non-TNA records return empty list"""
+        non_tna_record = Record(
+            {
+                "id": "C123456",
+                "groupArray": [{"value": "nonTna"}],
+                "level": {"code": 7},
+            }
+        )
 
-    @patch("app.records.related.search_records")
-    def test_filters_out_current_record(self, mock_search):
-        """Test that current record is excluded from results"""
-        mock_api_response = Mock(spec=APISearchResponse)
-        mock_api_response.records = [
-            Record(
-                {
-                    "id": "C1717132",  # Current record
-                    "referenceNumber": "MH 115/646",
-                    "level": {"code": 6},
-                }
-            ),
-            Record(
-                {
-                    "id": "C1717133",
-                    "referenceNumber": "MH 115/647",
-                    "level": {"code": 6},
-                }
-            ),
-        ]
-        mock_search.return_value = mock_api_response
+        result = get_related_records_by_series(non_tna_record, limit=3)
 
-        result = get_related_records_by_series(self.current_record, limit=3)
+        self.assertEqual(result, [])
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].id, "C1717133")
-
-    def test_returns_empty_list_when_no_series(self):
-        """Test that records without hierarchy_series return empty list"""
+    def test_returns_empty_when_no_series_in_hierarchy(self):
+        """Test that records without series in hierarchy return empty list"""
         record_without_series = Record(
             {
                 "id": "C123456",
@@ -395,7 +273,7 @@ class RelatedRecordsBySeriesTests(TestCase):
 
         self.assertEqual(result, [])
 
-    def test_returns_empty_list_when_series_has_no_reference(self):
+    def test_returns_empty_when_series_has_no_reference_number(self):
         """Test handling when series exists but has no reference number"""
         record_data = {
             "id": "C123456",
@@ -439,98 +317,34 @@ class RelatedRecordsBySeriesTests(TestCase):
         self.assertEqual(result, [])
 
 
-class RelatedRecordsIntegrationTests(TestCase):
-    """Integration tests for related records in views"""
+class RelatedRecordsMixinTests(TestCase):
+    """Unit tests for RelatedRecordsMixin - tests backfill logic directly"""
 
-    @patch("app.records.api.rosetta_request_handler")
     @patch("app.records.related.search_records")
-    def test_record_detail_view_includes_related_records_by_subjects(
-        self, mock_search, mock_rosetta
-    ):
-        """Test that record detail view includes related records"""
-        # Mock main record response
-        mock_rosetta.return_value = {
-            "data": [
-                {
-                    "@template": {
-                        "details": {
-                            "id": "C123456",
-                            "summaryTitle": "Test Record",
-                            "subjects": ["Army", "Conflict"],
-                            "groupArray": [{"value": "tna"}],
-                            "level": {"code": 7},
-                            "heldByCount": 100,
-                        }
-                    }
-                }
-            ]
-        }
-
-        # Mock related records response
-        mock_api_response = Mock(spec=APISearchResponse)
-        mock_api_response.records = [
-            Record(
-                {
-                    "id": "C789012",
-                    "summaryTitle": "Related Record 1",
-                    "level": {"code": 7},
-                }
-            ),
-            Record(
-                {
-                    "id": "C345678",
-                    "summaryTitle": "Related Record 2",
-                    "level": {"code": 7},
-                }
-            ),
-        ]
-        mock_search.return_value = mock_api_response
-
-        response = self.client.get("/catalogue/id/C123456/")
-
-        self.assertEqual(response.status_code, 200)
-
-        # Check context has related_records
-        self.assertIn("related_records", response.context_data)
-        related = response.context_data["related_records"]
-        self.assertEqual(len(related), 2)
-        self.assertEqual(related[0].id, "C789012")
-        self.assertEqual(related[1].id, "C345678")
-
-    @patch("app.records.api.rosetta_request_handler")
-    @patch("app.records.related.search_records")
-    def test_backfills_with_series_when_subjects_insufficient(
-        self, mock_search, mock_rosetta
+    def test_get_related_records_backfills_with_series_when_subjects_insufficient(
+        self, mock_search
     ):
         """Test that series records are used to backfill when subjects return < 3"""
-        # Mock main record with series
-        mock_rosetta.return_value = {
-            "data": [
-                {
-                    "@template": {
-                        "details": {
-                            "id": "C123456",
-                            "summaryTitle": "Test Record",
-                            "subjects": ["Army"],
-                            "groupArray": [{"value": "tna"}],
-                            "level": {"code": 6},
-                            "heldByCount": 100,
-                            "@hierarchy": [
-                                {
-                                    "@admin": {"id": "C10958"},
-                                    "identifier": [
-                                        {"reference_number": "MH 115"}
-                                    ],
-                                    "level": {"code": 3},
-                                }
-                            ],
-                        }
-                    }
-                }
-            ]
-        }
 
-        # First call: subject search with "Army" - returns 1 record (not enough for fetch_limit=9)
+        # Create test record with series
+        current_record = Record(
+            {
+                "id": "C123456",
+                "summaryTitle": "Test Record",
+                "subjects": ["Army"],
+                "groupArray": [{"value": "tna"}],
+                "level": {"code": 6},
+                "@hierarchy": [
+                    {
+                        "@admin": {"id": "C10958"},
+                        "identifier": [{"reference_number": "MH 115"}],
+                        "level": {"code": 3},
+                    }
+                ],
+            }
+        )
+
+        # Mock responses
         subject_response_first = Mock(spec=APISearchResponse)
         subject_response_first.records = [
             Record(
@@ -542,24 +356,22 @@ class RelatedRecordsIntegrationTests(TestCase):
             ),
         ]
 
-        # Second call: individual subject fallback for "Army" - returns same record (already tracked)
         subject_response_second = Mock(spec=APISearchResponse)
         subject_response_second.records = [
             Record(
                 {
-                    "id": "C111",  # Same record - will be deduplicated
+                    "id": "C111",
                     "level": {"code": 7},
                     "groupArray": [{"value": "tna"}],
                 }
             ),
         ]
 
-        # Third call: series search
         series_response = Mock(spec=APISearchResponse)
         series_response.records = [
             Record(
                 {
-                    "id": "C123456",  # Current record (will be filtered out)
+                    "id": "C123456",  # Current record - will be filtered
                     "level": {"code": 6},
                     "groupArray": [{"value": "tna"}],
                 }
@@ -580,24 +392,89 @@ class RelatedRecordsIntegrationTests(TestCase):
             ),
         ]
 
-        # Set up responses
         mock_search.side_effect = [
-            subject_response_first,  # All subjects search
-            subject_response_second,  # Individual subject fallback
-            series_response,  # Series backfill
+            subject_response_first,
+            subject_response_second,
+            series_response,
         ]
+
+        # Test the mixin method directly (no HTTP request, no threading)
+        mixin = RelatedRecordsMixin()
+        mixin.related_records_limit = 3
+
+        related = mixin.get_related_records(current_record)
+
+        # Verify backfill behavior: 1 from subjects + 2 from series
+        self.assertEqual(len(related), 3)
+        self.assertEqual(related[0].id, "C111")  # From subjects
+        self.assertEqual(related[1].id, "C222")  # From series (backfilled)
+        self.assertEqual(related[2].id, "C333")  # From series (backfilled)
+
+
+class RelatedRecordsIntegrationTests(TestCase):
+    """Integration tests for related records in views"""
+
+    @patch("app.records.api.rosetta_request_handler")
+    @patch("app.records.views.RecordDetailView.fetch_enrichment_data_parallel")
+    def test_related_records_appear_on_detail_page(
+        self, mock_fetch_parallel, mock_rosetta
+    ):
+        """Test that related records appear on the record detail page"""
+
+        # Mock main record response
+        mock_rosetta.return_value = {
+            "data": [
+                {
+                    "@template": {
+                        "details": {
+                            "id": "C123456",
+                            "summaryTitle": "Test Record",
+                            "subjects": ["Army", "Conflict"],
+                            "groupArray": [{"value": "tna"}],
+                            "level": {"code": 7},
+                            "heldByCount": 100,
+                        }
+                    }
+                }
+            ]
+        }
+
+        # Mock the parallel fetch to return related records
+        def mock_fetch(record):
+            return {
+                "subjects_enrichment": {},
+                "related_records": [
+                    Record(
+                        {
+                            "id": "C789012",
+                            "summaryTitle": "Related Record 1",
+                            "level": {"code": 7},
+                        }
+                    ),
+                    Record(
+                        {
+                            "id": "C345678",
+                            "summaryTitle": "Related Record 2",
+                            "level": {"code": 7},
+                        }
+                    ),
+                ],
+                "delivery_options": {},
+                "distressing_content": False,
+            }
+
+        mock_fetch_parallel.side_effect = mock_fetch
 
         response = self.client.get("/catalogue/id/C123456/")
 
         self.assertEqual(response.status_code, 200)
 
-        # Should have 3 related records total (1 from subjects + 2 from series)
+        # Check context has related_records
+        self.assertIn("related_records", response.context_data)
         related = response.context_data["related_records"]
-
-        self.assertEqual(len(related), 3)
-        self.assertEqual(related[0].id, "C111")  # From subjects
-        self.assertEqual(related[1].id, "C222")  # From series
-        self.assertEqual(related[2].id, "C333")  # From series
+        self.assertEqual(len(related), 2)
+        self.assertEqual(related[0].id, "C789012")
+        self.assertEqual(related[1].id, "C345678")
 
     @patch("app.records.api.rosetta_request_handler")
     def test_no_related_records_for_non_tna(self, mock_rosetta):

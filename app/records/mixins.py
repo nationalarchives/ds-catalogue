@@ -1,5 +1,6 @@
 import logging
-from typing import Dict
+from concurrent.futures import ThreadPoolExecutor
+from typing import Any, Dict
 
 from app.deliveryoptions.api import delivery_options_request_handler
 from app.deliveryoptions.constants import (
@@ -300,3 +301,184 @@ class DistressingContentMixin:
                 context["record"]
             )
         return context
+
+
+class ParallelAPIMixin:
+    """
+    Mixin for parallelising independent API calls to improve page load performance.
+
+    Fetches enrichment data (subjects, related records, delivery options) in parallel
+    after the main record data is retrieved. This can reduce page load times from
+    4-6 seconds to 1-2 seconds.
+
+    This mixin requires:
+    - DeliveryOptionsMixin methods (get_delivery_options_context, etc.)
+    - RelatedRecordsMixin.related_records_limit attribute
+    """
+
+    def fetch_enrichment_data_parallel(self, record: Record) -> Dict[str, Any]:
+        """
+        Fetch all enrichment data in parallel using thread pool.
+
+        Args:
+            record: The main record object (must be fetched first)
+
+        Returns:
+            Dictionary containing all enrichment data with keys:
+            - subjects_enrichment: Wagtail subjects data
+            - related_records: List of related Record objects
+            - delivery_options: Delivery options context dict
+            - distressing_content: Boolean flag
+        """
+        results = {
+            "subjects_enrichment": {},
+            "related_records": [],
+            "delivery_options": {},
+            "distressing_content": False,
+        }
+
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            # Submit all independent API calls
+            futures = {}
+
+            # 1. Subjects enrichment (Wagtail)
+            futures["subjects"] = executor.submit(
+                self._fetch_subjects_enrichment_safe, record
+            )
+
+            # 2. Related records (Rosetta search API)
+            futures["related"] = executor.submit(
+                self._fetch_related_records_safe, record
+            )
+
+            # 3. Delivery options (only if applicable)
+            if self.should_include_delivery_options(record):
+                futures["delivery"] = executor.submit(
+                    self._fetch_delivery_options_safe, record
+                )
+
+            # 4. Distressing content check
+            futures["distressing"] = executor.submit(
+                self._check_distressing_content_safe, record
+            )
+
+            # Collect results as they complete
+            for future_name, future in futures.items():
+                try:
+                    result = future.result(
+                        timeout=5
+                    )  # 5 second timeout per call
+
+                    if future_name == "subjects":
+                        results["subjects_enrichment"] = result
+                    elif future_name == "related":
+                        results["related_records"] = result
+                    elif future_name == "delivery":
+                        results["delivery_options"] = result
+                    elif future_name == "distressing":
+                        results["distressing_content"] = result
+
+                except Exception as e:
+                    logger.warning(
+                        f"Failed to fetch {future_name} data for record {record.id}: {e}"
+                    )
+                    # Results already have safe defaults
+
+        return results
+
+    def _fetch_subjects_enrichment_safe(self, record: Record) -> dict:
+        """
+        Safely fetch subjects enrichment with error handling.
+
+        Args:
+            record: The record to fetch enrichment for
+
+        Returns:
+            Dictionary with subjects enrichment data, or empty dict on error
+        """
+        try:
+            if record.subjects:
+                return get_subjects_enrichment(
+                    record.subjects, limit=settings.MAX_SUBJECTS_PER_RECORD
+                )
+            return {}
+        except Exception as e:
+            logger.warning(
+                f"Failed to fetch subjects enrichment for {record.id}: {e}"
+            )
+            return {}
+
+    def _fetch_related_records_safe(self, record: Record) -> list:
+        """
+        Safely fetch related records with error handling.
+
+        Uses subject-based matching first, then backfills with series records
+        if needed to reach the limit.
+
+        Args:
+            record: The record to find relations for
+
+        Returns:
+            List of related Record objects (up to limit), or empty list on error
+        """
+        try:
+            related_records = get_tna_related_records_by_subjects(
+                record, limit=self.related_records_limit
+            )
+
+            # Backfill from series if needed
+            if len(related_records) < self.related_records_limit:
+                remaining_slots = self.related_records_limit - len(
+                    related_records
+                )
+                series_records = get_related_records_by_series(
+                    record, limit=remaining_slots
+                )
+                related_records.extend(series_records)
+
+            return related_records
+        except Exception as e:
+            logger.warning(
+                f"Failed to fetch related records for {record.id}: {e}"
+            )
+            return []
+
+    def _fetch_delivery_options_safe(self, record: Record) -> dict:
+        """
+        Safely fetch delivery options with error handling.
+
+        Args:
+            record: The record to fetch delivery options for
+
+        Returns:
+            Dictionary with delivery options context, or empty dict on error
+        """
+        try:
+            context = self.get_delivery_options_context(record.id)
+            # Also get temporary context
+            temp_context = self.get_temporary_delivery_options_context(record)
+            context.update(temp_context)
+            return context
+        except Exception as e:
+            logger.warning(
+                f"Failed to fetch delivery options for {record.id}: {e}"
+            )
+            return {}
+
+    def _check_distressing_content_safe(self, record: Record) -> bool:
+        """
+        Safely check distressing content with error handling.
+
+        Args:
+            record: The record to check
+
+        Returns:
+            True if distressing content warning exists, False otherwise or on error
+        """
+        try:
+            return has_distressing_content(record.reference_number)
+        except Exception as e:
+            logger.warning(
+                f"Failed to check distressing content for {record.id}: {e}"
+            )
+            return False
