@@ -17,7 +17,7 @@ whitenoise = "^6.7.0"
 responses = "^0.25.3"
 pyquery = "^2.0.1"
 sentry-sdk = "^2.20.0"
-lxml = "^5.3.1"
+lxml = "^6.0.2"
 
 [tool.poetry.group.dev]
 optional = true
