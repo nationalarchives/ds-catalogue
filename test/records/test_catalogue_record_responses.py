@@ -261,7 +261,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         )
         self.assertEqual(
             self.record.description,
-            "<p>Witness statement of Clive Timmons dated 11 February 2015</p>",
+            "Witness statement of Clive Timmons dated 11 February 2015",
         )
         self.assertEqual(self.record.separated_materials, ())
         self.assertEqual(self.record.unpublished_finding_aids, [])
