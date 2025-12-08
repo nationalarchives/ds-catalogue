@@ -21,9 +21,13 @@ services:
       - CSP_FONT_SRC='self',fonts.gstatic.com,use.typekit.net
       - CSP_FRAME_SRC='self',www.youtube.com
       - FEATURE_PHASE_BANNER=False
+      - ROSETTA_API_URL=${ROSETTA_API_URL}
       - WAGTAIL_API_URL=https://wagtail.nationalarchives.gov.uk/api/v2
       # - WAGTAIL_API_URL=http://host.docker.internal:8000/api/v2
       - DELIVERY_OPTIONS_API_URL=http://mock-delivery-options-api:8080/rosetta/data
+      - DCS_PREFIXES=${DCS_PREFIXES}
+      - STAFFIN_IP_ADDRESSES=${STAFFIN_IP_ADDRESSES}
+      - ONSITE_IP_ADDRESSES=${ONSITE_IP_ADDRESSES}
     ports:
       - 65533:8080
     volumes:
