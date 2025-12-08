@@ -68,36 +68,6 @@ class GlobalAlertsMixin:
         return context
 
 
-class SubjectsEnrichmentMixin:
-    """Mixin for enriching records with subjects data."""
-
-    def set_record_subjects_enrichment(self, record: Record) -> None:
-        """
-        Enrich a record with subjects data in-place.
-
-        Fetches related articles and content for the record's subject tags
-        from the Wagtail CMS and attaches them to the record object.
-
-        Args:
-            record: The record to enrich (modified in-place)
-        """
-        if record.subjects:
-            subjects_enrichment = get_subjects_enrichment(
-                record.subjects, limit=settings.MAX_SUBJECTS_PER_RECORD
-            )
-            record._subjects_enrichment = subjects_enrichment
-        else:
-            record._subjects_enrichment = {}
-
-    def get_context_data(self, **kwargs):
-        """Enrich record with subjects before adding to context."""
-        context = super().get_context_data(**kwargs)
-        if "record" in context:
-            self.set_record_subjects_enrichment(context["record"])
-
-        return context
-
-
 class RelatedRecordsMixin:
     """Mixin for adding related records to context."""
 
@@ -271,35 +241,6 @@ class DeliveryOptionsMixin:
                 )
                 # Add actual delivery options context
                 context.update(self.get_delivery_options_context(record.id))
-        return context
-
-
-class DistressingContentMixin:
-    """Mixin for checking and adding distressing content flag to context."""
-
-    def check_distressing_content(self, record: Record) -> bool:
-        """
-        Check if record has distressing/sensitive content.
-
-        Logs an info message if a content warning is found for the record.
-
-        Args:
-            record: The record to check
-
-        Returns:
-            True if distressing content warning exists, False otherwise
-        """
-        has_warning = has_distressing_content(record.reference_number)
-
-        return has_warning
-
-    def get_context_data(self, **kwargs):
-        """Add distressing content flag to context."""
-        context = super().get_context_data(**kwargs)
-        if "record" in context:
-            context["distressing_content"] = self.check_distressing_content(
-                context["record"]
-            )
         return context
 
 

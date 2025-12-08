@@ -5,12 +5,10 @@ import logging
 from app.records.labels import FIELD_LABELS
 from app.records.mixins import (
     DeliveryOptionsMixin,
-    DistressingContentMixin,
     GlobalAlertsMixin,
     ParallelAPIMixin,
     RecordContextMixin,
     RelatedRecordsMixin,
-    SubjectsEnrichmentMixin,
 )
 from django.views.generic import TemplateView
 
