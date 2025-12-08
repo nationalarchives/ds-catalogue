@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 def format_link(link_html: str, inc_msg: str = "") -> Dict[str, str]:
     """
-    Extracts iaid and text from a link HTML string, e.g. "<a href="C5789">DEFE 31</a>"
+    Extracts id and text from a link HTML string, e.g. "<a href="C5789">DEFE 31</a>"
     and returns as dict in the format: `{"id":"C5789", "href": "/catalogue/id/C5789/", "text":"DEFE 31"}
 
     inc_msg includes message with logger if sepcified
@@ -18,16 +18,16 @@ def format_link(link_html: str, inc_msg: str = "") -> Dict[str, str]:
     """
     document = pq(link_html)
     # if None, return empty value
-    iaid = document.attr("href") or ""
+    id = document.attr("href") or ""
     try:
-        href = reverse("records:details", kwargs={"id": iaid})
+        href = reverse("records:details", kwargs={"id": id})
     except NoReverseMatch:
         href = ""
         # warning for partially valid data
         logger.warning(
-            f"{inc_msg}format_link:No reverse match for record_details with iaid={iaid}"
+            f"{inc_msg}format_link:No reverse match for record_details with id={id}"
         )
-    return {"id": iaid or "", "href": href, "text": document.text()}
+    return {"id": id or "", "href": href, "text": document.text()}
 
 
 def format_extref_links(html: str) -> str:

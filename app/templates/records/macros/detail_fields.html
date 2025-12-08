@@ -9,7 +9,6 @@
     </div>
     <div class="tna-column tna-column--full-small tna-column--full-tiny tna-column--align-centre tna-!--margin-top-s">
       {{ tnaCheckboxes({
-        'label': 'Record details',
         'headingSize': 's',
         'id': 'field-descriptions',
         'name': 'field_descriptions',
@@ -164,7 +163,9 @@
         <dt>
           <div class="record-details__label">Record URL</div>
         </dt>
-        <dd><span class="copy-url">{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.iaid})) }}</span></dd>
+        <dd>
+          <span class="copy-url">https://{{ request.get_host() }}{{ url('records:details', kwargs={'id': record.id}) }}</span>
+        </dd>
       </dl>
     </div>
   </div>

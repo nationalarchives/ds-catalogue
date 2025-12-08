@@ -23,7 +23,7 @@ class TestAnalyticsDataInRecordDetailsView(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C1731303",
+                                "id": "C1731303",
                                 "referenceNumber": "CO 166/2",
                                 "source": "CAT",
                                 "groupArray": [

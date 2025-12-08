@@ -63,30 +63,20 @@ class Record(APIModel):
         self._raw = raw_data
 
     def __str__(self):
-        return f"{self.summary_title} ({self.iaid})"
+        return f"{self.summary_title} ({self.id})"
 
     @cached_property
-    def iaid(self) -> str:
+    def id(self) -> str:
         """
-        Return the "iaid" value for this record. If the data is unavailable,
-        or is not a valid iaid, a blank string is returned.
+        Return the "id" value for this record. If the data is unavailable,
+        a blank string is returned.
         """
         try:
-            candidate = self._raw["iaid"]
+            id = self._raw["id"]
         except KeyError:
             # value from other places
-            candidate = self.get("@admin.id", default="")
-
-        if not candidate:
-            # value from other places
-            identifiers = self.get("identifier", ())
-            for item in identifiers:
-                try:
-                    candidate = item["iaid"]
-                except KeyError:
-                    candidate = ""
-
-        return candidate
+            id = self.get("@admin.id", default="")
+        return id
 
     @cached_property
     def source(self) -> str:
@@ -249,16 +239,17 @@ class Record(APIModel):
         if self.held_by_id:
             # TODO: Temporary link to Discovery until archon template is ready
             return f"https://discovery.nationalarchives.gov.uk/details/a/{self.held_by_id}"
-            try:
-                return reverse(
-                    "records:details",
-                    kwargs={"id": self.held_by_id},
-                )
-            except NoReverseMatch:
-                # warning for partially valid record
-                logger.warning(
-                    f"held_by_url:Record({self.iaid}):No reverse match for record_details with held_by_id={self.held_by_id}"
-                )
+            # TODO: commented out until archon template is ready
+            # try:
+            #     return reverse(
+            #         "records:details",
+            #         kwargs={"id": self.held_by_id},
+            #     )
+            # except NoReverseMatch:
+            #     # warning for partially valid record
+            #     logger.warning(
+            #         f"held_by_url:Record({self.id}):No reverse match for record_details with held_by_id={self.held_by_id}"
+            #     )
         return ""
 
     @cached_property
@@ -354,7 +345,7 @@ class Record(APIModel):
     @cached_property
     def related_materials(self) -> tuple[dict[str, Any], ...]:
         """Returns transformed data which is a tuple of dict if found, empty tuple otherwise."""
-        inc_msg = f"related_materials:Record({self.iaid}):"
+        inc_msg = f"related_materials:Record({self.id}):"
         return tuple(
             dict(
                 description=item.get("description", ""),
@@ -407,7 +398,7 @@ class Record(APIModel):
     @cached_property
     def separated_materials(self) -> tuple[dict[str, Any], ...]:
         """Returns transformed data which is a tuple of dict if found, empty tuple otherwise."""
-        inc_msg = f"separated_materials:Record({self.iaid}):"
+        inc_msg = f"separated_materials:Record({self.id}):"
         return tuple(
             dict(
                 description=item.get("description", ""),
@@ -434,7 +425,7 @@ class Record(APIModel):
                     hierarchy_item | {"page_record_is_tna": self.is_tna}
                 )
                 # skips current record from showing in hierarchy bar
-                if self.iaid == hierarchy_record.iaid:
+                if self.id == hierarchy_record.id:
                     continue
                 hierarchy_records += (hierarchy_record,)
 
@@ -454,7 +445,7 @@ class Record(APIModel):
             sentry_sdk.capture_message(message, level="error")
             # add context for debugging in Sentry
             sentry_sdk.set_context(
-                "missing_info", {"hierarchy_record_id": {self.iaid}}
+                "missing_info", {"hierarchy_record_id": {self.id}}
             )
             return MISSING_COUNT_TEXT
         return format_number(count)
@@ -503,10 +494,10 @@ class Record(APIModel):
 
     @cached_property
     def url(self) -> str:
-        """Returns record detail url for iaid, empty str otherwise."""
-        if self.iaid:
+        """Returns record detail url for id, empty str otherwise."""
+        if self.id:
             try:
-                return reverse("records:details", kwargs={"id": self.iaid})
+                return reverse("records:details", kwargs={"id": self.id})
             except NoReverseMatch:
                 pass
         return ""
