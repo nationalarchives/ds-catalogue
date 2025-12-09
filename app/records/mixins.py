@@ -333,21 +333,12 @@ class ParallelAPIMixin:
 
         Args:
             record: The record to fetch enrichment for
-
         Returns:
             Dictionary with subjects enrichment data, or empty dict on error
         """
-        try:
-            if record.subjects:
-                return get_subjects_enrichment(
-                    record.subjects, limit=settings.MAX_SUBJECTS_PER_RECORD
-                )
-            return {}
-        except Exception as e:
-            logger.warning(
-                f"Failed to fetch subjects enrichment for {record.id}: {e}"
-            )
-            return {}
+        return get_subjects_enrichment(
+            record.subjects, limit=settings.MAX_SUBJECTS_PER_RECORD
+        )
 
     def _fetch_related_records_safe(self, record: Record) -> list:
         """

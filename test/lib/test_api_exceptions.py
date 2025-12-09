@@ -74,6 +74,7 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             lc.output,
         )
 
+    @override_settings(ROSETTA_API_URL="https://rosetta.test/data")
     @responses.activate
     def test_bad_request_with_400(self):
         responses.add(

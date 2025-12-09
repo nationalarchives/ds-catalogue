@@ -3,12 +3,13 @@ from unittest.mock import patch
 
 import responses
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 
 class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
     """Tests API calls (url) made by the catalogue search view for for nonTna bucket/group."""
 
+    @override_settings(ROSETTA_API_URL="https://rosetta.test/data")
     @patch("app.lib.api.logger")
     @responses.activate
     def test_catalogue_debug_api_non_tna(self, mock_logger):
