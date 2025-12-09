@@ -26,11 +26,8 @@ if DEBUG:
             "debug_toolbar.middleware.DebugToolbarMiddleware",
         ] + MIDDLEWARE  # noqa: F405
 
-        def show_toolbar(request) -> bool:
-            return True
-
         DEBUG_TOOLBAR_CONFIG = {
-            "SHOW_TOOLBAR_CALLBACK": show_toolbar,
+            "SHOW_TOOLBAR_CALLBACK": lambda request: True,
             "SHOW_COLLAPSED": True,
         }
     except ImportError:
