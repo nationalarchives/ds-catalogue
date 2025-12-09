@@ -1,6 +1,17 @@
 {% extends 'base.html' %}
 
+{% from 'records/macros/top_navigation.html' import top_navigation %}
+
 {%- set pageTitle = (record.title or record.summary_title or '[No title]') | striptags -%}
+
+{% block stylesheets %}
+{{ super() }}
+    <link rel="stylesheet" href="{{ static('record-details.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
+{% endblock %}
+
+{% block beforeContent %}
+{{ top_navigation(record, request, show_secondary_navigation=False) }}
+{% endblock %}
 
 {% block content %}
 <div class="tna-section">
@@ -9,6 +20,7 @@
       <h1 class="tna-heading-xl">{{ pageTitle }}</h1>
 
       <p>{{ record.custom_record_type }}</p>
+
     </div>
   </div>
 </div>
