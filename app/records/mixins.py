@@ -71,35 +71,35 @@ class GlobalAlertsMixin:
 class ProgressiveLoadMixin:
     """
     Mixin to support progressive page loading.
-    
+
     For initial page loads, always enables progressive mode (returns minimal data).
     JavaScript will then load secondary content asynchronously.
     For users without JavaScript, the <noscript> tags in templates provide full content.
-    
+
     No cookies or server-side JS detection needed - graceful degradation is handled
     entirely in the template layer.
     """
-    
+
     def is_progressive_load_request(self) -> bool:
         """
         Determine if this is a progressive load initial request.
-        
+
         Returns:
             True for initial page loads (progressive mode - minimal data),
             False for AJAX fragment requests (which need full data)
         """
         # AJAX fragment requests should get full data
-        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return False
-        
+
         # All initial page loads are progressive (JS will load secondary content)
         # No-JS users will see noscript fallbacks in the template
         return True
-    
+
     def get_context_data(self, **kwargs):
         """Add progressive loading flag to context."""
         context = super().get_context_data(**kwargs)
-        context['progressive_mode'] = self.is_progressive_load_request()
+        context["progressive_mode"] = self.is_progressive_load_request()
         return context
 
 

@@ -121,7 +121,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
                 },
             ),
         )
-        print(self.record.description)
+
         self.assertEqual(
             self.record.description,
             (

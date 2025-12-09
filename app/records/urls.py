@@ -17,7 +17,6 @@ urlpatterns = [
         views.RecordsHelpView.as_view(),
         name="help",
     ),
-    
     # Progressive loading fragment endpoints
     path(
         r"id/<id>/fragments/delivery-options/",
@@ -34,7 +33,6 @@ urlpatterns = [
         views.SubjectsEnrichmentFragmentView.as_view(),
         name="fragment_subjects_enrichment",
     ),
-    
     # TODO: Implement record_details_by_ref once Rosetta has support
     # path(
     #     r"ref/<path:reference>/",

@@ -42,7 +42,7 @@ class RecordDetailView(
     ParallelAPIMixin should be before the data mixins. RecordContextMixin must be
     closest to TemplateView so it runs first and adds the record to context.
 
-    Performance: 
+    Performance:
     - JS users: Primary content renders in ~0.5s, secondary loads progressively
     - No-JS users: Parallel fetching reduces page load from ~4-6s to ~1-2s
     """
@@ -145,7 +145,7 @@ class RecordDetailView(
         record = context["record"]
 
         # Check if we're in progressive mode
-        if context.get('progressive_mode'):
+        if context.get("progressive_mode"):
             # Progressive mode: Only include primary record data
             # JavaScript will load secondary content asynchronously
             # Set empty defaults for secondary data
@@ -196,7 +196,7 @@ class RecordsHelpView(RecordContextMixin, TemplateView):
 # Fragment views for progressive loading
 class RecordFragmentMixin:
     """Base mixin for record fragment views - provides record fetching."""
-    
+
     def get_record(self) -> Record:
         """Fetch the record by ID from URL kwargs."""
         if not hasattr(self, "_record"):
@@ -205,68 +205,56 @@ class RecordFragmentMixin:
 
 
 class DeliveryOptionsFragmentView(
-    DeliveryOptionsMixin,
-    RecordFragmentMixin,
-    TemplateView
+    DeliveryOptionsMixin, RecordFragmentMixin, TemplateView
 ):
     """
     AJAX endpoint for loading delivery options (availability cards) fragment.
-    
-    Returns rendered HTML for the "Is it available online?" and 
+
+    Returns rendered HTML for the "Is it available online?" and
     "Can I see it in person?" cards.
     """
-    
+
     template_name = "records/fragments/delivery_options.html"
-    
+
     def get(self, request, *args, **kwargs):
         """Fetch delivery options and return rendered HTML fragment."""
         record = self.get_record()
-        
-        context = {'record': record}
-        
+
+        context = {"record": record}
+
         # Add delivery options data if applicable for this record type
         if self.should_include_delivery_options(record):
             temp_context = self.get_temporary_delivery_options_context(record)
             do_context = self.get_delivery_options_context(record.id)
-            
-            # DEBUG: Print what we're adding to context
-            print(f"=== DELIVERY OPTIONS FRAGMENT DEBUG ===")
-            print(f"Record ID: {record.id}")
-            print(f"Temp context keys: {temp_context.keys()}")
-            print(f"DO context keys: {do_context.keys()}")
-            print(f"do_availability_group: {do_context.get('do_availability_group')}")
-            
             context.update(temp_context)
             context.update(do_context)
-        
+
         html = render_to_string(self.template_name, context, request=request)
         return HttpResponse(html)
 
 
 class RelatedRecordsFragmentView(
-    RelatedRecordsMixin,
-    RecordFragmentMixin,
-    TemplateView
+    RelatedRecordsMixin, RecordFragmentMixin, TemplateView
 ):
     """
     AJAX endpoint for loading related records fragment.
-    
+
     Returns rendered HTML for the related records block.
     """
-    
+
     template_name = "records/fragments/related_records.html"
     related_records_limit = 3
-    
+
     def get(self, request, *args, **kwargs):
         """Fetch related records and return rendered HTML fragment."""
         record = self.get_record()
         related_records = self.get_related_records(record)
-        
+
         context = {
-            'record': record,
-            'related_records': related_records,
+            "record": record,
+            "related_records": related_records,
         }
-        
+
         html = render_to_string(self.template_name, context, request=request)
         return HttpResponse(html)
 
@@ -274,32 +262,31 @@ class RelatedRecordsFragmentView(
 class SubjectsEnrichmentFragmentView(RecordFragmentMixin, TemplateView):
     """
     AJAX endpoint for loading subjects enrichment (Wagtail) fragment.
-    
+
     Returns rendered HTML for the related content block based on record subjects.
     """
-    
+
     template_name = "records/fragments/subjects_enrichment.html"
-    
+
     def get(self, request, *args, **kwargs):
         """Fetch subjects enrichment and return rendered HTML fragment."""
         record = self.get_record()
-        
+
         subjects_enrichment = {}
         if record.subjects:
             try:
                 subjects_enrichment = get_subjects_enrichment(
-                    record.subjects, 
-                    limit=settings.MAX_SUBJECTS_PER_RECORD
+                    record.subjects, limit=settings.MAX_SUBJECTS_PER_RECORD
                 )
             except Exception as e:
                 logger.warning(
                     f"Failed to fetch subjects enrichment for record {record.id}: {e}"
                 )
-        
+
         # Set enrichment data on record for template access
         record._subjects_enrichment = subjects_enrichment
-        
-        context = {'record': record}
-        
+
+        context = {"record": record}
+
         html = render_to_string(self.template_name, context, request=request)
         return HttpResponse(html)
