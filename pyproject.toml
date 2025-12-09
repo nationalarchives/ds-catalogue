@@ -17,20 +17,14 @@ whitenoise = "^6.7.0"
 responses = "^0.25.3"
 pyquery = "^2.0.1"
 sentry-sdk = "^2.20.0"
-lxml = "^5.3.1"
+lxml = "^6.0.2"
 
 [tool.poetry.group.dev]
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.1.1"
 requests-mock = "^1.12.1"
-
-[tool.poetry.group.root]
-optional = true
-
-[tool.poetry.group.root.dependencies]
-django-debug-toolbar = "^4.4.6"
+pytest-django = "^4.11.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -44,3 +38,4 @@ include = '\.pyi?$'
 testpaths = [
     "test",
 ]
+DJANGO_SETTINGS_MODULE = "config.settings.test"

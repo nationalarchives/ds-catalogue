@@ -3,16 +3,15 @@ services:
     build:
       context: .
       args:
-        IMAGE: ghcr.io/nationalarchives/tna-python-django-root
-        IMAGE_TAG: 0
-    env_file:
-      - .env
+        IMAGE: ghcr.io/nationalarchives/tna-python-dev
+        IMAGE_TAG: latest
     environment:
       - RUNTIME=develop
       - ENVIRONMENT_NAME=localhost
       - DEBUG=True
       - DJANGO_SETTINGS_MODULE=config.settings.develop
       - SECRET_KEY=abc123
+      - ALLOW_INSECURE=true
       - NPM_DEVELOP_COMMAND=dev
       - DJANGO_SUPERUSER_PASSWORD=admin
       - DJANGO_SUPERUSER_USERNAME=admin
@@ -22,23 +21,27 @@ services:
       - CSP_FONT_SRC='self',fonts.gstatic.com,use.typekit.net
       - CSP_FRAME_SRC='self',www.youtube.com
       - FEATURE_PHASE_BANNER=False
+      - ROSETTA_API_URL=${ROSETTA_API_URL}
       - WAGTAIL_API_URL=https://wagtail.nationalarchives.gov.uk/api/v2
       # - WAGTAIL_API_URL=http://host.docker.internal:8000/api/v2
       - DELIVERY_OPTIONS_API_URL=http://mock-delivery-options-api:8080/rosetta/data
+      - DCS_PREFIXES=${DCS_PREFIXES}
+      - STAFFIN_IP_ADDRESSES=${STAFFIN_IP_ADDRESSES}
+      - ONSITE_IP_ADDRESSES=${ONSITE_IP_ADDRESSES}
     ports:
       - 65533:8080
     volumes:
       - ./:/app
+    healthcheck:
+      start_period: 10s
+      start_interval: 2s
+
   mock-delivery-options-api:
     image: wiremock/wiremock:3.13.1
     volumes:
       - ./wiremock:/home/wiremock
     ports:
       - 65501:8080
-  dev:
-    image: ghcr.io/nationalarchives/tna-python-dev:preview
-    volumes:
-      - ./:/app
 
   docs:
     image: squidfunk/mkdocs-material

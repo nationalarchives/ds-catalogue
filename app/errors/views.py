@@ -14,7 +14,11 @@ def page_not_found_error_view(
     request, exception=None, status_code=HTTPStatus.NOT_FOUND
 ):
     try:
-        response = render(request, PAGE_NOT_FOUND_TEMPLATE)
+        response = render(
+            request,
+            PAGE_NOT_FOUND_TEMPLATE,
+            context={"status_code": status_code},
+        )
     except TemplateDoesNotExist as e:
         logger.error(f"Template missing: {e}")
         return HttpResponseServerError(
@@ -24,13 +28,17 @@ def page_not_found_error_view(
     return response
 
 
-def server_error_view(request, exception=None):
+def server_error_view(
+    request, exception=None, status_code=HTTPStatus.INTERNAL_SERVER_ERROR
+):
     try:
-        response = render(request, SERVER_ERROR_TEMPLATE)
+        response = render(
+            request, SERVER_ERROR_TEMPLATE, context={"status_code": status_code}
+        )
     except TemplateDoesNotExist as e:
         logger.error(f"Template missing: {e}")
         return HttpResponseServerError(
             "Internal Server Error: Template not found."
         )
-    response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
+    response.status_code = status_code
     return response
