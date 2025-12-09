@@ -1,0 +1,6 @@
+{% from 'records/macros/available_online.html' import available_online %}
+{% from 'records/macros/available_in_person.html' import available_in_person %}
+
+{# This fragment renders both availability cards for progressive loading #}
+{{ available_online(record, do_availability_group) }}
+{{ available_in_person(record, do_availability_group) }}

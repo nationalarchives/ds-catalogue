@@ -249,3 +249,9 @@
     border-color: var(--accent-border);
   }
 }
+
+
+/* Progressive loading - hide fragments initially */
+.progressive-fragment-hidden {
+  display: none !important;
+}

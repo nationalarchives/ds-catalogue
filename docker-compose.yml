@@ -24,7 +24,7 @@ services:
       - ROSETTA_API_URL=${ROSETTA_API_URL}
       - WAGTAIL_API_URL=https://wagtail.nationalarchives.gov.uk/api/v2
       # - WAGTAIL_API_URL=http://host.docker.internal:8000/api/v2
-      - DELIVERY_OPTIONS_API_URL=http://mock-delivery-options-api:8080/rosetta/data
+      - DELIVERY_OPTIONS_API_URL=${DELIVERY_OPTIONS_API_URL}
       - DCS_PREFIXES=${DCS_PREFIXES}
       - STAFFIN_IP_ADDRESSES=${STAFFIN_IP_ADDRESSES}
       - ONSITE_IP_ADDRESSES=${ONSITE_IP_ADDRESSES}

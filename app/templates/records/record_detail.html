@@ -24,6 +24,11 @@
     <meta name="tna_root:{{ property }}" content="{{ analytics_data[property] | none_to_empty_string() }}">
   {% endfor %}
   <link rel="canonical" href="{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.id})) }}">
+  
+  {# Add meta tag for progressive loading detection #}
+  {% if progressive_mode %}
+  <meta name="progressive-load" content="true">
+  {% endif %}
 {% endblock %}
 
 {% block stylesheets %}
@@ -62,8 +67,31 @@
   {% else %}
     <div class="tna-container">
       {{ whats_this_below_series_about(record) }}
-      {{ available_online(record, do_availability_group) }}
-      {{ available_in_person(record, do_availability_group) }}
+      
+      {# Delivery options cards - progressive loading support #}
+      {% if progressive_mode %}
+        {# Progressive loading: Show hidden placeholder that JS will replace #}
+        <div id="delivery-options-fragment"
+             class="progressive-fragment progressive-fragment-hidden"
+             data-endpoint="{{ url('records:fragment_delivery_options', kwargs={'id': record.id}) }}"
+             data-fragment-type="unwrap">
+          <div class="skeleton skeleton-card" role="status" aria-live="polite">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+            <span class="visually-hidden">Loading availability information...</span>
+          </div>
+        </div>
+        
+        {# No-JS fallback: Full content in noscript tag #}
+        <noscript>
+          {{ available_online(record, do_availability_group) }}
+          {{ available_in_person(record, do_availability_group) }}
+        </noscript>
+      {% else %}
+        {# Non-progressive mode: Render directly #}
+        {{ available_online(record, do_availability_group) }}
+        {{ available_in_person(record, do_availability_group) }}
+      {% endif %}
     </div>
   {% endif %}
 
@@ -73,6 +101,7 @@
     <div class="tna-column tna-column--full tna-margin-top-m">
       {% set accordion_items = [] %}
 
+      {# Delivery options - NOT progressive, render normally #}
       {% if delivery_option %}
         {% set accordion_items = accordion_items + [{
           'title': delivery_options_heading,
@@ -101,11 +130,56 @@
   </div>
 </div>
 
-{% if record.has_subjects_enrichment %}
+{# Subjects enrichment - progressive loading support #}
+{% if progressive_mode %}
+  {# Progressive loading: Show hidden placeholder that JS will replace #}
+  <div id="subjects-enrichment-fragment"
+       class="progressive-fragment progressive-fragment-hidden"
+       data-endpoint="{{ url('records:fragment_subjects_enrichment', kwargs={'id': record.id}) }}"
+       data-fragment-type="block">
+    <div class="skeleton skeleton-card" role="status" aria-live="polite">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-text"></div>
+      <div class="skeleton skeleton-text"></div>
+      <span class="visually-hidden">Loading related content...</span>
+    </div>
+  </div>
+  
+  {# No-JS fallback: Full content in noscript tag #}
+  <noscript>
+    {% if record.has_subjects_enrichment %}
+      {{ related_content_block(record) }}
+    {% endif %}
+  </noscript>
+{% elif record.has_subjects_enrichment %}
+  {# Non-progressive mode: Render directly #}
   {{ related_content_block(record) }}
 {% endif %}
 
-{{ related_records_block(record, related_records) }}
+{# Related records - progressive loading support #}
+{% if progressive_mode %}
+  {# Progressive loading: Show hidden placeholder that JS will replace #}
+  <div id="related-records-fragment"
+       class="progressive-fragment progressive-fragment-hidden"
+       data-endpoint="{{ url('records:fragment_related_records', kwargs={'id': record.id}) }}"
+       data-fragment-type="block">
+    <div class="skeleton skeleton-card" role="status" aria-live="polite">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-image"></div>
+      <div class="skeleton skeleton-text"></div>
+      <div class="skeleton skeleton-text"></div>
+      <span class="visually-hidden">Loading related records...</span>
+    </div>
+  </div>
+  
+  {# No-JS fallback: Full content in noscript tag #}
+  <noscript>
+    {{ related_records_block(record, related_records) }}
+  </noscript>
+{% else %}
+  {# Non-progressive mode: Render directly #}
+  {{ related_records_block(record, related_records) }}
+{% endif %}
 
 {% endblock %}
 
