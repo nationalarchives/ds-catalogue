@@ -15,13 +15,11 @@ COPY --chown=app . .
 # Install dependencies
 RUN tna-build
 
-# Copy in the static assets from TNA Frontend
+# Copy in the static assets from TNA Frontend, collect static files and remove source files
 RUN mkdir -p /app/app/static/assets; \
     cp -r /app/node_modules/@nationalarchives/frontend/nationalarchives/assets/* /app/app/static/assets; \
-    poetry run python /app/manage.py collectstatic --no-input --clear
-
-# Delete source files
-RUN rm -fR /app/src
+    poetry run python /app/manage.py collectstatic --no-input --clear; \
+    rm -fR /app/src
 
 # Clean up build dependencies
 RUN tna-clean

@@ -27,6 +27,7 @@ if DEBUG:
         ] + MIDDLEWARE  # noqa: F405
 
         DEBUG_TOOLBAR_CONFIG = {
+            "SHOW_TOOLBAR_CALLBACK": lambda request: True,
             "SHOW_COLLAPSED": True,
         }
     except ImportError:
