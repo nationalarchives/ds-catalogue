@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% from 'components/accordion/macro.html' import tnaAccordion %}
+{% from 'components/hero/macro.html' import tnaHero %}
+{% from 'records/macros/top_navigation.html' import top_navigation %}
+
+{%- set pageTitle = 'New to archives?' -%}
+
+{% block stylesheets %}
+{{ super() }}
+    <link rel="stylesheet" href="{{ static('record-details.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
+{% endblock %}
+
+{% block beforeContent %}
+{{ top_navigation(record, request) }}
+{% endblock %}
+
+{% block content %}
+<div class="tna-section">
+  <div class="tna-container">
+    <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
+      <h1 class="tna-heading-l">What is this page?</h1>
+      <p>You are looking at The National Archives’ catalogue. It shows descriptions of records held at:
+      </p>
+      <ul>
+        <li>The National Archives</li>
+        <li>archives and institutions across the UK</li>
+        <li>some archives and institutions abroad</li>
+      </ul>
+      <p>This page relates to a record held at an archive or institution in the UK or abroad, not at The National Archives. It typically includes key information about the record, such as a description, where it is held, and when it was created.</p>
+
+      <h2 class="tna-heading-m">The catalogue</h2>
+      <p>The catalogue is a digital index of records. Each record is represented by a description page that provides information about it. Whether you are a member of the public, a researcher, or a student, you can use the catalogue to search and find records you might be interested in. You can filter for records held at other archives or for those held at The National Archives.</p>
+
+      <h2 class="tna-heading-m">Records at other archives</h2>
+      <p>It's our role to support the UK archive sector and help secure the future of physical and digital records. We invite archives of all kinds to list and manage their collections on our catalogue. This offers a way to get collections data online, widen access, and create a single place to explore a vast range of archive collections relating to British history.</p>
+
+      <p>Current archives in the catalogue include local authority archives, community archives, university archives, historic houses, business archives, specialist repositories, libraries and museums.</p>
+
+      <p><a href="https://www.nationalarchives.gov.uk/archives-sector/finding-records-in-discovery-and-other-databases/manage-your-collections-in-discovery/">Add a collection to the catalogue</a></p>
+
+      <h2 class="tna-heading-m">How to see records at other archives</h2>
+      <p>The catalogue shows descriptions of records, not the record itself. To view a record held by another archive, you'll need to visit the website of the archive that holds it. Contact details of the archive can be found on <a href="https://discovery.nationalarchives.gov.uk/find-an-archive">Find an archive</a>. Some records may be available to access online, while others can only be viewed in person.</p>
+
+      <h2 class="tna-heading-m">Ready to use our catalogue?</h2>
+      <p>Try searching by keyword, place name, or person.</p>
+      <p><a href="/catalogue/">Search our catalogue</a></p>
+
+      <!--accordion commented out as new layout proposed -->
+      <!--
+      <div class="tna-accordion" data-multiselectable="false" data-module="tna-accordion">
+        <div class="tna-accordion__item" data-isopen="true">
+          <h2 class="tna-accordion__heading tna-heading-s">
+            What we have
+          </h2>
+          <div class="tna-accordion__body" id="accordion-what-we-have">
+            <p>The National Artchive is home to millions of historical documents, known as <strong>records</strong>, which were created and collected by UK central government departments and major courts of law.</p>
+            <p>For example, we have records from the Home Office, the Foreign Office and the Central Criminal Court.</p>
+            <p>It takes 185km of shelving to store our records, and this increases every year.</p>
+            <p id="youtube-link" data-youtube-video-id="VjwAAypYL8M"><a href="https://www.youtube.com/watch?v=VjwAAypYL8M" rel="noreferrer nofollow noopener">Watch &quot;The records we have&quot; on YouTube</a>.</p>
+          </div>
+        </div>
+        <div class="tna-accordion__item" data-isopen="false">
+          <h2 class="tna-accordion__heading tna-heading-s">
+            What we don't have
+          </h2>
+          <div class="tna-accordion__body" id="accordion-demo-content-2">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla dignissim vehicula magna, et hendrerit quam iaculis a. Mauris in ultricies enim. Donec bibendum est leo, sed dapibus mauris facilisis vitae.</p>
+            <p>Quisque hendrerit condimentum nisl, non volutpat ex eleifend at. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Morbi id suscipit felis, sed tincidunt arcu. Etiam vel blandit diam, vitae commodo mi. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla blandit mi vel rhoncus aliquam.</p>
+            <p>Pellentesque ultrices bibendum nibh, sit amet ornare turpis efficitur id. Aenean ullamcorper neque eget justo sagittis, rutrum ultrices urna varius. Mauris sodales a lorem at sodales.</p>
+          </div>
+        </div>
+        <div class="tna-accordion__item" data-isopen="false">
+          <h2 class="tna-accordion__heading tna-heading-s">
+            What's online
+          </h2>
+          <div class="tna-accordion__body" id="accordion-online">
+            <ul class="tna-ul">
+              <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+              <li>Nulla dignissim vehicula magna, et hendrerit quam iaculis a. Mauris in ultricies enim.</li>
+              <li>Donec bibendum est leo, sed dapibus mauris facilisis vitae.</li>
+              <li>Quisque hendrerit condimentum nisl, non volutpat ex eleifend at. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Morbi id suscipit felis, sed tincidunt arcu. Etiam vel blandit diam, vitae commodo mi.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tna-accordion__item" data-isopen="false">
+          <h2 class="tna-accordion__heading tna-heading-s">
+            What are archives?
+          </h2>
+          <div class="tna-accordion__body" id="accordion-what-are-archives">
+            <ul class="tna-ul">
+              <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+              <li>Nulla dignissim vehicula magna, et hendrerit quam iaculis a. Mauris in ultricies enim.</li>
+              <li>Donec bibendum est leo, sed dapibus mauris facilisis vitae.</li>
+              <li>Quisque hendrerit condimentum nisl, non volutpat ex eleifend at. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Morbi id suscipit felis, sed tincidunt arcu. Etiam vel blandit diam, vitae commodo mi.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tna-accordion__item" data-isopen="false">
+          <h2 class="tna-accordion__heading tna-heading-s">
+            How to use archives?
+          </h2>
+          <div class="tna-accordion__body" id="accordion-how-to-use">
+            <ul class="tna-ul">
+              <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+              <li>Nulla dignissim vehicula magna, et hendrerit quam iaculis a. Mauris in ultricies enim.</li>
+              <li>Donec bibendum est leo, sed dapibus mauris facilisis vitae.</li>
+              <li>Quisque hendrerit condimentum nisl, non volutpat ex eleifend at. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Morbi id suscipit felis, sed tincidunt arcu. Etiam vel blandit diam, vitae commodo mi.</li>
+            </ul>
+          </div>
+        </div>
+        
+      </div>
+      -->
+       <!--end accordion-->
+    </div>
+  </div>
+</div>
+
+{{ tnaHero({
+  'headingLevel': 2,
+  'headingSize': 'l',
+  'title': 'Explore the collection',
+  'text': 'Discover the stories behind the records. Read articles about the incredible people whose lives can be traced in the archive, or go deep into a new perspectives on historical events.',
+  'imageSrc': static('assets/images/festival-hall.jpg'),
+  'imageAlt': 'An illustration of the Festival of Britain',
+  'imageWidth': 1200,
+  'imageHeight': 480,
+  'actions': [
+    {
+      'text': 'Explore',
+      'href': '/explore-the-collection/'
+    }
+  ],
+  'style': 'accent'
+}) }}
+{% endblock %}
+
+{% block bodyEnd %}
+{{ super() }}
+    <script src="{{ static('record-details.min.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
+{% endblock %}
