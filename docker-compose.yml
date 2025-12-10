@@ -6,12 +6,10 @@ services:
         IMAGE: ghcr.io/nationalarchives/tna-python-dev
         IMAGE_TAG: latest
     environment:
-      - RUNTIME=develop
       - ENVIRONMENT_NAME=localhost
       - DEBUG=True
       - DJANGO_SETTINGS_MODULE=config.settings.develop
       - SECRET_KEY=abc123
-      - ALLOW_INSECURE=true
       - NPM_DEVELOP_COMMAND=dev
       - DJANGO_SUPERUSER_PASSWORD=admin
       - DJANGO_SUPERUSER_USERNAME=admin
