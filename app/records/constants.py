@@ -38,3 +38,6 @@ TNA_HELD_BY_VALUES = [
     "The National Archives",
     "The National Archives, Kew",
 ]
+
+# TODO: this will be superceded in a forthcoming ticket
+API_TIMEOUT = 5

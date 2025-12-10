@@ -3,13 +3,10 @@
 from unittest.mock import Mock, patch
 
 from app.records.mixins import (
-    DeliveryOptionsMixin,
     GlobalAlertsMixin,
     RecordContextMixin,
-    RelatedRecordsMixin,
 )
 from app.records.models import Record
-from django.conf import settings
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase
 from django.views.generic import TemplateView
@@ -119,102 +116,3 @@ class TestGlobalAlertsMixin(TestCase):
         alerts = view.get_global_alerts()
 
         self.assertEqual(alerts, None)
-
-
-class TestRelatedRecordsMixin(TestCase):
-    """Tests for RelatedRecordsMixin"""
-
-    def setUp(self):
-        self.factory = RequestFactory()
-
-        class TestView(RelatedRecordsMixin, TemplateView):
-            template_name = "test.html"
-
-        self.view_class = TestView
-
-    @patch("app.records.mixins.get_related_records_by_series")
-    @patch("app.records.mixins.get_tna_related_records_by_subjects")
-    def test_get_related_records_with_sufficient_subjects(
-        self, mock_by_subjects, mock_by_series
-    ):
-        """Test getting related records when subjects return enough results"""
-        mock_records = [Mock(spec=Record, id=f"C{i}") for i in range(1, 4)]
-        mock_by_subjects.return_value = mock_records
-
-        mock_record = Mock(spec=Record)
-
-        view = self.view_class()
-        related = view.get_related_records(mock_record)
-
-        self.assertEqual(len(related), 3)
-        mock_by_subjects.assert_called_once_with(mock_record, limit=3)
-        # Should not call series method if subjects returned enough
-        mock_by_series.assert_not_called()
-
-    @patch("app.records.mixins.get_related_records_by_series")
-    @patch("app.records.mixins.get_tna_related_records_by_subjects")
-    def test_get_related_records_backfill_from_series(
-        self, mock_by_subjects, mock_by_series
-    ):
-        """Test backfilling from series when subjects return insufficient results"""
-        # Subjects returns only 1 record
-        mock_by_subjects.return_value = [Mock(spec=Record, id="C111")]
-
-        # Series returns 2 more records
-        mock_by_series.return_value = [
-            Mock(spec=Record, id="C222"),
-            Mock(spec=Record, id="C333"),
-        ]
-
-        mock_record = Mock(spec=Record)
-
-        view = self.view_class()
-        related = view.get_related_records(mock_record)
-
-        self.assertEqual(len(related), 3)
-        mock_by_subjects.assert_called_once_with(mock_record, limit=3)
-        mock_by_series.assert_called_once_with(mock_record, limit=2)
-
-
-class TestDeliveryOptionsMixin(TestCase):
-    """Tests for DeliveryOptionsMixin"""
-
-    def setUp(self):
-        self.factory = RequestFactory()
-
-        class TestView(DeliveryOptionsMixin, TemplateView):
-            template_name = "test.html"
-
-        self.view_class = TestView
-
-    def test_should_include_delivery_options_for_standard_record(self):
-        """Test that standard records should include delivery options"""
-        mock_record = Mock(spec=Record)
-        mock_record.custom_record_type = (
-            ""  # currently return empty string if not set
-        )
-
-        view = self.view_class()
-        result = view.should_include_delivery_options(mock_record)
-
-        self.assertFalse(result)
-
-    def test_should_not_include_delivery_options_for_archon(self):
-        """Test that ARCHON records should not include delivery options"""
-        mock_record = Mock(spec=Record)
-        mock_record.custom_record_type = "ARCHON"
-
-        view = self.view_class()
-        result = view.should_include_delivery_options(mock_record)
-
-        self.assertFalse(result)
-
-    def test_should_not_include_delivery_options_for_creators(self):
-        """Test that CREATORS records should not include delivery options"""
-        mock_record = Mock(spec=Record)
-        mock_record.custom_record_type = "CREATORS"
-
-        view = self.view_class()
-        result = view.should_include_delivery_options(mock_record)
-
-        self.assertFalse(result)

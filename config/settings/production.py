@@ -203,6 +203,10 @@ CLIENT_VERIFY_CERTIFICATES = strtobool(
     os.getenv("ROSETTA_CLIENT_VERIFY_CERTIFICATES", "True")
 )
 
+# Feature flag
+# Process record detail apis sequentially or in parallel
+ENABLE_PARALLEL_API_CALLS: bool = True
+
 # logging
 LOGGING = {
     "version": 1,
