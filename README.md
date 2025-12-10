@@ -40,8 +40,11 @@ docker compose exec app cp -r /app/node_modules/@nationalarchives/frontend/natio
 
 ### Run tests
 
+Both of these work as an option to run tests:
+
 ```sh
 docker compose exec app poetry run pytest --ds=config.settings.test
+docker compose exec app poetry run python manage.py test --settings=config.settings.test
 ```
 
 ### Format and lint code

@@ -8,7 +8,7 @@
 
 {% block stylesheets %}
 {{ super() }}
-    <link rel="stylesheet" href="{{ static('record-details.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
+    <link rel="stylesheet" href="{{ static('record-details.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
 {% endblock %}
 
 {% block beforeContent %}
@@ -128,5 +128,5 @@
 
 {% block bodyEnd %}
 {{ super() }}
-    <script src="{{ static('record-details.min.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
+    <script src="{{ static('record-details.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
 {% endblock %}
