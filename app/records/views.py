@@ -51,8 +51,6 @@ class RecordDetailView(
         if enrichment["delivery_options"]:
             context.update(enrichment["delivery_options"])
 
-        print(f"Context: {context}")
-
         # Add field labels and analytics
         context["field_labels"] = FIELD_LABELS
         self._add_analytics_data(context)
