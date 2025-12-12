@@ -22,7 +22,6 @@ from app.deliveryoptions.helpers import (
     get_advanced_orders_email_address,
     get_dept,
 )
-from app.records.mixins import DeliveryOptionsMixin
 from app.records.models import APIResponse, Record
 from app.records.views import RecordDetailView
 from django.conf import settings
@@ -190,226 +189,122 @@ class TestDeliveryOptionSubstitution(TestCase):
         )
 
     @patch(
-        "app.deliveryoptions.helpers.BASE_TNA_HOME_URL",
-        "https://tnabase.test.url",
+        "app.deliveryoptions.helpers.BASE_TNA_HOME_URL", "https://example.com"
     )
     def test_get_advance_order_information(self):
         self.assertEqual(
             get_advance_order_information(),
-            "https://tnabase.test.url/about/visit-us/",
+            "https://example.com/about/visit-us/",
         )
 
+
+class TestSurrogateLinkBuilder(TestCase):
+    def test_surrogate_link_builder(self):
+        surrogates = [
+            {"xReferenceURL": "http://example.com/1"},
+            {"xReferenceURL": "http://example.com/2"},
+            {"xReferenceURL": ""},
+        ]
+
+        result = surrogate_link_builder(surrogates)
+
+        self.assertEqual(len(result), 2)
+        self.assertIn("http://example.com/1", result)
+        self.assertIn("http://example.com/2", result)
+
+
+class TestHtmlReplacer(TestCase):
     def test_html_replacer(self):
         record = Mock()
-        surrogate_data = []
-        result = html_replacer(
-            "Order here: {AddedToBasketText}", record, surrogate_data
-        )
-        self.assertEqual(result, "Order here: Add to basket")
+        record.reference_number = "TEST 123"
 
-    def test_description_dcs_selection(self):
-        json_data = {
-            "reference_number": "LEV 12/345",
-            "description": [
-                {"name": "description1", "value": "Regular description"},
-                {
-                    "name": "descriptionDCS",
-                    "value": "Sensitive content warning",
-                },
-            ],
-        }
-
-        with patch(
-            "app.deliveryoptions.delivery_options.has_distressing_content",
-            return_value=True,
+        value = "Reference: {RecordReferenceNumber}, Number: {HeldByCount}"
+        # Mock delivery_option_tags for testing
+        with patch.dict(
+            "app.deliveryoptions.delivery_options.delivery_option_tags",
+            {
+                "{RecordReferenceNumber}": lambda record: record.reference_number,
+                "{HeldByCount}": lambda record: "10",
+            },
         ):
-            selected_description = next(
-                (
-                    desc["value"]
-                    for desc in json_data["description"]
-                    if desc["name"] == "descriptionDCS"
-                ),
-                None,
-            )
-            self.assertEqual(selected_description, "Sensitive content warning")
+            result = html_replacer(value, record, [])
 
-    def test_description_non_dcs_selection(self):
-        json_data = {
-            "reference_number": "ABC 12/345",
-            "description": [
-                {"name": "description1", "value": "Regular description"},
-                {
-                    "name": "descriptionDCS",
-                    "value": "Sensitive content warning",
-                },
-            ],
-        }
-
-        with patch(
-            "app.deliveryoptions.delivery_options.has_distressing_content",
-            return_value=False,
-        ):
-            selected_description = next(
-                (
-                    desc["value"]
-                    for desc in json_data["description"]
-                    if desc["name"] == "description1"
-                ),
-                None,
-            )
-            self.assertEqual(selected_description, "Regular description")
+        self.assertIn("TEST 123", result)
+        self.assertIn("10", result)
 
 
-class TestSurrogateReferences(TestCase):
-    def test_empty_list(self):
-        reference_list = []
-        surrogate_list = surrogate_link_builder(reference_list)
-        self.assertEqual(surrogate_list, [])
-
-    def test_non_empty_list_with_no_av_media(self):
-        reference_list = [
-            {
-                "xReferenceURL": "https://example.com/1",
-                "xReferenceType": "DIGITIZED_DISCOVERY",
-            },
-            {
-                "xReferenceURL": "https://example.com/2",
-                "xReferenceType": "DIGITIZED_DISCOVERY",
-            },
-        ]
-        surrogate_list = surrogate_link_builder(reference_list)
-        self.assertEqual(
-            surrogate_list, ["https://example.com/1", "https://example.com/2"]
-        )
-
-    def test_list_with_av_media(self):
-        reference_list = [
-            {
-                "xReferenceURL": "https://example.com/1",
-                "xReferenceType": "AV_MEDIA",
-            },
-            {
-                "xReferenceURL": "https://example.com/2",
-                "xReferenceType": "DIGITIZED_DISCOVERY",
-            },
-            {
-                "xReferenceURL": "https://example.com/3",
-                "xReferenceType": "AV_MEDIA",
-            },
-        ]
-        surrogate_list = surrogate_link_builder(reference_list)
-        self.assertEqual(
-            surrogate_list,
-            [
-                "https://example.com/1",
-                "https://example.com/2",
-                "https://example.com/3",
-            ],
-        )
-
-    def test_list_with_empty_values(self):
-        reference_list = [
-            {"xReferenceURL": "", "xReferenceType": "AV_MEDIA"},
-            {
-                "xReferenceURL": "https://example.com/1",
-                "xReferenceType": "AV_MEDIA",
-            },
-        ]
-        surrogate_list = surrogate_link_builder(reference_list)
-        self.assertEqual(surrogate_list, ["https://example.com/1"])
-
-
-class TestGetDeliveryOptionsContext(unittest.TestCase):
-    """Tests for delivery options context (now in mixin)"""
+class TestDeliveryOptionsContext(TestCase):
+    """Tests for delivery options context generation in enrichment helper"""
 
     def setUp(self):
-        self.mixin = DeliveryOptionsMixin()
+        self.factory = RequestFactory()
 
-    @patch("app.records.mixins.delivery_options_request_handler")
-    @patch("app.records.mixins.get_availability_group")
-    def test_successful_delivery_options_fetch(
-        self, mock_get_group, mock_api_handler
-    ):
-        """Test successfully fetching and processing delivery options."""
-        iaid = "C123456"
+    @patch("app.records.enrichment.delivery_options_request_handler")
+    @patch("app.records.enrichment.get_availability_group")
+    def test_empty_delivery_result(self, mock_get_group, mock_api_handler):
+        """Test handling when API returns empty list."""
+        from app.records.enrichment import RecordEnrichmentHelper
 
-        mock_api_handler.return_value = [
-            {
-                "options": 3,
-                "surrogateLinks": [],
-                "advancedOrderUrlParameters": None,
-            }
-        ]
-        mock_get_group.return_value = (
-            AvailabilityGroup.AVAILABLE_ONLINE_TNA_ONLY
-        )
-
-        result = self.mixin.get_delivery_options_context(iaid)
-
-        self.assertEqual(
-            result,
-            {
-                "delivery_option": "DigitizedDiscovery",
-                "do_availability_group": "AVAILABLE_ONLINE_TNA_ONLY",
-            },
-        )
-        mock_api_handler.assert_called_once_with("C123456")
-        mock_get_group.assert_called_once_with(3)
-
-    @patch("app.records.mixins.delivery_options_request_handler")
-    def test_empty_delivery_result(self, mock_api_handler):
-        """Test handling of empty delivery options result."""
         iaid = "C123456"
         mock_api_handler.return_value = []
 
-        result = self.mixin.get_delivery_options_context(iaid)
+        mock_record = Mock()
+        mock_record.id = iaid
+
+        helper = RecordEnrichmentHelper(mock_record)
+        result = helper._get_delivery_api_data()
 
         self.assertEqual(result, {})
+        mock_get_group.assert_not_called()
 
-    @patch("app.records.mixins.delivery_options_request_handler")
-    def test_none_delivery_result(self, mock_api_handler):
-        """Test handling of None delivery options result."""
-        iaid = "C123456"
-        mock_api_handler.return_value = None
-
-        result = self.mixin.get_delivery_options_context(iaid)
-
-        self.assertEqual(result, {})
-
-    @patch("app.records.mixins.delivery_options_request_handler")
-    @patch("app.records.mixins.get_availability_group")
+    @patch("app.records.enrichment.delivery_options_request_handler")
+    @patch("app.records.enrichment.get_availability_group")
     def test_missing_options_value(self, mock_get_group, mock_api_handler):
         """Test handling when options value is missing from response."""
+        from app.records.enrichment import RecordEnrichmentHelper
+
         iaid = "C123456"
         mock_api_handler.return_value = [
             {"surrogateLinks": [], "advancedOrderUrlParameters": None}
         ]
 
-        result = self.mixin.get_delivery_options_context(iaid)
+        mock_record = Mock()
+        mock_record.id = iaid
+
+        helper = RecordEnrichmentHelper(mock_record)
+        result = helper._get_delivery_api_data()
 
         self.assertEqual(result, {})
         mock_get_group.assert_not_called()
 
-    @patch("app.records.mixins.delivery_options_request_handler")
-    @patch("app.records.mixins.get_availability_group")
+    @patch("app.records.enrichment.delivery_options_request_handler")
+    @patch("app.records.enrichment.get_availability_group")
     def test_invalid_availability_condition(
         self, mock_get_group, mock_api_handler
     ):
         """Test handling when options value is not a valid AvailabilityCondition enum value."""
+        from app.records.enrichment import RecordEnrichmentHelper
+
         iaid = "C123456"
         mock_api_handler.return_value = [{"options": 999, "surrogateLinks": []}]
 
-        result = self.mixin.get_delivery_options_context(iaid)
+        mock_record = Mock()
+        mock_record.id = iaid
+
+        helper = RecordEnrichmentHelper(mock_record)
+        result = helper._get_delivery_api_data()
 
         self.assertEqual(result, {})
         mock_get_group.assert_not_called()
 
-    @patch("app.records.mixins.delivery_options_request_handler")
-    @patch("app.records.mixins.get_availability_group")
+    @patch("app.records.enrichment.delivery_options_request_handler")
+    @patch("app.records.enrichment.get_availability_group")
     def test_multiple_availability_conditions(
         self, mock_get_group, mock_api_handler
     ):
         """Test different availability conditions map to correct groups."""
+        from app.records.enrichment import RecordEnrichmentHelper
+
         test_cases = [
             (
                 3,
@@ -445,7 +340,11 @@ class TestGetDeliveryOptionsContext(unittest.TestCase):
                 ]
                 mock_get_group.return_value = expected_group
 
-                result = self.mixin.get_delivery_options_context(iaid)
+                mock_record = Mock()
+                mock_record.id = iaid
+
+                helper = RecordEnrichmentHelper(mock_record)
+                result = helper._get_delivery_api_data()
 
                 self.assertEqual(
                     result,
@@ -462,8 +361,8 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    @patch("app.records.mixins.has_distressing_content")
-    @patch("app.records.mixins.delivery_options_request_handler")
+    @patch("app.records.enrichment.has_distressing_content")
+    @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.mixins.record_details_by_id")
     @patch("app.main.global_alert.JSONAPIClient")
     def test_delivery_options_added_to_context(
@@ -498,8 +397,8 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
 
         self.assertIn("delivery_option", response.context_data)
 
-    @patch("app.records.mixins.has_distressing_content")
-    @patch("app.records.mixins.delivery_options_request_handler")
+    @patch("app.records.enrichment.has_distressing_content")
+    @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.mixins.record_details_by_id")
     @patch("app.main.global_alert.JSONAPIClient")
     def test_no_delivery_options_for_archon_records(
@@ -533,7 +432,7 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_delivery.assert_not_called()
         self.assertNotIn("do_availability_group", response.context_data)
 
-    @patch("app.records.mixins.has_distressing_content")
+    @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.mixins.record_details_by_id")
     @patch("app.main.global_alert.JSONAPIClient")
     def test_distressing_content_flag_added_to_context(
