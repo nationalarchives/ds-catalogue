@@ -14,7 +14,7 @@ _LEVEL_FILTERS_SERIES_TO_ITEM = [
 
 
 def get_tna_related_records_by_subjects(
-    current_record: Record, limit: int = 3
+    current_record: Record, limit: int = 3, timeout: int = None
 ) -> list[Record]:
     """
     Fetches related records that share subjects with the current record.
@@ -24,6 +24,7 @@ def get_tna_related_records_by_subjects(
     Args:
         current_record: The record to find relations for
         limit: Maximum number of related records to return (default 3)
+        timeout: Request timeout in seconds
 
     Returns:
         List of related Record objects (random selection), or empty list if none found
@@ -36,6 +37,7 @@ def get_tna_related_records_by_subjects(
     list_of_related_records = _search_by_subject_matches(
         current_record,
         fetch_limit=RELATED_RECORDS_FETCH_LIMIT,
+        timeout=timeout,
     )
 
     # Randomly select up to 'limit' records from the candidates
@@ -45,7 +47,9 @@ def get_tna_related_records_by_subjects(
     return random.sample(list_of_related_records, limit)
 
 
-def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
+def _search_with_all_subjects(
+    current_record: Record, fetch_limit: int, timeout: int = None
+) -> dict:
     """Search for records matching ALL subjects."""
     record_matches = {}
 
@@ -66,6 +70,7 @@ def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
             page=1,
             sort="",
             params=params,
+            timeout=timeout,
         )
 
         for record in api_result.records:
@@ -79,7 +84,10 @@ def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
 
 
 def _search_individual_subjects(
-    current_record: Record, fetch_limit: int, record_matches: dict
+    current_record: Record,
+    fetch_limit: int,
+    record_matches: dict,
+    timeout: int = None,
 ) -> dict:
     """Search by individual subjects until enough matches are found.
 
@@ -87,6 +95,7 @@ def _search_individual_subjects(
         current_record: The TNA record to find relations for
         fetch_limit: Maximum number of additional matches to fetch
         record_matches: Existing matches to add to
+        timeout: Request timeout in seconds
 
     Returns:
         Updated dictionary of record matches
@@ -114,6 +123,7 @@ def _search_individual_subjects(
                 page=1,
                 sort="",
                 params=params,
+                timeout=timeout,
             )
 
             for record in api_result.records:
@@ -130,7 +140,7 @@ def _search_individual_subjects(
 
 
 def _search_by_subject_matches(
-    current_record: Record, fetch_limit: int
+    current_record: Record, fetch_limit: int, timeout: int = None
 ) -> list[Record]:
     """
     Search for TNA records with matching subjects.
@@ -139,6 +149,7 @@ def _search_by_subject_matches(
     Args:
         current_record: The TNA record to find relations for
         fetch_limit: Maximum number of candidates to fetch
+        timeout: Request timeout in seconds
 
     Returns:
         List of records (unsorted)
@@ -146,20 +157,24 @@ def _search_by_subject_matches(
     # TODO: When filter logical AND is implemented, this function will provide even more closely related records
 
     # Try searching with all subjects first
-    record_matches = _search_with_all_subjects(current_record, fetch_limit)
+    record_matches = _search_with_all_subjects(
+        current_record, fetch_limit, timeout
+    )
 
     # If not enough results, search individual subjects
     if len(record_matches) < fetch_limit:
         record_matches = _search_individual_subjects(
-            current_record, fetch_limit - len(record_matches), record_matches
+            current_record,
+            fetch_limit - len(record_matches),
+            record_matches,
+            timeout,
         )
 
     return list(record_matches.values())
 
 
-# TODO: related by series is only partially correct because, at the moment, records aren't retrieved in order of relevance
 def get_related_records_by_series(
-    current_record: Record, limit: int = 3
+    current_record: Record, limit: int = 3, timeout: int = None
 ) -> list[Record]:
     """
     Fetches related records from the same series as the current record.
@@ -168,6 +183,7 @@ def get_related_records_by_series(
     Args:
         current_record: The record to find relations for
         limit: Maximum number of related records to return (default 3)
+        timeout: Request timeout in seconds
 
     Returns:
         List of related Record objects from the same series
@@ -199,6 +215,7 @@ def get_related_records_by_series(
             page=1,
             sort="",
             params=params,
+            timeout=timeout,
         )
 
         results = []

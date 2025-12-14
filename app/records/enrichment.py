@@ -1,9 +1,12 @@
 """Helper for fetching record enrichment data."""
 
 import logging
-from concurrent.futures import ThreadPoolExecutor
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from functools import wraps
 from typing import Any, Dict
 
+import sentry_sdk
 from app.deliveryoptions.api import delivery_options_request_handler
 from app.deliveryoptions.constants import (
     DELIVERY_OPTIONS_NON_TNA_LEVELS,
@@ -16,12 +19,13 @@ from app.deliveryoptions.delivery_options import (
 )
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
 from app.records.api import get_subjects_enrichment
-from app.records.constants import API_TIMEOUT
+from app.records.constants import API_TIMEOUTS, THREADPOOL_MAX_WORKERS
 from app.records.models import Record
 from app.records.related import (
     get_related_records_by_series,
     get_tna_related_records_by_subjects,
 )
+from app.records.utils import log_enrichment_execution_time
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -38,6 +42,7 @@ class RecordEnrichmentHelper:
         self.record = record
         self.related_limit = related_limit
 
+    @log_enrichment_execution_time
     def fetch_all(self) -> Dict[str, Any]:
         """
         Fetch all enrichment data.
@@ -54,37 +59,94 @@ class RecordEnrichmentHelper:
         else:
             return self._fetch_sequential()
 
+    def _submit_fetch_tasks(self, executor) -> dict:
+        """Submit all fetch tasks to the executor and return futures map."""
+        futures_map = {}
+
+        # Submit subjects fetch
+        try:
+            futures_map[executor.submit(self._fetch_subjects)] = "subjects"
+        except RuntimeError:
+            message = (
+                f"Failed to submit subjects task for record {self.record.id}"
+            )
+            logger.error(message)
+
+        # Submit related fetch
+        try:
+            futures_map[executor.submit(self._fetch_related)] = "related"
+        except RuntimeError:
+            message = (
+                f"Failed to submit related task for record {self.record.id}"
+            )
+            logger.error(message)
+
+        # Submit delivery options if applicable
+        if self._should_include_delivery_options():
+            try:
+                futures_map[executor.submit(self._fetch_delivery_options)] = (
+                    "delivery"
+                )
+            except RuntimeError:
+                message = f"Failed to submit delivery task for record {self.record.id}"
+                logger.error(message)
+
+        return futures_map
+
+    def _process_future_result(self, future, name, timeout, results):
+        """Process a single future result and update results dict."""
+        try:
+            result = future.result(timeout=timeout)
+            if name == "subjects":
+                results["subjects_enrichment"] = result
+            elif name == "related":
+                results["related_records"] = result
+            elif name == "delivery":
+                results["delivery_options"] = result
+        except Exception as e:
+            message = f"ThreadPoolExecutor: Failed to fetch {name} for record {self.record.id}"
+            logger.warning(message)
+            sentry_sdk.capture_exception(e)
+            sentry_sdk.set_context(
+                "threadpool_fetch_failure",
+                {"record_id": self.record.id, "task": name, "timeout": timeout},
+            )
+
+    def _log_completion_timing(self, completion_order, completion_times):
+        """Log completion timing if enabled."""
+        if settings.ENRICHMENT_TIMING_ENABLED and completion_order:
+            timing_details = ", ".join(
+                f"{name}: {completion_times[name]:.3f}s"
+                for name in completion_order
+            )
+            logger.info(
+                f"Record {self.record.id} completion order: [{timing_details}]"
+            )
+
     def _fetch_parallel(self) -> Dict[str, Any]:
         """Fetch enrichment data in parallel using thread pool."""
         results = self._empty_results()
+        completion_order = []
+        completion_times = {}
 
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            futures = {
-                "subjects": executor.submit(self._fetch_subjects),
-                "related": executor.submit(self._fetch_related),
-                "distressing": executor.submit(self._fetch_distressing),
-            }
+        with ThreadPoolExecutor(max_workers=THREADPOOL_MAX_WORKERS) as executor:
+            futures_map = self._submit_fetch_tasks(executor)
+            start_time = time.time()
 
-            if self._should_include_delivery_options():
-                futures["delivery"] = executor.submit(
-                    self._fetch_delivery_options
-                )
+            # Process futures as they complete
+            for future in as_completed(futures_map):
+                name = futures_map[future]
+                timeout = API_TIMEOUTS[name]
+                elapsed = time.time() - start_time
+                completion_order.append(name)
+                completion_times[name] = elapsed
 
-            for name, future in futures.items():
-                try:
-                    result = future.result(timeout=API_TIMEOUT)
-                    if name == "subjects":
-                        results["subjects_enrichment"] = result
-                    elif name == "related":
-                        results["related_records"] = result
-                    elif name == "delivery":
-                        results["delivery_options"] = result
-                    elif name == "distressing":
-                        results["distressing_content"] = result
-                except Exception as e:
-                    logger.warning(
-                        f"Failed to fetch {name} for record {self.record.id}: {e}"
-                    )
+                self._process_future_result(future, name, timeout, results)
+
+            self._log_completion_timing(completion_order, completion_times)
+
+        # Fetch distressing content directly (not an API call, no need for threading)
+        results["distressing_content"] = self._fetch_distressing()
 
         return results
 
@@ -105,20 +167,26 @@ class RecordEnrichmentHelper:
     def _fetch_subjects(self) -> dict:
         """Fetch subjects enrichment from Wagtail."""
         return get_subjects_enrichment(
-            self.record.subjects, limit=settings.MAX_SUBJECTS_PER_RECORD
+            self.record.subjects,
+            limit=settings.MAX_SUBJECTS_PER_RECORD,
+            timeout=settings.WAGTAIL_API_TIMEOUT,
         )
 
     def _fetch_related(self) -> list:
         """Fetch related records using subjects and series."""
         try:
             related = get_tna_related_records_by_subjects(
-                self.record, limit=self.related_limit
+                self.record,
+                limit=self.related_limit,
+                timeout=settings.ROSETTA_API_TIMEOUT,
             )
 
             if len(related) < self.related_limit:
                 remaining = self.related_limit - len(related)
                 series_records = get_related_records_by_series(
-                    self.record, limit=remaining
+                    self.record,
+                    limit=remaining,
+                    timeout=settings.ROSETTA_API_TIMEOUT,
                 )
                 related.extend(series_records)
 
@@ -158,7 +226,9 @@ class RecordEnrichmentHelper:
 
     def _get_delivery_api_data(self) -> dict:
         """Fetch delivery options from API."""
-        delivery_result = delivery_options_request_handler(self.record.id)
+        delivery_result = delivery_options_request_handler(
+            self.record.id, timeout=settings.DELIVERY_OPTIONS_API_TIMEOUT
+        )
 
         if not isinstance(delivery_result, list) or not delivery_result:
             return {}
