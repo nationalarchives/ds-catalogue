@@ -128,8 +128,12 @@ class TestRecordEnrichmentHelper(TestCase):
         result = helper._fetch_related()
 
         self.assertEqual(len(result), 3)
-        mock_subjects.assert_called_once_with(self.test_record, limit=3, timeout=7)
-        mock_series.assert_called_once_with(self.test_record, limit=2, timeout=7)
+        mock_subjects.assert_called_once_with(
+            self.test_record, limit=3, timeout=7
+        )
+        mock_series.assert_called_once_with(
+            self.test_record, limit=2, timeout=7
+        )
 
     @patch("app.records.enrichment.get_tna_related_records_by_subjects")
     def test_fetch_related_handles_errors(self, mock_subjects: Mock) -> None:
@@ -277,9 +281,7 @@ class TestRecordEnrichmentHelper(TestCase):
         # Logger should be called for the failure
         mock_logger.error.assert_called()
         error_calls = [
-            c
-            for c in mock_logger.error.call_args_list
-            if "subjects" in str(c)
+            c for c in mock_logger.error.call_args_list if "subjects" in str(c)
         ]
         self.assertTrue(len(error_calls) > 0)
 
