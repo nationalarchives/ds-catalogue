@@ -186,7 +186,7 @@ WAGTAIL_API_TIMEOUT: int = int(os.getenv("WAGTAIL_API_TIMEOUT", "5").strip() or 
 DELIVERY_OPTIONS_API_TIMEOUT: int = int(os.getenv("DELIVERY_OPTIONS_API_TIMEOUT", "5").strip() or "5")
 
 # Maximum number of subject/article_tags returned from Wagtail
-MAX_SUBJECTS_PER_RECORD: int = int(os.getenv("MAX_SUBJECTS_PER_RECORD", 20))
+MAX_SUBJECTS_PER_RECORD: int = int(os.getenv("MAX_SUBJECTS_PER_RECORD", "20").strip() or "20")
 
 # DORIS is TNA's Document Ordering System that contains Delivery Options data
 DELIVERY_OPTIONS_API_URL = os.getenv("DELIVERY_OPTIONS_API_URL")
