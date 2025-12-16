@@ -2,7 +2,7 @@ import json
 import os
 from sysconfig import get_path
 
-from config.util import strtobool
+from config.util import get_bool_env, get_int_env, strtobool
 from csp.constants import NONE, SELF
 
 from .features import *
@@ -143,10 +143,6 @@ try:
 except FileNotFoundError:
     pass
 
-WAGTAIL_API_URL: str = os.getenv("WAGTAIL_API_URL", "")
-WAGTAIL_HOME_PAGE_ID: int = 3
-WAGTAIL_EXPLORE_THE_COLLECTION_PAGE_ID: int = 5
-WAGTAIL_EXPLORE_THE_COLLECTION_STORIES_PAGE_ID: int = 55
 
 SECRET_KEY: str = os.environ.get("SECRET_KEY", "")
 
@@ -178,26 +174,35 @@ CONTENT_SECURITY_POLICY = {
 
 GA4_ID = os.environ.get("GA4_ID", "")
 
-ROSETTA_API_URL = os.getenv("ROSETTA_API_URL")
+# Wagtail environment
+WAGTAIL_HOME_PAGE_ID: int = 3
+WAGTAIL_EXPLORE_THE_COLLECTION_PAGE_ID: int = 5
+WAGTAIL_EXPLORE_THE_COLLECTION_STORIES_PAGE_ID: int = 55
 
-# Timeouts for apis
-ROSETTA_API_TIMEOUT: int = int(
-    os.getenv("ROSETTA_API_TIMEOUT", "5").strip() or "5"
+# API urls
+ROSETTA_API_URL = os.getenv("ROSETTA_API_URL")
+DELIVERY_OPTIONS_API_URL: str = os.getenv("DELIVERY_OPTIONS_API_URL")
+WAGTAIL_API_URL: str = os.getenv("WAGTAIL_API_URL")
+
+# API timeouts
+ROSETTA_API_TIMEOUT: int = get_int_env("ROSETTA_API_TIMEOUT", 5)
+WAGTAIL_API_TIMEOUT: int = get_int_env("WAGTAIL_API_TIMEOUT", 5)
+DELIVERY_OPTIONS_API_TIMEOUT: int = get_int_env(
+    "DELIVERY_OPTIONS_API_TIMEOUT", 5
 )
-WAGTAIL_API_TIMEOUT: int = int(
-    os.getenv("WAGTAIL_API_TIMEOUT", "5").strip() or "5"
+
+# API behaviour
+ENABLE_PARALLEL_API_CALLS: bool = get_bool_env(
+    "ENABLE_PARALLEL_API_CALLS", False
 )
-DELIVERY_OPTIONS_API_TIMEOUT: int = int(
-    os.getenv("DELIVERY_OPTIONS_API_TIMEOUT", "5").strip() or "5"
+ENRICHMENT_TIMING_ENABLED: bool = get_bool_env(
+    "ENRICHMENT_TIMING_ENABLED", False
 )
 
 # Maximum number of subject/article_tags returned from Wagtail
-MAX_SUBJECTS_PER_RECORD: int = int(
-    os.getenv("MAX_SUBJECTS_PER_RECORD", "20").strip() or "20"
-)
+MAX_SUBJECTS_PER_RECORD: int = get_int_env("MAX_SUBJECTS_PER_RECORD", 20)
 
 # DORIS is TNA's Document Ordering System that contains Delivery Options data
-DELIVERY_OPTIONS_API_URL = os.getenv("DELIVERY_OPTIONS_API_URL")
 
 # List of IP address for identifying staff members within the organisation
 STAFFIN_IP_ADDRESSES = list(
@@ -217,19 +222,6 @@ CLIENT_VERIFY_CERTIFICATES = strtobool(
     os.getenv("ROSETTA_CLIENT_VERIFY_CERTIFICATES", "True")
 )
 
-# Feature flag
-# Process record detail apis sequentially or in parallel
-ENABLE_PARALLEL_API_CALLS: bool = bool(
-    strtobool(
-        os.getenv("ENABLE_PARALLEL_API_CALLS", "False").strip() or "False"
-    )
-)
-
-ENRICHMENT_TIMING_ENABLED: bool = bool(
-    strtobool(
-        os.getenv("ENRICHMENT_TIMING_ENABLED", "False").strip() or "False"
-    )
-)
 
 # logging
 LOGGING = {

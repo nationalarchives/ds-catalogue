@@ -42,6 +42,7 @@ class JSONAPIClient:
     def get(self, path="/", timeout=None) -> dict:
         """Makes a request to the config API. Returns decoded json,
         otherwise raises error"""
+        print(f"Timeout: {timeout}")
         url = f"{self.api_url}/{path.lstrip('/')}"
         headers = {
             "Cache-Control": "no-cache",
