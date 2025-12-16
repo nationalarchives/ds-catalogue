@@ -1,6 +1,26 @@
+{# #TODO: Replace mock record data with record data from API #}
+{% set mock_record = {
+  'title': 'Shakespeare Birthplace Trust',
+  'archon_code': '188',
+  'website': 'https://www.shakespeare.org.uk/',
+  'address': [
+    'The Shakespeare Centre',
+    'Henley Street',
+    'Stratford-upon-Avon',
+    'CV37 6QW',
+    'England'
+  ],
+  'google_maps_url': 'https://www.google.com/maps/place/@54.3259537,-2.751473,17z',
+  'phone': '01789 204 016',
+  'email': 'collections@shakespeare.org.uk',
+  'about_archive': '<p><strong>Open:</strong> Monday 10.15-12.30, Tuesday 10.15-3, Wednesday 10.15-12.30 by appointment</p><p><strong>Closed:</strong> Bank holidays; Christmas/New Year</p><ul><li>Wheelchair access</li><li>Proof of identity required</li><li>Readers ticket required</li></ul><p>Two hour appointment slots must by booked in advance. See <a href="https://www.shakespeare.org.uk/">website</a> for details</p><p>Readers will need to provide a letter of recommendation to see certain items - please <a href="mailto:collections@shakespeare.org.uk">email</a> for further details<br>Reprographics: Staff can copy certain items for a small fee; self-service photograph permits (certain items only) - £5 per day</p>',
+  'current_catalogue_url': 'https://www.nationalarchives.gov.uk/catalogue/',
+} %}
+
 {% extends 'base.html' %}
 
 {% from 'records/macros/top_navigation.html' import top_navigation %}
+{% from 'components/button/macro.html' import tnaButton %}
 
 {%- set pageTitle = (record.title or record.summary_title or '[No title]') | striptags -%}
 
@@ -14,13 +34,103 @@
 {% endblock %}
 
 {% block content %}
-<div class="tna-section">
+<div class="tna-section tna-!--padding-top-l">
   <div class="tna-container">
     <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
-      <h1 class="tna-heading-xl">{{ pageTitle }}</h1>
+      <hgroup class="tna-hgroup-xl">
+        <p class="tna-hgroup__supertitle">Archive</p>
+        <h1 class="tna-hgroup__title">{{ pageTitle }}</h1>
+      </hgroup>
 
-      <p>{{ record.custom_record_type }}</p>
+      <p>Archon code: <strong class="reference">{{ mock_record.archon_code }}</strong></p>
+    </div>
+  </div>
 
+  <div class="tna-container">
+    <div class="tna-column tna-column--full tna-!--margin-top-m">
+      <div class="tna-background-tint">
+        <h2 class="tna-heading-l">Looking for records?</h2>
+        <p>Visit the <a href="#">{{ pageTitle }}</a> for information on how to access records held there.</p> {# TODO: Add link data when available #}
+      </div>
+    </div>
+  </div>
+
+  <div class="tna-container tna-!--margin-top-s">
+    <div class="tna-column tna-column--width-1-2">
+      <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
+        <h2 class="tna-heading-l">Contact information</h2>
+
+        <dl>
+          <div>
+            <dt class="tna-heading-m">Address</dt>
+            <dd>
+              <p>
+                {% for line in mock_record.address %}
+                  {{ line }}{% if not loop.last %}<br>{% endif %}
+                {% endfor %}
+              </p>
+              <p><a href="{{ mock_record.google_maps_url }}">View on a map</a></p>
+            </dd>
+          </div>
+
+          <div>
+            <dt class="tna-heading-m">Telephone</dt>
+            <dd><a href="tel:{{ mock_record.phone|replace(' ', '') }}">{{ mock_record.phone }}</a></dd>
+          </div>
+
+          <div>
+            <dt class="tna-heading-m">Email</dt>
+            <dd><a href="mailto:{{ mock_record.email }}">{{ mock_record.email }}</a></dd>
+          </div>
+
+          <div>
+            <dt class="tna-heading-m">Website</dt>
+            <dd><a href="{{ mock_record.website }}">{{ mock_record.website }}</a></dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="tna-column tna-column--width-1-2">
+      <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
+        <h2 class="tna-heading-l">Information about this archive</h2>
+
+        <div>{{ mock_record.about_archive | tna_html | safe }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tna-container">
+    <div class="tna-column tna-column--full tna-!--margin-top-l">
+      <h2 class="tna-heading-l">This archive’s collections</h2>
+      <p>There are two ways to view all collections from <strong>{{ pageTitle }}</strong></p>
+    </div>
+
+    <div class="tna-column tna-column--full tna-!--margin-top-s">
+      <div class="tna-aside tna-aside--tight tna-background-accent-light">
+        <div class="tna-container tna-container--nested">
+          <div class="tna-column tna-column--width-1-2">
+            <h3>New catalogue (this website)</h3>
+            <p>Available through search results only</p>
+            {{ tnaButton({
+              'text': 'View all collections in the new catalogue',
+              'href': url('main:catalogue'),
+              "icon": "chevron-right",
+              "rightAlignIcon": true
+            }) }}
+          </div>
+          <div class="tna-column tna-column--width-1-2">
+            <h3>Current catalogue</h3>
+            <p>Available as search results, lists and to browse</p>
+            {{ tnaButton({
+              'text': 'View all collections in the current catalogue',
+              'href': mock_record.current_catalogue_url,
+              "icon": "chevron-right",
+              "rightAlignIcon": true
+            }) }}
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
