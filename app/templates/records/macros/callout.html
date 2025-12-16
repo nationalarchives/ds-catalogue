@@ -1,0 +1,12 @@
+{% macro callout(heading) %}
+  <div class="tna-container">
+    <div class="tna-column tna-column--full tna-!--margin-top-m">
+      <div class="callout">
+        <h2 class="tna-heading-l">{{ heading }}</h2>
+        <div class="callout__content">
+          {{ caller() }}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endmacro %}

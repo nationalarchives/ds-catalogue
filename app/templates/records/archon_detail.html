@@ -20,6 +20,7 @@
 {% extends 'base.html' %}
 
 {% from 'records/macros/top_navigation.html' import top_navigation %}
+{% from 'records/macros/callout.html' import callout %}
 {% from 'components/button/macro.html' import tnaButton %}
 
 {%- set pageTitle = (record.title or record.summary_title or '[No title]') | striptags -%}
@@ -46,14 +47,9 @@
     </div>
   </div>
 
-  <div class="tna-container">
-    <div class="tna-column tna-column--full tna-!--margin-top-m">
-      <div class="tna-background-tint">
-        <h2 class="tna-heading-l">Looking for records?</h2>
-        <p>Visit the <a href="#">{{ pageTitle }}</a> for information on how to access records held there.</p> {# TODO: Add link data when available #}
-      </div>
-    </div>
-  </div>
+  {% call callout(heading='Looking for records?') %}
+    <p>Visit the <a href="{{ mock_record.website }}">{{ pageTitle }} website</a> for information on how to access records held there.</p>
+  {% endcall %}
 
   <div class="tna-container tna-!--margin-top-s">
     <div class="tna-column tna-column--width-1-2">
