@@ -241,14 +241,14 @@
 }
 
 .callout {
-  padding: spacing.space(1) spacing.space(1) spacing.space(1) spacing.space(.5);
+  padding: spacing.space(1) spacing.space(1) spacing.space(1) spacing.space(0.5);
 
   @include colour.tint;
 
   @include colour.thick-keyline-brand(left, "forest");
 
   .callout__content {
-    margin-top: spacing.space(.5);
+    margin-top: spacing.space(0.5);
   }
 }
 
