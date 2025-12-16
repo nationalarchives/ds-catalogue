@@ -181,12 +181,20 @@ GA4_ID = os.environ.get("GA4_ID", "")
 ROSETTA_API_URL = os.getenv("ROSETTA_API_URL")
 
 # Timeouts for apis
-ROSETTA_API_TIMEOUT: int = int(os.getenv("ROSETTA_API_TIMEOUT", "5").strip() or "5")
-WAGTAIL_API_TIMEOUT: int = int(os.getenv("WAGTAIL_API_TIMEOUT", "5").strip() or "5")
-DELIVERY_OPTIONS_API_TIMEOUT: int = int(os.getenv("DELIVERY_OPTIONS_API_TIMEOUT", "5").strip() or "5")
+ROSETTA_API_TIMEOUT: int = int(
+    os.getenv("ROSETTA_API_TIMEOUT", "5").strip() or "5"
+)
+WAGTAIL_API_TIMEOUT: int = int(
+    os.getenv("WAGTAIL_API_TIMEOUT", "5").strip() or "5"
+)
+DELIVERY_OPTIONS_API_TIMEOUT: int = int(
+    os.getenv("DELIVERY_OPTIONS_API_TIMEOUT", "5").strip() or "5"
+)
 
 # Maximum number of subject/article_tags returned from Wagtail
-MAX_SUBJECTS_PER_RECORD: int = int(os.getenv("MAX_SUBJECTS_PER_RECORD", "20").strip() or "20")
+MAX_SUBJECTS_PER_RECORD: int = int(
+    os.getenv("MAX_SUBJECTS_PER_RECORD", "20").strip() or "20"
+)
 
 # DORIS is TNA's Document Ordering System that contains Delivery Options data
 DELIVERY_OPTIONS_API_URL = os.getenv("DELIVERY_OPTIONS_API_URL")
@@ -211,12 +219,16 @@ CLIENT_VERIFY_CERTIFICATES = strtobool(
 
 # Feature flag
 # Process record detail apis sequentially or in parallel
-ENABLE_PARALLEL_API_CALLS: bool = strtobool(
-    os.getenv("ENABLE_PARALLEL_API_CALLS", "False")
+ENABLE_PARALLEL_API_CALLS: bool = bool(
+    strtobool(
+        os.getenv("ENABLE_PARALLEL_API_CALLS", "False").strip() or "False"
+    )
 )
 
-ENRICHMENT_TIMING_ENABLED: bool = strtobool(
-    os.getenv("ENRICHMENT_TIMING_ENABLED", "False")
+ENRICHMENT_TIMING_ENABLED: bool = bool(
+    strtobool(
+        os.getenv("ENRICHMENT_TIMING_ENABLED", "False").strip() or "False"
+    )
 )
 
 # logging
