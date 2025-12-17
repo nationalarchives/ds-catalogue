@@ -37,6 +37,7 @@ from .constants import (
     Sort,
 )
 from .forms import (
+    CatalogueSearchBaseForm,
     CatalogueSearchNonTnaForm,
     CatalogueSearchTnaForm,
     FieldsConstant,
@@ -305,6 +306,19 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
         super().setup(request, *args, **kwargs)
         self.form_kwargs = self.get_form_kwargs()
+        
+        self.bucket_list: BucketList = copy.deepcopy(CATALOGUE_BUCKETS)
+        self.api_result = None
+
+        # validate group param first to create appropriate form
+        if self.form_kwargs.get("data").get("group") not in [
+            BucketKeys.TNA.value,
+            BucketKeys.NON_TNA.value,
+        ]:
+            # invalid group param, create base form to show errors
+            self.form = CatalogueSearchBaseForm(**self.form_kwargs)
+            self.current_bucket_key = None
+            return
 
         # create two separate forms for TNA and NonTNA with different fields
         if self.form_kwargs.get("data").get("group") == BucketKeys.TNA.value:
@@ -327,9 +341,8 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         else:
             self.form = CatalogueSearchNonTnaForm(**self.form_kwargs)
 
-        self.bucket_list: BucketList = copy.deepcopy(CATALOGUE_BUCKETS)
+        # keep current bucket key for display focus
         self.current_bucket_key = self.form.fields[FieldsConstant.GROUP].value
-        self.api_result = None
 
     def get_form_kwargs(self) -> dict[str, Any]:
         """Returns request data with default values if not given."""
