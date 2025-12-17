@@ -185,7 +185,7 @@ class RecordEnrichmentHelper:
         related = get_tna_related_records_by_subjects(
             self.record,
             limit=self.related_limit,
-            timeout=settings.ROSETTA_API_TIMEOUT,
+            timeout=settings.ROSETTA_ENRICHMENT_API_TIMEOUT,
         )
 
         # Backfill from series if needed
@@ -194,7 +194,7 @@ class RecordEnrichmentHelper:
             series_records = get_related_records_by_series(
                 self.record,
                 limit=remaining,
-                timeout=settings.ROSETTA_API_TIMEOUT,
+                timeout=settings.ROSETTA_ENRICHMENT_API_TIMEOUT,
             )
             related.extend(series_records)
 

@@ -43,7 +43,7 @@ TNA_HELD_BY_VALUES = [
 
 API_TIMEOUTS = {
     "subjects": settings.WAGTAIL_API_TIMEOUT,
-    "related": settings.ROSETTA_API_TIMEOUT,
+    "related": settings.ROSETTA_ENRICHMENT_API_TIMEOUT,
     "delivery": settings.DELIVERY_OPTIONS_API_TIMEOUT,
 }
 

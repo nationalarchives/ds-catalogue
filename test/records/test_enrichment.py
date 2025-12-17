@@ -25,7 +25,7 @@ class TestRecordEnrichmentHelper(TestCase):
     @override_settings(
         ENABLE_PARALLEL_API_CALLS=False,
         WAGTAIL_API_TIMEOUT=10,
-        ROSETTA_API_TIMEOUT=15,
+        ROSETTA_ENRICHMENT_API_TIMEOUT=15,
         DELIVERY_OPTIONS_API_TIMEOUT=20,
     )
     @patch("app.records.enrichment.has_distressing_content")
@@ -62,7 +62,7 @@ class TestRecordEnrichmentHelper(TestCase):
     @override_settings(
         ENABLE_PARALLEL_API_CALLS=True,
         WAGTAIL_API_TIMEOUT=10,
-        ROSETTA_API_TIMEOUT=15,
+        ROSETTA_ENRICHMENT_API_TIMEOUT=15,
         DELIVERY_OPTIONS_API_TIMEOUT=20,
     )
     @patch("app.records.enrichment.has_distressing_content")
@@ -108,7 +108,7 @@ class TestRecordEnrichmentHelper(TestCase):
         # get_subjects_enrichment handles its own errors, so we just verify success case
         self.assertEqual(result, expected_data)
 
-    @override_settings(ROSETTA_API_TIMEOUT=7)
+    @override_settings(ROSETTA_ENRICHMENT_API_TIMEOUT=7)
     @patch("app.records.enrichment.get_tna_related_records_by_subjects")
     @patch("app.records.enrichment.get_related_records_by_series")
     def test_fetch_related_backfills_from_series(
@@ -410,7 +410,7 @@ class TestRecordEnrichmentHelper(TestCase):
         ENABLE_PARALLEL_API_CALLS=True,
         ENRICHMENT_TIMING_ENABLED=True,
         WAGTAIL_API_TIMEOUT=10,
-        ROSETTA_API_TIMEOUT=15,
+        ROSETTA_ENRICHMENT_API_TIMEOUT=15,
         DELIVERY_OPTIONS_API_TIMEOUT=20,
     )
     @patch("app.records.enrichment.has_distressing_content")
@@ -529,7 +529,7 @@ class TestRecordEnrichmentHelper(TestCase):
     @override_settings(
         ENABLE_PARALLEL_API_CALLS=True,
         WAGTAIL_API_TIMEOUT=10,
-        ROSETTA_API_TIMEOUT=15,
+        ROSETTA_ENRICHMENT_API_TIMEOUT=15,
         DELIVERY_OPTIONS_API_TIMEOUT=20,
     )
     @patch("app.records.enrichment.has_distressing_content")
@@ -558,7 +558,7 @@ class TestRecordEnrichmentHelper(TestCase):
     @override_settings(
         ENABLE_PARALLEL_API_CALLS=False,
         WAGTAIL_API_TIMEOUT=10,
-        ROSETTA_API_TIMEOUT=15,
+        ROSETTA_ENRICHMENT_API_TIMEOUT=15,
         DELIVERY_OPTIONS_API_TIMEOUT=20,
     )
     @patch("app.records.enrichment.has_distressing_content")
