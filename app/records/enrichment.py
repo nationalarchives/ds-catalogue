@@ -165,7 +165,6 @@ class RecordEnrichmentHelper:
         return results
 
     def _fetch_subjects(self) -> dict:
-        """Fetch subjects enrichment from Wagtail."""
         return get_subjects_enrichment(
             self.record.subjects,
             limit=settings.MAX_SUBJECTS_PER_RECORD,
@@ -173,35 +172,51 @@ class RecordEnrichmentHelper:
         )
 
     def _fetch_related(self) -> list:
-        """Fetch related records using subjects and series."""
-        try:
-            related = get_tna_related_records_by_subjects(
+        """
+        Fetch related records using subject matching with series backfill.
+
+        Strategy:
+        1. Search for records sharing subjects (random selection from candidates)
+        2. If fewer than limit found, backfill from same series
+
+        Returns:
+            List of related Record objects (up to related_limit), or empty list
+        """
+        related = get_tna_related_records_by_subjects(
+            self.record,
+            limit=self.related_limit,
+            timeout=settings.ROSETTA_API_TIMEOUT,
+        )
+
+        # Backfill from series if needed
+        if len(related) < self.related_limit:
+            remaining = self.related_limit - len(related)
+            series_records = get_related_records_by_series(
                 self.record,
-                limit=self.related_limit,
+                limit=remaining,
                 timeout=settings.ROSETTA_API_TIMEOUT,
             )
+            related.extend(series_records)
 
-            if len(related) < self.related_limit:
-                remaining = self.related_limit - len(related)
-                series_records = get_related_records_by_series(
-                    self.record,
-                    limit=remaining,
-                    timeout=settings.ROSETTA_API_TIMEOUT,
-                )
-                related.extend(series_records)
-
-            return related
-        except Exception as e:
-            logger.warning(
-                f"Failed to fetch related records for {self.record.id}: {e}"
-            )
-            return []
+        return related
 
     def _fetch_delivery_options(self) -> dict:
-        """Fetch delivery options if applicable."""
+        """
+        Fetch delivery options and add temporary display context.
+
+        Combines API data (availability conditions/groups) with hardcoded
+        display text and Discovery link. The temporary context is a placeholder
+        pending UX decisions on final presentation.
+
+        Returns:
+            Dictionary with delivery_option, do_availability_group, display
+            heading, instructions, and Discovery link. Empty dict on any error.
+        """
         try:
             # Get API data
             api_context = self._get_delivery_api_data()
+
+            # TODO: This is an alternative action on delivery options whilst we wait on decisions on how we are going to present it.
 
             # Add temporary display context
             temp_context = {
@@ -225,7 +240,24 @@ class RecordEnrichmentHelper:
             return {}
 
     def _get_delivery_api_data(self) -> dict:
-        """Fetch delivery options from API."""
+        """
+        Fetch and process delivery options data from the API.
+
+        Queries the delivery options API and extracts the availability condition
+        and availability group for the record. Handles various error cases gracefully
+        by returning an empty dict.
+
+        Returns:
+            Dictionary with delivery option data:
+            - 'delivery_option': Name of the AvailabilityCondition enum
+            - 'do_availability_group': Name of the availability group enum, if applicable
+
+            Returns empty dict if:
+            - API returns non-list or empty result
+            - First result has no 'options' field
+            - Delivery option value is not a valid AvailabilityCondition
+        """
+
         delivery_result = delivery_options_request_handler(
             self.record.id, timeout=settings.DELIVERY_OPTIONS_API_TIMEOUT
         )
@@ -249,16 +281,15 @@ class RecordEnrichmentHelper:
             )
             return {}
 
-        context = {"delivery_option": delivery_option_name}
+        data = {"delivery_option": delivery_option_name}
 
         do_availability_group = get_availability_group(delivery_option_value)
         if do_availability_group is not None:
-            context["do_availability_group"] = do_availability_group.name
+            data["do_availability_group"] = do_availability_group.name
 
-        return context
+        return data
 
     def _fetch_distressing(self) -> bool:
-        """Check for distressing content warnings."""
         try:
             return has_distressing_content(self.record.reference_number)
         except Exception as e:
@@ -268,7 +299,6 @@ class RecordEnrichmentHelper:
             return False
 
     def _should_include_delivery_options(self) -> bool:
-        """Determine if delivery options should be fetched."""
         if self.record.custom_record_type in ["ARCHON", "CREATORS"]:
             return False
 
@@ -287,7 +317,6 @@ class RecordEnrichmentHelper:
 
     @staticmethod
     def _empty_results() -> Dict[str, Any]:
-        """Return empty results structure."""
         return {
             "subjects_enrichment": {},
             "related_records": [],

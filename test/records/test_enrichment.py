@@ -135,17 +135,6 @@ class TestRecordEnrichmentHelper(TestCase):
             self.test_record, limit=2, timeout=7
         )
 
-    @patch("app.records.enrichment.get_tna_related_records_by_subjects")
-    def test_fetch_related_handles_errors(self, mock_subjects: Mock) -> None:
-        """Test that related records errors are handled gracefully"""
-        mock_subjects.side_effect = Exception("API Error")
-
-        helper = RecordEnrichmentHelper(self.test_record, related_limit=3)
-        result = helper._fetch_related()
-
-        # Should return empty list on error
-        self.assertEqual(result, [])
-
     def test_should_include_delivery_for_archon(self) -> None:
         """Test that ARCHON records should not include delivery options"""
         self.test_record.custom_record_type = "ARCHON"

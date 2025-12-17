@@ -50,7 +50,21 @@ def get_tna_related_records_by_subjects(
 def _search_with_all_subjects(
     current_record: Record, fetch_limit: int, timeout: int = None
 ) -> dict:
-    """Search for records matching ALL subjects."""
+    """
+    Search for records by adding all subjects as filters.
+
+    Currently uses OR logic (matches ANY subject) due to API limitations.
+    When logical AND is implemented, this will return only records matching
+    ALL subjects, providing more closely related results.
+
+    Args:
+        current_record: The TNA record to find relations for
+        fetch_limit: Maximum number of matches to fetch
+        timeout: Request timeout in seconds
+
+    Returns:
+        Dictionary of record matches keyed by record ID, or empty dict on error
+    """
     record_matches = {}
 
     filters = ["group:tna"]
@@ -143,8 +157,15 @@ def _search_by_subject_matches(
     current_record: Record, fetch_limit: int, timeout: int = None
 ) -> list[Record]:
     """
-    Search for TNA records with matching subjects.
-    First tries ALL subjects (logical AND, pending implementation), then falls back to individual subjects until enough matches found.
+    Search for TNA records with matching subjects using a two-stage strategy.
+
+    Stage 1: Search with ALL subjects combined (attempts logical AND, but currently
+             uses OR due to API limitations)
+    Stage 2: If insufficient results, search individual subjects with random shuffle
+             to provide variety across page loads
+
+    When logical AND is implemented in the search API, stage 1 will return more
+    closely related records that match ALL subjects rather than ANY subject.
 
     Args:
         current_record: The TNA record to find relations for
@@ -152,7 +173,7 @@ def _search_by_subject_matches(
         timeout: Request timeout in seconds
 
     Returns:
-        List of records (unsorted)
+        List of records (unsorted, may contain fewer than fetch_limit)
     """
     # TODO: When filter logical AND is implemented, this function will provide even more closely related records
 
