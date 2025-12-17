@@ -306,7 +306,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
         super().setup(request, *args, **kwargs)
         self.form_kwargs = self.get_form_kwargs()
-        
+
         self.bucket_list: BucketList = copy.deepcopy(CATALOGUE_BUCKETS)
         self.api_result = None
 
