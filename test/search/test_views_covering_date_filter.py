@@ -124,6 +124,25 @@ class CoveringDateFilterTests(TestCase):
             ],
         )
 
+        self.assertEqual(
+            self.response.context_data.get("filters_visible"), True
+        )
+        self.assertTrue(covering_date_from_field.is_visible)
+        self.assertTrue(covering_date_to_field.is_visible)
+
+        # other fields visibility
+        self.assertTrue(form.fields.get(FieldsConstant.ONLINE).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.COLLECTION).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.LEVEL).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.SUBJECT).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.CLOSURE).is_visible)
+        self.assertTrue(
+            form.fields.get(FieldsConstant.OPENING_DATE_FROM).is_visible
+        )
+        self.assertTrue(
+            form.fields.get(FieldsConstant.OPENING_DATE_TO).is_visible
+        )
+
     @responses.activate
     def test_search_with_year_date_part(self):
 
@@ -204,6 +223,12 @@ class CoveringDateFilterTests(TestCase):
                 },
             ],
         )
+
+        self.assertEqual(
+            self.response.context_data.get("filters_visible"), True
+        )
+        self.assertTrue(covering_date_from_field.is_visible)
+        self.assertTrue(covering_date_to_field.is_visible)
 
 
 class CoveringDateFilterErrorTests(TestCase):
@@ -291,6 +316,25 @@ class CoveringDateFilterErrorTests(TestCase):
             ],
         )
 
+        self.assertEqual(
+            self.response.context_data.get("filters_visible"), True
+        )
+        self.assertTrue(covering_date_from_field.is_visible)
+        self.assertTrue(covering_date_to_field.is_visible)
+
+        # other fields visibility
+        self.assertFalse(form.fields.get(FieldsConstant.ONLINE).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.COLLECTION).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.LEVEL).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.SUBJECT).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.CLOSURE).is_visible)
+        self.assertFalse(
+            form.fields.get(FieldsConstant.OPENING_DATE_FROM).is_visible
+        )
+        self.assertFalse(
+            form.fields.get(FieldsConstant.OPENING_DATE_TO).is_visible
+        )
+
     @responses.activate
     def test_search_with_invalid_date_parts(self):
         """'From' date is after 'to' date.
@@ -348,3 +392,9 @@ class CoveringDateFilterErrorTests(TestCase):
             self.response.context_data.get("selected_filters"),
             [],
         )
+
+        self.assertEqual(
+            self.response.context_data.get("filters_visible"), True
+        )
+        self.assertTrue(covering_date_from_field.is_visible)
+        self.assertTrue(covering_date_to_field.is_visible)

@@ -148,6 +148,9 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
         self.assertEqual(held_by_field.more_filter_choices_url, "")
         self.assertEqual(held_by_field.more_filter_choices_text, "")
 
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(held_by_field.is_visible)
+
     @responses.activate
     def test_catalogue_search_context_for_held_by_does_not_exist(
         self,
@@ -223,3 +226,6 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
             held_by_field.more_filter_choices_available,
             False,
         )
+
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(held_by_field.is_visible)

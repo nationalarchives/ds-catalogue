@@ -94,6 +94,9 @@ class CatalogueSearchViewDefaultTests(TestCase):
             FieldsConstant.COVERING_DATE_FROM
         ]
         covering_date_to_field = form.fields[FieldsConstant.COVERING_DATE_TO]
+        online_field = form.fields[FieldsConstant.ONLINE]
+        opening_date_from_field = form.fields[FieldsConstant.OPENING_DATE_FROM]
+        opening_date_to_field = form.fields[FieldsConstant.OPENING_DATE_TO]
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
@@ -224,6 +227,8 @@ class CatalogueSearchViewDefaultTests(TestCase):
                 {"text": "Division (5)", "value": "Division"},
             ],
         )
+        self.assertTrue(level_field.is_visible)
+
         self.assertEqual(
             collection_field.id,
             "id_collection",
@@ -261,6 +266,7 @@ class CatalogueSearchViewDefaultTests(TestCase):
                 },
             ],
         )
+        self.assertTrue(collection_field.is_visible)
 
         self.assertEqual(
             closure_field.id,
@@ -295,6 +301,7 @@ class CatalogueSearchViewDefaultTests(TestCase):
                 },
             ],
         )
+        self.assertTrue(closure_field.is_visible)
 
         # Test subjects field
         self.assertEqual(
@@ -317,6 +324,7 @@ class CatalogueSearchViewDefaultTests(TestCase):
                 {"text": "Navy (15)", "value": "Navy"},
             ],
         )
+        self.assertTrue(subject_field.is_visible)
 
         # test covering date from fields
         self.assertEqual(
@@ -369,3 +377,10 @@ class CatalogueSearchViewDefaultTests(TestCase):
             covering_date_to_field.cleaned,
             None,
         )
+        self.assertTrue(covering_date_from_field.is_visible)
+        self.assertTrue(covering_date_to_field.is_visible)
+
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(online_field.is_visible)
+        self.assertTrue(opening_date_from_field.is_visible)
+        self.assertTrue(opening_date_to_field.is_visible)

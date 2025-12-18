@@ -65,3 +65,6 @@ class CatalogueSearchViewInvalidViewTests(TestCase):
         )
 
         self.assertEqual(response.context_data.get("selected_filters"), [])
+
+        self.assertFalse(response.context_data.get("filters_visible"))
+        self.assertFalse(hasattr(group_field, "is_visible"))

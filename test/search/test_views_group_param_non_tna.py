@@ -96,3 +96,6 @@ class CatalogueSearchViewGroupParamTests(TestCase):
             ],
         )
         self.assertEqual(response.context_data.get("selected_filters"), [])
+
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertFalse(hasattr(group_field, "is_visible"))
