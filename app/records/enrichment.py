@@ -42,6 +42,7 @@ class RecordEnrichmentHelper:
         self.record = record
         self.related_limit = related_limit
 
+    # TODO: consider bringing distressing_content outside of fetch_parallel or fetch_sequential
     @log_enrichment_execution_time
     def fetch_all(self) -> Dict[str, Any]:
         """
@@ -62,6 +63,8 @@ class RecordEnrichmentHelper:
     def _submit_fetch_tasks(self, executor) -> dict:
         """Submit all fetch tasks to the executor and return futures map."""
         futures_map = {}
+
+        # TODO: the next 3 try/except blocks may not need to be logged to sentry
 
         # Submit subjects fetch
         try:
@@ -233,6 +236,9 @@ class RecordEnrichmentHelper:
 
             api_context.update(temp_context)
             return api_context
+
+        # TODO: is this the right place for a try/except
+        # TODO: do we need to log to sentry
         except Exception as e:
             logger.warning(
                 f"Failed to fetch delivery options for {self.record.id}: {e}"
