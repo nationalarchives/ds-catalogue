@@ -776,12 +776,9 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
         # call individual group specific filter visibility setters only when
         # group field has a valid value, since fields depend on group value
-        if self.form.fields[FieldsConstant.GROUP].value == BucketKeys.TNA.value:
+        if group == BucketKeys.TNA.value:
             self._set_tna_filter_attr(has_results)
-        elif (
-            self.form.fields[FieldsConstant.GROUP].value
-            == BucketKeys.NON_TNA.value
-        ):
+        elif group == BucketKeys.NON_TNA.value:
             self._set_non_tna_filter_attr(has_results)
 
     def _set_tna_filter_attr(self, has_results):
