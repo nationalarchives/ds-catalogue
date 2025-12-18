@@ -14,7 +14,7 @@ _LEVEL_FILTERS_SERIES_TO_ITEM = [
 
 
 def get_tna_related_records_by_subjects(
-    current_record: Record, limit: int = 3
+    current_record: Record, limit: int = 3, timeout: int = None
 ) -> list[Record]:
     """
     Fetches related records that share subjects with the current record.
@@ -24,6 +24,7 @@ def get_tna_related_records_by_subjects(
     Args:
         current_record: The record to find relations for
         limit: Maximum number of related records to return (default 3)
+        timeout: Request timeout in seconds
 
     Returns:
         List of related Record objects (random selection), or empty list if none found
@@ -36,6 +37,7 @@ def get_tna_related_records_by_subjects(
     list_of_related_records = _search_by_subject_matches(
         current_record,
         fetch_limit=RELATED_RECORDS_FETCH_LIMIT,
+        timeout=timeout,
     )
 
     # Randomly select up to 'limit' records from the candidates
@@ -45,8 +47,24 @@ def get_tna_related_records_by_subjects(
     return random.sample(list_of_related_records, limit)
 
 
-def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
-    """Search for records matching ALL subjects."""
+def _search_with_all_subjects(
+    current_record: Record, fetch_limit: int, timeout: int = None
+) -> dict:
+    """
+    Search for records by adding all subjects as filters.
+
+    Currently uses OR logic (matches ANY subject) due to API limitations.
+    When logical AND is implemented, this will return only records matching
+    ALL subjects, providing more closely related results.
+
+    Args:
+        current_record: The TNA record to find relations for
+        fetch_limit: Maximum number of matches to fetch
+        timeout: Request timeout in seconds
+
+    Returns:
+        Dictionary of record matches keyed by record ID, or empty dict on error
+    """
     record_matches = {}
 
     filters = ["group:tna"]
@@ -66,6 +84,7 @@ def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
             page=1,
             sort="",
             params=params,
+            timeout=timeout,
         )
 
         for record in api_result.records:
@@ -79,7 +98,10 @@ def _search_with_all_subjects(current_record: Record, fetch_limit: int) -> dict:
 
 
 def _search_individual_subjects(
-    current_record: Record, fetch_limit: int, record_matches: dict
+    current_record: Record,
+    fetch_limit: int,
+    record_matches: dict,
+    timeout: int = None,
 ) -> dict:
     """Search by individual subjects until enough matches are found.
 
@@ -87,6 +109,7 @@ def _search_individual_subjects(
         current_record: The TNA record to find relations for
         fetch_limit: Maximum number of additional matches to fetch
         record_matches: Existing matches to add to
+        timeout: Request timeout in seconds
 
     Returns:
         Updated dictionary of record matches
@@ -114,6 +137,7 @@ def _search_individual_subjects(
                 page=1,
                 sort="",
                 params=params,
+                timeout=timeout,
             )
 
             for record in api_result.records:
@@ -130,36 +154,48 @@ def _search_individual_subjects(
 
 
 def _search_by_subject_matches(
-    current_record: Record, fetch_limit: int
+    current_record: Record, fetch_limit: int, timeout: int = None
 ) -> list[Record]:
     """
-    Search for TNA records with matching subjects.
-    First tries ALL subjects (logical AND, pending implementation), then falls back to individual subjects until enough matches found.
+    Search for TNA records with matching subjects using a two-stage strategy.
+
+    Stage 1: Search with ALL subjects combined (attempts logical AND, but currently
+             uses OR due to API limitations)
+    Stage 2: If insufficient results, search individual subjects with random shuffle
+             to provide variety across page loads
+
+    When logical AND is implemented in the search API, stage 1 will return more
+    closely related records that match ALL subjects rather than ANY subject.
 
     Args:
         current_record: The TNA record to find relations for
         fetch_limit: Maximum number of candidates to fetch
+        timeout: Request timeout in seconds
 
     Returns:
-        List of records (unsorted)
+        List of records (unsorted, may contain fewer than fetch_limit)
     """
     # TODO: When filter logical AND is implemented, this function will provide even more closely related records
 
     # Try searching with all subjects first
-    record_matches = _search_with_all_subjects(current_record, fetch_limit)
+    record_matches = _search_with_all_subjects(
+        current_record, fetch_limit, timeout
+    )
 
     # If not enough results, search individual subjects
     if len(record_matches) < fetch_limit:
         record_matches = _search_individual_subjects(
-            current_record, fetch_limit - len(record_matches), record_matches
+            current_record,
+            fetch_limit - len(record_matches),
+            record_matches,
+            timeout,
         )
 
     return list(record_matches.values())
 
 
-# TODO: related by series is only partially correct because, at the moment, records aren't retrieved in order of relevance
 def get_related_records_by_series(
-    current_record: Record, limit: int = 3
+    current_record: Record, limit: int = 3, timeout: int = None
 ) -> list[Record]:
     """
     Fetches related records from the same series as the current record.
@@ -168,6 +204,7 @@ def get_related_records_by_series(
     Args:
         current_record: The record to find relations for
         limit: Maximum number of related records to return (default 3)
+        timeout: Request timeout in seconds
 
     Returns:
         List of related Record objects from the same series
@@ -199,6 +236,7 @@ def get_related_records_by_series(
             page=1,
             sort="",
             params=params,
+            timeout=timeout,
         )
 
         results = []

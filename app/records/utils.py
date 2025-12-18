@@ -1,7 +1,10 @@
 import logging
 import re
+import time
+from functools import wraps
 from typing import Any, Dict
 
+from django.conf import settings
 from django.urls import NoReverseMatch, reverse
 from pyquery import PyQuery as pq
 
@@ -95,3 +98,29 @@ def extract(source: Dict[str, Any], key: str, default: Any = None) -> Any:
         return default
 
     return current
+
+
+def log_enrichment_execution_time(func):
+    """Decorator to log execution time of a method."""
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        # Only time and log if timing logging is enabled
+        if not settings.ENRICHMENT_TIMING_ENABLED:
+            return func(self, *args, **kwargs)
+
+        start_time = time.time()
+        result = func(self, *args, **kwargs)
+        elapsed_time = time.time() - start_time
+
+        mode = (
+            "parallel" if settings.ENABLE_PARALLEL_API_CALLS else "sequential"
+        )
+        logger.info(
+            f"Enrichment fetch for record {self.record.id} completed in "
+            f"{elapsed_time:.3f}s (mode: {mode})"
+        )
+
+        return result
+
+    return wrapper

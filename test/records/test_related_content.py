@@ -143,6 +143,7 @@ class SubjectsEnrichmentTests(TestCase):
                 "tags": "world-war-1939-1945,aviation,royal-air-force,military-operations",
                 "limit": 10,
             },
+            timeout=None,
         )
 
     # Test 4: get_subjects_enrichment function failure
