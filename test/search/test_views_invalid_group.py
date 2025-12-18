@@ -8,7 +8,6 @@ from django.test import TestCase
 class CatalogueSearchViewInvalidViewTests(TestCase):
     """Tests for invalid group param handling in catalogue search view."""
 
-    # @responses.activate
     def test_search_with_invalid_group(self):
         """Tests that an invalid group param returns the base form with errors."""
 
