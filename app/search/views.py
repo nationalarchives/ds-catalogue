@@ -742,8 +742,8 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         Calls and sets individual filter field's is_visible attribute only when group
         field has a valid value.
 
-        NOTE: Ensure that this call must be after all context are set to determine
-        visibility.
+        NOTE: Ensure that this method is called after all context data is set to
+        determine visibility.
         """
 
         has_results = bool(self.api_result and self.api_result.stats_total > 0)

@@ -20,7 +20,7 @@ class CatalogueSearchBaseForm(BaseForm):
     def add_fields(self):
 
         return {
-            # determines the Catalogue Searh TNA or NonTNA form to use
+            # determines the Catalogue Search TNA or NonTNA form to use
             FieldsConstant.GROUP: ChoiceField(
                 choices=CATALOGUE_BUCKETS.as_choices(),
             ),
