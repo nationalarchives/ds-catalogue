@@ -1,3 +1,5 @@
+from django.conf import settings
+
 # Some of these values are also used by Delivery Options
 # TODO: Refactor to use Enums throughout the codebase
 TNA_LEVELS = {
@@ -38,3 +40,11 @@ TNA_HELD_BY_VALUES = [
     "The National Archives",
     "The National Archives, Kew",
 ]
+
+API_TIMEOUTS = {
+    "subjects": settings.WAGTAIL_API_TIMEOUT,
+    "related": settings.ROSETTA_ENRICHMENT_API_TIMEOUT,
+    "delivery": settings.DELIVERY_OPTIONS_API_TIMEOUT,
+}
+
+THREADPOOL_MAX_WORKERS = 3

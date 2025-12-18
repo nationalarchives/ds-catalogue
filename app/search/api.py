@@ -5,7 +5,13 @@ from .models import APISearchResponse
 
 
 def search_records(
-    query, results_per_page=12, page=1, sort="", order="asc", params={}
+    query,
+    results_per_page=12,
+    page=1,
+    sort="",
+    order="asc",
+    params={},
+    timeout=None,
 ) -> APISearchResponse:
     """
     Prepares the api url for the requested data and calls the handler.
@@ -13,6 +19,7 @@ def search_records(
 
     sort: date:[asc|desc]; title:[asc|desc]
     params: filter, aggregation, etc
+    timeout: Request timeout in seconds
     The errors are handled by a custom middleware in the app.
     """
     uri = "search"
@@ -37,7 +44,7 @@ def search_records(
         if value not in [None, "", []]
     }
 
-    results = rosetta_request_handler(uri, params)
+    results = rosetta_request_handler(uri, params, timeout=timeout)
     if "data" not in results:
         raise Exception("No data returned")
     if "buckets" not in results:
