@@ -108,23 +108,12 @@ $accordions.forEach(($accordion) => {
 });
 
 // dataLayer push for 'View this record' : goes to discovery
-
-// Use a standard event listener pattern to ensure code runs after the DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-  // Select the button element using the class name 'discovery-link'
   const discoveryLinkButton = document.querySelector(".discovery-link");
 
-  // 2. Check if the button was found
   if (discoveryLinkButton) {
-    // 3. Attach the event listener for the 'click' event
     discoveryLinkButton.addEventListener("click", () => {
-      // Prevent the default action (though a button has no default action here,
-      // this is good practice for links/forms)
-      // event.preventDefault();
-
-      // 4. push to the dataLayer
       window.dataLayer = window.dataLayer || [];
-
       window.dataLayer.push({
         event: "select_promotion",
         promotion_name: "Ordering and viewing options",
@@ -132,9 +121,246 @@ document.addEventListener("DOMContentLoaded", () => {
         creative_slot: "Full description and record details",
       });
     });
-
-    // console.log("Successfully attached click listener to '.discovery-link'.");
-  } else {
-    // console.error("Error: Could not find element with class 'discovery-link'.");
   }
 });
+
+// ============================================================================
+// PROGRESSIVE LOADING FOR RECORD DETAIL PAGES
+// ============================================================================
+
+// Load configuration from the page
+function loadProgressiveConfig() {
+  const configElement = document.getElementById('progressive-loading-config');
+  if (!configElement) return null;
+  
+  try {
+    return JSON.parse(configElement.textContent);
+  } catch (e) {
+    console.error('Progressive loading: Failed to parse config:', e);
+    return null;
+  }
+}
+
+// Load subjects enrichment (Wagtail related content)
+async function loadSubjectsEnrichment(config) {
+  const container = document.getElementById('related-content-container');
+  if (!container) return;
+
+  try {
+    const response = await fetch(config.endpoints.subjects);
+    const data = await response.json();
+
+    if (data.success && data.has_content) {
+      container.innerHTML = data.html;
+      container.classList.remove('progressive-loading');
+      container.removeAttribute('aria-busy');
+    } else {
+      container.remove();
+    }
+  } catch (error) {
+    console.error('Progressive loading: Failed to load subjects enrichment:', error);
+    showProgressiveError(container, 'Failed to load related content');
+  }
+}
+
+// Load related records
+async function loadRelatedRecords(config) {
+  const container = document.getElementById('related-records-container');
+  if (!container) return;
+
+  try {
+    const response = await fetch(config.endpoints.related);
+    const data = await response.json();
+
+    if (data.success && data.has_content) {
+      container.innerHTML = data.html;
+      container.classList.remove('progressive-loading');
+      container.removeAttribute('aria-busy');
+    } else {
+      container.remove();
+    }
+  } catch (error) {
+    console.error('Progressive loading: Failed to load related records:', error);
+    showProgressiveError(container, 'Failed to load related records');
+  }
+}
+
+// Load delivery options (updates 3 sections)
+async function loadDeliveryOptions(config) {
+  try {
+    const response = await fetch(config.endpoints.delivery);
+    const data = await response.json();
+
+    if (data.success && data.has_content) {
+      // Update "Available online" section
+      updateProgressiveSection('available-online-container', data.sections.available_online);
+      
+      // Update "Available in person" section
+      updateProgressiveSection('available-in-person-container', data.sections.available_in_person);
+      
+      // Add "How to order" to accordion if available
+      if (data.sections.how_to_order) {
+        addDeliveryAccordionItem(
+          data.sections.how_to_order_title,
+          data.sections.how_to_order
+        );
+      }
+
+      // Update analytics metadata
+      if (data.analytics) {
+        updateProgressiveAnalytics(data.analytics);
+      }
+
+      adjustContentWarningPadding();
+    } else {
+      hideDeliveryPlaceholders();
+    }
+  } catch (error) {
+    console.error('Progressive loading: Failed to load delivery options:', error);
+    hideDeliveryPlaceholders();
+  }
+}
+
+// Update a section by replacing its container
+function updateProgressiveSection(containerId, html) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.outerHTML = html;
+}
+
+// Add delivery options accordion item
+function addDeliveryAccordionItem(title, bodyHtml) {
+  const accordion = document.querySelector('.etna-accordion[data-module="etna-accordion"]');
+  if (!accordion) return;
+
+  const item = document.createElement('div');
+  item.className = 'etna-accordion__item';
+  item.setAttribute('data-isopen', 'false');
+  
+  const itemIndex = 1;
+
+  item.innerHTML = `
+    <h3 class="etna-accordion__heading" id="record-extended-details-heading-${itemIndex}">
+      ${title}
+    </h3>
+    <div class="etna-accordion__body" id="record-extended-details-content-${itemIndex}">
+      ${bodyHtml}
+    </div>
+  `;
+
+  accordion.insertBefore(item, accordion.firstChild);
+
+  // Reinitialize accordion
+  new Accordion(accordion);
+}
+
+// Update analytics meta tags
+function updateProgressiveAnalytics(analytics) {
+  const metaTags = {
+    'delivery_option_category': analytics.delivery_option_category,
+    'delivery_option': analytics.delivery_option
+  };
+
+  Object.entries(metaTags).forEach(([key, value]) => {
+    const meta = document.querySelector(`meta[name="tna_root:${key}"]`);
+    if (meta) {
+      meta.setAttribute('content', value);
+    }
+  });
+}
+
+// Adjust padding if content warning is shown
+function adjustContentWarningPadding() {
+  const warningContainer = document.getElementById('content-warning-container');
+  if (warningContainer && warningContainer.querySelector('.tna-warning')) {
+    const section = document.querySelector('.tna-section');
+    if (section) {
+      section.classList.remove('tna-!--padding-top-l');
+      section.classList.add('tna-!--padding-top-s');
+    }
+  }
+}
+
+// Hide delivery option placeholders
+function hideDeliveryPlaceholders() {
+  const onlineContainer = document.getElementById('available-online-container');
+  const inPersonContainer = document.getElementById('available-in-person-container');
+  const accordionPlaceholder = document.getElementById('delivery-options-accordion-placeholder');
+
+  if (onlineContainer) onlineContainer.remove();
+  if (inPersonContainer) inPersonContainer.remove();
+  if (accordionPlaceholder) accordionPlaceholder.remove();
+}
+
+// Show error message in container
+function showProgressiveError(container, message) {
+  if (!container) return;
+  
+  container.innerHTML = `
+    <div class="tna-container">
+      <div class="tna-aside tna-aside--warning">
+        <p>${message}. Please refresh the page to try again.</p>
+      </div>
+    </div>
+  `;
+  container.classList.remove('progressive-loading');
+  container.removeAttribute('aria-busy');
+}
+
+// Initialize progressive loading
+function initProgressiveLoading() {
+  console.log('Progressive loading: Initializing...');
+  
+  const config = loadProgressiveConfig();
+  if (!config) {
+    console.log('Progressive loading: No config found (not a record detail page)');
+    return;
+  }
+
+  console.log('Progressive loading: Config loaded, starting to load sections...');
+
+  // Load all sections in parallel
+  loadSubjectsEnrichment(config);
+  loadRelatedRecords(config);
+  
+  if (config.shouldLoadDelivery) {
+    loadDeliveryOptions(config);
+  } else {
+    hideDeliveryPlaceholders();
+  }
+}
+
+// Run progressive loading when DOM is ready
+(function() {
+  console.log('Progressive loading: IIFE starting...');
+  
+  function init() {
+    console.log('Progressive loading: init() called, readyState:', document.readyState);
+    
+    const config = loadProgressiveConfig();
+    if (!config) {
+      console.log('Progressive loading: No config found (not a record detail page)');
+      return;
+    }
+
+    console.log('Progressive loading: Config loaded, starting to load sections...');
+
+    // Load all sections in parallel
+    loadSubjectsEnrichment(config);
+    loadRelatedRecords(config);
+    
+    if (config.shouldLoadDelivery) {
+      loadDeliveryOptions(config);
+    } else {
+      hideDeliveryPlaceholders();
+    }
+  }
+  
+  if (document.readyState === 'loading') {
+    console.log('Progressive loading: DOM still loading, adding event listener');
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    console.log('Progressive loading: DOM already loaded, running immediately');
+    init();
+  }
+})();

@@ -61,5 +61,5 @@ def delivery_options_request_handler(
 
     except Exception as e:
         # Log the original exception for debugging
-        logger.error(f"Delivery options request error: {str(e)}")
+        logger.error(f"Delivery options request error: {str(e)} - data {data}")
         raise Exception("Delivery Options database is currently unavailable")

@@ -1,0 +1,92 @@
+/**
+ * Progressive loading styles
+ * Loading spinners and states for record detail progressive loading
+ */
+
+// Loading spinner
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  min-height: 100px;
+
+  p {
+    margin-top: 1rem;
+    color: #6c757d;
+    font-size: 0.875rem;
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Progressive loading container states
+.progressive-loading {
+  min-height: 150px;
+  
+  // Fade in when content loads
+  &.loaded {
+    animation: fadeIn 0.3s ease-in;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Ensure full height for delivery option placeholders
+.full-height-aside {
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+
+  .loading-spinner {
+    flex: 1;
+  }
+}
+
+// Accessibility: reduce motion for users who prefer it
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+    border-left-color: transparent;
+    border-top-color: #000;
+  }
+
+  .progressive-loading.loaded {
+    animation: none;
+  }
+}
+
+// Error state
+.tna-aside--warning {
+  border-left: 4px solid #d4351c;
+  background-color: #f3f2f1;
+  
+  h2 {
+    color: #d4351c;
+  }
+}
