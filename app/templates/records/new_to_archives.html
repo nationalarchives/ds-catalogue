@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% from 'components/accordion/macro.html' import tnaAccordion %}
 {% from 'components/hero/macro.html' import tnaHero %}
@@ -9,11 +9,11 @@
 {% block stylesheets %}
 {{ super() }}
     <link rel="stylesheet" href="{{ static('record-details.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
-{% endblock %}
+{% endblock stylesheets %}
 
 {% block beforeContent %}
 {{ top_navigation(record, request) }}
-{% endblock %}
+{% endblock beforeContent %}
 
 {% block content %}
 <div class="tna-section">
@@ -34,7 +34,7 @@
       <p>The catalogue shows descriptions of records, not the record itself. Each record’s description page will detail how you can see it. Around 7% of our records can be seen online or downloaded. Others are only available to be seen in person at our <a href="https://www.nationalarchives.gov.uk/about/visit-us/">reading rooms in London</a>, where everyone is welcome.</p>
 
       <h2 class="tna-heading-m">Ready to use our catalogue?</h2>
-      <p>Try searching by keyword, place, person. <a href='/catalogue/'>Search our catalogue</a></p>
+      <p>Try searching by keyword, place, person. <a href="{{ url('search:catalogue') }}">Search our catalogue</a></p>
 
       <!--accordion commented out as new layout proposed -->
       <!--
@@ -124,9 +124,9 @@
   ],
   'style': 'accent'
 }) }}
-{% endblock %}
+{% endblock content %}
 
 {% block bodyEnd %}
 {{ super() }}
     <script src="{{ static('record-details.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
-{% endblock %}
+{% endblock bodyEnd %}
