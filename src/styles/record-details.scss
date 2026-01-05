@@ -247,8 +247,40 @@
 
   @include colour.thick-keyline-brand(left, "forest");
 
-  .callout__content {
+  &__content {
     margin-top: spacing.space(0.5);
+  }
+}
+
+.dl-icon-grid {
+  &__item {
+    margin-top: spacing.space(1);
+
+    display: grid;
+    grid-template-columns: spacing.space(2) 1fr;
+  }
+
+  &__icon {
+    align-self: center;
+
+    color: var(--font-base);
+  }
+
+  &__term {
+    margin-top: 0;
+    padding-top: 0;
+
+    color: var(--font-base);
+
+    font-weight: 700;
+  }
+
+  &__definition {
+    grid-column: 2;
+  }
+
+  a {
+    color: var(--font-base);
   }
 }
 
