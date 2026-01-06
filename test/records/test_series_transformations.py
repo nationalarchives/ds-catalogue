@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 from app.lib.xslt_transformations import SERIES_TRANSFORMATIONS
 from app.records.models import Record
 from config.jinja2 import sanitise_record_field
