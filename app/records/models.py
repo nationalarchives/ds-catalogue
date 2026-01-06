@@ -5,7 +5,11 @@ import re
 from typing import Any
 
 import sentry_sdk
-from app.lib.xslt_transformations import apply_schema_xsl, apply_series_xsl
+from app.lib.xslt_transformations import (
+    SERIES_TRANSFORMATIONS,
+    apply_schema_xsl,
+    apply_series_xsl,
+)
 from app.records.constants import (
     NON_TNA_LEVELS,
     SUBJECTS_LIMIT,
@@ -14,7 +18,6 @@ from app.records.constants import (
 )
 from app.records.utils import (
     extract,
-    format_extref_links,
     format_link,
 )
 from config.jinja2 import format_number
@@ -368,13 +371,25 @@ class Record(APIModel):
 
     @cached_property
     def description(self) -> str:
-        """Returns the api value of the attr if found, empty str otherwise."""
-        if description := self.raw_description:
-            description = apply_schema_xsl(description, self.description_schema)
-            return description
-        description = self.get("description.value", "")
-        if series := self.hierarchy_series:
+        """Returns the api value of the attr if found, empty str otherwise.
+        Applies series-specific or schema-based XSLT transformation as needed.
+        """
+
+        # Apply series-specific transformation if applicable first
+        series = self.hierarchy_series
+        series_transformation = None
+        if series:
+            series_transformation = SERIES_TRANSFORMATIONS.get(
+                series.reference_number
+            )
+        if series and series_transformation:
+            description = self.get("description.value", "")
             description = apply_series_xsl(description, series.reference_number)
+            return description
+
+        # Fallback to schema-based transformation
+        description = self.raw_description
+        description = apply_schema_xsl(description, self.description_schema)
         return description
 
     @cached_property
