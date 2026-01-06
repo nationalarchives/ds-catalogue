@@ -13,7 +13,6 @@ from app.records.constants import (
     TNA_LEVELS,
 )
 from app.records.utils import (
-    change_discovery_record_details_links,
     extract,
     format_extref_links,
     format_link,
