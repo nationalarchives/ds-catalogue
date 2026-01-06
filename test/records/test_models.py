@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from app.records.models import Record
+from config.jinja2 import sanitise_record_field
 from django.test import SimpleTestCase
 
 
@@ -640,17 +641,32 @@ class RecordModelTests(SimpleTestCase):
                 """on Discovery, see <a class=\"extref\" """
                 """href=\"f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
                 """"C16248: Also see the Royal Botanic Gardens, Kew """
+                """Also see the Royal Botanic Gardens, Kew <a class=\"extref\" """
+                """href=\"https://www2.calmview.co.uk/kew/calmview/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">"""
+                """online catalogue</a>"""
             ),
             "schema": "",
-            "raw": "",
+            "raw": (
+                """C16248: Online descriptions of individual records can be viewed """
+                """on Discovery, see <extref """
+                """href=&#34https://discovery.nationalarchives.gov.uk/details/r/a48f41eb-1496-446c-8bf8-21dc681223da&#34>RM 2</extref>."""
+                """"C16248: Also see the Royal Botanic Gardens, Kew """
+                """Also see the Royal Botanic Gardens, Kew <extref """
+                """href=&#34https://www2.calmview.co.uk/kew/calmview/Record.aspx?src=CalmView.Catalog&#38;id=MN&#38;pos=1&#34>"""
+                """online catalogue</extref>"""
+            ),
         }
+        sanitised = sanitise_record_field(self.record.description)
         self.assertEqual(
-            self.record.description,
+            sanitised,
             (
                 """C16248: Online descriptions of individual records can be viewed """
-                """on Discovery, see <a class=\"extref\" """
-                """href="/catalogue/id/f41eb-1496-446c-8bf8-21dc681223da/"RM 2</a>."""
-                """"C16248: Also see the Royal Botanic Gardens, Kew """
+                """on Discovery, see <a """
+                """href="/catalogue/id/a48f41eb-1496-446c-8bf8-21dc681223da/">RM 2</a>."""
+                """"C16248: Also see the Royal Botanic Gardens, Kew"""
+                """ Also see the Royal Botanic Gardens, Kew """
+                """<a href="https://www2.calmview.co.uk/kew/calmview/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1" """
+                """title="Opens in a new tab" target="_blank">online catalogue</a>"""
             ),
         )
 
