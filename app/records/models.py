@@ -373,13 +373,11 @@ class Record(APIModel):
         if description := self.raw_description:
             description = format_extref_links(description)
             description = apply_schema_xsl(description, self.description_schema)
-            description = change_discovery_record_details_links(description)
             return description
         description = self.get("description.value", "")
         if series := self.hierarchy_series:
             description = apply_series_xsl(description, series.reference_number)
         description = format_extref_links(description)
-        description = change_discovery_record_details_links(description)
         return description
 
     @cached_property
