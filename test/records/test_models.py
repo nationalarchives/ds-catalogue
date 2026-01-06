@@ -639,7 +639,7 @@ class RecordModelTests(SimpleTestCase):
             "value": (
                 """C16248: Online descriptions of individual records can be viewed """
                 """on Discovery, see <a class=\"extref\" """
-                """href=\"f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
+                """href=\"a48f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
                 """"C16248: Also see the Royal Botanic Gardens, Kew """
                 """Also see the Royal Botanic Gardens, Kew <a class=\"extref\" """
                 """href=\"https://www2.calmview.co.uk/kew/calmview/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">"""
@@ -707,7 +707,7 @@ class RecordModelTests(SimpleTestCase):
             "raw": (
                 """C16248: Online descriptions of individual records can be viewed """
                 """on Discovery, see <a class=\"extref\" """
-                """href=\"f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
+                """href=\"a48f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
                 """"C16248: Also see the Royal Botanic Gardens, Kew """
                 """<a class=\"extref\" href=\"https://www2.calmview.co.uk/kew/calmview"""
                 """/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">online catalogue</a>"""
@@ -721,7 +721,7 @@ class RecordModelTests(SimpleTestCase):
             (
                 """C16248: Online descriptions of individual records can be viewed """
                 """on Discovery, see <a class=\"extref\" """
-                """href=\"f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
+                """href=\"a48f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
                 """"C16248: Also see the Royal Botanic Gardens, Kew """
                 """<a class=\"extref\" href=\"https://www2.calmview.co.uk/kew/calmview"""
                 """/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">online catalogue</a>"""
