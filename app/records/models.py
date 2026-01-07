@@ -377,12 +377,12 @@ class Record(APIModel):
 
         # Apply series-specific transformation if applicable first
         series = self.hierarchy_series
-        apply_series_transformaion = False
+        apply_series_transformation = False
         if series:
-            apply_series_transformaion = bool(
+            apply_series_transformation = bool(
                 SERIES_TRANSFORMATIONS.get(series.reference_number)
             )
-        if apply_series_transformaion:
+        if apply_series_transformation:
             description = self.get("description.value", "")
             description = apply_series_xsl(description, series.reference_number)
             return description
