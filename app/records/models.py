@@ -375,6 +375,9 @@ class Record(APIModel):
         Applies series-specific or schema-based XSLT transformation as needed.
         """
 
+        # Use raw_description as the base description
+        description = self.raw_description
+
         # Apply series-specific transformation if applicable first
         series = self.hierarchy_series
         apply_series_transformation = False
@@ -383,14 +386,10 @@ class Record(APIModel):
                 SERIES_TRANSFORMATIONS.get(series.reference_number)
             )
         if apply_series_transformation:
-            description = self.get("description.value", "")
-            description = apply_series_xsl(description, series.reference_number)
-            return description
+            return apply_series_xsl(description, series.reference_number)
 
         # Fallback to schema-based transformation
-        description = self.raw_description
-        description = apply_schema_xsl(description, self.description_schema)
-        return description
+        return apply_schema_xsl(description, self.description_schema)
 
     @cached_property
     def raw_description(self) -> str:
