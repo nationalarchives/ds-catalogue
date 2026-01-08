@@ -15,6 +15,9 @@ COPY --chown=app . .
 # Install dependencies
 RUN tna-build
 
+# Create a directory for Django file-based cache
+RUN mkdir -p /home/app/django_cache
+
 # Copy in the static assets from TNA Frontend, collect static files and remove source files
 RUN mkdir -p /app/app/static/assets; \
     cp -r /app/node_modules/@nationalarchives/frontend/nationalarchives/assets/* /app/app/static/assets; \
@@ -25,4 +28,4 @@ RUN mkdir -p /app/app/static/assets; \
 RUN tna-clean
 
 # Run the application
-CMD ["tna-wsgi", "config.wsgi:application"]
+CMD ["tna-asgi", "config.asgi:application"]

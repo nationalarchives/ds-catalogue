@@ -3,7 +3,8 @@
 @use "@nationalarchives/frontend/nationalarchives/tools/media";
 @use "@nationalarchives/frontend/nationalarchives/tools/spacing";
 @use "@nationalarchives/frontend/nationalarchives/tools/typography";
-@use "./accordion";
+@use "record-details/accordion";
+@use "record-details/hierarchy";
 
 .back-link-group {
   display: flex;
@@ -198,33 +199,6 @@
 .copy-url {
   @include typography.detail-font;
   @include typography.font-size(16);
-}
-
-.record-hierarchy {
-  padding-top: spacing.space(0.75);
-
-  &__count {
-    padding-top: spacing.space(0.125);
-    padding-right: spacing.space(0.5);
-    padding-bottom: spacing.space(0.125);
-
-    text-align: right;
-
-    @include borders.rounded-border;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
-
-  &--this {
-  }
-}
-
-.large-icon {
-  font-size: 2em;
-
-  @include media.on-larger-than-tiny {
-    margin-left: spacing.space(1);
-  }
 }
 
 .underline {

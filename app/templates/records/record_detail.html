@@ -62,8 +62,17 @@
   {% else %}
     <div class="tna-container">
       {{ whats_this_below_series_about(record) }}
-      {{ available_online(record, do_availability_group) }}
-      {{ available_in_person(record, do_availability_group) }}
+      {% if do_availability_group and do_availability_group != 'PENDING_CLASSIFICATION' %}
+        {{ available_online(record, do_availability_group) }}
+        {{ available_in_person(record, do_availability_group) }}
+      {% else %}
+        <div class="tna-column tna-column--width-2-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
+          <div class="tna-aside tna-aside--tight tna-background-contrast full-height-aside">
+            <h2 class="tna-heading-m">Access information is unavailable</h2>
+            <p>Sorry, information for accessing this record is currently unavailable online. Please try again later.</p>
+          </div>
+        </div>
+      {% endif %}
     </div>
   {% endif %}
 
