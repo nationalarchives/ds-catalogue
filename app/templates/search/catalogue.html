@@ -53,7 +53,7 @@
 {% endblock head %}
 
 {% block beforeContent %}
-<div class="tna-background-accent">
+<div class="tna-background-accent-light">
   <div class="tna-container">
     <div class="tna-column tna-column--full">
       {{ tnaBreadcrumbs({
@@ -76,10 +76,10 @@
 {% endblock beforeContent %}
 
 {% block content %}
-<div class="tna-background-accent">
+<div class="tna-background-accent-light">
   {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
 </div>
-<div class="tna-background-accent tna-!--padding-top-s">
+<div class="tna-background-accent-light tna-!--padding-top-s">
   <div class="tna-container">
     <form id="search-form" method="get" class="tna-column tna-column--full">
       {{ tnaSearchField({
