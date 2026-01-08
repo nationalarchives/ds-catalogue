@@ -33,16 +33,6 @@ def format_link(link_html: str, inc_msg: str = "") -> Dict[str, str]:
     return {"id": id or "", "href": href, "text": document.text()}
 
 
-def format_extref_links(html: str) -> str:
-    regex = re.compile('<a class="extref" href="([^"]+)">')
-    html = re.sub(
-        regex,
-        lambda m: f'<a class="extref" href="{reverse("records:details", kwargs={"id": m.group(1)})}"',
-        html,
-    )
-    return html
-
-
 def change_discovery_record_details_links(html: str) -> str:
     regex = re.compile(
         r'href="https?://discovery.nationalarchives.gov.uk/(details/r/|SearchUI/details\?Uri=)'
