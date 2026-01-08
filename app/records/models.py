@@ -6,9 +6,9 @@ from typing import Any
 
 import sentry_sdk
 from app.lib.xslt_transformations import (
-    SERIES_TRANSFORMATIONS,
     apply_schema_xsl,
     apply_series_xsl,
+    has_series_xsl,
 )
 from app.records.constants import (
     NON_TNA_LEVELS,
@@ -380,12 +380,7 @@ class Record(APIModel):
 
         # Apply series-specific transformation if applicable first
         series = self.hierarchy_series
-        apply_series_transformation = False
-        if series:
-            apply_series_transformation = bool(
-                SERIES_TRANSFORMATIONS.get(series.reference_number)
-            )
-        if apply_series_transformation:
+        if series and has_series_xsl(series.reference_number):
             return apply_series_xsl(description, series.reference_number)
 
         # Fallback to schema-based transformation
