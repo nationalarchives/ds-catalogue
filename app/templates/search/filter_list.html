@@ -13,7 +13,7 @@
 {% endblock stylesheets %}
 
 {% block beforeContent %}
-  <div class="tna-background-accent">
+  <div class="tna-background-accent-light">
     <div class="tna-container">
       <div class="tna-column tna-column--full">
         {{ tnaBreadcrumbs({
@@ -108,7 +108,7 @@
     {{ render_hidden_fields(request, form, bucket_keys, mfc_field) }}
   </form>
 
-  <div class="tna-background-accent">
+  <div class="tna-background-accent-light">
     {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
   </div>
 {% endblock content %}
