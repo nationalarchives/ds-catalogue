@@ -28,4 +28,4 @@ RUN mkdir -p /app/app/static/assets; \
 RUN tna-clean
 
 # Run the application
-CMD ["tna-wsgi", "config.wsgi:application"]
+CMD ["tna-asgi", "config.asgi:application"]
