@@ -2,8 +2,8 @@
 
 {%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
 {% from 'records/macros/accordion.html' import etna_accordion %}
-{% from 'records/macros/whats_this_series_or_above_about.html' import whats_this_series_or_above_about %}
-{% from 'records/macros/whats_this_below_series_about.html' import whats_this_below_series_about %}
+{% from 'records/macros/whats_this_about_sub_sub_series_or_above.html' import whats_this_about_sub_sub_series_or_above %}
+{% from 'records/macros/whats_this_about_piece_or_item.html' import whats_this_about_piece_or_item %}
 {% from 'records/macros/available_online.html' import available_online %}
 {% from 'records/macros/available_in_person.html' import available_in_person %}
 {% from 'records/macros/detail_fields.html' import detail_fields %}
@@ -57,11 +57,11 @@
     </div>
   </div>
 
-  {% if record.is_tna and record.level in ["Series", "Division", "Department"] %}
-    {{ whats_this_series_or_above_about(record) }}
+  {% if record.is_tna and record.level in ["Series", "Division", "Department", "Sub-series", "Sub-sub-series"] %}
+    {{ whats_this_about_sub_sub_series_or_above(record) }}
   {% else %}
     <div class="tna-container">
-      {{ whats_this_below_series_about(record) }}
+      {{ whats_this_about_piece_or_item(record) }}
       {% if do_availability_group and do_availability_group != 'PENDING_CLASSIFICATION' %}
         {{ available_online(record, do_availability_group) }}
         {{ available_in_person(record, do_availability_group) }}
