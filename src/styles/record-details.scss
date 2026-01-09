@@ -183,6 +183,8 @@
 .square {
   aspect-ratio: 1;
 
+  max-inline-size: spacing.space(9);
+
   padding: spacing.space(0.75);
 
   display: flex;
