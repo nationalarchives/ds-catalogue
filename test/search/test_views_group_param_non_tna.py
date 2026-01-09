@@ -59,8 +59,8 @@ class CatalogueSearchViewGroupParamTests(TestCase):
         self.assertEqual(len(form.fields), 7)
         non_tna_field_names = [
             FieldsConstant.GROUP,
-            FieldsConstant.SORT,
             FieldsConstant.Q,
+            FieldsConstant.SORT,
             FieldsConstant.FILTER_LIST,
             FieldsConstant.COVERING_DATE_FROM,
             FieldsConstant.COVERING_DATE_TO,
@@ -96,3 +96,6 @@ class CatalogueSearchViewGroupParamTests(TestCase):
             ],
         )
         self.assertEqual(response.context_data.get("selected_filters"), [])
+
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertFalse(hasattr(group_field, "is_visible"))

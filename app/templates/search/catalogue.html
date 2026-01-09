@@ -141,7 +141,9 @@
 
     {{ under_development_banner() }}
 
-    <h2 class="tna-heading-l tna-!--margin-top-xs">Filters</h2>
+    {% if filters_visible %}
+      <h2 class="tna-heading-l tna-!--margin-top-xs">Filters</h2>
+    {% endif %}
 
     {# This skip link is revealed on focus, including where a user has landed on it by using the 'Skip to search filters' link #}
     <div class="skip-from-filters-to-results">
@@ -179,18 +181,36 @@
     {% endif %}
 
     {% if form.fields.group.value==bucket_keys.TNA %}
-      {{ online(request) }}
+      {% if form.fields.online.is_visible %}
+        {{ online(request) }}
+      {% endif %}
       {# {{ search_within(request) }} #}
-      {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
-      {{ checkboxes_with_submit(request, form.fields['collection']) }}
-      {{ checkboxes_with_submit(request, form.fields['subject']) }}
-      {{ checkboxes_with_submit(request, form.fields['level']) }}
-      {{ date_input(form.fields.opening_date_from, form.fields.opening_date_to, 'Filter by record opening date') }}
-      {{ checkboxes_with_submit(request, form.fields['closure']) }}
+      {% if form.fields.covering_date_from.is_visible or form.fields.covering_date_to.is_visible %}
+        {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
+      {% endif %}
+      {% if form.fields.collection.is_visible %}
+        {{ checkboxes_with_submit(request, form.fields.collection) }}
+      {% endif %}
+      {% if form.fields.subject.is_visible %}
+        {{ checkboxes_with_submit(request, form.fields.subject) }}
+      {% endif %}
+      {% if form.fields.level.is_visible %}
+        {{ checkboxes_with_submit(request, form.fields.level) }}
+      {% endif %}
+      {% if form.fields.opening_date_from.is_visible or form.fields.opening_date_to.is_visible %}
+        {{ date_input(form.fields.opening_date_from, form.fields.opening_date_to, 'Filter by record opening date') }}
+      {% endif %}
+      {% if form.fields.closure.is_visible %}
+        {{ checkboxes_with_submit(request, form.fields.closure) }}
+      {% endif %}
     {% elif form.fields.group.value==bucket_keys.NON_TNA %}
       {# {{ search_within(request) }} #}
-      {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
-      {{ checkboxes_with_submit(request, form.fields['held_by']) }}
+      {% if form.fields.covering_date_from.is_visible or form.fields.covering_date_to.is_visible %}
+        {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
+      {% endif %}
+      {% if form.fields.held_by.is_visible %}
+        {{ checkboxes_with_submit(request, form.fields.held_by) }}
+      {% endif %}
     {% endif %}
     
     

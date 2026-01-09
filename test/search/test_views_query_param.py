@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 import responses
+from app.search.constants import FieldsConstant
 from django.conf import settings
 from django.test import TestCase
 
@@ -54,6 +55,8 @@ class CatalogueSearchViewQueryParamTests(TestCase):
         self.assertEqual(q_field.value, "ufo")
         self.assertEqual(response.context_data.get("selected_filters"), [])
 
+        self.assertTrue(response.context_data.get("filters_visible"))
+
     @responses.activate
     def test_catalogue_search_context_with_unknown_query_returns_no_results(
         self,
@@ -88,8 +91,8 @@ class CatalogueSearchViewQueryParamTests(TestCase):
         form = response.context_data.get("form")
         q_field = form.fields["q"]
         # get collection and level fields which have configured choices
-        collection_field = form.fields["collection"]
-        level_field = form.fields["level"]
+        collection_field = form.fields[FieldsConstant.COLLECTION]
+        level_field = form.fields[FieldsConstant.LEVEL]
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
@@ -100,17 +103,36 @@ class CatalogueSearchViewQueryParamTests(TestCase):
         self.assertEqual(form.is_valid(), True)
         self.assertEqual(form.errors, {})
 
+        self.assertFalse(response.context_data.get("filters_visible"))
+
         self.assertEqual(q_field.value, "qwert")
 
         # choices updated by items property from view context
         self.assertEqual(collection_field.choices_updated, True)
         # configured choices should be empty
         self.assertEqual(collection_field.items, [])
+        self.assertFalse(collection_field.is_visible)
 
         # choices updated by items property from view context
         self.assertEqual(level_field.choices_updated, True)
         # configured choices should be empty
         self.assertEqual(level_field.items, [])
+        self.assertFalse(level_field.is_visible)
 
         # filtered selections should be empty
         self.assertEqual(response.context_data.get("selected_filters"), [])
+
+        # other fields visibility
+        self.assertFalse(form.fields[FieldsConstant.ONLINE].is_visible)
+        self.assertFalse(
+            form.fields[FieldsConstant.COVERING_DATE_FROM].is_visible
+        )
+        self.assertFalse(
+            form.fields[FieldsConstant.COVERING_DATE_TO].is_visible
+        )
+        self.assertFalse(form.fields[FieldsConstant.SUBJECT].is_visible)
+        self.assertFalse(
+            form.fields[FieldsConstant.OPENING_DATE_FROM].is_visible
+        )
+        self.assertFalse(form.fields[FieldsConstant.OPENING_DATE_TO].is_visible)
+        self.assertFalse(form.fields[FieldsConstant.CLOSURE].is_visible)

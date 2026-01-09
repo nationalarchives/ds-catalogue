@@ -267,7 +267,7 @@ class DynamicMultipleChoiceField(BaseField):
         #         f"Maximum filter choices exceeded. Must be {self.FILTER_CHOICES_LIMIT} or fewer."
         #     )
 
-    @property
+    @cached_property
     def items(self):
         if self.error:
             if self.configured_choices:
