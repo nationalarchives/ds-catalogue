@@ -154,8 +154,8 @@ if CSP_REPORT_URL and BUILD_VERSION:
     CSP_REPORT_URL += f"&sentry_release={BUILD_VERSION}"
 SECURE_CSP = {
     "default-src": [CSP.SELF],
-    "base-uri": ["'none'"],
-    "object-src": ["'none'"],
+    "base-uri": [CSP.NONE],
+    "object-src": [CSP.NONE],
     "img-src": os.environ.get("CSP_IMG_SRC", CSP.SELF).split(","),
     "script-src": os.environ.get("CSP_SCRIPT_SRC", CSP.SELF).split(","),
     "style-src": os.environ.get("CSP_STYLE_SRC", CSP.SELF).split(","),
