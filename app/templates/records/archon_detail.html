@@ -21,7 +21,7 @@
 {% if mock_record.google_place_id %}
   {% set google_maps_url = 'https://www.google.com/maps/place/?q=place_id:' ~ mock_record.google_place_id %}
 {% else %}
-  {% set maps_query = (mock_record.title ~ ' ' ~ (mock_record.address | join(' '))) | replace(' ', '+') %}
+  {% set maps_query = (mock_record.title ~ ' ' ~ (mock_record.address | join(' '))) | urlencode %}
   {% set google_maps_url = 'https://www.google.com/maps/search/?api=1&query=' ~ maps_query %}
 {% endif %}
 
