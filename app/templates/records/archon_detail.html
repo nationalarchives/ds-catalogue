@@ -1,5 +1,5 @@
-{# #TODO: Replace mock record data with record data from API #}
-{% set mock_record = {
+{# #TODO: Replace mock archive data with archive data from API #}
+{% set mock_archive = {
   'title': 'Shakespeare Birthplace Trust',
   'archon_code': '188',
   'website': 'https://www.shakespeare.org.uk/',
@@ -18,10 +18,10 @@
 } %}
 
 {# Build Google Maps URL #}
-{% if mock_record.google_place_id %}
-  {% set google_maps_url = 'https://www.google.com/maps/place/?q=place_id:' ~ mock_record.google_place_id %}
+{% if mock_archive.google_place_id %}
+  {% set google_maps_url = 'https://www.google.com/maps/place/?q=place_id:' ~ mock_archive.google_place_id %}
 {% else %}
-  {% set maps_query = (mock_record.title ~ ' ' ~ (mock_record.address | join(' '))) | urlencode %}
+  {% set maps_query = (mock_archive.title ~ ' ' ~ (mock_archive.address | join(' '))) | urlencode %}
   {% set google_maps_url = 'https://www.google.com/maps/search/?api=1&query=' ~ maps_query %}
 {% endif %}
 
@@ -51,12 +51,12 @@
         <h1 class="tna-hgroup__title">{{ pageTitle }}</h1>
       </hgroup>
 
-      <p>Archon code: <strong class="reference">{{ mock_record.archon_code }}</strong></p>
+      <p>Archon code: <strong class="reference">{{ mock_archive.archon_code }}</strong></p>
     </div>
   </div>
 
   {% call callout(heading='Looking for records?') %}
-    <p>Visit the <a href="{{ mock_record.website }}">{{ pageTitle }} website</a> for information on how to access records held there.</p>
+    <p>Visit the <a href="{{ mock_archive.website }}">{{ pageTitle }} website</a> for information on how to access records held there.</p>
   {% endcall %}
 
   <div class="tna-container tna-!--margin-top-s">
@@ -72,7 +72,7 @@
             </dt>
             <dd class="dl-icon-grid__definition">
               <p>
-                {% for line in mock_record.address %}
+                {% for line in mock_archive.address %}
                   {{ line }}{% if not loop.last %}<br>{% endif %}
                 {% endfor %}
               </p>
@@ -95,7 +95,7 @@
               Telephone
             </dt>
             <dd class="dl-icon-grid__definition">
-              <a href="tel:{{ mock_record.phone|replace(' ', '') }}">{{ mock_record.phone }}</a>
+              <a href="tel:{{ mock_archive.phone|replace(' ', '') }}">{{ mock_archive.phone }}</a>
             </dd>
           </div>
 
@@ -105,7 +105,7 @@
               Email
             </dt>
             <dd class="dl-icon-grid__definition">
-              <a href="mailto:{{ mock_record.email }}">{{ mock_record.email }}</a>
+              <a href="mailto:{{ mock_archive.email }}">{{ mock_archive.email }}</a>
             </dd>
           </div>
 
@@ -115,7 +115,7 @@
               Website
             </dt>
             <dd class="dl-icon-grid__definition">
-              <a href="{{ mock_record.website }}">{{ mock_record.website }}</a>
+              <a href="{{ mock_archive.website }}">{{ mock_archive.website }}</a>
             </dd>
           </div>
         </dl>
@@ -126,7 +126,7 @@
       <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
         <h2 class="tna-heading-l">Information about this archive</h2>
 
-        {{ mock_record.about_archive | tna_html | safe }}
+        {{ mock_archive.about_archive | tna_html | safe }}
       </div>
     </div>
   </div>
@@ -155,7 +155,7 @@
             <p>Available as search results, lists and to browse</p>
             {{ tnaButton({
               'text': 'View all collections in the current catalogue',
-              'href': mock_record.current_catalogue_url,
+              'href': mock_archive.current_catalogue_url,
               "icon": "chevron-right",
               "rightAlignIcon": true
             }) }}
