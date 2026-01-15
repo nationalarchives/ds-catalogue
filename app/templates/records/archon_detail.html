@@ -139,30 +139,28 @@
 
     <div class="tna-column tna-column--full tna-!--margin-top-s">
       <div class="tna-aside tna-aside--split tna-aside--tight tna-background-accent-light">
-
-          <div class="tna-aside--split__column">
-            <h3 class="tna-heading-m">New catalogue (this website)</h3>
-            <p>Available through search results only</p>
-            {{ tnaButton({
-              'text': 'View all collections in the new catalogue',
-              'href': url('main:catalogue'),
-              "icon": "chevron-right",
-              "classes": "tna-!--margin-top-s",
-              "rightAlignIcon": true
-            }) }}
-          </div>
-          <div class="tna-aside--split__column">
-            <h3 class="tna-heading-m">Current catalogue</h3>
-            <p>Available as search results, lists and to browse</p>
-            {{ tnaButton({
-              'text': 'View all collections in the current catalogue',
-              'href': mock_archive.current_catalogue_url,
-              "icon": "chevron-right",
-              "classes": "tna-!--margin-top-s",
-              "rightAlignIcon": true
-            }) }}
-          </div>
-
+        <div class="tna-aside--split__column">
+          <h3 class="tna-heading-m">New catalogue (this website)</h3>
+          <p>Available through search results only</p>
+          {{ tnaButton({
+            'text': 'View all collections in the new catalogue',
+            'href': url('main:catalogue'),
+            "icon": "chevron-right",
+            "classes": "tna-!--margin-top-s",
+            "rightAlignIcon": true
+          }) }}
+        </div>
+        <div class="tna-aside--split__column">
+          <h3 class="tna-heading-m">Current catalogue</h3>
+          <p>Available as search results, lists and to browse</p>
+          {{ tnaButton({
+            'text': 'View all collections in the current catalogue',
+            'href': mock_archive.current_catalogue_url,
+            "icon": "chevron-right",
+            "classes": "tna-!--margin-top-s",
+            "rightAlignIcon": true
+          }) }}
+        </div>
       </div>
     </div>
   </div>
