@@ -10,7 +10,6 @@
     'CV37 6QW',
     'England'
   ],
-  'google_place_id': 'ChIJW5dhaqw_e0gRQTRxERErsFU',
   'phone': '01789 204 016',
   'email': 'collections@shakespeare.org.uk',
   'about_archive': '<p><strong>Open:</strong> Monday 10.15-12.30, Tuesday 10.15-3, Wednesday 10.15-12.30 by appointment</p><p><strong>Closed:</strong> Bank holidays; Christmas/New Year</p><ul><li>Wheelchair access</li><li>Proof of identity required</li><li>Readers ticket required</li></ul><p>Two hour appointment slots must by booked in advance. See <a href="https://www.shakespeare.org.uk/">website</a> for details</p><p>Readers will need to provide a letter of recommendation to see certain items - please <a href="mailto:collections@shakespeare.org.uk">email</a> for further details<br>Reprographics: Staff can copy certain items for a small fee; self-service photograph permits (certain items only) - £5 per day</p>',
@@ -18,12 +17,9 @@
 } %}
 
 {# Build Google Maps URL #}
-{% if mock_archive.google_place_id %}
-  {% set google_maps_url = 'https://www.google.com/maps/place/?q=place_id:' ~ mock_archive.google_place_id %}
-{% else %}
-  {% set maps_query = (mock_archive.title ~ ' ' ~ (mock_archive.address | join(' '))) | urlencode %}
-  {% set google_maps_url = 'https://www.google.com/maps/search/?api=1&query=' ~ maps_query %}
-{% endif %}
+{% set maps_query = (mock_archive.title ~ ' ' ~ (mock_archive.address | join(' '))) | urlencode %}
+{% set google_maps_url = 'https://www.google.com/maps/search/?api=1&query=' ~ maps_query %}
+
 
 {% extends 'base.html' %}
 
