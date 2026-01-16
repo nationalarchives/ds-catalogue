@@ -249,7 +249,7 @@
       </div>
     </div>
     <h2 class="tna-visually-hidden">Results</h2>
-    {{ search_results(request, results, encodedQuery) }}
+    {{ search_results(request, show_banner_for_filters_not_applied, results, encodedQuery) }}
   </div>
   <div class="tna-column tna-column--full tna-!--margin-top-l">
     {{ tnaPagination(pagination) }}
