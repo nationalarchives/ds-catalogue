@@ -19,13 +19,29 @@ from .constants import (
 
 
 class CatalogueSearchBaseForm(BaseForm):
+    """This is Base form that corresponds to top level (UI) for catalogue search
+    page. Other fields and validations are added in subclass forms."""
 
     def add_fields(self):
 
         return {
+            # determines the Catalogue Search TNA or NonTNA form to use
             FieldsConstant.GROUP: ChoiceField(
                 choices=CATALOGUE_BUCKETS.as_choices(),
             ),
+            # search term
+            FieldsConstant.Q: CharField(),
+        }
+
+
+class CatalogueSearchCommonForm(CatalogueSearchBaseForm):
+    """Common fields and validation for TNA and Non-TNA catalogue search forms."""
+
+    def add_fields(self):
+
+        fields = super().add_fields()
+
+        return fields | {
             FieldsConstant.SORT: ChoiceField(
                 choices=[
                     (Sort.RELEVANCE.value, "Relevance"),
@@ -35,7 +51,6 @@ class CatalogueSearchBaseForm(BaseForm):
                     (Sort.TITLE_DESC.value, "Title (Z–A)"),
                 ],
             ),
-            FieldsConstant.Q: CharField(),
             FieldsConstant.FILTER_LIST: ChoiceField(
                 choices=Aggregation.as_input_choices_for_long_aggs(),
             ),
@@ -89,7 +104,7 @@ class CatalogueSearchBaseForm(BaseForm):
         return error_messages
 
 
-class CatalogueSearchTnaForm(CatalogueSearchBaseForm):
+class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
 
     def add_fields(self):
 
@@ -166,7 +181,7 @@ class CatalogueSearchTnaForm(CatalogueSearchBaseForm):
         return error_messages
 
 
-class CatalogueSearchNonTnaForm(CatalogueSearchBaseForm):
+class CatalogueSearchNonTnaForm(CatalogueSearchCommonForm):
 
     def add_fields(self):
 
