@@ -34,6 +34,7 @@ from .constants import (
     FILTER_DATATYPE_RECORD,
     PAGE_LIMIT,
     RESULTS_PER_PAGE,
+    Display,
     Sort,
 )
 from .forms import (
@@ -300,6 +301,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
     default_group = BucketKeys.TNA.value
     default_sort = Sort.RELEVANCE.value  # sort includes ordering
+    default_display = Display.LIST.value
 
     def setup(self, request: HttpRequest, *args, **kwargs) -> None:
         """Creates the form instance and some attributes"""
@@ -368,6 +370,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         return {
             FieldsConstant.GROUP: self.default_group,
             FieldsConstant.SORT: self.default_sort,
+            FieldsConstant.DISPLAY: self.default_display,
         }
 
     def get(self, request, *args, **kwargs) -> HttpResponse:
@@ -538,6 +541,8 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
                 "selected_filters": self.selected_filters,
                 "analytics_data": self.get_datalayer_data(self.request),
                 "bucket_keys": BucketKeys,
+                "display_options": Display,
+                "fields_constant": FieldsConstant,
             }
         )
         # call to set filter fields visibility after context is set
