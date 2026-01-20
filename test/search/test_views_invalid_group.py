@@ -3,6 +3,7 @@ from http import HTTPStatus
 from app.search.constants import FieldsConstant
 from app.search.forms import CatalogueSearchBaseForm
 from django.test import TestCase
+from django.utils.encoding import force_str
 
 
 class CatalogueSearchViewInvalidViewTests(TestCase):
@@ -18,6 +19,7 @@ class CatalogueSearchViewInvalidViewTests(TestCase):
         group_field = response.context_data.get("form").fields[
             FieldsConstant.GROUP
         ]
+        html = force_str(response.content)
 
         self.assertIsInstance(form, CatalogueSearchBaseForm)
         self.assertEqual(form.is_valid(), False)
@@ -67,3 +69,11 @@ class CatalogueSearchViewInvalidViewTests(TestCase):
 
         self.assertFalse(response.context_data.get("filters_visible"))
         self.assertFalse(hasattr(group_field, "is_visible"))
+
+        # test for presence of hidden inputs for invalid group param
+        self.assertIn(
+            """<input type="hidden" name="display" value="list">""", html
+        )
+        self.assertIn(
+            """<input type="hidden" name="group" value="INVALID">""", html
+        )

@@ -10,7 +10,7 @@ from app.records.constants import TNA_LEVELS
 
 from .buckets import CATALOGUE_BUCKETS, Aggregation
 from .collection_names import COLLECTION_CHOICES
-from .constants import DATE_DISPLAY_FORMAT, FieldsConstant, Sort
+from .constants import DATE_DISPLAY_FORMAT, Display, FieldsConstant, Sort
 
 
 class CatalogueSearchBaseForm(BaseForm):
@@ -48,6 +48,13 @@ class CatalogueSearchCommonForm(CatalogueSearchBaseForm):
             ),
             FieldsConstant.FILTER_LIST: ChoiceField(
                 choices=Aggregation.as_input_choices_for_long_aggs(),
+            ),
+            FieldsConstant.DISPLAY: ChoiceField(
+                choices=[
+                    (Display.LIST.value, "List view"),
+                    (Display.GRID.value, "Grid view"),
+                ],
+                required=False,
             ),
         }
 

@@ -113,12 +113,12 @@ class CoveringDateFilterTests(TestCase):
             [
                 {
                     "label": "Record date from: 01-01-1999",
-                    "href": "?covering_date_to-year=2000&covering_date_to-month=12&covering_date_to-day=31&group=tna&sort=",
+                    "href": "?covering_date_to-year=2000&covering_date_to-month=12&covering_date_to-day=31&group=tna&sort=&display=list",
                     "title": "Remove 01-01-1999 record date from",
                 },
                 {
                     "label": "Record date to: 31-12-2000",
-                    "href": "?covering_date_from-year=1999&covering_date_from-month=01&covering_date_from-day=1&group=tna&sort=",
+                    "href": "?covering_date_from-year=1999&covering_date_from-month=01&covering_date_from-day=1&group=tna&sort=&display=list",
                     "title": "Remove 31-12-2000 record date to",
                 },
             ],
@@ -213,12 +213,12 @@ class CoveringDateFilterTests(TestCase):
             [
                 {
                     "label": "Record date from: 01-01-1999",
-                    "href": "?covering_date_to-year=2000&group=tna&sort=",
+                    "href": "?covering_date_to-year=2000&group=tna&sort=&display=list",
                     "title": "Remove 01-01-1999 record date from",
                 },
                 {
                     "label": "Record date to: 31-12-2000",
-                    "href": "?covering_date_from-year=1999&group=tna&sort=",
+                    "href": "?covering_date_from-year=1999&group=tna&sort=&display=list",
                     "title": "Remove 31-12-2000 record date to",
                 },
             ],
@@ -310,7 +310,7 @@ class CoveringDateFilterErrorTests(TestCase):
             [
                 {
                     "label": "Record date to: 31-12-1999",
-                    "href": "?covering_date_from-year=2000&group=tna&sort=",
+                    "href": "?covering_date_from-year=2000&group=tna&sort=&display=list",
                     "title": "Remove 31-12-1999 record date to",
                 }
             ],

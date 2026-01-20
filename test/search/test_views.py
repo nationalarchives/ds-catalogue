@@ -148,7 +148,7 @@ class CatalogueSearchViewDefaultTests(TestCase):
         # ### form ###
         self.assertIsInstance(form, CatalogueSearchTnaForm)
         self.assertEqual(form.errors, {})
-        self.assertEqual(len(form.fields), 13)
+        self.assertEqual(len(form.fields), 14)
         tna_field_names = [
             FieldsConstant.GROUP,
             FieldsConstant.SORT,
@@ -159,6 +159,7 @@ class CatalogueSearchViewDefaultTests(TestCase):
             FieldsConstant.ONLINE,
             FieldsConstant.CLOSURE,
             FieldsConstant.FILTER_LIST,
+            FieldsConstant.DISPLAY,
             FieldsConstant.COVERING_DATE_FROM,
             FieldsConstant.COVERING_DATE_TO,
             FieldsConstant.OPENING_DATE_FROM,
