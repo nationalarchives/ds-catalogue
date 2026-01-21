@@ -367,6 +367,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         Raises SuspiciousOperation if so."""
 
         for field_name, field in self.form.fields.items():
+            # ensure only single value is bound to ChoiceFields
             if isinstance(field, ChoiceField):
                 if len(self.form_kwargs.get("data").getlist(field_name)) > 1:
                     logger.info(
