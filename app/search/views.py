@@ -319,32 +319,21 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         ]:
             # invalid group param, create base form to show errors
             self.form = CatalogueSearchBaseForm(**self.form_kwargs)
+
             self.current_bucket_key = None
+            self.validate_suspicious_operation()
             return
 
         # create two separate forms for TNA and NonTNA with different fields
         if self.form_kwargs.get("data").get("group") == BucketKeys.TNA.value:
             self.form = CatalogueSearchTnaForm(**self.form_kwargs)
-
-            # ensure only single value is bound to ChoiceFields
-            for field_name, field in self.form.fields.items():
-                if isinstance(field, ChoiceField):
-                    if (
-                        len(self.form_kwargs.get("data").getlist(field_name))
-                        > 1
-                    ):
-                        logger.info(
-                            f"ChoiceField {field_name} can only bind to single value"
-                        )
-                        raise SuspiciousOperation(
-                            f"ChoiceField {field_name} can only bind to single value"
-                        )
-
         else:
             self.form = CatalogueSearchNonTnaForm(**self.form_kwargs)
 
         # keep current bucket key for display focus
         self.current_bucket_key = self.form.fields[FieldsConstant.GROUP].value
+
+        self.validate_suspicious_operation()
 
     def get_form_kwargs(self) -> dict[str, Any]:
         """Returns request data with default values if not given."""
@@ -372,6 +361,20 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             FieldsConstant.SORT: self.default_sort,
             FieldsConstant.DISPLAY: self.default_display,
         }
+
+    def validate_suspicious_operation(self):
+        """Validates if any ChoiceField has multiple values bound.
+        Raises SuspiciousOperation if so."""
+
+        for field_name, field in self.form.fields.items():
+            if isinstance(field, ChoiceField):
+                if len(self.form_kwargs.get("data").getlist(field_name)) > 1:
+                    logger.info(
+                        f"ChoiceField {field_name} can only bind to single value"
+                    )
+                    raise SuspiciousOperation(
+                        f"ChoiceField {field_name} can only bind to single value"
+                    )
 
     def get(self, request, *args, **kwargs) -> HttpResponse:
         """
