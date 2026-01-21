@@ -6,6 +6,7 @@ from typing import Any
 from app.errors import views as errors_view
 from app.lib.api import JSONAPIClient, ResourceNotFound
 from app.lib.fields import (
+    CharField,
     ChoiceField,
     DateKeys,
     DynamicMultipleChoiceField,
@@ -363,18 +364,19 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         }
 
     def validate_suspicious_operation(self):
-        """Validates if any ChoiceField has multiple values bound.
-        Raises SuspiciousOperation if so."""
+        """Validates that ChoiceField and CharField only bind to single value.
+        Raises SuspiciousOperation if multiple values are bound to these fields.
+        """
 
         for field_name, field in self.form.fields.items():
-            # ensure only single value is bound to ChoiceFields
-            if isinstance(field, ChoiceField):
+            # ensure only single value is bound to fields
+            if isinstance(field, (ChoiceField, CharField)):
                 if len(self.form_kwargs.get("data").getlist(field_name)) > 1:
                     logger.info(
-                        f"ChoiceField {field_name} can only bind to single value"
+                        f"Field {field_name} can only bind to single value"
                     )
                     raise SuspiciousOperation(
-                        f"ChoiceField {field_name} can only bind to single value"
+                        f"Field {field_name} can only bind to single value"
                     )
 
     def get(self, request, *args, **kwargs) -> HttpResponse:
