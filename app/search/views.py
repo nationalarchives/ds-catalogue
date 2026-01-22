@@ -758,22 +758,22 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
         # typically used to show/hide the filters label
         context["filters_visible"] = False  # default to False
+        # valid group value present
         if group:
-            # valid group value present
+            # hide filters - only online field has error and no results
             if (
                 group == BucketKeys.TNA.value
                 and FieldsConstant.ONLINE in self.form.errors
                 and len(self.form.errors) == 1
             ) and not has_results:
-                # hide filters - only online field has error and no results
                 pass  # default is False
+            # hide filters - no results, no errors, no selected filters
             elif (
                 not has_results
                 and len(self.form.errors) == 0
                 and len(self.form.non_field_errors) == 0
                 and self.selected_filters == []
             ):
-                # hide filters - no results, no errors, no selected filters
                 pass  # default is False
             # hide filters when using non filter fields
             elif (
@@ -785,8 +785,8 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
                 and self.selected_filters == []
             ):
                 pass  # default is False
+            # everything else, show filters
             else:
-                # everything else, show filters
                 context["filters_visible"] = True
 
         # call individual group specific filter visibility setters only when
