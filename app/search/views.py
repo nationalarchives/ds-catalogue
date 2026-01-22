@@ -775,7 +775,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
                 and self.selected_filters == []
             ):
                 pass  # default is False
-            # hide filters when using non filter fields
+            # hide filters when using non-filter fields
             elif (
                 not has_results
                 and any(
