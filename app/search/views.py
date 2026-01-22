@@ -776,8 +776,6 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
                 # hide filters - no results, no errors, no selected filters
                 pass  # default is False
             # hide filters when using non filter fields
-            # checks no results, no selected filters,
-            # and has errors for non filter fields sort/display only
             elif (
                 not has_results
                 and any(
