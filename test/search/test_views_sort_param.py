@@ -1,6 +1,8 @@
 from http import HTTPStatus
 
 import responses
+from app.search.constants import FieldsConstant
+from app.search.forms import CatalogueSearchTnaForm
 from django.conf import settings
 from django.test import TestCase
 
@@ -68,3 +70,36 @@ class CatalogueSearchViewSortParamTests(TestCase):
             ],
         )
         self.assertEqual(response.context_data.get("selected_filters"), [])
+        self.assertTrue(response.context_data.get("filters_visible"))
+
+    def test_search_with_invalid_sort(self):
+        """Tests invalid sort param returns base form with errors."""
+
+        response = self.client.get("/catalogue/search/?sort=INVALID")
+        form = response.context_data.get("form")
+        sort_field = response.context_data.get("form").fields[
+            FieldsConstant.SORT
+        ]
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertIsInstance(form, CatalogueSearchTnaForm)
+        self.assertEqual(form.is_valid(), False)
+        self.assertEqual(
+            form.errors,
+            {
+                "sort": {
+                    "text": "Enter a valid choice. [INVALID] is not one of the available choices. Valid choices are [, dateCovering:desc, dateCovering:asc, title:asc, title:desc]"
+                }
+            },
+        )
+        self.assertEqual(form.non_field_errors, [])
+        self.assertEqual(sort_field.value, "INVALID")
+        self.assertEqual(sort_field.cleaned, None)
+        self.assertEqual(
+            sort_field.error,
+            {
+                "text": "Enter a valid choice. [INVALID] is not one of the available choices. Valid choices are [, dateCovering:desc, dateCovering:asc, title:asc, title:desc]"
+            },
+        )
+        self.assertEqual(response.context_data.get("selected_filters"), [])
+        self.assertFalse(response.context_data.get("filters_visible"))
