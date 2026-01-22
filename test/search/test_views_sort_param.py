@@ -103,3 +103,17 @@ class CatalogueSearchViewSortParamTests(TestCase):
         )
         self.assertEqual(response.context_data.get("selected_filters"), [])
         self.assertFalse(response.context_data.get("filters_visible"))
+
+    def test_filters_visible_with_invalid_sort_and_display(self):
+        """Tests filters_visible is False when both sort and display params are invalid."""
+
+        response = self.client.get(
+            "/catalogue/search/?sort=INVALID&display=INVALID"
+        )
+        form = response.context_data.get("form")
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(form.is_valid(), False)
+
+        self.assertEqual(response.context_data.get("selected_filters"), [])
+        self.assertFalse(response.context_data.get("filters_visible"))

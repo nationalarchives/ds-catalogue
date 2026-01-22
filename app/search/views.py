@@ -778,6 +778,8 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             # hide filters when using non-filter fields
             elif (
                 not has_results
+                # using any() since there could be either sort or display
+                # field errors or both
                 and any(
                     field in self.form.errors
                     for field in (FieldsConstant.SORT, FieldsConstant.DISPLAY)
