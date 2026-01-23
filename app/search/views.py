@@ -364,7 +364,8 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         }
 
     def validate_suspicious_operation(self):
-        """Validates that ChoiceField and CharField only bind to single value.
+        """Validates fields-ChoiceField, CharField, FromDateField,ToDateField only
+        bind to single value.
         Raises SuspiciousOperation if multiple values are bound to these fields.
         """
 
@@ -378,6 +379,28 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
                     raise SuspiciousOperation(
                         f"Field {field_name} can only bind to single value"
                     )
+            elif isinstance(field, (FromDateField, ToDateField)):
+                for date_key in (
+                    DateKeys.YEAR.value,
+                    DateKeys.MONTH.value,
+                    DateKeys.DAY.value,
+                ):
+                    # add date part key to field name to check input params
+                    date_field_name = f"{field_name}-{date_key}"
+                    if (
+                        len(
+                            self.form_kwargs.get("data").getlist(
+                                date_field_name
+                            )
+                        )
+                        > 1
+                    ):
+                        logger.info(
+                            f"Field {date_field_name} can only bind to single value"
+                        )
+                        raise SuspiciousOperation(
+                            f"Field {date_field_name} can only bind to single value"
+                        )
 
     def get(self, request, *args, **kwargs) -> HttpResponse:
         """
