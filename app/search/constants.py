@@ -54,11 +54,6 @@ FILTER_FIELDS = [
 ]
 
 
-# separator for date input fields on url param
-# ex: covering_date_from-year, covering_date_from-month, covering_date_from-day
-DATE_YMD_SEPARATOR = "-"
-
-
 class Display(StrEnum):
     """Options for displaying /search results."""
 
