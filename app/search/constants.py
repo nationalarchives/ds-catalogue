@@ -37,6 +37,7 @@ class FieldsConstant:
     COVERING_DATE_TO = "covering_date_to"
     OPENING_DATE_FROM = "opening_date_from"
     OPENING_DATE_TO = "opening_date_to"
+    DISPLAY = "display"
 
 
 FILTER_FIELDS = [
@@ -56,3 +57,11 @@ FILTER_FIELDS = [
 # separator for date input fields on url param
 # ex: covering_date_from-year, covering_date_from-month, covering_date_from-day
 DATE_YMD_SEPARATOR = "-"
+    
+
+
+class Display(StrEnum):
+    """Options for displaying /search results."""
+
+    LIST = "list"
+    GRID = "grid"

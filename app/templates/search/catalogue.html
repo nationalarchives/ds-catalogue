@@ -98,7 +98,8 @@
           'small': True
         }) }}
       </div> -->
-      <input type="hidden" name="display" value="{{ request.GET.get('display') or 'list' }}">
+      {# display condition handles invalid group input #}
+      <input type="hidden" name="display" value="{{ form.fields.display.value if form.fields.display else display_options.LIST.value }}">
       <input type="hidden" name="group" value="{{ request.GET.get('group') or bucket_keys.TNA }}">
       {% if form.fields.group.value==bucket_keys.TNA %}
         {# preserve invalid inputs from disappearing when other filters are updated until invalids are removed #}
@@ -255,13 +256,13 @@
         <div class="tna-button-group tna-button-group--small tna-!--no-margin-top">
           {{ tnaButton({
             'text': 'Display as list',
-            'href': '?' + qs_replace_value(request.GET, 'display', 'list'),
+            'href': '?' + qs_replace_value(request.GET, fields_constant.DISPLAY, display_options.LIST.value),
             'icon': 'list',
             'iconOnly': True
           }) }}
           {{ tnaButton({
             'text': 'Display as grid',
-            'href': '?' + qs_replace_value(request.GET, 'display', 'grid'),
+            'href': '?' + qs_replace_value(request.GET, fields_constant.DISPLAY, display_options.GRID.value),
             'icon': 'grip',
             'iconOnly': True
           }) }}
@@ -269,7 +270,7 @@
       </div>
     </div>
     <h2 class="tna-visually-hidden">Results</h2>
-    {{ search_results(request, show_banner_for_filters_not_applied, results, encodedQuery) }}
+    {{ search_results(request, show_banner_for_filters_not_applied, display_options, form.fields.display.value, results, encodedQuery) }}
   </div>
   <div class="tna-column tna-column--full tna-!--margin-top-l">
     {{ tnaPagination(pagination) }}

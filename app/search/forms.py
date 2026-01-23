@@ -13,6 +13,7 @@ from .collection_names import COLLECTION_CHOICES
 from .constants import (
     DATE_DISPLAY_FORMAT,
     DATE_YMD_SEPARATOR,
+    Display,
     FieldsConstant,
     Sort,
 )
@@ -53,6 +54,13 @@ class CatalogueSearchCommonForm(CatalogueSearchBaseForm):
             ),
             FieldsConstant.FILTER_LIST: ChoiceField(
                 choices=Aggregation.as_input_choices_for_long_aggs(),
+            ),
+            FieldsConstant.DISPLAY: ChoiceField(
+                choices=[
+                    (Display.LIST.value, "List view"),
+                    (Display.GRID.value, "Grid view"),
+                ],
+                required=False,
             ),
         }
 
