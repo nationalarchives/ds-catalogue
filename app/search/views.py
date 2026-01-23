@@ -31,7 +31,6 @@ from .buckets import (
 )
 from .constants import (
     DATE_DISPLAY_FORMAT,
-    DATE_YMD_SEPARATOR,
     FILTER_DATATYPE_RECORD,
     FILTER_FIELDS,
     PAGE_LIMIT,
@@ -50,6 +49,9 @@ from .models import APISearchResponse
 from .utils import camelcase_to_underscore, underscore_to_camelcase
 
 logger = logging.getLogger(__name__)
+
+# TODO: temporary location for constant
+DATE_YMD_SEPARATOR = "-"
 
 
 class PageNotFound(Exception):
