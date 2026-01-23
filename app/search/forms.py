@@ -151,25 +151,25 @@ class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
                 label="From",
                 active_filter_label="Record date from",
                 progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator="-",  # FE component uses this value as separator for ymd date entry
+                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
             ),
             FieldsConstant.COVERING_DATE_TO: ToDateField(
                 label="To",
                 active_filter_label="Record date to",
                 progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator="-",  # FE component uses this value as separator for ymd date entry
+                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
             ),
             FieldsConstant.OPENING_DATE_FROM: FromDateField(
                 label="From",
                 active_filter_label="Opening date from",
                 progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator="-",  # FE component uses this value as separator for ymd date entry
+                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
             ),
             FieldsConstant.OPENING_DATE_TO: ToDateField(
                 label="To",
                 active_filter_label="Opening date to",
                 progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator="-",  # FE component uses this value as separator for ymd date entry
+                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
             ),
         }
 
@@ -195,13 +195,13 @@ class CatalogueSearchNonTnaForm(CatalogueSearchCommonForm):
                 label="From",
                 active_filter_label="Record date from",
                 progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator="-",  # FE component uses this value as separator for ymd date entry
+                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
             ),
             FieldsConstant.COVERING_DATE_TO: ToDateField(
                 label="To",
                 active_filter_label="Record date to",
                 progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator="-",  # FE component uses this value as separator for ymd date entry
+                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
             ),
             FieldsConstant.HELD_BY: DynamicMultipleChoiceField(
                 label="Held by",
