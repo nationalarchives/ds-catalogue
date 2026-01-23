@@ -364,8 +364,8 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         }
 
     def validate_suspicious_operation(self):
-        """Validates fields-ChoiceField, CharField, FromDateField,ToDateField only
-        bind to single value.
+        """Validates that ChoiceField, CharField, FromDateField, and ToDateField
+        each only bind to a single value.
         Raises SuspiciousOperation if multiple values are bound to these fields.
         """
 
@@ -386,7 +386,9 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
                     DateKeys.DAY.value,
                 ):
                     # add date part key to field name to check input params
-                    date_field_name = f"{field_name}-{date_key}"
+                    date_field_name = (
+                        f"{field_name}{field.date_ymd_separator}{date_key}"
+                    )
                     if (
                         len(
                             self.form_kwargs.get("data").getlist(
