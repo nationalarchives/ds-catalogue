@@ -1,8 +1,5 @@
-{% from 'search/macros/filters_not_applied_banner.html' import filters_not_applied_banner %}
-
-{% macro search_results(request, show_banner_for_filters_not_applied, display_options, display_mode, results, encodedQuery) %}
+{% macro search_results(request, display_options, display_mode, results, encodedQuery) %}
   <ul class="etna-results etna-results--{{ display_mode }}">
-    {{ filters_not_applied_banner() if show_banner_for_filters_not_applied }}
     {% for result in results %}
 
       {% set details_url = url('records:details', kwargs={'id': result.id}) + '?search=' + encodedQuery %}
