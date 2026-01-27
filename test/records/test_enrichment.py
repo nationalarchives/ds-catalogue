@@ -2,7 +2,7 @@
 
 from concurrent.futures import Future, ThreadPoolExecutor
 from typing import Any
-from unittest.mock import MagicMock, Mock, call, patch
+from unittest.mock import Mock, patch
 
 from app.records.enrichment import RecordEnrichmentHelper
 from app.records.models import Record
