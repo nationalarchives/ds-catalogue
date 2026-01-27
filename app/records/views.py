@@ -2,19 +2,16 @@
 
 import logging
 
+from app.main.wagtail_api import get_global_alert, get_mourning_notice
 from app.records.enrichment import RecordEnrichmentHelper
 from app.records.labels import FIELD_LABELS
-from app.records.mixins import GlobalAlertsMixin, RecordContextMixin
+from app.records.mixins import RecordContextMixin
 from django.views.generic import TemplateView
 
 logger = logging.getLogger(__name__)
 
 
-class RecordDetailView(
-    GlobalAlertsMixin,
-    RecordContextMixin,
-    TemplateView,
-):
+class RecordDetailView(RecordContextMixin, TemplateView):
     """View for rendering an individual archive record's details page."""
 
     template_name = "records/record_detail.html"
@@ -34,6 +31,10 @@ class RecordDetailView(
     def get_context_data(self, **kwargs):
         """Build context with record and enrichment data."""
         context = super().get_context_data(**kwargs)
+
+        # Global alerts
+        context["global_alert"] = get_global_alert()
+        context["mourning_notice"] = get_mourning_notice()
 
         record = context["record"]
 

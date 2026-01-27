@@ -13,7 +13,7 @@ from app.lib.fields import (
     ToDateField,
 )
 from app.lib.pagination import pagination_object
-from app.main.global_alert import fetch_global_alert_api_data
+from app.main.wagtail_api import get_global_alert
 from app.records.constants import TNA_LEVELS
 from app.search.api import search_records
 from config.jinja2 import qs_remove_value, qs_replace_value, qs_toggle_value
@@ -533,7 +533,8 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
         self.selected_filters = self.build_selected_filters_list()
 
-        context["global_alert"] = fetch_global_alert_api_data()
+        context["global_alert"] = get_global_alert()
+        print(context)
 
         context.update(
             {

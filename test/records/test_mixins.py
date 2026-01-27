@@ -3,7 +3,7 @@
 from unittest.mock import Mock, patch
 
 from app.records.mixins import (
-    GlobalAlertsMixin,
+    NoticeAlertsMixin,
     RecordContextMixin,
 )
 from app.records.models import Record
@@ -74,13 +74,13 @@ class TestRecordContextMixin(TestCase):
         mock_record_details.assert_called_once_with(id="C123456")
 
 
-class TestGlobalAlertsMixin(TestCase):
-    """Tests for GlobalAlertsMixin"""
+class TestNoticeAlertsMixin(TestCase):
+    """Tests for NoticeAlertsMixin"""
 
     def setUp(self):
         self.factory = RequestFactory()
 
-        class TestView(GlobalAlertsMixin, TemplateView):
+        class TestView(NoticeAlertsMixin, TemplateView):
             template_name = "test.html"
 
         self.view_class = TestView
