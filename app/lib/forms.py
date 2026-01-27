@@ -1,10 +1,8 @@
 """Module for basic form which to work with customised fields."""
 
-from typing import Any
-
 from django.http import QueryDict
 
-from .fields import BaseField, MultiPartDateField
+from .fields import BaseField
 
 
 class BaseForm:
