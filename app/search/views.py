@@ -6,6 +6,7 @@ from typing import Any
 from app.errors import views as errors_view
 from app.lib.api import ResourceNotFound
 from app.lib.fields import (
+    CharField,
     ChoiceField,
     DateKeys,
     DynamicMultipleChoiceField,
@@ -318,32 +319,21 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         ]:
             # invalid group param, create base form to show errors
             self.form = CatalogueSearchBaseForm(**self.form_kwargs)
+
             self.current_bucket_key = None
+            self.validate_suspicious_operation()
             return
 
         # create two separate forms for TNA and NonTNA with different fields
         if self.form_kwargs.get("data").get("group") == BucketKeys.TNA.value:
             self.form = CatalogueSearchTnaForm(**self.form_kwargs)
-
-            # ensure only single value is bound to ChoiceFields
-            for field_name, field in self.form.fields.items():
-                if isinstance(field, ChoiceField):
-                    if (
-                        len(self.form_kwargs.get("data").getlist(field_name))
-                        > 1
-                    ):
-                        logger.info(
-                            f"ChoiceField {field_name} can only bind to single value"
-                        )
-                        raise SuspiciousOperation(
-                            f"ChoiceField {field_name} can only bind to single value"
-                        )
-
         else:
             self.form = CatalogueSearchNonTnaForm(**self.form_kwargs)
 
         # keep current bucket key for display focus
         self.current_bucket_key = self.form.fields[FieldsConstant.GROUP].value
+
+        self.validate_suspicious_operation()
 
     def get_form_kwargs(self) -> dict[str, Any]:
         """Returns request data with default values if not given."""
@@ -371,6 +361,47 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             FieldsConstant.SORT: self.default_sort,
             FieldsConstant.DISPLAY: self.default_display,
         }
+
+    def validate_suspicious_operation(self):
+        """Validates that ChoiceField, CharField, FromDateField, and ToDateField
+        each only bind to a single value.
+        Raises SuspiciousOperation if multiple values are bound to these fields.
+        """
+
+        for field_name, field in self.form.fields.items():
+            # ensure only single value is bound to fields
+            if isinstance(field, (ChoiceField, CharField)):
+                if len(self.form_kwargs.get("data").getlist(field_name)) > 1:
+                    logger.info(
+                        f"Field {field_name} can only bind to single value"
+                    )
+                    raise SuspiciousOperation(
+                        f"Field {field_name} can only bind to single value"
+                    )
+            elif isinstance(field, (FromDateField, ToDateField)):
+                for date_key in (
+                    DateKeys.YEAR.value,
+                    DateKeys.MONTH.value,
+                    DateKeys.DAY.value,
+                ):
+                    # add date part key to field name to check input params
+                    date_field_name = (
+                        f"{field_name}{field.date_ymd_separator}{date_key}"
+                    )
+                    if (
+                        len(
+                            self.form_kwargs.get("data").getlist(
+                                date_field_name
+                            )
+                        )
+                        > 1
+                    ):
+                        logger.info(
+                            f"Field {date_field_name} can only bind to single value"
+                        )
+                        raise SuspiciousOperation(
+                            f"Field {date_field_name} can only bind to single value"
+                        )
 
     def get(self, request, *args, **kwargs) -> HttpResponse:
         """
