@@ -126,6 +126,7 @@ class CatalogueSearchViewDisplayTests(TestCase):
         self.assertEqual(display_field.cleaned, Display.GRID)
 
         self.assertEqual(response.context_data.get("selected_filters"), [])
+        self.assertTrue(response.context_data.get("filters_visible"))
 
     def test_search_with_invalid_display(self):
         """Tests that an invalid display param returns the form with errors."""
@@ -175,6 +176,7 @@ class CatalogueSearchViewDisplayTests(TestCase):
         )
 
         self.assertEqual(response.context_data.get("selected_filters"), [])
+        self.assertFalse(response.context_data.get("filters_visible"))
 
         # test for presence of hidden inputs for invalid display param
         self.assertIn(
