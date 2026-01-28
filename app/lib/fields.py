@@ -110,12 +110,6 @@ class BaseField:
         return self._value
 
     @property
-    def update_choices(self):
-        """Implement for multiple choice field."""
-
-        raise NotImplementedError
-
-    @property
     def items(self):
         """Return as required by FE.
         Ex Checkboxes [{"text": "Alpha","value": "alpha"},{"text": "Beta","value": "beta","checked": true}]
