@@ -2,7 +2,7 @@
 
 import logging
 
-from app.main.wagtail_api import get_global_alert, get_mourning_notice
+from app.main.wagtail_content import get_global_alert, get_mourning_notice
 from app.records.enrichment import RecordEnrichmentHelper
 from app.records.labels import FIELD_LABELS
 from app.records.mixins import RecordContextMixin

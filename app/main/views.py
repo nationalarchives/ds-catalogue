@@ -3,7 +3,7 @@ import logging
 from django.http import HttpResponse
 from django.template import loader
 
-from .wagtail_api import (
+from app.main.wagtail_content import (
     get_landing_page_global_alert,
     get_landing_page_mourning_notice,
     get_latest_articles,

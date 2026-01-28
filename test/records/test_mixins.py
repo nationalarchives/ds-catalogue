@@ -2,12 +2,8 @@
 
 from unittest.mock import Mock, patch
 
-from app.records.mixins import (
-    NoticeAlertsMixin,
-    RecordContextMixin,
-)
+from app.records.mixins import RecordContextMixin
 from app.records.models import Record
-from django.core.cache import cache
 from django.test import RequestFactory, TestCase
 from django.views.generic import TemplateView
 
@@ -72,47 +68,3 @@ class TestRecordContextMixin(TestCase):
 
         # Verify record_details_by_id was called
         mock_record_details.assert_called_once_with(id="C123456")
-
-
-class TestNoticeAlertsMixin(TestCase):
-    """Tests for NoticeAlertsMixin"""
-
-    def setUp(self):
-        self.factory = RequestFactory()
-
-        class TestView(NoticeAlertsMixin, TemplateView):
-            template_name = "test.html"
-
-        self.view_class = TestView
-
-    @patch("app.main.global_alert.JSONAPIClient")
-    def test_get_global_alerts_success(self, mock_client):
-        """Test successful global alerts fetch"""
-        mock_client_instance = Mock()
-        mock_client_instance.get.return_value = {
-            "global_alert": "Test alert",
-            "mourning_notice": False,
-        }
-        mock_client.return_value = mock_client_instance
-
-        view = self.view_class()
-        alerts = view.get_global_alerts()
-
-        self.assertIn("global_alert", alerts)
-        self.assertEqual(alerts["global_alert"], "Test alert")
-
-    @patch("app.main.global_alert.JSONAPIClient")
-    def test_get_global_alerts_failure(self, mock_client):
-        """Test that failures return empty dict"""
-
-        # clear cache to ensure fresh fetch
-        cache.clear()
-
-        mock_client_instance = Mock()
-        mock_client_instance.get.side_effect = Exception("API Error")
-        mock_client.return_value = mock_client_instance
-
-        view = self.view_class()
-        alerts = view.get_global_alerts()
-
-        self.assertEqual(alerts, None)

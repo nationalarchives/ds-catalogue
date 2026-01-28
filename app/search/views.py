@@ -4,7 +4,7 @@ import math
 from typing import Any
 
 from app.errors import views as errors_view
-from app.lib.api import ResourceNotFound
+from app.lib.api import JSONAPIClient, ResourceNotFound
 from app.lib.fields import (
     ChoiceField,
     DateKeys,
@@ -13,10 +13,11 @@ from app.lib.fields import (
     ToDateField,
 )
 from app.lib.pagination import pagination_object
-from app.main.wagtail_api import get_global_alert
+from app.main.wagtail_content import get_global_alert, get_mourning_notice
 from app.records.constants import TNA_LEVELS
 from app.search.api import search_records
 from config.jinja2 import qs_remove_value, qs_replace_value, qs_toggle_value
+from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.views.generic import TemplateView
@@ -533,7 +534,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         self.selected_filters = self.build_selected_filters_list()
 
         context["global_alert"] = get_global_alert()
-        print(context)
+        context["mourning_notice"] = get_mourning_notice()
 
         context.update(
             {
