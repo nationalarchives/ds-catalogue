@@ -367,7 +367,12 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     @patch("app.records.views.get_global_alert")
     @patch("app.records.views.get_mourning_notice")
     def test_delivery_options_added_to_context(
-        self, mock_mourning, mock_alert, mock_record_details, mock_delivery, mock_distressing
+        self,
+        mock_mourning,
+        mock_alert,
+        mock_record_details,
+        mock_delivery,
+        mock_distressing,
     ):
         """Test that delivery options are added to context for standard records."""
         mock_alert.return_value = None
@@ -403,7 +408,12 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     @patch("app.records.views.get_global_alert")
     @patch("app.records.views.get_mourning_notice")
     def test_no_delivery_options_for_archon_records(
-        self, mock_mourning, mock_alert, mock_record_details, mock_delivery, mock_distressing
+        self,
+        mock_mourning,
+        mock_alert,
+        mock_record_details,
+        mock_delivery,
+        mock_distressing,
     ):
         """Test that delivery options are not fetched for ARCHON records."""
         mock_alert.return_value = None

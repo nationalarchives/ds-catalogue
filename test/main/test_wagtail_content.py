@@ -50,7 +50,11 @@ class TestFetchNotificationsData(TestCase):
             "global_alert": {"title": "Cached Alert"},
             "mourning_notice": None,
         }
-        cache.set(NOTIFICATIONS_CACHE_KEY, cached_data, timeout=WAGTAIL_API_CACHE_TIMEOUT)
+        cache.set(
+            NOTIFICATIONS_CACHE_KEY,
+            cached_data,
+            timeout=WAGTAIL_API_CACHE_TIMEOUT,
+        )
 
         result = fetch_notifications_data()
 
@@ -138,13 +142,18 @@ class TestFetchLandingPageData(TestCase):
                 "latest_articles": [],
             },
         }
-        cache.set(LANDING_PAGE_CACHE_KEY, cached_data, timeout=WAGTAIL_API_CACHE_TIMEOUT)
+        cache.set(
+            LANDING_PAGE_CACHE_KEY,
+            cached_data,
+            timeout=WAGTAIL_API_CACHE_TIMEOUT,
+        )
 
         result = fetch_landing_page_data()
 
         mock_client_class.assert_not_called()
         self.assertEqual(
-            result["explore_the_collection"]["top_pages"][0]["title"], "Cached Page"
+            result["explore_the_collection"]["top_pages"][0]["title"],
+            "Cached Page",
         )
 
     @patch("app.main.wagtail_content.JSONAPIClient")
@@ -166,7 +175,8 @@ class TestFetchLandingPageData(TestCase):
         cached = cache.get(LANDING_PAGE_CACHE_KEY)
         self.assertIsNotNone(cached)
         self.assertEqual(
-            cached["explore_the_collection"]["top_pages"][0]["title"], "New Page"
+            cached["explore_the_collection"]["top_pages"][0]["title"],
+            "New Page",
         )
 
     @patch("app.main.wagtail_content.JSONAPIClient")

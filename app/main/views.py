@@ -1,14 +1,13 @@
 import logging
 
-from django.http import HttpResponse
-from django.template import loader
-
 from app.main.wagtail_content import (
     get_landing_page_global_alert,
     get_landing_page_mourning_notice,
     get_latest_articles,
     get_top_pages,
 )
+from django.http import HttpResponse
+from django.template import loader
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +20,7 @@ def index(request):
 
 def catalogue(request):
     template = loader.get_template("main/catalogue.html")
-    
+
     context = {
         "pages": get_latest_articles()[:3],
         "top_pages": get_top_pages()[:3],
