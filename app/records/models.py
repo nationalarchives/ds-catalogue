@@ -50,7 +50,7 @@ class APIModel:
 
 class APIResponse(APIModel):
     def __init__(self, raw_data: dict[str, Any]):
-        self._raw = raw_data
+        super().__init__(raw_data)
 
     @cached_property
     def record(self) -> Record:
@@ -61,7 +61,7 @@ class APIResponse(APIModel):
 
 class Record(APIModel):
     def __init__(self, raw_data: dict[str, Any]):
-        self._raw = raw_data
+        super().__init__(raw_data)
 
     def __str__(self):
         return f"{self.summary_title} ({self.id})"
