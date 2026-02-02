@@ -23,7 +23,7 @@ def fetch_notifications_data() -> dict | None:
 
     Use this for all pages except the catalogue landing page.
     """
-       
+
     data = cache.get(NOTIFICATIONS_CACHE_KEY)
 
     if data is None:
