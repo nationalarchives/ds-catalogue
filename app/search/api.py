@@ -10,7 +10,7 @@ def search_records(
     page=1,
     sort="",
     order="asc",
-    params={},
+    params: dict|None=None,
     timeout=None,
 ) -> APISearchResponse:
     """
@@ -23,6 +23,8 @@ def search_records(
     The errors are handled by a custom middleware in the app.
     """
     uri = "search"
+    if params is None:
+        params = {}
     params.update(
         {
             "q": query or "*",
