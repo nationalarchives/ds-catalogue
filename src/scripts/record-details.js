@@ -328,33 +328,6 @@ function showProgressiveError(container, message) {
   container.removeAttribute("aria-busy");
 }
 
-// Initialize progressive loading
-function initProgressiveLoading() {
-  console.log("Progressive loading: Initializing...");
-
-  const config = loadProgressiveConfig();
-  if (!config) {
-    console.log(
-      "Progressive loading: No config found (not a record detail page)",
-    );
-    return;
-  }
-
-  console.log(
-    "Progressive loading: Config loaded, starting to load sections...",
-  );
-
-  // Load all sections in parallel
-  loadSubjectsEnrichment(config);
-  loadRelatedRecords(config);
-
-  if (config.shouldLoadDelivery) {
-    loadDeliveryOptions(config);
-  } else {
-    hideDeliveryPlaceholders();
-  }
-}
-
 // Run progressive loading when DOM is ready
 (function () {
   console.log("Progressive loading: IIFE starting...");
