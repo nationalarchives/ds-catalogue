@@ -1,10 +1,7 @@
 {% extends "base.html" %}
-{% extends "base.html" %}
 
 {%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
 {% from 'records/macros/accordion.html' import etna_accordion %}
-{% from 'records/macros/whats_this_about_sub_sub_series_or_above.html' import whats_this_about_sub_sub_series_or_above %}
-{% from 'records/macros/whats_this_about_piece_or_item.html' import whats_this_about_piece_or_item %}
 {% from 'records/macros/whats_this_about_sub_sub_series_or_above.html' import whats_this_about_sub_sub_series_or_above %}
 {% from 'records/macros/whats_this_about_piece_or_item.html' import whats_this_about_piece_or_item %}
 {% from 'records/macros/available_online.html' import available_online %}
@@ -28,17 +25,14 @@
   {% endfor %}
   <link rel="canonical" href="{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.id})) }}">
 {% endblock head %}
-{% endblock head %}
 
 {% block stylesheets %}
 {{ super() }}
     <link rel="stylesheet" href="{{ static('record-details.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
 {% endblock stylesheets %}
-{% endblock stylesheets %}
 
 {% block beforeContent %}
 {{ top_navigation(record, request) }}
-{% endblock beforeContent %}
 {% endblock beforeContent %}
 
 {% block content %}
@@ -63,8 +57,6 @@
     </div>
   </div>
 
-  {% if record.is_tna and record.level in ["Series", "Division", "Department", "Sub-series", "Sub-sub-series"] %}
-    {{ whats_this_about_sub_sub_series_or_above(record) }}
   {% if record.is_tna and record.level in ["Series", "Division", "Department", "Sub-series", "Sub-sub-series"] %}
     {{ whats_this_about_sub_sub_series_or_above(record) }}
   {% else %}
