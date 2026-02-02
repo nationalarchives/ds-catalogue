@@ -251,15 +251,19 @@
 }
 
 .piece-adjustment {
-  border:solid 3px rgb(0, 98, 59);
-  border-radius: 3px;
+  color: black;
+
   background-color: white;
-  color:black;
 
-  i {color:rgb(0, 98, 59);
+  border: solid 3px rgb(0 98 59);
+  border-radius: 3px;
+
+  i {
+    color: rgb(0 98 59);
     font-weight: bold;
-    }
+  }
 
-    h3 {color:black;}
-
+  h3 {
+    color: black;
+  }
 }
