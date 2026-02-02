@@ -10,7 +10,7 @@ def search_records(
     page=1,
     sort="",
     order="asc",
-    params: dict|None=None,
+    params: dict | None = None,
     timeout=None,
 ) -> APISearchResponse:
     """
