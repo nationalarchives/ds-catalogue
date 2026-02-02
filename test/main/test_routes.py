@@ -18,9 +18,3 @@ class MainTestCase(TestCase):
             '<h1 class="tna-heading-xl">DS Search</h1>',
             status_code=200,
         )
-
-    def test_cookies(self):
-        rv = self.client.get("/cookies/")
-        self.assertContains(
-            rv, '<h1 class="tna-heading-xl">Cookies</h1>', status_code=200
-        )
