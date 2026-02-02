@@ -16,7 +16,7 @@ from app.main.wagtail_content import (
     get_top_pages,
 )
 from django.core.cache import cache
-from django.test import TestCase, override_settings
+from django.test import TestCase
 
 
 class TestFetchNotificationsData(TestCase):

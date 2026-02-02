@@ -1,5 +1,4 @@
 import logging
-import os
 
 from app.lib.api import JSONAPIClient
 from django.conf import settings

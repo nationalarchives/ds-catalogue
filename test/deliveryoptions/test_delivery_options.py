@@ -1,6 +1,5 @@
 import inspect
 import json
-import unittest
 from copy import deepcopy
 from unittest.mock import Mock, patch
 
@@ -22,7 +21,7 @@ from app.deliveryoptions.helpers import (
     get_advanced_orders_email_address,
     get_dept,
 )
-from app.records.models import APIResponse, Record
+from app.records.models import APIResponse
 from app.records.views import RecordDetailView
 from django.conf import settings
 from django.test import RequestFactory, TestCase
