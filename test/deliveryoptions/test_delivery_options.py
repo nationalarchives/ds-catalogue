@@ -1,12 +1,10 @@
 import inspect
 import json
-import unittest
 from copy import deepcopy
 from unittest.mock import Mock, patch
 
 from app.deliveryoptions.constants import (
     DELIVERY_OPTIONS_CONFIG,
-    AvailabilityCondition,
     AvailabilityGroup,
     delivery_option_tags,
 )
@@ -15,14 +13,13 @@ from app.deliveryoptions.delivery_options import (
     surrogate_link_builder,
 )
 from app.deliveryoptions.helpers import (
-    BASE_TNA_HOME_URL,
     get_access_condition_text,
     get_added_to_basket_text,
     get_advance_order_information,
     get_advanced_orders_email_address,
     get_dept,
 )
-from app.records.models import APIResponse, Record
+from app.records.models import APIResponse
 from app.records.views import RecordDetailView
 from django.conf import settings
 from django.test import RequestFactory, TestCase

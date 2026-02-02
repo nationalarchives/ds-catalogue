@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% from 'records/macros/top_navigation.html' import top_navigation %}
 {% from 'records/macros/related_records_page.html' import related_records_page %}
@@ -8,11 +8,11 @@
 {% block stylesheets %}
 {{ super() }}
     <link rel="stylesheet" href="{{ static('record-details.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
-{% endblock %}
+{% endblock stylesheets %}
 
 {% block beforeContent %}
 {{ top_navigation(record, request) }}
-{% endblock %}
+{% endblock beforeContent %}
 
 {% block content %}
 <div class="tna-section">
@@ -24,4 +24,4 @@
     </div>
   </div>
 </div>
-{% endblock %}
+{% endblock content %}

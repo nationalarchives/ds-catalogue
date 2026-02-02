@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {%- from 'components/breadcrumbs/macro.html' import tnaBreadcrumbs %}
 {%- from 'components/card/macro.html' import tnaCard -%}
@@ -11,10 +11,10 @@
 {% block stylesheets %}
 {{ super() }}
     <link rel="stylesheet" href="{{ static('landing.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
-{% endblock %}
+{% endblock stylesheets %}
 
 {% block beforeContent %}
-<div class="tna-background-accent">
+<div class="tna-background-accent-light">
   <div class="tna-container">
     <div class="tna-column tna-column--full">
       {{ tnaBreadcrumbs({
@@ -30,13 +30,13 @@
     </div>
   </div>
 </div>
-{% endblock %}
+{% endblock beforeContent %}
 
 {% block content %}
-<div class="tna-background-accent">
+<div class="tna-background-accent-light">
   {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
 </div>
-<div class="tna-background-accent tna-!--padding-top-s tna-!--padding-bottom-m">
+<div class="tna-background-accent-light tna-!--padding-top-s tna-!--padding-bottom-m">
   <div class="tna-container">
     <div class="tna-column tna-column--full">
       <form action="{{ url('search:catalogue') }}" method="get">
@@ -293,4 +293,4 @@ hiding this work for now 22.09.2025-->
   </ul>
   {% endif %}
 </div>
-{% endblock %}
+{% endblock content %}

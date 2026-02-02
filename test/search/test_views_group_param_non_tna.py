@@ -56,12 +56,13 @@ class CatalogueSearchViewGroupParamTests(TestCase):
 
         self.assertIsInstance(form, CatalogueSearchNonTnaForm)
         self.assertEqual(form.errors, {})
-        self.assertEqual(len(form.fields), 7)
+        self.assertEqual(len(form.fields), 8)
         non_tna_field_names = [
             FieldsConstant.GROUP,
-            FieldsConstant.SORT,
             FieldsConstant.Q,
+            FieldsConstant.SORT,
             FieldsConstant.FILTER_LIST,
+            FieldsConstant.DISPLAY,
             FieldsConstant.COVERING_DATE_FROM,
             FieldsConstant.COVERING_DATE_TO,
             FieldsConstant.HELD_BY,
@@ -96,3 +97,6 @@ class CatalogueSearchViewGroupParamTests(TestCase):
             ],
         )
         self.assertEqual(response.context_data.get("selected_filters"), [])
+
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertFalse(hasattr(group_field, "is_visible"))
