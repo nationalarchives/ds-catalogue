@@ -7,6 +7,8 @@ from enum import StrEnum
 from django.http import QueryDict
 from django.utils.functional import cached_property
 
+from .constants import DATE_YMD_SEPARATOR
+
 
 class ValidationError(Exception):
     pass
@@ -22,12 +24,6 @@ class DateKeys(StrEnum):
     YEAR = "year"
     MONTH = "month"
     DAY = "day"
-
-
-# separator for date input fields on url param
-# ex: covering_date_from-year, covering_date_from-month, covering_date_from-day
-# FE component uses this value as separator for ymd date entry
-DATE_YMD_SEPARATOR = "-"
 
 
 class BaseField:

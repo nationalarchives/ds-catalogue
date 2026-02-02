@@ -1,5 +1,5 @@
+from app.lib.constants import DATE_YMD_SEPARATOR
 from app.lib.fields import (
-    DATE_YMD_SEPARATOR,
     CharField,
     ChoiceField,
     DynamicMultipleChoiceField,
