@@ -1,9 +1,9 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
 {% from 'records/macros/accordion.html' import etna_accordion %}
-{% from 'records/macros/whats_this_series_or_above_about.html' import whats_this_series_or_above_about %}
-{% from 'records/macros/whats_this_below_series_about.html' import whats_this_below_series_about %}
+{% from 'records/macros/whats_this_about_sub_sub_series_or_above.html' import whats_this_about_sub_sub_series_or_above %}
+{% from 'records/macros/whats_this_about_piece_or_item.html' import whats_this_about_piece_or_item %}
 {% from 'records/macros/available_online.html' import available_online %}
 {% from 'records/macros/available_in_person.html' import available_in_person %}
 {% from 'records/macros/detail_fields.html' import detail_fields %}
@@ -24,24 +24,25 @@
     <meta name="tna_root:{{ property }}" content="{{ analytics_data[property] | none_to_empty_string() }}">
   {% endfor %}
   <link rel="canonical" href="{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.id})) }}">
-{% endblock %}
+{% endblock head %}
 
 {% block stylesheets %}
 {{ super() }}
     <link rel="stylesheet" href="{{ static('record-details.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
-{% endblock %}
+{% endblock stylesheets %}
 
 {% block beforeContent %}
 {{ top_navigation(record, request) }}
-{% endblock %}
+{% endblock beforeContent %}
 
 {% block content %}
 {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
-<div class="tna-section tna-!--padding-top-l">
+<div class="tna-section tna-!--padding-top-{{ 's' if distressing_content else 'l' }}">
   <div class="tna-container">
-    {# Content warning will be shown after loading #}
-    <div id="content-warning-container"></div>
-    
+    {{ content_warning(
+        distressing_content,
+        "This record may include content that reflects the trauma and distress experienced by those present during or affected by the event of the time"
+      ) }}
     <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny tna-!--padding-top-xs">
       <hgroup class="tna-hgroup-xl">
         <p class="tna-hgroup__supertitle">{{ record.level }}</p>
@@ -56,11 +57,11 @@
     </div>
   </div>
 
-  {% if record.is_tna and record.level in ["Series", "Division", "Department"] %}
-    {{ whats_this_series_or_above_about(record) }}
+  {% if record.is_tna and record.level in ["Series", "Division", "Department", "Sub-series", "Sub-sub-series"] %}
+    {{ whats_this_about_sub_sub_series_or_above(record) }}
   {% else %}
     <div class="tna-container">
-      {{ whats_this_below_series_about(record) }}
+      {{ whats_this_about_piece_or_item(record) }}
       
       {# Delivery options sections - will be progressively loaded #}
       <div id="available-online-container" class="tna-column tna-column--width-1-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
@@ -153,7 +154,7 @@
 <script type="application/json" id="progressive-loading-config">
 {
   "recordId": "{{ record.id }}",
-  "shouldLoadDelivery": {% if record.level not in ["Series", "Division", "Department"] %}true{% else %}false{% endif %},
+  "shouldLoadDelivery": {% if record.level not in ["Series", "Division", "Department", "Sub-series", "Sub-sub-series"] %}true{% else %}false{% endif %},
   "endpoints": {
     "subjects": "{{ url('records:enrichment_subjects', kwargs={'id': record.id}) }}",
     "related": "{{ url('records:enrichment_related', kwargs={'id': record.id}) }}",
@@ -162,9 +163,9 @@
 }
 </script>
 
-{% endblock %}
+{% endblock content %}
 
 {% block bodyEnd %}
 {{ super() }}
     <script src="{{ static('record-details.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
-{% endblock %}
+{% endblock bodyEnd %}
