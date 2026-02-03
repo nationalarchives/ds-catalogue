@@ -3,7 +3,6 @@
 import logging
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from functools import wraps
 from typing import Any, Dict
 
 import sentry_sdk

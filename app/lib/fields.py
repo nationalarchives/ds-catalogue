@@ -7,6 +7,8 @@ from enum import StrEnum
 from django.http import QueryDict
 from django.utils.functional import cached_property
 
+from .constants import DATE_YMD_SEPARATOR
+
 
 class ValidationError(Exception):
     pass
@@ -102,12 +104,6 @@ class BaseField:
     @property
     def value(self):
         return self._value
-
-    @property
-    def update_choices(self):
-        """Implement for multiple choice field."""
-
-        raise NotImplementedError
 
     @property
     def items(self):
@@ -357,7 +353,10 @@ class MultiPartDateField(BaseField):
     """
 
     def __init__(
-        self, progressive: bool = True, date_ymd_separator: str = "-", **kwargs
+        self,
+        progressive: bool = True,
+        date_ymd_separator: str = DATE_YMD_SEPARATOR,
+        **kwargs,
     ):
         """
         This field is used for both progressive and non-progressive date entry.

@@ -4,5 +4,4 @@ from django.urls import path
 urlpatterns = [
     path("", views.index, name="index"),
     path("catalogue/", views.catalogue, name="catalogue"),
-    path("cookies/", views.cookies, name="cookies"),
 ]

@@ -1,6 +1,5 @@
 import logging
 import random
-from typing import List
 
 from app.records.constants import RELATED_RECORDS_FETCH_LIMIT, TNA_LEVELS
 from app.records.models import Record

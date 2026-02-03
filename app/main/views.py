@@ -54,9 +54,3 @@ def catalogue(request):
     context["global_alert"] = fetch_global_alert_api_data()
 
     return HttpResponse(template.render(context, request))
-
-
-def cookies(request):
-    template = loader.get_template("main/cookies.html")
-    context = {"foo": "bar"}
-    return HttpResponse(template.render(context, request))

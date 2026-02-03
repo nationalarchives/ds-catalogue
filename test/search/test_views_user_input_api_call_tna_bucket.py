@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import responses
 from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import TestCase
 
 
 class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):

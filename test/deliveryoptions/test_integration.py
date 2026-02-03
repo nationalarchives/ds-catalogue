@@ -6,7 +6,6 @@ from app.deliveryoptions.constants import AvailabilityCondition, Reader
 from app.deliveryoptions.delivery_options import construct_delivery_options
 from app.records.models import Record
 from django.core.exceptions import ImproperlyConfigured
-from django.test import override_settings
 
 
 class DeliveryOptionsIntegrationTestCase(unittest.TestCase):
