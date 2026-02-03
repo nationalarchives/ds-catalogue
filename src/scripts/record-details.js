@@ -130,20 +130,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Load configuration from the page
 function loadProgressiveConfig() {
-  const configElement = document.getElementById("progressive-loading-config");
+  const configElement = document.getElementById('progressive-loading-config');
   if (!configElement) return null;
-
+  
   try {
     return JSON.parse(configElement.textContent);
   } catch (e) {
-    console.error("Progressive loading: Failed to parse config:", e);
+    console.error('Progressive loading: Failed to parse config:', e);
     return null;
   }
 }
 
 // Load subjects enrichment (Wagtail related content)
 async function loadSubjectsEnrichment(config) {
-  const container = document.getElementById("related-content-container");
+  const container = document.getElementById('related-content-container');
   if (!container) return;
 
   try {
@@ -152,23 +152,20 @@ async function loadSubjectsEnrichment(config) {
 
     if (data.success && data.has_content) {
       container.innerHTML = data.html;
-      container.classList.remove("progressive-loading");
-      container.removeAttribute("aria-busy");
+      container.classList.remove('progressive-loading');
+      container.removeAttribute('aria-busy');
     } else {
       container.remove();
     }
   } catch (error) {
-    console.error(
-      "Progressive loading: Failed to load subjects enrichment:",
-      error,
-    );
-    showProgressiveError(container, "Failed to load related content");
+    console.error('Progressive loading: Failed to load subjects enrichment:', error);
+    showProgressiveError(container, 'Failed to load related content');
   }
 }
 
 // Load related records
 async function loadRelatedRecords(config) {
-  const container = document.getElementById("related-records-container");
+  const container = document.getElementById('related-records-container');
   if (!container) return;
 
   try {
@@ -177,17 +174,14 @@ async function loadRelatedRecords(config) {
 
     if (data.success && data.has_content) {
       container.innerHTML = data.html;
-      container.classList.remove("progressive-loading");
-      container.removeAttribute("aria-busy");
+      container.classList.remove('progressive-loading');
+      container.removeAttribute('aria-busy');
     } else {
       container.remove();
     }
   } catch (error) {
-    console.error(
-      "Progressive loading: Failed to load related records:",
-      error,
-    );
-    showProgressiveError(container, "Failed to load related records");
+    console.error('Progressive loading: Failed to load related records:', error);
+    showProgressiveError(container, 'Failed to load related records');
   }
 }
 
@@ -197,24 +191,18 @@ async function loadDeliveryOptions(config) {
     const response = await fetch(config.endpoints.delivery);
     const data = await response.json();
 
-    if (data.success && data.has_content) {
+    if (data.success && data.has_content && data.analytics?.delivery_option_category) {
       // Update "Available online" section
-      updateProgressiveSection(
-        "available-online-container",
-        data.sections.available_online,
-      );
-
+      updateProgressiveSection('available-online-container', data.sections.available_online);
+      
       // Update "Available in person" section
-      updateProgressiveSection(
-        "available-in-person-container",
-        data.sections.available_in_person,
-      );
-
+      updateProgressiveSection('available-in-person-container', data.sections.available_in_person);
+      
       // Add "How to order" to accordion if available
       if (data.sections.how_to_order) {
         addDeliveryAccordionItem(
           data.sections.how_to_order_title,
-          data.sections.how_to_order,
+          data.sections.how_to_order
         );
       }
 
@@ -225,14 +213,12 @@ async function loadDeliveryOptions(config) {
 
       adjustContentWarningPadding();
     } else {
-      hideDeliveryPlaceholders();
+      // No valid delivery data - show error message
+      hideDeliveryPlaceholders(true);
     }
   } catch (error) {
-    console.error(
-      "Progressive loading: Failed to load delivery options:",
-      error,
-    );
-    hideDeliveryPlaceholders();
+    console.error('Progressive loading: Failed to load delivery options:', error);
+    hideDeliveryPlaceholders(true);
   }
 }
 
@@ -245,15 +231,13 @@ function updateProgressiveSection(containerId, html) {
 
 // Add delivery options accordion item
 function addDeliveryAccordionItem(title, bodyHtml) {
-  const accordion = document.querySelector(
-    '.etna-accordion[data-module="etna-accordion"]',
-  );
+  const accordion = document.querySelector('.etna-accordion[data-module="etna-accordion"]');
   if (!accordion) return;
 
-  const item = document.createElement("div");
-  item.className = "etna-accordion__item";
-  item.setAttribute("data-isopen", "false");
-
+  const item = document.createElement('div');
+  item.className = 'etna-accordion__item';
+  item.setAttribute('data-isopen', 'false');
+  
   const itemIndex = 1;
 
   item.innerHTML = `
@@ -274,49 +258,60 @@ function addDeliveryAccordionItem(title, bodyHtml) {
 // Update analytics meta tags
 function updateProgressiveAnalytics(analytics) {
   const metaTags = {
-    delivery_option_category: analytics.delivery_option_category,
-    delivery_option: analytics.delivery_option,
+    'delivery_option_category': analytics.delivery_option_category,
+    'delivery_option': analytics.delivery_option
   };
 
   Object.entries(metaTags).forEach(([key, value]) => {
     const meta = document.querySelector(`meta[name="tna_root:${key}"]`);
     if (meta) {
-      meta.setAttribute("content", value);
+      meta.setAttribute('content', value);
     }
   });
 }
 
 // Adjust padding if content warning is shown
 function adjustContentWarningPadding() {
-  const warningContainer = document.getElementById("content-warning-container");
-  if (warningContainer && warningContainer.querySelector(".tna-warning")) {
-    const section = document.querySelector(".tna-section");
+  const warningContainer = document.getElementById('content-warning-container');
+  if (warningContainer && warningContainer.querySelector('.tna-warning')) {
+    const section = document.querySelector('.tna-section');
     if (section) {
-      section.classList.remove("tna-!--padding-top-l");
-      section.classList.add("tna-!--padding-top-s");
+      section.classList.remove('tna-!--padding-top-l');
+      section.classList.add('tna-!--padding-top-s');
     }
   }
 }
 
-// Hide delivery option placeholders
-function hideDeliveryPlaceholders() {
-  const onlineContainer = document.getElementById("available-online-container");
-  const inPersonContainer = document.getElementById(
-    "available-in-person-container",
-  );
-  const accordionPlaceholder = document.getElementById(
-    "delivery-options-accordion-placeholder",
-  );
+// Hide delivery option placeholders and optionally show error message
+function hideDeliveryPlaceholders(showError = false) {
+  const onlineContainer = document.getElementById('available-online-container');
+  const inPersonContainer = document.getElementById('available-in-person-container');
+  const accordionPlaceholder = document.getElementById('delivery-options-accordion-placeholder');
 
-  if (onlineContainer) onlineContainer.remove();
-  if (inPersonContainer) inPersonContainer.remove();
+  if (showError && onlineContainer) {
+    // Replace both containers with the error message
+    const errorHtml = `
+      <div class="tna-column tna-column--width-2-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
+        <div class="tna-aside tna-aside--tight tna-background-contrast full-height-aside">
+          <h2 class="tna-heading-m">Access information is unavailable</h2>
+          <p>Sorry, information for accessing this record is currently unavailable online. Please try again later.</p>
+        </div>
+      </div>
+    `;
+    onlineContainer.outerHTML = errorHtml;
+    if (inPersonContainer) inPersonContainer.remove();
+  } else {
+    if (onlineContainer) onlineContainer.remove();
+    if (inPersonContainer) inPersonContainer.remove();
+  }
+  
   if (accordionPlaceholder) accordionPlaceholder.remove();
 }
 
 // Show error message in container
 function showProgressiveError(container, message) {
   if (!container) return;
-
+  
   container.innerHTML = `
     <div class="tna-container">
       <div class="tna-aside tna-aside--warning">
@@ -324,50 +319,41 @@ function showProgressiveError(container, message) {
       </div>
     </div>
   `;
-  container.classList.remove("progressive-loading");
-  container.removeAttribute("aria-busy");
+  container.classList.remove('progressive-loading');
+  container.removeAttribute('aria-busy');
 }
 
 // Run progressive loading when DOM is ready
-(function () {
-  console.log("Progressive loading: IIFE starting...");
-
+(function() {
+  console.log('Progressive loading: IIFE starting...');
+  
   function init() {
-    console.log(
-      "Progressive loading: init() called, readyState:",
-      document.readyState,
-    );
-
+    console.log('Progressive loading: init() called, readyState:', document.readyState);
+    
     const config = loadProgressiveConfig();
     if (!config) {
-      console.log(
-        "Progressive loading: No config found (not a record detail page)",
-      );
+      console.log('Progressive loading: No config found (not a record detail page)');
       return;
     }
 
-    console.log(
-      "Progressive loading: Config loaded, starting to load sections...",
-    );
+    console.log('Progressive loading: Config loaded, starting to load sections...');
 
     // Load all sections in parallel
     loadSubjectsEnrichment(config);
     loadRelatedRecords(config);
-
+    
     if (config.shouldLoadDelivery) {
       loadDeliveryOptions(config);
     } else {
       hideDeliveryPlaceholders();
     }
   }
-
-  if (document.readyState === "loading") {
-    console.log(
-      "Progressive loading: DOM still loading, adding event listener",
-    );
-    document.addEventListener("DOMContentLoaded", init);
+  
+  if (document.readyState === 'loading') {
+    console.log('Progressive loading: DOM still loading, adding event listener');
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    console.log("Progressive loading: DOM already loaded, running immediately");
+    console.log('Progressive loading: DOM already loaded, running immediately');
     init();
   }
 })();

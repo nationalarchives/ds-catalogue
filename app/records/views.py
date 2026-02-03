@@ -1,15 +1,15 @@
 """Class-based views for displaying archive records with progressive loading."""
 
 import logging
-from typing import Any, Dict
+from typing import Dict, Any
 
 from app.records.enrichment import RecordEnrichmentHelper
 from app.records.labels import FIELD_LABELS
 from app.records.mixins import GlobalAlertsMixin, RecordContextMixin
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from django.views import View
 from django.views.generic import TemplateView
+from django.views import View
 
 logger = logging.getLogger(__name__)
 
@@ -43,11 +43,11 @@ class RecordDetailView(
 
         # Add field labels
         context["field_labels"] = FIELD_LABELS
-
+        
         # Fetch distressing content synchronously (needed for initial render)
         enrichment_helper = RecordEnrichmentHelper(record)
         context["distressing_content"] = enrichment_helper._fetch_distressing()
-
+        
         # Add basic analytics data (without delivery options)
         self._add_analytics_data(context)
 
@@ -116,7 +116,7 @@ class RecordDetailView(
             data["catalogue_reference"] = record.reference_number
 
         data["catalogue_datasource"] = record.source
-
+        
         # Delivery options will be added by JavaScript after enrichment loads
         data["delivery_option_category"] = ""
         data["delivery_option"] = ""
@@ -130,59 +130,63 @@ class RecordSubjectsEnrichmentView(RecordContextMixin, View):
     def get(self, request, *args, **kwargs):
         """Fetch and return subjects enrichment with rendered HTML."""
         record = self.get_record()
-
+        
         # Fetch subjects enrichment
         enrichment_helper = RecordEnrichmentHelper(record)
         subjects_enrichment = enrichment_helper._fetch_subjects()
-
+        
         # Apply to record
         record._subjects_enrichment = subjects_enrichment
-
+        
         # Render HTML
         html = ""
         if record.has_subjects_enrichment:
             html = render_to_string(
                 "records/related_content_block_wrapper.html",
                 {"record": record},
-                request=request,
+                request=request
             )
-
-        return JsonResponse(
-            {"success": True, "html": html, "has_content": bool(html)}
-        )
+        
+        return JsonResponse({
+            "success": True,
+            "html": html,
+            "has_content": bool(html)
+        })
 
 
 class RecordRelatedRecordsView(RecordContextMixin, View):
     """API endpoint for related records."""
-
+    
     related_records_limit = 3
 
     def get(self, request, *args, **kwargs):
         """Fetch and return related records with rendered HTML."""
         record = self.get_record()
-
+        
         # Fetch related records
         enrichment_helper = RecordEnrichmentHelper(
-            record, related_limit=self.related_records_limit
+            record, 
+            related_limit=self.related_records_limit
         )
         related_records = enrichment_helper._fetch_related()
-
+        
         # Render HTML
         html = ""
         if related_records:
             html = render_to_string(
                 "records/related_records_block_wrapper.html",
-                {"record": record, "related_records": related_records},
-                request=request,
+                {
+                    "record": record,
+                    "related_records": related_records
+                },
+                request=request
             )
-
-        return JsonResponse(
-            {
-                "success": True,
-                "html": html,
-                "has_content": bool(related_records),
-            }
-        )
+        
+        return JsonResponse({
+            "success": True,
+            "html": html,
+            "has_content": bool(related_records)
+        })
 
 
 class RecordDeliveryOptionsView(RecordContextMixin, View):
@@ -191,66 +195,61 @@ class RecordDeliveryOptionsView(RecordContextMixin, View):
     def get(self, request, *args, **kwargs):
         """Fetch delivery options and return rendered HTML for all affected sections."""
         record = self.get_record()
-
+        
         # Fetch delivery options
         enrichment_helper = RecordEnrichmentHelper(record)
         delivery_data = enrichment_helper._fetch_delivery_options()
-
+        
         response = {
             "success": True,
             "has_content": True,  # Always true because we always want to show the sections
-            "sections": {},
+            "sections": {}
         }
-
+        
         # Extract data (will be None for non-TNA records without API data)
-        do_availability_group = (
-            delivery_data.get("do_availability_group")
-            if delivery_data
-            else None
-        )
-        delivery_option = (
-            delivery_data.get("delivery_option") if delivery_data else None
-        )
-
+        do_availability_group = delivery_data.get("do_availability_group") if delivery_data else None
+        delivery_option = delivery_data.get("delivery_option") if delivery_data else None
+        
         # Render "Available online" section
         response["sections"]["available_online"] = render_to_string(
             "records/available_online_wrapper.html",
-            {"record": record, "do_availability_group": do_availability_group},
-            request=request,
+            {
+                "record": record,
+                "do_availability_group": do_availability_group
+            },
+            request=request
         )
-
-        # Render "Available in person" section
+        
+        # Render "Available in person" section  
         response["sections"]["available_in_person"] = render_to_string(
             "records/available_in_person_wrapper.html",
-            {"record": record, "do_availability_group": do_availability_group},
-            request=request,
+            {
+                "record": record,
+                "do_availability_group": do_availability_group
+            },
+            request=request
         )
-
+        
         # Render "How to order" accordion item (only if we have delivery_option)
         if delivery_option:
             response["sections"]["how_to_order"] = render_to_string(
                 "records/how_to_order_wrapper.html",
                 {
-                    "delivery_instructions": delivery_data.get(
-                        "delivery_instructions", []
-                    ),
-                    "tna_discovery_link": delivery_data.get(
-                        "tna_discovery_link"
-                    ),
+                    "delivery_instructions": delivery_data.get("delivery_instructions", []),
+                    "tna_discovery_link": delivery_data.get("tna_discovery_link")
                 },
-                request=request,
+                request=request
             )
-            response["sections"]["how_to_order_title"] = delivery_data.get(
-                "delivery_options_heading", "How to order it"
-            )
-
+            response["sections"]["how_to_order_title"] = delivery_data.get("delivery_options_heading", "How to order it")
+        
         # Include analytics data
         response["analytics"] = {
             "delivery_option": delivery_option or "",
-            "delivery_option_category": do_availability_group or "",
+            "delivery_option_category": do_availability_group or ""
         }
-
+        
         return JsonResponse(response)
+
 
 
 class RelatedRecordsView(RecordContextMixin, TemplateView):
