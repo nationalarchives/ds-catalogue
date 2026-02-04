@@ -72,7 +72,7 @@ class CatalogueSearchFiltersNotAppliedTests(TestCase):
             response.context_data.get("show_banner_for_filters_not_applied"),
             True,
         )
-        # tests spefific banner text in template
+        # tests specific banner text in template
         self.assertIn("Some filters have not been applied", html)
 
     @responses.activate
@@ -142,7 +142,7 @@ class CatalogueSearchFiltersNotAppliedTests(TestCase):
             response.context_data.get("show_banner_for_filters_not_applied"),
             True,
         )
-        # tests spefific banner text in template
+        # tests specific banner text in template
         self.assertIn("Some filters have not been applied", html)
 
     @responses.activate
@@ -183,7 +183,7 @@ class CatalogueSearchFiltersNotAppliedTests(TestCase):
             response.context_data.get("show_banner_for_filters_not_applied"),
             True,
         )
-        # tests spefific banner text in template
+        # tests specific banner text in template
         self.assertIn("Some filters have not been applied", html)
 
     def test_filters_not_applied_banner_for_form_errors_no_results_found(self):
@@ -206,5 +206,5 @@ class CatalogueSearchFiltersNotAppliedTests(TestCase):
             response.context_data.get("show_banner_for_filters_not_applied"),
             True,
         )
-        # tests spefific banner text in template
+        # tests specific banner text in template
         self.assertIn("Some filters have not been applied", html)
