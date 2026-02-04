@@ -286,13 +286,13 @@ class RecordEnrichmentHelper:
             )
             return {}
 
-        data = {"delivery_option": delivery_option_name}
+        result = {"delivery_option": delivery_option_name}
 
         do_availability_group = get_availability_group(delivery_option_value)
         if do_availability_group is not None:
-            data["do_availability_group"] = do_availability_group.name
+            result["do_availability_group"] = do_availability_group.name
 
-        return data
+        return result
 
     def _fetch_distressing(self) -> bool:
         try:

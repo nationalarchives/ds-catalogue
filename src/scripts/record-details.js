@@ -1,6 +1,9 @@
 import { Cookies } from "@nationalarchives/frontend/nationalarchives/all.mjs";
 import { Accordion } from "./etna-accordion.mjs";
 
+// Set js_enabled cookie so server knows JS is available on subsequent requests
+document.cookie = "js_enabled=true; path=/; SameSite=Lax";
+
 class toggleDetailsListDescriptions {
   constructor(checkbox, detailsList, cookies) {
     this.cookies = cookies;
@@ -141,6 +144,19 @@ function loadProgressiveConfig() {
   }
 }
 
+// Swap from server-rendered content to progressive loading containers
+function swapToProgressiveLoading() {
+  // Hide server-rendered content
+  document.querySelectorAll(".js-progressive-server-content").forEach((el) => {
+    el.setAttribute("hidden", "");
+  });
+
+  // Show progressive loading containers
+  document.querySelectorAll(".js-progressive-loading").forEach((el) => {
+    el.removeAttribute("hidden");
+  });
+}
+
 // Load subjects enrichment (Wagtail related content)
 async function loadSubjectsEnrichment(config) {
   const container = document.getElementById("related-content-container");
@@ -151,9 +167,7 @@ async function loadSubjectsEnrichment(config) {
     const data = await response.json();
 
     if (data.success && data.has_content) {
-      container.innerHTML = data.html;
-      container.classList.remove("progressive-loading");
-      container.removeAttribute("aria-busy");
+      container.outerHTML = data.html;
     } else {
       container.remove();
     }
@@ -162,7 +176,7 @@ async function loadSubjectsEnrichment(config) {
       "Progressive loading: Failed to load subjects enrichment:",
       error,
     );
-    showProgressiveError(container, "Failed to load related content");
+    container.remove();
   }
 }
 
@@ -176,9 +190,7 @@ async function loadRelatedRecords(config) {
     const data = await response.json();
 
     if (data.success && data.has_content) {
-      container.innerHTML = data.html;
-      container.classList.remove("progressive-loading");
-      container.removeAttribute("aria-busy");
+      container.outerHTML = data.html;
     } else {
       container.remove();
     }
@@ -187,11 +199,11 @@ async function loadRelatedRecords(config) {
       "Progressive loading: Failed to load related records:",
       error,
     );
-    showProgressiveError(container, "Failed to load related records");
+    container.remove();
   }
 }
 
-// Load delivery options (updates 3 sections)
+// Load delivery options (updates multiple sections)
 async function loadDeliveryOptions(config) {
   try {
     const response = await fetch(config.endpoints.delivery);
@@ -226,8 +238,6 @@ async function loadDeliveryOptions(config) {
       if (data.analytics) {
         updateProgressiveAnalytics(data.analytics);
       }
-
-      adjustContentWarningPadding();
     } else {
       // No valid delivery data - show error message
       hideDeliveryPlaceholders(true);
@@ -251,7 +261,7 @@ function updateProgressiveSection(containerId, html) {
 // Add delivery options accordion item
 function addDeliveryAccordionItem(title, bodyHtml) {
   const accordion = document.querySelector(
-    '.etna-accordion[data-module="etna-accordion"]',
+    "#accordion-progressive .etna-accordion",
   );
   if (!accordion) return;
 
@@ -262,10 +272,10 @@ function addDeliveryAccordionItem(title, bodyHtml) {
   const itemIndex = 1;
 
   item.innerHTML = `
-    <h3 class="etna-accordion__heading" id="record-extended-details-heading-${itemIndex}">
+    <h3 class="etna-accordion__heading" id="record-extended-details-progressive-heading-${itemIndex}">
       ${title}
     </h3>
-    <div class="etna-accordion__body" id="record-extended-details-content-${itemIndex}">
+    <div class="etna-accordion__body" id="record-extended-details-progressive-content-${itemIndex}">
       ${bodyHtml}
     </div>
   `;
@@ -289,18 +299,6 @@ function updateProgressiveAnalytics(analytics) {
       meta.setAttribute("content", value);
     }
   });
-}
-
-// Adjust padding if content warning is shown
-function adjustContentWarningPadding() {
-  const warningContainer = document.getElementById("content-warning-container");
-  if (warningContainer && warningContainer.querySelector(".tna-warning")) {
-    const section = document.querySelector(".tna-section");
-    if (section) {
-      section.classList.remove("tna-!--padding-top-l");
-      section.classList.add("tna-!--padding-top-s");
-    }
-  }
 }
 
 // Hide delivery option placeholders and optionally show error message
@@ -333,42 +331,17 @@ function hideDeliveryPlaceholders(showError = false) {
   if (accordionPlaceholder) accordionPlaceholder.remove();
 }
 
-// Show error message in container
-function showProgressiveError(container, message) {
-  if (!container) return;
-
-  container.innerHTML = `
-    <div class="tna-container">
-      <div class="tna-aside tna-aside--warning">
-        <p>${message}. Please refresh the page to try again.</p>
-      </div>
-    </div>
-  `;
-  container.classList.remove("progressive-loading");
-  container.removeAttribute("aria-busy");
-}
-
 // Run progressive loading when DOM is ready
 (function () {
-  console.log("Progressive loading: IIFE starting...");
-
   function init() {
-    console.log(
-      "Progressive loading: init() called, readyState:",
-      document.readyState,
-    );
-
     const config = loadProgressiveConfig();
     if (!config) {
-      console.log(
-        "Progressive loading: No config found (not a record detail page)",
-      );
+      // Not a record detail page with progressive loading config
       return;
     }
 
-    console.log(
-      "Progressive loading: Config loaded, starting to load sections...",
-    );
+    // Swap server-rendered content for progressive loading containers
+    swapToProgressiveLoading();
 
     // Load all sections in parallel
     loadSubjectsEnrichment(config);
@@ -382,12 +355,8 @@ function showProgressiveError(container, message) {
   }
 
   if (document.readyState === "loading") {
-    console.log(
-      "Progressive loading: DOM still loading, adding event listener",
-    );
     document.addEventListener("DOMContentLoaded", init);
   } else {
-    console.log("Progressive loading: DOM already loaded, running immediately");
     init();
   }
 })();

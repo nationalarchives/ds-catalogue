@@ -36,7 +36,7 @@ class RecordDetailView(
         return [self.template_name]
 
     def get_context_data(self, **kwargs):
-        """Build context with record data only - enrichment loaded via AJAX."""
+        """Build context with record data. Enrichment fetched based on JS capability."""
         context = super().get_context_data(**kwargs)
 
         record = context["record"]
@@ -44,19 +44,70 @@ class RecordDetailView(
         # Add field labels
         context["field_labels"] = FIELD_LABELS
 
-        # Fetch distressing content synchronously (needed for initial render)
-        enrichment_helper = RecordEnrichmentHelper(record)
-        context["distressing_content"] = enrichment_helper._fetch_distressing()
+        # Check if JavaScript is enabled (cookie set by JS on previous visit)
+        js_enabled = self.request.COOKIES.get("js_enabled") == "true"
+        context["js_enabled"] = js_enabled
 
-        # Add basic analytics data (without delivery options)
-        self._add_analytics_data(context)
+        if js_enabled:
+            # JS is enabled - skip enrichment, let JavaScript load progressively
+            # Only fetch distressing_content as it's needed for initial page padding
+            enrichment_helper = RecordEnrichmentHelper(record)
+            context["distressing_content"] = (
+                enrichment_helper._fetch_distressing()
+            )
 
-        # Signal to template that enrichment should be loaded progressively
-        context["progressive_loading"] = True
+            # Set empty defaults for template
+            context["related_records"] = []
+            context["do_availability_group"] = None
+            context["delivery_option"] = None
+            context["delivery_options_heading"] = "How to order it"
+            context["delivery_instructions"] = []
+            context["tna_discovery_link"] = None
+
+            # Add analytics data without delivery options (JS will update these)
+            self._add_analytics_data(context, None)
+        else:
+            # No JS cookie - fetch ALL enrichment data server-side for no-JS fallback
+            enrichment_helper = RecordEnrichmentHelper(
+                record, related_limit=self.related_records_limit
+            )
+            enrichment_data = enrichment_helper.fetch_all()
+
+            # Add enrichment data to context
+            context["distressing_content"] = enrichment_data.get(
+                "distressing_content", False
+            )
+            context["related_records"] = enrichment_data.get(
+                "related_records", []
+            )
+
+            # Apply subjects enrichment to record for template access
+            record._subjects_enrichment = enrichment_data.get(
+                "subjects_enrichment", {}
+            )
+
+            # Process delivery options
+            delivery_options = enrichment_data.get("delivery_options", {})
+            context["do_availability_group"] = delivery_options.get(
+                "do_availability_group"
+            )
+            context["delivery_option"] = delivery_options.get("delivery_option")
+            context["delivery_options_heading"] = delivery_options.get(
+                "delivery_options_heading", "How to order it"
+            )
+            context["delivery_instructions"] = delivery_options.get(
+                "delivery_instructions", []
+            )
+            context["tna_discovery_link"] = delivery_options.get(
+                "tna_discovery_link"
+            )
+
+            # Add analytics data with delivery options
+            self._add_analytics_data(context, delivery_options)
 
         return context
 
-    def _add_analytics_data(self, context) -> None:
+    def _add_analytics_data(self, context, delivery_options=None) -> None:
         """Add analytics data to context for data layer tracking."""
         record = context["record"]
         data = {}
@@ -117,9 +168,17 @@ class RecordDetailView(
 
         data["catalogue_datasource"] = record.source
 
-        # Delivery options will be added by JavaScript after enrichment loads
-        data["delivery_option_category"] = ""
-        data["delivery_option"] = ""
+        # Delivery options from enrichment data
+        if delivery_options:
+            data["delivery_option_category"] = delivery_options.get(
+                "do_availability_group", ""
+            )
+            data["delivery_option"] = delivery_options.get(
+                "delivery_option", ""
+            )
+        else:
+            data["delivery_option_category"] = ""
+            data["delivery_option"] = ""
 
         context["analytics_data"] = data
 

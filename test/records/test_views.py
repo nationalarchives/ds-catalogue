@@ -9,6 +9,12 @@ from django.test import RequestFactory, TestCase
 
 class TestRecordView(TestCase):
 
+    def setUp(self):
+        """Clear cache before each test."""
+        from django.core.cache import cache
+
+        cache.clear()
+
     @responses.activate
     def test_record_detail_view_for_catalogue_record(self):
 
@@ -76,6 +82,11 @@ class TestSubjectLinks(TestCase):
 
     def setUp(self):
         """Set up common test data"""
+        # Clear cache to ensure fresh API calls
+        from django.core.cache import cache
+
+        cache.clear()
+
         self.sample_record_response = {
             "data": [
                 {

@@ -2,11 +2,16 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 
 
 class TestRecordViewForSuppressedErrorsLogged(TestCase):
     """Test errors in views that are logged which do not impact user experience."""
+
+    def setUp(self):
+        """Clear cache before each test."""
+        cache.clear()
 
     @responses.activate
     def test_record_detail_view_held_by_count_error_log(self):

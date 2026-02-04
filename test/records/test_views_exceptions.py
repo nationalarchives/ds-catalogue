@@ -3,10 +3,15 @@ from test.utils import prevent_request_warnings
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase, override_settings
 
 
 class TestRecordViewExceptions(TestCase):
+
+    def setUp(self):
+        """Clear cache before each test."""
+        cache.clear()
 
     @prevent_request_warnings  # suppress test output: Not Found: /catalogue/id//
     def test_no_id_respond_with_404(self):

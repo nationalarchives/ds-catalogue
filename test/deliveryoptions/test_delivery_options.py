@@ -357,15 +357,26 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
 
     def setUp(self):
         self.factory = RequestFactory()
+        # Clear cache before each test
+        from django.core.cache import cache
 
+        cache.clear()
+
+    @patch("app.records.mixins.cache")
     @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.mixins.record_details_by_id")
     @patch("app.main.global_alert.JSONAPIClient")
     def test_delivery_options_added_to_context(
-        self, mock_client, mock_record_details, mock_delivery, mock_distressing
+        self,
+        mock_client,
+        mock_record_details,
+        mock_delivery,
+        mock_distressing,
+        mock_cache,
     ):
         """Test that delivery options are added to context for standard records."""
+        mock_cache.get.return_value = None  # Cache miss
         mock_record = Mock()
         mock_record.id = "C123456"
         mock_record.reference_number = "TEST 123"
@@ -394,14 +405,21 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
 
         self.assertIn("delivery_option", response.context_data)
 
+    @patch("app.records.mixins.cache")
     @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.mixins.record_details_by_id")
     @patch("app.main.global_alert.JSONAPIClient")
     def test_no_delivery_options_for_archon_records(
-        self, mock_client, mock_record_details, mock_delivery, mock_distressing
+        self,
+        mock_client,
+        mock_record_details,
+        mock_delivery,
+        mock_distressing,
+        mock_cache,
     ):
         """Test that delivery options are not fetched for ARCHON records."""
+        mock_cache.get.return_value = None  # Cache miss
         mock_record = Mock()
         mock_record.id = "C123456"
         mock_record.reference_number = "TEST 123"
@@ -427,15 +445,18 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
 
         # Should not call delivery options handler for ARCHON records
         mock_delivery.assert_not_called()
-        self.assertNotIn("do_availability_group", response.context_data)
+        # do_availability_group should be None or not present for ARCHON records
+        self.assertIsNone(response.context_data.get("do_availability_group"))
 
+    @patch("app.records.mixins.cache")
     @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.mixins.record_details_by_id")
     @patch("app.main.global_alert.JSONAPIClient")
     def test_distressing_content_flag_added_to_context(
-        self, mock_client, mock_record_details, mock_distressing
+        self, mock_client, mock_record_details, mock_distressing, mock_cache
     ):
         """Test that distressing content flag is added to context."""
+        mock_cache.get.return_value = None  # Cache miss
         mock_record = Mock()
         mock_record.id = "C123456"
         mock_record.reference_number = "HO 616/123"

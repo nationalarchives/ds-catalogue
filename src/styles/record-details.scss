@@ -5,6 +5,7 @@
 @use "@nationalarchives/frontend/nationalarchives/tools/typography";
 @use "record-details/accordion";
 @use "record-details/hierarchy";
+@use "progressive-loading";
 
 .back-link-group {
   display: flex;
