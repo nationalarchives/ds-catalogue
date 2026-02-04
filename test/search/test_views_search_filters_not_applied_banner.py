@@ -68,6 +68,10 @@ class CatalogueSearchFiltersNotAppliedTests(TestCase):
         form = response.context_data.get("form")
         self.assertTrue(form.is_valid())
 
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            True,
+        )
         # tests spefific banner text in template
         self.assertIn("Some filters have not been applied", html)
 
@@ -134,5 +138,9 @@ class CatalogueSearchFiltersNotAppliedTests(TestCase):
         form = response.context_data.get("form")
         self.assertTrue(form.is_valid())
 
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            True,
+        )
         # tests spefific banner text in template
         self.assertIn("Some filters have not been applied", html)
