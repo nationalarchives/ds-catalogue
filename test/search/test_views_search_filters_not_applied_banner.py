@@ -7,7 +7,7 @@ from django.utils.encoding import force_str
 
 
 class CatalogueSearchFiltersNotAppliedTests(TestCase):
-    """"""
+    """Tests the 'filters not applied' banner in various scenarios."""
 
     @responses.activate
     def test_filters_not_applied_banner_for_tna(
@@ -138,6 +138,70 @@ class CatalogueSearchFiltersNotAppliedTests(TestCase):
         form = response.context_data.get("form")
         self.assertTrue(form.is_valid())
 
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            True,
+        )
+        # tests spefific banner text in template
+        self.assertIn("Some filters have not been applied", html)
+
+    @responses.activate
+    def test_filters_not_applied_banner_for_api_no_results_found(self):
+        """Tests banner for search with no results - filters not applicable to search"""
+
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [],
+                "stats": {
+                    "total": 0,
+                    "results": 0,
+                },
+                "buckets": [
+                    {
+                        "name": "group",
+                    }
+                ],
+            },
+        )
+
+        # default search for tna, display list view
+        query = (
+            "/catalogue/search/"
+            "?q=qwert"  # search term yielding no results
+            "&held_by=Lancashire+Archives"  # non tna filter not applicable to tna
+        )
+
+        response = self.client.get(query)
+        html = force_str(response.content)
+        form = response.context_data.get("form")
+        self.assertTrue(form.is_valid())
+
+        self.assertIn("No results found", html)
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            True,
+        )
+        # tests spefific banner text in template
+        self.assertIn("Some filters have not been applied", html)
+
+    def test_filters_not_applied_banner_for_form_errors_no_results_found(self):
+        """Tests banner for search with no results - form errors causing filters not applied"""
+
+        # default search for tna, display list view
+        query = (
+            "/catalogue/search/"
+            "?level=INVA:ID-VALUE"  # invalid level value causing form error
+            "&held_by=Lancashire+Archives"  # non tna filter not applicable to tna
+        )
+
+        response = self.client.get(query)
+        html = force_str(response.content)
+        form = response.context_data.get("form")
+        self.assertFalse(form.is_valid())
+
+        self.assertIn("No results found", html)
         self.assertEqual(
             response.context_data.get("show_banner_for_filters_not_applied"),
             True,
