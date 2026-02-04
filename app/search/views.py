@@ -5,6 +5,7 @@ from typing import Any
 
 from app.errors import views as errors_view
 from app.lib.api import ResourceNotFound
+from app.lib.constants import DATE_YMD_SEPARATOR
 from app.lib.fields import (
     CharField,
     ChoiceField,
@@ -49,9 +50,6 @@ from .models import APISearchResponse
 from .utils import camelcase_to_underscore, underscore_to_camelcase
 
 logger = logging.getLogger(__name__)
-
-# TODO: temporary location for constant
-DATE_YMD_SEPARATOR = "-"
 
 
 class PageNotFound(Exception):
