@@ -90,7 +90,7 @@ class TestWagtailAPIIntegration(SimpleTestCase):
         mock_client_class.assert_called_once_with(
             "https://test-api.example.com", {"tags": "aviation"}
         )
-        mock_client.get.assert_called_once_with("/article_tags/")
+        mock_client.get.assert_called_once_with("/article_tags/", timeout=None)
 
         self.assertEqual(result, {"items": [{"title": "Test Article"}]})
 

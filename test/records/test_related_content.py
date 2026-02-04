@@ -2,7 +2,7 @@
 Tests for subjects enrichment functionality
 """
 
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from app.lib.api import ResourceNotFound
 from app.records.api import (  # CHANGED: from views to api
@@ -143,6 +143,7 @@ class SubjectsEnrichmentTests(TestCase):
                 "tags": "world-war-1939-1945,aviation,royal-air-force,military-operations",
                 "limit": 10,
             },
+            timeout=None,
         )
 
     # Test 4: get_subjects_enrichment function failure

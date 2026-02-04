@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% from 'components/accordion/macro.html' import tnaAccordion %}
 {% from 'components/hero/macro.html' import tnaHero %}
@@ -8,21 +8,21 @@
 
 {% block stylesheets %}
 {{ super() }}
-    <link rel="stylesheet" href="{{ static('record-details.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
-{% endblock %}
+    <link rel="stylesheet" href="{{ static('record-details.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
+{% endblock stylesheets %}
 
 {% block beforeContent %}
 {{ top_navigation(record, request) }}
-{% endblock %}
+{% endblock beforeContent %}
 
 {% block content %}
 <div class="tna-section">
   <div class="tna-container">
     <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
       <h1 class="tna-heading-l">What is this page?</h1>
-      <p>You are looking at the catalogue for documents held at The National Archives, the official archive of the UK government. We're home to millions of historical and recent UK government documents, known as records. Our catalogue also lists items held at other archives across the UK.
+      <p>You are looking at the catalogue for documents held at The National Archives, the official archive of the UK government. We're home to millions of historical and recent UK government documents, known as records. Our catalogue also lists items held at other archives across the UK and some from abroad.
       </p>
-      <p>As an archive, our role is to collect, preserve and make the records we hold available to the public.</p>
+      <p>As an archive, our role is to collect and preserve records and make them available to the public.</p>
 
       <h2 class="tna-heading-m">What we hold</h2>
       <p>Our archival collection is one of the largest in the world. From Domesday Book to modern government papers and digital files, our collection includes paper and parchment, digital records and websites, photographs, posters, maps, drawings and paintings. Our collection continues to grow each year.</p>
@@ -34,7 +34,7 @@
       <p>The catalogue shows descriptions of records, not the record itself. Each record’s description page will detail how you can see it. Around 7% of our records can be seen online or downloaded. Others are only available to be seen in person at our <a href="https://www.nationalarchives.gov.uk/about/visit-us/">reading rooms in London</a>, where everyone is welcome.</p>
 
       <h2 class="tna-heading-m">Ready to use our catalogue?</h2>
-      <p>Try searching by keyword, place, person. <a href='/catalogue/'>Search our catalogue</a></p>
+      <p>Try searching by keyword, place, person. <a href="{{ url('search:catalogue') }}">Search our catalogue</a></p>
 
       <!--accordion commented out as new layout proposed -->
       <!--
@@ -124,9 +124,9 @@
   ],
   'style': 'accent'
 }) }}
-{% endblock %}
+{% endblock content %}
 
 {% block bodyEnd %}
 {{ super() }}
-    <script src="{{ static('record-details.min.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
-{% endblock %}
+    <script src="{{ static('record-details.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+{% endblock bodyEnd %}

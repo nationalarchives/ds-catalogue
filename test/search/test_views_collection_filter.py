@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 import responses
 from app.search.collection_names import COLLECTION_CHOICES
+from app.search.constants import FieldsConstant
 from django.conf import settings
 from django.test import TestCase
 
@@ -75,7 +76,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
 
         context_data = response.context_data
         form = context_data.get("form")
-        collection_field = form.fields["collection"]
+        collection_field = form.fields[FieldsConstant.COLLECTION]
 
         self.assertEqual(len(context_data.get("results")), 1)
 
@@ -124,6 +125,9 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
         )
         self.assertEqual(collection_field.more_filter_choices_url, "")
         self.assertEqual(collection_field.more_filter_choices_text, "")
+
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(collection_field.is_visible)
 
     @responses.activate
     def test_search_with_known_filters_with_unmatched_config_returns_results(
@@ -189,7 +193,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
 
         context_data = response.context_data
         form = context_data.get("form")
-        collection_field = form.fields["collection"]
+        collection_field = form.fields[FieldsConstant.COLLECTION]
 
         self.assertEqual(len(context_data.get("results")), 1)
 
@@ -313,6 +317,9 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
             False,
         )
 
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(collection_field.is_visible)
+
     @responses.activate
     def test_search_with_some_known_and_unknown_filters_returns_results(
         self,
@@ -417,6 +424,9 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
             False,
         )
 
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(collection_field.is_visible)
+
     @responses.activate
     def test_search_with_unknown_filter_returns_no_results_no_aggs(
         self,
@@ -487,6 +497,9 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
             collection_field.more_filter_choices_available,
             False,
         )
+
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(collection_field.is_visible)
 
     # TODO: FILTER_CHOICES_LIMIT: discuss limit with team
     # @responses.activate

@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 import responses
+from app.search.constants import FieldsConstant
 from django.conf import settings
 from django.test import TestCase
 from django.utils.encoding import force_str
@@ -59,7 +60,9 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
             "/catalogue/search/?q=ufo&level=Department&level=Division"
         )
         form = response.context_data.get("form")
-        level_field = response.context_data.get("form").fields["level"]
+        level_field = response.context_data.get("form").fields[
+            FieldsConstant.LEVEL
+        ]
 
         self.assertEqual(form.is_valid(), True)
 
@@ -104,6 +107,9 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
         self.assertEqual(level_field.more_filter_choices_url, "")
         self.assertEqual(level_field.more_filter_choices_text, "")
 
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(level_field.is_visible)
+
     def test_search_with_invalid_level_filters_returns_error_with_no_results(
         self,
     ):
@@ -119,7 +125,7 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
 
         form = response.context_data.get("form")
         context_data = response.context_data
-        level_field = context_data.get("form").fields["level"]
+        level_field = context_data.get("form").fields[FieldsConstant.LEVEL]
         collection_field = response.context_data.get("form").fields[
             "collection"
         ]
@@ -196,3 +202,6 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
             level_field.more_filter_choices_available,
             False,
         )
+
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertFalse(level_field.is_visible)

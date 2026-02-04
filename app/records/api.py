@@ -8,7 +8,7 @@ from django.utils.text import slugify
 logger = logging.getLogger(__name__)
 
 
-def record_details_by_id(id: str, params: dict = {}) -> Record:
+def record_details_by_id(id: str, params: dict = {}, timeout=None) -> Record:
     """
     Fetches a record by its ID from the Rosetta API.
 
@@ -28,7 +28,7 @@ def record_details_by_id(id: str, params: dict = {}) -> Record:
     """
     uri = "get"
     params.update({"id": id})
-    results = rosetta_request_handler(uri, params)
+    results = rosetta_request_handler(uri, params, timeout=timeout)
     if "data" not in results:
         raise Exception(f"No data returned for id {id}")
     if len(results["data"]) > 1:
@@ -55,7 +55,7 @@ def record_details_by_ref(reference: str, params: dict = {}):
     pass
 
 
-def wagtail_request_handler(uri: str, params: dict = {}) -> dict:
+def wagtail_request_handler(uri: str, params: dict = {}, timeout=None) -> dict:
     """
     Prepares and initiates Wagtail API requests using JSONAPIClient.
 
@@ -74,10 +74,12 @@ def wagtail_request_handler(uri: str, params: dict = {}) -> dict:
         raise Exception("WAGTAIL_API_URL not set")
 
     client = JSONAPIClient(api_url, params)
-    return client.get(uri)
+    return client.get(uri, timeout=timeout)
 
 
-def get_subjects_enrichment(subjects_list: list[str], limit: int = 10) -> dict:
+def get_subjects_enrichment(
+    subjects_list: list[str], limit: int = 10, timeout=None
+) -> dict:
     """
     Makes API call to enrich subjects data for a single record.
 
@@ -100,7 +102,9 @@ def get_subjects_enrichment(subjects_list: list[str], limit: int = 10) -> dict:
 
     try:
         params = {"tags": subjects_param, "limit": limit}
-        results = wagtail_request_handler("/article_tags/", params)
+        results = wagtail_request_handler(
+            "/article_tags/", params, timeout=timeout
+        )
         return results
     except ResourceNotFound:
         logger.warning(f"No subjects enrichment found for {subjects_param}")

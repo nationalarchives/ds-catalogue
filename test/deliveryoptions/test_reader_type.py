@@ -1,5 +1,4 @@
 import logging
-import unittest
 from unittest.mock import Mock, patch
 
 from app.deliveryoptions.reader_type import (

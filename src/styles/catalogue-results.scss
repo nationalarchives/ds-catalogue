@@ -16,16 +16,6 @@
   }
 }
 
-.etna-results-buckets {
-  .tna-secondary-navigation__item {
-    &--current {
-      .tna-secondary-navigation__link {
-        --accent-border: var(--base-background);
-      }
-    }
-  }
-}
-
 .etna-results-sort-by {
   display: flex;
   flex-direction: row;

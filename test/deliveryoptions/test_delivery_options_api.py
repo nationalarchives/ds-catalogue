@@ -35,6 +35,7 @@ class DeliveryOptionsApiClientTests(unittest.TestCase):
             f"{settings.DELIVERY_OPTIONS_API_URL}/",
             params={"iaid": "C12345"},
             headers=self.headers,
+            timeout=None,
         )
 
         # Check the returned data
@@ -61,6 +62,7 @@ class DeliveryOptionsApiClientTests(unittest.TestCase):
             f"{settings.DELIVERY_OPTIONS_API_URL}/",
             params={},
             headers=self.headers,
+            timeout=None,
         )
 
     @patch("app.lib.api.get")
@@ -84,6 +86,7 @@ class DeliveryOptionsApiClientTests(unittest.TestCase):
             f"{settings.DELIVERY_OPTIONS_API_URL}/",
             params={"iaid": "C67890", "category": "books"},
             headers=self.headers,
+            timeout=None,
         )
 
         self.assertEqual(

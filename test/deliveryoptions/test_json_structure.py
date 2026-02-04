@@ -2,7 +2,6 @@ import json
 import unittest
 
 from app.deliveryoptions.constants import DELIVERY_OPTIONS_CONFIG
-from django.conf import settings
 
 
 # These tests aren't comprehensive but check the important fields.

@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import logging
-import re
 from typing import Any
 
 import sentry_sdk
-from app.lib.xslt_transformations import apply_schema_xsl, apply_series_xsl
+from app.lib.xslt_transformations import (
+    apply_schema_xsl,
+    apply_series_xsl,
+    has_series_xsl,
+)
 from app.records.constants import (
     NON_TNA_LEVELS,
     SUBJECTS_LIMIT,
@@ -13,9 +16,7 @@ from app.records.constants import (
     TNA_LEVELS,
 )
 from app.records.utils import (
-    change_discovery_record_details_links,
     extract,
-    format_extref_links,
     format_link,
 )
 from config.jinja2 import format_number
@@ -49,7 +50,7 @@ class APIModel:
 
 class APIResponse(APIModel):
     def __init__(self, raw_data: dict[str, Any]):
-        self._raw = raw_data
+        super().__init__(raw_data)
 
     @cached_property
     def record(self) -> Record:
@@ -60,7 +61,7 @@ class APIResponse(APIModel):
 
 class Record(APIModel):
     def __init__(self, raw_data: dict[str, Any]):
-        self._raw = raw_data
+        super().__init__(raw_data)
 
     def __str__(self):
         return f"{self.summary_title} ({self.id})"
@@ -369,18 +370,20 @@ class Record(APIModel):
 
     @cached_property
     def description(self) -> str:
-        """Returns the api value of the attr if found, empty str otherwise."""
-        if description := self.raw_description:
-            description = format_extref_links(description)
-            description = apply_schema_xsl(description, self.description_schema)
-            description = change_discovery_record_details_links(description)
-            return description
-        description = self.get("description.value", "")
-        if series := self.hierarchy_series:
-            description = apply_series_xsl(description, series.reference_number)
-        description = format_extref_links(description)
-        description = change_discovery_record_details_links(description)
-        return description
+        """Returns the api value of the attr if found, empty str otherwise.
+        Applies series-specific or schema-based XSLT transformation as needed.
+        """
+
+        # Use raw_description as the base description
+        description = self.raw_description
+
+        # Apply series-specific transformation if applicable first
+        series = self.hierarchy_series
+        if series and has_series_xsl(series.reference_number):
+            return apply_series_xsl(description, series.reference_number)
+
+        # Fallback to schema-based transformation
+        return apply_schema_xsl(description, self.description_schema)
 
     @cached_property
     def raw_description(self) -> str:

@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 def delivery_options_request_handler(
     iaid: str,
+    timeout: int = None,
 ) -> Optional[List[Dict[str, Any]]]:
     """
     Makes an API call to the delivery options service to fetch available
@@ -38,7 +39,7 @@ def delivery_options_request_handler(
         client.add_parameters({"iaid": iaid})
 
         # Attempt to get data with specific error handling
-        data = client.get()
+        data = client.get(timeout=timeout)
 
         # Validate response structure
         if not data or not isinstance(data, list):

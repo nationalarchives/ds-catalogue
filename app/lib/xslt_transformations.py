@@ -76,10 +76,14 @@ def apply_schema_xsl(source: str, schema: str) -> str:
     return xsl_transformation(source, schema_xslt)
 
 
+def has_series_xsl(division: str) -> bool:
+    return division in SERIES_TRANSFORMATIONS
+
+
 def apply_series_xsl(source: str, division: str) -> str:
-    if schema := SERIES_TRANSFORMATIONS.get(division):
-        return xsl_transformation(source, schema)
-    return source
+    # Throws a KeyError if division not found
+    schema = SERIES_TRANSFORMATIONS[division]
+    return xsl_transformation(source, schema)
 
 
 def apply_generic_xsl(source: str) -> str:
