@@ -29,7 +29,8 @@
 .tna-prev-next-record {
   @include spacing.space-above;
   display: flex;
-  align-items: space-between;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: spacing.space(1);
   margin-right: spacing.space(1);
   margin-left: spacing.space(1);
@@ -44,6 +45,7 @@
     display: flex;
     gap: spacing.space(1);
     align-items: flex-start;
+    padding-bottom: spacing.space(0.5);
 
     &--prev {
     }
@@ -72,10 +74,19 @@
 
   @include media.on-mobile {
     flex-direction: column;
-    gap: spacing.space(2);
+    gap: spacing.space(1);
 
     &__spacer {
       display: none;
+    }
+
+    &__link {
+      gap: spacing.space(0.5);
+
+      &--next {
+        flex-direction: row-reverse;
+        text-align: left;
+      }
     }
   }
 }
