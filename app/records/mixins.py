@@ -18,7 +18,7 @@ class RecordContextMixin:
         """Fetch the record by ID, using cache if available."""
         if not hasattr(self, "_record"):
             record_id = self.kwargs["id"]
-            cache_key = f"record:{record_id}"
+            cache_key = f"ds-catalogue:record:{record_id}"
 
             # Try to get from cache first
             self._record = cache.get(cache_key)

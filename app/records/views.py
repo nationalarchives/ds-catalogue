@@ -1,7 +1,6 @@
 """Class-based views for displaying archive records with progressive loading."""
 
 import logging
-from typing import Any, Dict
 
 from app.records.enrichment import RecordEnrichmentHelper
 from app.records.labels import FIELD_LABELS
@@ -48,12 +47,16 @@ class RecordDetailView(
         js_enabled = self.request.COOKIES.get("js_enabled") == "true"
         context["js_enabled"] = js_enabled
 
+        # Determine if delivery options should be loaded (not for high-level records)
+        high_level_records = ["Series", "Division", "Department", "Sub-series", "Sub-sub-series"]
+        context["should_load_delivery"] = record.level not in high_level_records
+
         if js_enabled:
             # JS is enabled - skip enrichment, let JavaScript load progressively
             # Only fetch distressing_content as it's needed for initial page padding
             enrichment_helper = RecordEnrichmentHelper(record)
             context["distressing_content"] = (
-                enrichment_helper._fetch_distressing()
+                enrichment_helper.fetch_distressing()
             )
 
             # Set empty defaults for template
@@ -192,7 +195,7 @@ class RecordSubjectsEnrichmentView(RecordContextMixin, View):
 
         # Fetch subjects enrichment
         enrichment_helper = RecordEnrichmentHelper(record)
-        subjects_enrichment = enrichment_helper._fetch_subjects()
+        subjects_enrichment = enrichment_helper.fetch_subjects()
 
         # Apply to record
         record._subjects_enrichment = subjects_enrichment
@@ -224,7 +227,7 @@ class RecordRelatedRecordsView(RecordContextMixin, View):
         enrichment_helper = RecordEnrichmentHelper(
             record, related_limit=self.related_records_limit
         )
-        related_records = enrichment_helper._fetch_related()
+        related_records = enrichment_helper.fetch_related()
 
         # Render HTML
         html = ""
@@ -253,7 +256,7 @@ class RecordDeliveryOptionsView(RecordContextMixin, View):
 
         # Fetch delivery options
         enrichment_helper = RecordEnrichmentHelper(record)
-        delivery_data = enrichment_helper._fetch_delivery_options()
+        delivery_data = enrichment_helper.fetch_delivery_options()
 
         response = {
             "success": True,

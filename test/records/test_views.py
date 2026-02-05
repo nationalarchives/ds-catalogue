@@ -352,7 +352,7 @@ class DoAvailabilityGroupTestCase(TestCase):
                 mock_record.id = "TEST123"
 
                 helper = RecordEnrichmentHelper(mock_record)
-                context = helper._fetch_delivery_options()
+                context = helper.fetch_delivery_options()
 
                 # Should NOT get API-specific keys
                 self.assertNotIn("delivery_option", context)

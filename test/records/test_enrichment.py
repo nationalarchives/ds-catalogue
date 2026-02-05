@@ -103,7 +103,7 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_subjects.return_value = expected_data
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_subjects()
+        result = helper.fetch_subjects()
 
         # get_subjects_enrichment handles its own errors, so we just verify success case
         self.assertEqual(result, expected_data)
@@ -125,7 +125,7 @@ class TestRecordEnrichmentHelper(TestCase):
         ]
 
         helper = RecordEnrichmentHelper(self.test_record, related_limit=3)
-        result = helper._fetch_related()
+        result = helper.fetch_related()
 
         self.assertEqual(len(result), 3)
         mock_subjects.assert_called_once_with(
@@ -170,7 +170,7 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_get_group.return_value = mock_group
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_delivery_options()
+        result = helper.fetch_delivery_options()
 
         self.assertIn("delivery_option", result)
         self.assertEqual(result["delivery_option"], "OrderOriginal")
@@ -186,7 +186,7 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_api_handler.side_effect = Exception("API Error")
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_delivery_options()
+        result = helper.fetch_delivery_options()
 
         # Should return empty dict on error
         self.assertEqual(result, {})
@@ -197,7 +197,7 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_distressing.return_value = True
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_distressing()
+        result = helper.fetch_distressing()
 
         self.assertTrue(result)
 
@@ -209,7 +209,7 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_distressing.side_effect = Exception("API Error")
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_distressing()
+        result = helper.fetch_distressing()
 
         # Should return False on error
         self.assertFalse(result)
@@ -249,7 +249,7 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_executor_class.return_value.__enter__.return_value = mock_executor
 
         # Track the fetch_subjects method by id
-        subjects_method_id = id(helper._fetch_subjects)
+        subjects_method_id = id(helper.fetch_subjects)
 
         # Make submit raise RuntimeError for subjects only
         def submit_side_effect(fn, *args, **kwargs):
@@ -282,8 +282,8 @@ class TestRecordEnrichmentHelper(TestCase):
         helper = RecordEnrichmentHelper(self.test_record)
 
         with (
-            patch.object(helper, "_fetch_subjects"),
-            patch.object(helper, "_fetch_related"),
+            patch.object(helper, "fetch_subjects"),
+            patch.object(helper, "fetch_related"),
             patch.object(
                 helper, "_should_include_delivery_options", return_value=False
             ),
@@ -428,7 +428,7 @@ class TestRecordEnrichmentHelper(TestCase):
         # Subjects succeeds quickly
         mock_subjects.return_value = {"items": [{"title": "Test"}]}
 
-        # Related raises an exception (will be caught in _fetch_related)
+        # Related raises an exception (will be caught in fetch_related)
         mock_related.side_effect = Exception("API Error")
 
         # Distressing succeeds
@@ -442,7 +442,7 @@ class TestRecordEnrichmentHelper(TestCase):
             result["subjects_enrichment"], {"items": [{"title": "Test"}]}
         )
 
-        # Related should be empty (failed, but caught in _fetch_related)
+        # Related should be empty (failed, but caught in fetch_related)
         self.assertEqual(result["related_records"], [])
 
         # Distressing should succeed

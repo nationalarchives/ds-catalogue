@@ -2,7 +2,7 @@ import { Cookies } from "@nationalarchives/frontend/nationalarchives/all.mjs";
 import { Accordion } from "./etna-accordion.mjs";
 
 // Set js_enabled cookie so server knows JS is available on subsequent requests
-document.cookie = "js_enabled=true; path=/; SameSite=Lax";
+document.cookie = "js_enabled=true; path=/; SameSite=Lax; Secure; max-age=31536000";
 
 class toggleDetailsListDescriptions {
   constructor(checkbox, detailsList, cookies) {
@@ -144,19 +144,6 @@ function loadProgressiveConfig() {
   }
 }
 
-// Swap from server-rendered content to progressive loading containers
-function swapToProgressiveLoading() {
-  // Hide server-rendered content
-  document.querySelectorAll(".js-progressive-server-content").forEach((el) => {
-    el.setAttribute("hidden", "");
-  });
-
-  // Show progressive loading containers
-  document.querySelectorAll(".js-progressive-loading").forEach((el) => {
-    el.removeAttribute("hidden");
-  });
-}
-
 // Load subjects enrichment (Wagtail related content)
 async function loadSubjectsEnrichment(config) {
   const container = document.getElementById("related-content-container");
@@ -261,7 +248,7 @@ function updateProgressiveSection(containerId, html) {
 // Add delivery options accordion item
 function addDeliveryAccordionItem(title, bodyHtml) {
   const accordion = document.querySelector(
-    "#accordion-progressive .etna-accordion",
+    "#record-extended-details .etna-accordion",
   );
   if (!accordion) return;
 
@@ -339,9 +326,6 @@ function hideDeliveryPlaceholders(showError = false) {
       // Not a record detail page with progressive loading config
       return;
     }
-
-    // Swap server-rendered content for progressive loading containers
-    swapToProgressiveLoading();
 
     // Load all sections in parallel
     loadSubjectsEnrichment(config);

@@ -67,7 +67,7 @@ class RecordEnrichmentHelper:
 
         # Submit subjects fetch
         try:
-            futures_map[executor.submit(self._fetch_subjects)] = "subjects"
+            futures_map[executor.submit(self.fetch_subjects)] = "subjects"
         except RuntimeError:
             message = (
                 f"Failed to submit subjects task for record {self.record.id}"
@@ -76,7 +76,7 @@ class RecordEnrichmentHelper:
 
         # Submit related fetch
         try:
-            futures_map[executor.submit(self._fetch_related)] = "related"
+            futures_map[executor.submit(self.fetch_related)] = "related"
         except RuntimeError:
             message = (
                 f"Failed to submit related task for record {self.record.id}"
@@ -86,7 +86,7 @@ class RecordEnrichmentHelper:
         # Submit delivery options if applicable
         if self._should_include_delivery_options():
             try:
-                futures_map[executor.submit(self._fetch_delivery_options)] = (
+                futures_map[executor.submit(self.fetch_delivery_options)] = (
                     "delivery"
                 )
             except RuntimeError:
@@ -148,32 +148,32 @@ class RecordEnrichmentHelper:
             self._log_completion_timing(completion_order, completion_times)
 
         # Fetch distressing content directly (not an API call, no need for threading)
-        results["distressing_content"] = self._fetch_distressing()
+        results["distressing_content"] = self.fetch_distressing()
 
         return results
 
     def _fetch_sequential(self) -> Dict[str, Any]:
         """Fetch enrichment data sequentially."""
         results = {
-            "subjects_enrichment": self._fetch_subjects(),
-            "related_records": self._fetch_related(),
+            "subjects_enrichment": self.fetch_subjects(),
+            "related_records": self.fetch_related(),
             "delivery_options": {},
-            "distressing_content": self._fetch_distressing(),
+            "distressing_content": self.fetch_distressing(),
         }
 
         if self._should_include_delivery_options():
-            results["delivery_options"] = self._fetch_delivery_options()
+            results["delivery_options"] = self.fetch_delivery_options()
 
         return results
 
-    def _fetch_subjects(self) -> dict:
+    def fetch_subjects(self) -> dict:
         return get_subjects_enrichment(
             self.record.subjects,
             limit=settings.MAX_SUBJECTS_PER_RECORD,
             timeout=settings.WAGTAIL_API_TIMEOUT,
         )
 
-    def _fetch_related(self) -> list:
+    def fetch_related(self) -> list:
         """
         Fetch related records using subject matching with series backfill.
 
@@ -202,7 +202,7 @@ class RecordEnrichmentHelper:
 
         return related
 
-    def _fetch_delivery_options(self) -> dict:
+    def fetch_delivery_options(self) -> dict:
         """
         Fetch delivery options and add temporary display context.
 
@@ -294,7 +294,7 @@ class RecordEnrichmentHelper:
 
         return result
 
-    def _fetch_distressing(self) -> bool:
+    def fetch_distressing(self) -> bool:
         try:
             return has_distressing_content(self.record.reference_number)
         except Exception as e:

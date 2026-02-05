@@ -49,7 +49,7 @@ class TestRecordDetailViewJsEnabled(TestCase):
         mock_record_details.return_value = mock_record
 
         mock_helper_instance = Mock()
-        mock_helper_instance._fetch_distressing.return_value = False
+        mock_helper_instance.fetch_distressing.return_value = False
         mock_enrichment_helper.return_value = mock_helper_instance
 
         mock_client_instance = Mock()
@@ -66,7 +66,7 @@ class TestRecordDetailViewJsEnabled(TestCase):
         # Should NOT call fetch_all (full enrichment)
         mock_helper_instance.fetch_all.assert_not_called()
         # Should only fetch distressing content
-        mock_helper_instance._fetch_distressing.assert_called_once()
+        mock_helper_instance.fetch_distressing.assert_called_once()
 
         # Context should have js_enabled=True
         self.assertTrue(response.context_data["js_enabled"])
@@ -252,7 +252,7 @@ class TestRecordRelatedRecordsView(TestCase):
         mock_record_details.return_value = mock_record
 
         mock_helper_instance = Mock()
-        mock_helper_instance._fetch_related.return_value = [
+        mock_helper_instance.fetch_related.return_value = [
             Mock(id="C111", summary_title="Related 1"),
             Mock(id="C222", summary_title="Related 2"),
         ]
@@ -286,7 +286,7 @@ class TestRecordRelatedRecordsView(TestCase):
         mock_record_details.return_value = mock_record
 
         mock_helper_instance = Mock()
-        mock_helper_instance._fetch_related.return_value = []
+        mock_helper_instance.fetch_related.return_value = []
         mock_helper.return_value = mock_helper_instance
 
         request = self.factory.get("/catalogue/id/C123456/enrichment/related/")
@@ -323,7 +323,7 @@ class TestRecordDeliveryOptionsView(TestCase):
         mock_record_details.return_value = mock_record
 
         mock_helper_instance = Mock()
-        mock_helper_instance._fetch_delivery_options.return_value = {
+        mock_helper_instance.fetch_delivery_options.return_value = {
             "do_availability_group": "AVAILABLE_ONLINE",
             "delivery_option": "DigitizedDiscovery",
             "delivery_options_heading": "How to order it",
@@ -364,7 +364,7 @@ class TestRecordDeliveryOptionsView(TestCase):
         mock_record_details.return_value = mock_record
 
         mock_helper_instance = Mock()
-        mock_helper_instance._fetch_delivery_options.return_value = {
+        mock_helper_instance.fetch_delivery_options.return_value = {
             "do_availability_group": "AVAILABLE_ONLINE",
             "delivery_option": "DigitizedDiscovery",
         }

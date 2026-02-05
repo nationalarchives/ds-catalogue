@@ -182,7 +182,7 @@
 <script type="application/json" id="progressive-loading-config">
 {
   "recordId": "{{ record.id }}",
-  "shouldLoadDelivery": {% if record.level not in ["Series", "Division", "Department", "Sub-series", "Sub-sub-series"] %}true{% else %}false{% endif %},
+  "shouldLoadDelivery": {{ should_load_delivery | tojson }},
   "endpoints": {
     "subjects": "{{ url('records:enrichment_subjects', kwargs={'id': record.id}) }}",
     "related": "{{ url('records:enrichment_related', kwargs={'id': record.id}) }}",
