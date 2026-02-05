@@ -28,22 +28,26 @@
 
 .tna-prev-next-record {
   @include spacing.space-above;
-  display: flex;
-  align-items: space-between;
-  gap: spacing.space(1);
   margin-right: spacing.space(1);
-  margin-left: spacing.space(1);
   margin-bottom: spacing.space(1);
+  margin-left: spacing.space(1);
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: spacing.space(1);
 
   &__spacer {
     flex: 1;
   }
 
   &__link {
-    flex: 3;
+    padding-bottom: spacing.space(0.5);
+
     display: flex;
-    gap: spacing.space(1);
     align-items: flex-start;
+    gap: spacing.space(1);
+    flex: 3;
 
     &--prev {
     }
@@ -61,21 +65,33 @@
   }
 
   &__link-description {
-    line-height: 1.5;
     display: block;
+
+    line-height: 1.5;
   }
 
   svg {
-    fill: currentColor;
     margin-top: 0.25em;
+
+    fill: currentColor;
   }
 
   @include media.on-mobile {
     flex-direction: column;
-    gap: spacing.space(2);
+    gap: spacing.space(1);
 
     &__spacer {
       display: none;
+    }
+
+    &__link {
+      gap: spacing.space(0.5);
+
+      &--next {
+        flex-direction: row-reverse;
+
+        text-align: left;
+      }
     }
   }
 }
