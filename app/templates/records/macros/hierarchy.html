@@ -1,6 +1,7 @@
 {% from 'components/pagination/macro.html' import tnaPagination %}
 
 {% macro hierarchy(record) %}
+
   <div class="tna-container tna-container--nested">
     <div class="tna-column tna-column--full">
       {% set hierarchy_column_widths = [
@@ -36,6 +37,8 @@
             </div>
           </div>
         </div>
+
+        
 
         {# RECORD HIERARCHY #}
         {% if record.hierarchy %}
