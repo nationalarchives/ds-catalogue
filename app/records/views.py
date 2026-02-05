@@ -48,7 +48,13 @@ class RecordDetailView(
         context["js_enabled"] = js_enabled
 
         # Determine if delivery options should be loaded (not for high-level records)
-        high_level_records = ["Series", "Division", "Department", "Sub-series", "Sub-sub-series"]
+        high_level_records = [
+            "Series",
+            "Division",
+            "Department",
+            "Sub-series",
+            "Sub-sub-series",
+        ]
         context["should_load_delivery"] = record.level not in high_level_records
 
         if js_enabled:

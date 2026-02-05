@@ -2,7 +2,8 @@ import { Cookies } from "@nationalarchives/frontend/nationalarchives/all.mjs";
 import { Accordion } from "./etna-accordion.mjs";
 
 // Set js_enabled cookie so server knows JS is available on subsequent requests
-document.cookie = "js_enabled=true; path=/; SameSite=Lax; Secure; max-age=31536000";
+document.cookie =
+  "js_enabled=true; path=/; SameSite=Lax; Secure; max-age=31536000";
 
 class toggleDetailsListDescriptions {
   constructor(checkbox, detailsList, cookies) {
