@@ -328,6 +328,7 @@ class SubjectsEnrichmentTests(TestCase):
     ):
         """Test that record detail view includes enrichment data via progressive loading endpoint"""
         from django.core.cache import cache
+
         cache.clear()
 
         # Mock the rosetta API call for getting record details
@@ -348,6 +349,7 @@ class SubjectsEnrichmentTests(TestCase):
 
         # Parse the JSON response
         import json
+
         data = json.loads(response.content)
 
         # Verify the response structure
