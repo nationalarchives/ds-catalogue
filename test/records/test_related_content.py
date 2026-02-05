@@ -318,7 +318,7 @@ class SubjectsEnrichmentTests(TestCase):
         # Should have exactly 3 item divs
         self.assertEqual(rendered.count('class="item"'), 3)
 
-    # Test 12: Record detail view integration
+    # Test 12: Record detail view integration (with progressive loading)
     @patch("app.records.api.rosetta_request_handler")
     @patch(
         "app.records.api.wagtail_request_handler"
@@ -326,7 +326,10 @@ class SubjectsEnrichmentTests(TestCase):
     def test_record_detail_view_includes_enrichment(
         self, mock_wagtail_handler, mock_rosetta
     ):
-        """Test that record detail view includes enrichment data"""
+        """Test that record detail view includes enrichment data via progressive loading endpoint"""
+        from django.core.cache import cache
+        cache.clear()
+
         # Mock the rosetta API call for getting record details
         mock_rosetta.return_value = {
             "data": [{"@template": {"details": self.sample_record_data}}]
@@ -335,37 +338,29 @@ class SubjectsEnrichmentTests(TestCase):
         # Mock the subjects enrichment API call
         mock_wagtail_handler.return_value = self.mock_enrichment_response
 
-        # Call the record detail view
-        response = self.client.get("/catalogue/id/C123456/")
+        # With js_enabled cookie, the main page won't fetch enrichment
+        # Instead, test the enrichment endpoint directly
+        response = self.client.get("/catalogue/id/C123456/enrichment/subjects/")
 
         # Ensure the response is OK
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/json")
 
-        # For TemplateResponse, we need to render it first to access context
-        if hasattr(response, "render"):
-            response.render()
+        # Parse the JSON response
+        import json
+        data = json.loads(response.content)
 
-        # Now try to access context_data (for TemplateResponse) or context (for regular response)
-        context_data = getattr(response, "context_data", None) or getattr(
-            response, "context", None
-        )
-
-        if context_data and "record" in context_data:
-            record = context_data["record"]
-            # Test that the record has the enrichment properties
-            self.assertTrue(hasattr(record, "has_subjects_enrichment"))
-            self.assertTrue(hasattr(record, "subjects_enrichment"))
-            # Test that enrichment was actually added
-            self.assertTrue(record.has_subjects_enrichment)
-            self.assertIn("items", record.subjects_enrichment)
+        # Verify the response structure
+        self.assertTrue(data["success"])
+        self.assertTrue(data["has_content"])
+        self.assertIn("html", data)
 
         # Verify that the enrichment API was called
         mock_wagtail_handler.assert_called_once()
 
-        # Check that the response has content
-        html = response.content.decode()
-        self.assertIsInstance(html, str)
-        self.assertGreater(len(html), 0)
+        # Check that HTML content was returned
+        self.assertIsInstance(data["html"], str)
+        self.assertGreater(len(data["html"]), 0)
 
     # Test 13: Error handling - ResourceNotFound
     @patch(
