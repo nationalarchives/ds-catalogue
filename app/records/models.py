@@ -8,6 +8,7 @@ from app.lib.xslt_transformations import (
     apply_schema_xsl,
     apply_series_xsl,
     has_series_xsl,
+    xsl_transformation,
 )
 from app.records.constants import (
     NON_TNA_LEVELS,
@@ -24,7 +25,7 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
 from lxml import etree
 
-from .constants import MISSING_COUNT_TEXT
+from .constants import MISSING_COUNT_TEXT, RecordTypes
 
 logger = logging.getLogger(__name__)
 
@@ -373,6 +374,11 @@ class Record(APIModel):
 
         # Use raw_description as the base description
         description = self.raw_description
+
+        if self.custom_record_type == RecordTypes.ARCHON:
+            # For ARCHON records, apply a specific XSLT transformation
+            # regardless of series or schema
+            return xsl_transformation(description, "Archon.xsl")
 
         # Apply series-specific transformation if applicable first
         series = self.hierarchy_series

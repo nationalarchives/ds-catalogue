@@ -54,6 +54,9 @@ class TestRecordView(TestCase):
                                 "id": "A13530600",
                                 "title": "Test Title",
                                 "source": "ARCHON",
+                                "description": {
+                                    "raw": "<contacts><addressline1><![CDATA[Kew]]></addressline1></contacts>"
+                                },
                             }
                         }
                     }
