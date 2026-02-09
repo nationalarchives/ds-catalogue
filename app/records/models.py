@@ -238,19 +238,16 @@ class Record(APIModel):
     def held_by_url(self) -> str:
         """Returns url path if the id is found, empty str otherwise."""
         if self.held_by_id:
-            # TODO: Temporary link to Discovery until archon template is ready
-            return f"https://discovery.nationalarchives.gov.uk/details/a/{self.held_by_id}"
-            # TODO: commented out until archon template is ready
-            # try:
-            #     return reverse(
-            #         "records:details",
-            #         kwargs={"id": self.held_by_id},
-            #     )
-            # except NoReverseMatch:
-            #     # warning for partially valid record
-            #     logger.warning(
-            #         f"held_by_url:Record({self.id}):No reverse match for record_details with held_by_id={self.held_by_id}"
-            #     )
+            try:
+                return reverse(
+                    "records:details",
+                    kwargs={"id": self.held_by_id},
+                )
+            except NoReverseMatch:
+                # warning for partially valid record
+                logger.warning(
+                    f"held_by_url:Record({self.id}):No reverse match for record_details with held_by_id={self.held_by_id}"
+                )
         return ""
 
     @cached_property

@@ -53,7 +53,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         # self.assertEqual(self.record.held_by_url, "/catalogue/id/A13530124/")
         self.assertEqual(
             self.record.held_by_url,
-            "https://discovery.nationalarchives.gov.uk/details/a/A13530124",
+            "/catalogue/id/A13530124/",
         )
         self.assertEqual(
             self.record.access_condition, "Subject to 30 year closure"
@@ -216,7 +216,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         # self.assertEqual(self.record.held_by_url, "/catalogue/id/A13530124/")
         self.assertEqual(
             self.record.held_by_url,
-            "https://discovery.nationalarchives.gov.uk/details/a/A13530124",
+            "/catalogue/id/A13530124/",
         )
         self.assertEqual(self.record.access_condition, "Open on Transfer")
         self.assertEqual(

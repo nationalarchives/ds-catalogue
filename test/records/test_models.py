@@ -424,7 +424,7 @@ class RecordModelTests(SimpleTestCase):
         # self.assertEqual(self.record.held_by_url, "/catalogue/id/A13530841/")
         self.assertEqual(
             self.record.held_by_url,
-            "https://discovery.nationalarchives.gov.uk/details/a/A13530841",
+            "/catalogue/id/A13530841/",
         )
 
     # TODO: Re-enable this test when archon template is ready
