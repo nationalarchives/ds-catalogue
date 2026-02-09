@@ -7,6 +7,8 @@ from app.records.labels import FIELD_LABELS
 from app.records.mixins import GlobalAlertsMixin, RecordContextMixin
 from django.views.generic import TemplateView
 
+from .constants import RecordTypes
+
 logger = logging.getLogger(__name__)
 
 
@@ -24,9 +26,9 @@ class RecordDetailView(
         """Determine template based on record type."""
         record = self.get_record()
 
-        if record.custom_record_type == "ARCHON":
+        if record.custom_record_type == RecordTypes.ARCHON:
             return ["records/archon_detail.html"]
-        elif record.custom_record_type == "CREATORS":
+        elif record.custom_record_type == RecordTypes.CREATORS:
             return ["records/creator_detail.html"]
 
         return [self.template_name]

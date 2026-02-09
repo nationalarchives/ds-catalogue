@@ -18,7 +18,11 @@ from app.deliveryoptions.delivery_options import (
 )
 from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
 from app.records.api import get_subjects_enrichment
-from app.records.constants import API_TIMEOUTS, THREADPOOL_MAX_WORKERS
+from app.records.constants import (
+    API_TIMEOUTS,
+    THREADPOOL_MAX_WORKERS,
+    RecordTypes,
+)
 from app.records.models import Record
 from app.records.related import (
     get_related_records_by_series,
@@ -304,7 +308,10 @@ class RecordEnrichmentHelper:
             return False
 
     def _should_include_delivery_options(self) -> bool:
-        if self.record.custom_record_type in ["ARCHON", "CREATORS"]:
+        if self.record.custom_record_type in [
+            RecordTypes.ARCHON,
+            RecordTypes.CREATORS,
+        ]:
             return False
 
         if (

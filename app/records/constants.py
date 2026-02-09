@@ -1,3 +1,5 @@
+from enum import StrEnum
+
 from django.conf import settings
 
 # Some of these values are also used by Delivery Options
@@ -48,3 +50,10 @@ API_TIMEOUTS = {
 }
 
 THREADPOOL_MAX_WORKERS = 3
+
+
+class RecordTypes(StrEnum):
+    """Record types"""
+
+    ARCHON = "ARCHON"
+    CREATORS = "CREATORS"
