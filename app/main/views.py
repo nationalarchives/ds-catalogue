@@ -29,9 +29,3 @@ def catalogue(request):
     }
 
     return HttpResponse(template.render(context, request))
-
-
-def cookies(request):
-    template = loader.get_template("main/cookies.html")
-    context = {"foo": "bar"}
-    return HttpResponse(template.render(context, request))

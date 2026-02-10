@@ -26,56 +26,8 @@
   }
 }
 
-.tna-prev-next-record {
-  @include spacing.space-above;
-  display: flex;
-  align-items: space-between;
-  gap: spacing.space(1);
+.hierarchy-pagination {
   margin-right: spacing.space(1);
-  margin-left: spacing.space(1);
   margin-bottom: spacing.space(1);
-
-  &__spacer {
-    flex: 1;
-  }
-
-  &__link {
-    flex: 3;
-    display: flex;
-    gap: spacing.space(1);
-    align-items: flex-start;
-
-    &--prev {
-    }
-
-    &--next {
-      text-align: right;
-    }
-  }
-
-  &__link-text {
-    flex: 1;
-  }
-
-  &__link-title {
-  }
-
-  &__link-description {
-    line-height: 1.5;
-    display: block;
-  }
-
-  svg {
-    fill: currentColor;
-    margin-top: 0.25em;
-  }
-
-  @include media.on-mobile {
-    flex-direction: column;
-    gap: spacing.space(2);
-
-    &__spacer {
-      display: none;
-    }
-  }
+  margin-left: spacing.space(1);
 }

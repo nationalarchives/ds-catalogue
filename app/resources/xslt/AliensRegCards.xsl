@@ -4,7 +4,7 @@
   <xsl:template match="emph[@altrender='doctype']">
 		</xsl:template>
   <xsl:template match="/">
-    <dl class="tna-dl tna-dl--plain tna-dl--dotted">
+    <dl class="tna-dl tna-dl--lined tna-dl--dotted">
       <xsl:apply-templates/>
     </dl>
   </xsl:template>

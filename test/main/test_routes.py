@@ -8,8 +8,7 @@ class MainTestCase(TestCase):
 
     def test_trailing_slash_redirects(self):
         rv = self.client.get("/healthcheck/live")
-        self.assertEqual(rv.status_code, 301)
-        self.assertEqual(rv.url, "/healthcheck/live/")
+        self.assertRedirects(rv, "/healthcheck/live/", status_code=301)
 
     def test_homepage(self):
         rv = self.client.get("/")
@@ -17,10 +16,4 @@ class MainTestCase(TestCase):
             rv,
             '<h1 class="tna-heading-xl">DS Search</h1>',
             status_code=200,
-        )
-
-    def test_cookies(self):
-        rv = self.client.get("/cookies/")
-        self.assertContains(
-            rv, '<h1 class="tna-heading-xl">Cookies</h1>', status_code=200
         )
