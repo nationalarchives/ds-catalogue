@@ -71,38 +71,7 @@
 }
 
 .tna-dl--dotted {
-  @include colour.colour-border("keyline", 1px, solid, bottom);
-
-  > dt,
-  > dd {
-    padding-top: spacing.space(0.5);
-    padding-bottom: spacing.space(0.5);
-
-    background-color: transparent !important;
-
-    @include colour.colour-border("keyline", 1px, solid, top);
-  }
-
-  & & {
-    border-bottom: none;
-
-    // @include typography.font-size(16);
-
-    > dt,
-    > dd {
-      &:first-of-type {
-        padding-top: 0;
-        border-top: none;
-      }
-    }
-
-    > dt:last-of-type {
-      &,
-      & ~ dd:last-child {
-        padding-bottom: 0;
-      }
-    }
-  }
+  grid-template-columns: 1fr 2fr;
 
   .tna-table {
     margin-top: spacing.space(0.5);
@@ -112,12 +81,6 @@
       caption-side: top;
 
       padding: 0 0 spacing.space(0.5);
-    }
-  }
-
-  @include media.on-tiny {
-    > dd {
-      border-top: none;
     }
   }
 }
@@ -150,6 +113,11 @@
     @include typography.detail-font-small;
     text-transform: none;
     @include colour.colour-font("font-light");
+
+    @include media.on-mobile {
+      padding-top: 0;
+      padding-bottom: spacing.space(0.5);
+    }
   }
 
   ul,
