@@ -358,3 +358,128 @@ class DoAvailabilityGroupTestCase(TestCase):
                 else:
                     # When API raises exception, returns completely empty dict
                     self.assertEqual(context, {})
+
+
+class TestNonTNARecordAvailability(TestCase):
+    """Tests for availability display on records held by other archives."""
+
+    @responses.activate
+    def test_non_tna_record_shows_availability_boxes(self):
+        """Test that non-TNA records show the 'Is it available online?' and 'Can I see it in person?' boxes."""
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id=C123456",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "id": "C123456",
+                                "title": "Test Record at Other Archive",
+                                "source": "CAT",
+                                "level": "Item",
+                                "heldBy": "British Library",
+                                "heldById": "A13530841",
+                            }
+                        }
+                    }
+                ]
+            },
+            status=200,
+        )
+
+        response = self.client.get("/catalogue/id/C123456/")
+
+        self.assertEqual(response.status_code, 200)
+
+        # Should show both availability boxes
+        self.assertContains(response, "Is it available online?")
+        self.assertContains(response, "Can I see it in person?")
+
+        # Should show the correct messages for non-TNA records
+        self.assertContains(
+            response,
+            "Maybe, but not on The National Archives website. This record is held at British Library.",
+        )
+        self.assertContains(
+            response,
+            "Not at The National Archives, but you may be able to view it in person at British Library.",
+        )
+
+        # Should NOT show the "Access information is unavailable" message
+        self.assertNotContains(response, "Access information is unavailable")
+
+    @responses.activate
+    def test_non_tna_record_shows_held_by_url_link(self):
+        """Test that non-TNA records show 'How to view it' link when held_by_url is available."""
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id=C123456",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "id": "C123456",
+                                "title": "Test Record at Other Archive",
+                                "source": "CAT",
+                                "level": "Item",
+                                "heldBy": "British Library",
+                                "heldById": "A13530841",
+                            }
+                        }
+                    }
+                ]
+            },
+            status=200,
+        )
+
+        response = self.client.get("/catalogue/id/C123456/")
+
+        self.assertEqual(response.status_code, 200)
+
+        # Should contain the "How to view it" link pointing to the archive
+        self.assertContains(
+            response,
+            '<a href="https://discovery.nationalarchives.gov.uk/details/a/A13530841">How to view it</a>',
+        )
+
+    @responses.activate
+    def test_non_tna_record_without_held_by_url_no_link(self):
+        """Test that non-TNA records without held_by_url don't show 'How to view it' link."""
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id=C123456",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "id": "C123456",
+                                "title": "Test Record at Other Archive",
+                                "source": "CAT",
+                                "level": "Item",
+                                "heldBy": "Some Other Archive",
+                                # No heldById means no held_by_url
+                            }
+                        }
+                    }
+                ]
+            },
+            status=200,
+        )
+
+        response = self.client.get("/catalogue/id/C123456/")
+
+        self.assertEqual(response.status_code, 200)
+
+        # Should show the availability boxes
+        self.assertContains(response, "Is it available online?")
+        self.assertContains(response, "Can I see it in person?")
+
+        # Should show the archive name
+        self.assertContains(response, "Some Other Archive")
+
+        # Should NOT contain "How to view it" link in the availability boxes
+        # (We check for the specific pattern in the availability message)
+        self.assertNotContains(response, ">How to view it</a>")
