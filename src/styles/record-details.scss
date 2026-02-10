@@ -70,9 +70,7 @@
   box-sizing: border-box;
 }
 
-.tna-dl--dotted {
-  grid-template-columns: 1fr 2fr;
-
+.record-details {
   .tna-table {
     margin-top: spacing.space(0.5);
     margin-bottom: spacing.space(1);
@@ -83,9 +81,7 @@
       padding: 0 0 spacing.space(0.5);
     }
   }
-}
 
-.record-details {
   &__label {
     position: sticky;
     top: spacing.space(0.5);
