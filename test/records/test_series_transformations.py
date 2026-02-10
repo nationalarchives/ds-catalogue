@@ -101,7 +101,7 @@ class SeriesTransformationTests(SimpleTestCase):
 
         self.assertEqual(
             self.record.description,
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Wibmer, Lewis Martin </dd>
 <dt>Rank</dt>
@@ -118,7 +118,7 @@ class SeriesTransformationTests(SimpleTestCase):
         # test sanitisation as does in template
         self.assertEqual(
             sanitise_record_field(self.record.description),
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Wibmer, Lewis Martin </dd>
 <dt>Rank</dt>

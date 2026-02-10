@@ -13,7 +13,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">AW</emph><persname><emph altrender="surname">Aarons</emph> <emph altrender="forenames">Ethel</emph></persname><emph altrender="num">21906</emph><emph altrender="doe">19 October 1918</emph>'
         schema = "Airwomen"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Aarons, Ethel</dd>
 <dt>Service number</dt>
@@ -29,7 +29,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">AR</emph><persname><emph altrender="forenames">Jean Margaret</emph><emph altrender="surname">Aal</emph></persname><emph altrender="age">27 January 1917</emph><emph altrender="nation">German</emph>'
         schema = "AliensRegCards"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Aal, Jean Margaret</dd>
 <dt>Date of birth</dt>
@@ -45,7 +45,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">AP</emph><emph altrender="petitioners">John de Heghman.</emph><emph altrender="name"><persname><emph altrender="surname">de Heghman</emph> <emph altrender="forenames">John</emph></persname></emph><emph altrender="addressees">King.</emph><emph altrender="request">Heghman requests that the king grant his letters to Guildford and his companions assigned to take an attaint at the suit of Heghman that they not assent to the order to be at parliament.</emph><emph altrender="endorsement">[None].</emph><emph altrender="people"><persname>Henry de Gyldeford (Guildford), justice.</persname></emph>'
         schema = "AncientPetitions"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Petitioners</dt>
 <dd>John de Heghman.</dd>
 <dt>Name(s)</dt>
@@ -67,7 +67,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">BW</emph><persname><emph altrender="surname">Hillyard</emph><emph altrender="forenames">Henry William</emph></persname><geogname>Rowhedge</geogname><emph altrender="dob">1873</emph>'
         schema = "BritishWarMedal"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Hillyard, Henry William</dd>
 <dt>Place of birth</dt>
@@ -83,7 +83,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">CP</emph><emph altrender="type">Precedent Book</emph><emph altrender="agenda">1. Constitutional Position - The Cabinet and the Cabinet System - Collective Responsibility; 2. Composition of the Cabinet and the Position of Ministers Outside the Cabinet - Appointment to the Cabinet - Composition of the Cabinet  - Ministers with Co-ordinating Functions - Ministers Outside the Cabinet - Law Officers - Junior Ministers - Precedence of Members of  Cabinet and Other Ministers; 3. Attendence at the Cabinet - Members of the Cabinet and Ministers of Cabinet Rank - Junior Ministers - Chiefs of Staff - Officials and Others - Historical Notes -  War Cabinet, 1916-1919 - Cabinet, 1919-1939 - War Cabinet, 1939-1945 - Attendance at \'Budget Cabinets\' - Leave of Absence - Movements of Ministers; 4. Cabinet Business - Scope of Business - Foreign and Military Affairs - Parliamentary Business -  Economic Affairs - The Budget - White Papers; 5. Action Prior to Submission of Business; 6. Submission of Business; 7. Action in the Cabinet Office; 8. Programme of Future Business; 9. Agenda; 10. Meetings - General Practice - Frequency of Meetings - Special Meetings - Meetings in Holiday Periods - Messages during Meetings - Attendance of Secretariat; 11. Cabinet Conclusions - General - Dissent from Conclusions - Implementation of Conclusions - Outstanding Conclusions; 12. Secrecy of Cabinet Proceedings; 13. Announcement of Cabinet Decisions; 14. Press Communiques about Cabinet Meetings; 15. War Cabinet Reports; 16. Miscellaneous - Cabinet Photographs - Cabinet Presents, etc</emph><emph altrender="title">Part I - The Cabinet</emph>'
         schema = "CabinetPapers"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Record type</dt>
 <dd>Precedent Book</dd>
 <dt>Agenda</dt>
@@ -99,7 +99,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">CR</emph><persname> <emph altrender="surname">Gibson</emph> <emph altrender="forenames">G P</emph></persname><emph altrender="rank">Flight Lieutenant, Squadron Leader</emph><emph altrender= "corpname">29</emph><emph altrender="date">14 March 1941; 23 April 1941, 03 May 1941, 07 July 1941</emph>'
         schema = "CombatRepWW2"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Gibson, G P</dd>
 <dt>Rank</dt>
@@ -135,7 +135,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">D</emph><emph altrender="placename"><geogname>North Benfleet, Essex</geogname></emph><emph altrender="folio">1v Little Domesday Book</emph><emph altrender="domesdayform"><geogname>Benflet</geogname></emph><emph altrender="peoplementioned"><persname>Church of St Mary, Benfleet</persname><persname>Earl Harold Godwineson</persname><persname>Ralph Baynard, sheriff of Essex</persname><persname>Ranulf brother of Ilger</persname><persname>Swein of Essex, sheriff of Essex</persname><persname>sokemen</persname></emph>'
         schema = "DomesdayBook"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Place name</dt>
 <dd>North Benfleet, Essex</dd>
 <dt>Folio</dt>
@@ -268,7 +268,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">MS</emph><persname><emph altrender="surname">Boisnard</emph> <emph altrender="forenames">Francois</emph></persname><corpname>Duguay-Trouin</corpname><emph altrender="rating">Etat Major</emph>'
         schema = "MusterRolls"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Boisnard, Francois</dd>
 <dt>Ship name</dt>
@@ -284,7 +284,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">NO</emph><persname><emph altrender="surname">Abbott</emph><emph altrender="forenames">Charles Henry</emph></persname><emph altrender="rank">Lieutenant</emph><emph altrender="num">0857</emph><geogname>Whitby, Yorkshire</geogname><emph altrender="dob">23 September 1870</emph>'
         schema = "NavalOfficers"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Abbott, Charles Henry</dd>
 <dt>Rank</dt>
@@ -304,7 +304,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">RR</emph><persname><emph altrender="surname">Hillyard</emph><emph altrender="forenames">Edward Joshua</emph></persname><geogname>Rowhedge, Essex</geogname><emph altrender="certno">B 3813</emph><emph altrender="rank"></emph><emph altrender="date"></emph><emph altrender="dob">19 November 1885</emph>'
         schema = "NavalReserve"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Hillyard, Edward Joshua</dd>
 <dt>Place of birth</dt>
@@ -322,7 +322,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">LS</emph><persname><emph altrender="surname">Hillyard</emph> <emph altrender="forenames">James</emph></persname><emph altrender="num">Z/3146</emph><emph altrender="age">13 October 1894</emph>'
         schema = "NavyLandService"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Hillyard, James</dd>
 <dt>Service number(s)</dt>
@@ -347,7 +347,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">OL</emph><geogname>Berlin, Germany</geogname><emph altrender="scope">Olympic Games: German propaganda in Iraq; marked activity encouraging Iraqis to visit Germany</emph>'
         schema = "Olympic"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Place</dt>
 <dd>Berlin, Germany</dd>
 <dt>Scope and content</dt>
@@ -361,7 +361,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">PL</emph><persname><emph altrender="surname"><surname>Smith</surname><surname>Chadwick</surname></emph> <emph altrender="forenames"><firstname>Josiah</firstname><firstname>Edwin</firstname></emph></persname><emph altrender="placesmentioned"><geogname>Grassthorpe</geogname></emph><emph altrender="orgsmentioned"><corpname>Poor Law Commission</corpname></emph><emph altrender="scope"><p>Folio 23. Letter from Josiah Smith, to Edwin Chadwick, Poor Law Commission, requesting an answer by return of post to his letter of 20 May, regarding the election of a new guardian for Grassthorpe. It is annotated on 4 June \'acknowledge and state order issued on 1 June\'.</p></emph>'
         schema = "PoorLaw"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name(s)</dt>
 <dd>Smith, Josiah Edwin </dd>
 <dd>Chadwick, Josiah Edwin </dd>
@@ -380,7 +380,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">P</emph><persname><emph altrender="surname">Wells</emph> <emph altrender="forenames">Benjamin</emph></persname><emph altrender="age">18</emph><geogname>Surrey</geogname><emph altrender="court">Surrey Sessions</emph><emph altrender="offence">Larceny (after a previous conviction):  stealing a piece of bacon</emph><emph altrender="sentence">12 calendar months hard labour</emph>'
         schema = "prisoner"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name (and alias if used) of prisoner</dt>
 <dd>Wells, Benjamin</dd>
 <dt>Age</dt>
@@ -402,7 +402,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">I</emph><persname> <emph altrender="surname">Beaman</emph></persname><emph altrender="page">2-9</emph><corpname>Royal Army Medical Corps.</corpname><emph altrender="rank">Captain</emph><emph altrender="people"><persname>Major Philip Davy, Royal Army Medical Corps</persname></emph>'
         schema = "PrisonerInterview"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Beaman</dd>
 <dt>Page number</dt>
@@ -422,7 +422,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">RO</emph><persname><emph altrender="surname">Hillyard</emph><emph altrender="forenames">Frederick</emph></persname><emph altrender="dob">08 July 1898</emph>'
         schema = "RAFOfficers"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Hillyard, Frederick</dd>
 <dt>Date of birth</dt>
@@ -436,7 +436,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">H</emph><persname> <emph altrender="surname">Fetterley</emph><emph altrender="forenames">James</emph></persname><emph altrender="rank">Lieutenant</emph><emph altrender="regno">CDN541</emph><corpname>2 Battalion The East Yorkshire Regiment</corpname><geogname>North West Europe</geogname><emph altrender="award">Military Cross</emph><emph altrender="date">21 December 1944</emph><emph altrender="folio">2-3</emph>'
         schema = "RecHonours"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Fetterley, James</dd>
 <dt>Rank</dt>
@@ -471,7 +471,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">RN</emph><persname><emph altrender="surname">Hillyard</emph><emph altrender="forenames">George Whiteside</emph></persname><emph altrender="rank">06 February 1864</emph><emph altrender="date">Commander</emph><emph altrender="doe">15 July 1877</emph>'
         schema = "RNOfficer"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Hillyard, George Whiteside</dd>
 <dt>Date of birth</dt>
@@ -489,7 +489,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">RM</emph><persname><emph altrender="surname">Hillyard</emph><emph altrender="forenames">Ernest Percy</emph></persname><emph altrender="num">21311</emph><emph altrender="division">Royal Marine Light Infantry: Plymouth Division</emph><emph altrender="date2">01 October 1918</emph><emph altrender="dob">09 October 1900</emph>'
         schema = "RoyalMarines"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Hillyard, Ernest Percy</dd>
 <dt>Register number</dt>
@@ -509,7 +509,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">S</emph><persname><emph altrender="surname">Hillyard</emph><emph altrender="forenames">William Henry</emph></persname><emph altrender="dischargeno">R166522</emph><emph altrender="dob">01 September 1919</emph>'
         schema = "SeamenMedal"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Hillyard, William Henry</dd>
 <dt>Discharge number</dt>
@@ -525,7 +525,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">R</emph><persname><emph altrender="surname">Hillyard</emph> <emph altrender="forenames">Ernest Edward</emph></persname><emph altrender="num">K46763</emph><geogname>Luton, Bedfordshire</geogname><emph altrender="dob">24 August 1899</emph>'
         schema = "SeamenRegister"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Hillyard, Ernest Edward</dd>
 <dt>Official number</dt>
@@ -543,7 +543,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">W</emph><persname><emph altrender="surname">Adams</emph> <emph altrender="forenames">George</emph></persname><emph altrender="rank">Armourer</emph><corpname>Blonde</corpname><emph altrender="num">75</emph>'
         schema = "SeamenWill"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Will of </dt>
 <dd>George Adams</dd>
 <dt>Rank/rating</dt>
@@ -561,7 +561,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">SS</emph><emph altrender="name">Ioannis Chandris</emph><emph altrender="name2">Ionion,  Empire Keats</emph><emph altrender="size">7035</emph>'
         schema = "ShippingSeamen"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Ship name</dt>
 <dd>Ioannis Chandris</dd>
 <dt>Former ship name</dt>
@@ -577,7 +577,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">SQ</emph><emph altrender="num">292</emph><emph altrender="append">Y</emph><emph altrender="comments">Diary  </emph>'
         schema = "Squadron"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Squadron number</dt>
 <dd>292</dd>
 <dt>Appendices</dt>
@@ -593,7 +593,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">TC</emph><persname><emph altrender="surname">Buckley</emph><emph altrender="forenames">Kath</emph></persname><emph altrender="scope">Female aged 20. Travelling Third class. Occupation: Spinster.</emph>'
         schema = "Titanic"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Buckley, Kath</dd>
 <dt>Content</dt>
@@ -607,7 +607,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">V</emph><persname><emph altrender="surname">Buckley</emph> <emph altrender="forenames">Cecil William</emph></persname><emph altrender="rank">Lieutenant</emph><corpname>Royal Navy</corpname><emph altrender="date">29 May 1855</emph><emph altrender="campaign">Crimea</emph><geogname>Genitichi, Tanganrog</geogname>'
         schema = "VictoriaCross"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Buckley, Cecil William</dd>
 <dt>Rank</dt>
@@ -629,7 +629,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">RV</emph><persname><emph altrender="surname">Hillyard</emph><emph altrender="forenames">William Stanley</emph></persname><emph altrender="num">Z/8171</emph><emph altrender="division">Bristol</emph><emph altrender="dob">28 November 1900</emph>'
         schema = "VolunteerReserve"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Hillyard, William Stanley</dd>
 <dt>Service number</dt>
@@ -656,7 +656,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">WA</emph><persname><emph altrender="forenames">Sarah Ann nee Phillips</emph><emph altrender="surname">Aaron</emph></persname><geogname>High Street Cefn Mawr, North Wales</geogname><emph altrender="dob">22 August 1894</emph>'
         schema = "WomensCorps"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Aaron, Sarah Ann nee Phillips</dd>
 <dt>Place of birth</dt>
@@ -672,7 +672,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">WR</emph><persname><emph altrender="surname">Kingham</emph> <emph altrender="forenames">Gwendoline</emph></persname><emph altrender="rank">Motordriver</emph><emph altrender="num">G1</emph><emph altrender="date">21 January 1918</emph>'
         schema = "Wrns"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Kingham, Gwendoline</dd>
 <dt>Rating</dt>
@@ -715,7 +715,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<scopecontent>\r\n\t<p>Name: <persname><emph altrender="forenames">Lewis Martin </emph>\r\n\t\t\t<emph altrender="surname">Wibmer</emph></persname>. </p>\r\n\t<p>Rank: <emph altrender="rank">Commander</emph>. </p>\r\n\t<p>Date of Seniority: 07 March 1904. </p>\r\n\t<p>Date of Birth: [not given]. </p>\r\n\t<p>Place of Birth: [not given]. </p>\r\n</scopecontent>'
         series = "ADM 240"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Wibmer, Lewis Martin </dd>
 <dt>Rank</dt>
@@ -735,7 +735,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<scopecontent>\r\n\t<p>Name: <persname>Matilda Avranches (de Abrinco), wife of Robert son of King Henry</persname></p>\r\n\t<p>Places: Property in <geogname>Alphington, Devon / Aylesbeare, Devon</geogname>. </p>\r\n\t<p>Document Note: <emph altrender="docnote">The date is from internal evidence: G.E.C., Complete peerage, iv.317; xi.app.106n, 109n.</emph>\r\n\t</p>\r\n\t<p>Seal Design: <emph altrender="sealdesign">Design: includes woman standing full face with a chain (?plait) on the left, Size: 27 x 35 mm, Shape: unknown shape, Colour: uncoloured, Legend: if any lost, Personal</emph>. </p>\r\n\t<p>Material: <emph altrender="material">Wax</emph>. </p>\r\n\t<p>Attachment: <emph altrender="attachment">On tongue</emph>. </p>\r\n\t<p>Seal Note: <emph altrender="sealnote">No name on seal. Impression: fair. Condition: fragment</emph>. </p>\r\n</scopecontent>'
         series = "DL 25"
         self.assertEqual(
-            """<dl class="tna-dl tna-dl--plain tna-dl--dotted">
+            """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Matilda Avranches (de Abrinco), wife of Robert son of King Henry</dd>
 <dt>Places: Property in </dt>
