@@ -602,7 +602,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             if param.endswith(date_input_param_suffixes):
                 input_params.discard(param)  # remove date part params
                 input_params.add(
-                    param.rsplit("-", 1)[0]
+                    param.rsplit(DATE_YMD_SEPARATOR, 1)[0]
                 )  # add base date field param
 
         for param in input_params:
