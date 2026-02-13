@@ -77,3 +77,8 @@ class CatalogueSearchViewInvalidViewTests(TestCase):
         self.assertIn(
             """<input type="hidden" name="group" value="INVALID">""", html
         )
+
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )

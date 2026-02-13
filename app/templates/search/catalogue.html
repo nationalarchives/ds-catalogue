@@ -21,6 +21,7 @@
 {% from 'search/macros/filters/online.html' import online %}
 {% from 'search/macros/search_results.html' import search_results %}
 {% from 'search/macros/filters/checkboxes_with_submit.html' import checkboxes_with_submit %}
+{% from 'search/macros/filters_not_applied_banner.html' import filters_not_applied_banner %}
 
 {%- set pageTitle = 'Catalogue search results' -%}
 {%- set encodedQuery = request.GET.urlencode() | base64_encode -%}
@@ -270,6 +271,7 @@
       </div>
     </div>
     <h2 class="tna-visually-hidden">Results</h2>
+    {{ filters_not_applied_banner() if show_banner_for_filters_not_applied }}
     {{ search_results(request, display_options, form.fields.display.value, results, encodedQuery) }}
   </div>
   <div class="tna-column tna-column--full tna-!--margin-top-l">
@@ -280,6 +282,7 @@
   </div>
   {% else %}
   <div class="tna-column tna-column--width-3-4 tna-column--width-2-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-l">
+    {{ filters_not_applied_banner() if show_banner_for_filters_not_applied }}
     <h2 class="tna-heading-xl">No results found</h2>
     <p>No results were found for your query.</p>
     <p>Try widening your search.</p>

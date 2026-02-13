@@ -150,6 +150,10 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
 
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(held_by_field.is_visible)
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )
 
     @responses.activate
     def test_catalogue_search_context_for_held_by_does_not_exist(
