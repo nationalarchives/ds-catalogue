@@ -8,7 +8,9 @@ from django.utils.text import slugify
 logger = logging.getLogger(__name__)
 
 
-def record_details_by_id(id: str, params: dict = {}, timeout=None) -> Record:
+def record_details_by_id(
+    id: str, params: dict | None = None, timeout=None
+) -> Record:
     """
     Fetches a record by its ID from the Rosetta API.
 
@@ -27,6 +29,8 @@ def record_details_by_id(id: str, params: dict = {}, timeout=None) -> Record:
         The errors are handled by a custom middleware in the app.
     """
     uri = "get"
+    if params is None:
+        params = {}
     params.update({"id": id})
     results = rosetta_request_handler(uri, params, timeout=timeout)
     if "data" not in results:
