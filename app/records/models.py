@@ -5,10 +5,10 @@ from typing import Any
 
 import sentry_sdk
 from app.lib.xslt_transformations import (
+    apply_archon_xsl,
     apply_schema_xsl,
     apply_series_xsl,
     has_series_xsl,
-    xsl_transformation,
 )
 from app.records.constants import (
     NON_TNA_LEVELS,
@@ -368,17 +368,17 @@ class Record(APIModel):
 
     @cached_property
     def description(self) -> str:
-        """Returns the api value of the attr if found, empty str otherwise.
-        Applies series-specific or schema-based XSLT transformation as needed.
+        """Returns the transformed api value of the attr if found, empty str otherwise.
+        Applies series-specific, schema-based, archon-based XSLT transformation as needed.
         """
 
         # Use raw_description as the base description
         description = self.raw_description
 
         if self.custom_record_type == RecordTypes.ARCHON:
-            # For ARCHON records, apply a specific XSLT transformation
+            # For ARCHON records, apply archon-specific transformation
             # regardless of series or schema
-            return xsl_transformation(description, "Archon.xsl")
+            return apply_archon_xsl(description)
 
         # Apply series-specific transformation if applicable first
         series = self.hierarchy_series
@@ -554,3 +554,12 @@ class Record(APIModel):
     def has_subjects_enrichment(self) -> bool:
         """Check if this record has enrichment data available."""
         return bool(self.subjects_enrichment)
+
+    @cached_property
+    def place_description(self) -> str:
+        """Returns the transformed api value of the attr if found, empty str otherwise.
+        Field appears in ARCHON records."""
+
+        if raw_description := self.get("placeDescription.raw", ""):
+            return apply_archon_xsl(raw_description)
+        return ""
