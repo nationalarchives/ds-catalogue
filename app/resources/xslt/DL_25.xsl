@@ -3,13 +3,13 @@
   <xsl:output method="html"/>
   <!-- MATCH FOR MONGO DATA -->
   <xsl:template match="scopecontent">
-    <dl class="tna-dl tna-dl--plain tna-dl--dotted">
+    <dl class="tna-dl tna-dl--lined tna-dl--dotted">
       <xsl:apply-templates select="p"/>
     </dl>
   </xsl:template>
   <!-- MATCH FOR ROSETTA DATA -->
   <xsl:template match="span[@class='scopecontent']">
-    <dl class="tna-dl tna-dl--plain tna-dl--dotted">
+    <dl class="tna-dl tna-dl--lined tna-dl--dotted">
       <xsl:apply-templates select="p"/>
     </dl>
   </xsl:template>

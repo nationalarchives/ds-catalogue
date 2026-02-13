@@ -49,14 +49,12 @@
     <link rel="stylesheet" href="{{ static('font-awesome.css') ~ '?v=' ~ app_config.BUILD_VERSION }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400..700&family=Roboto+Mono:wght@400..500&display=swap" media="screen,print">
     <link rel="stylesheet" href="{{ static('ie.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="all and (-ms-high-contrast: none), (-ms-high-contrast: active)">
-
 {% endblock stylesheets %}
 
 {% block cookies %}
 {% if 'cookie_preferences_set' not in request.COOKIES %}
 {{ tnaCookieBanner({
   'serviceName': 'The National Archives',
-  'cookiesUrl_': url('main:cookies'),
   'cookiesUrl': 'https://www.nationalarchives.gov.uk/cookies/',
   'preferencesSetKey': 'dontShowCookieNotice'
 }) | indent(6) }}
@@ -64,16 +62,14 @@
 {% endblock cookies %}
 
 {% block header %}
-{% if feature.PHASE_BANNER %}
-{{ tnaPhaseBanner({
-  'phase': 'Beta',
-  'message': "This is a new way to search our records, which we're still working on. Alternatively you can search our existing catalogue, <a href='https://discovery.nationalarchives.gov.uk/'>Discovery.</a>",
-  'classes': 'tna-background-contrast'
-}) | indent(6) }}
-{% endif %}
 {{ tnaGlobalHeader({
   'defaultContent': True,
-  'defaultContentBaseURL': 'https://www.nationalarchives.gov.uk'
+  'defaultContentBaseURL': 'https://www.nationalarchives.gov.uk',
+  'phaseBanner': {
+    'phase': 'Beta',
+    'message': 'This is a new way to search our records, which we’re still working on. Alternatively you can search our existing catalogue, <a href="https://discovery.nationalarchives.gov.uk/">Discovery</a>.',
+    'classes': 'tna-background-contrast'
+  } if feature.PHASE_BANNER else None
 }) | indent(6) }}
 {% endblock header %}
 

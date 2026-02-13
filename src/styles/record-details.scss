@@ -70,40 +70,7 @@
   box-sizing: border-box;
 }
 
-.tna-dl--dotted {
-  @include colour.colour-border("keyline", 1px, solid, bottom);
-
-  > dt,
-  > dd {
-    padding-top: spacing.space(0.5);
-    padding-bottom: spacing.space(0.5);
-
-    background-color: transparent !important;
-
-    @include colour.colour-border("keyline", 1px, solid, top);
-  }
-
-  & & {
-    border-bottom: none;
-
-    // @include typography.font-size(16);
-
-    > dt,
-    > dd {
-      &:first-of-type {
-        padding-top: 0;
-        border-top: none;
-      }
-    }
-
-    > dt:last-of-type {
-      &,
-      & ~ dd:last-child {
-        padding-bottom: 0;
-      }
-    }
-  }
-
+.record-details {
   .tna-table {
     margin-top: spacing.space(0.5);
     margin-bottom: spacing.space(1);
@@ -115,14 +82,6 @@
     }
   }
 
-  @include media.on-tiny {
-    > dd {
-      border-top: none;
-    }
-  }
-}
-
-.record-details {
   &__label {
     position: sticky;
     top: spacing.space(0.5);
@@ -150,6 +109,11 @@
     @include typography.detail-font-small;
     text-transform: none;
     @include colour.colour-font("font-light");
+
+    @include media.on-mobile {
+      padding-top: 0;
+      padding-bottom: spacing.space(0.5);
+    }
   }
 
   ul,
