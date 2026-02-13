@@ -48,7 +48,7 @@ def _build_search_params(
     # Add from only when results_per_page > 0,
     # for long filters with size=0, its not required
     if results_per_page > 0:
-        params["from"] = ((page - 1) * results_per_page,)
+        params["from"] = (page - 1) * results_per_page
 
     # remove params having empty values, for long filters size=0 is valid
     return {
