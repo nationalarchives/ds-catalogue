@@ -71,6 +71,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.subjects, [])
         self.assertEqual(self.record.subjects_enrichment, {})
         self.assertEqual(self.record.has_subjects_enrichment, False)
+        self.assertEqual(self.record.place_description, "")
 
     def test_id(self):
 
@@ -107,6 +108,12 @@ class RecordModelTests(SimpleTestCase):
         # patch raw data
         self.record._raw["source"] = "CAT"
         self.assertEqual(self.record.custom_record_type, "CAT")
+
+    def test_custom_record_type_for_archon(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["source"] = "ARCHON"
+        self.assertEqual(self.record.custom_record_type, "ARCHON")
 
     def test_reference_number(self):
         self.record = Record(self.template_details)
@@ -1168,6 +1175,17 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(
             second_result, ["Test subject"]
         )  # Original value, not modified
+
+    def test_place_description(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["placeDescription"] = {
+            "raw": "Place description for Archon record without XML tags"
+        }
+        self.assertEqual(
+            self.record.place_description,
+            "Place description for Archon record without XML tags",
+        )
 
 
 class CleanTitleOrCleanSummaryTitleTests(SimpleTestCase):
