@@ -136,3 +136,8 @@ class CatalogueSearchViewQueryParamTests(TestCase):
         )
         self.assertFalse(form.fields[FieldsConstant.OPENING_DATE_TO].is_visible)
         self.assertFalse(form.fields[FieldsConstant.CLOSURE].is_visible)
+
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )
