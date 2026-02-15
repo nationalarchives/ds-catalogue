@@ -1,0 +1,249 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/catalogue/landing/"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "global_alert": null,
+      "mourning_notice": null,
+      "explore_the_collection": {
+        "top_pages": [
+          {
+            "id": 53,
+            "title": "Explore by topic",
+            "short_title": null,
+            "page_path": "/explore-the-collection/explore-by-topic/",
+            "url": "https://www.nationalarchives.gov.uk/explore-the-collection/explore-by-topic/",
+            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/explore-by-topic/",
+            "type": "collections.TopicExplorerIndexPage",
+            "type_label": null,
+            "teaser_text": "Our collection shines a light on many aspects of life, from the stories of states to different people's experiences. Browse these topics for just a taste.",
+            "teaser_image": {
+              "id": 1261,
+              "jpeg": {
+                "url": "/media/images/hg-nhs-nursing-recru_ErAvk7A.2bf8584e.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/hg-nhs-nursing-recru_ErAvk7A.2bf8584e.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "width": 600,
+                "height": 400
+              },
+              "webp": {
+                "url": "/media/images/hg-nhs-nursing-recr_bkp7Cva.2bf8584e.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/hg-nhs-nursing-recr_bkp7Cva.2bf8584e.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "width": 600,
+                "height": 400
+              }
+            },
+            "first_published_at": "2021-07-13T13:05:42.402902Z",
+            "last_published_at": "2025-08-21T10:35:00.079644Z"
+          },
+          {
+            "id": 54,
+            "title": "Explore by time period",
+            "short_title": null,
+            "page_path": "/explore-the-collection/explore-by-time-period/",
+            "url": "https://www.nationalarchives.gov.uk/explore-the-collection/explore-by-time-period/",
+            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/explore-by-time-period/",
+            "type": "collections.TimePeriodExplorerIndexPage",
+            "type_label": null,
+            "teaser_text": "More than a thousand years of human history live on in the records we care for. Browse collection highlights by the time periods they come from.",
+            "teaser_image": {
+              "id": 961,
+              "jpeg": {
+                "url": "/media/images/hg-domesday-abbrev_sPCS0hF.d3c32e09.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/hg-domesday-abbrev_sPCS0hF.d3c32e09.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "width": 600,
+                "height": 400
+              },
+              "webp": {
+                "url": "/media/images/hg-domesday-abbre.d3c32e09.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/hg-domesday-abbre.d3c32e09.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "width": 600,
+                "height": 400
+              }
+            },
+            "first_published_at": "2021-07-13T13:14:04.264523Z",
+            "last_published_at": "2025-08-21T10:33:32.060702Z"
+          },
+          {
+            "id": 55,
+            "title": "Stories from the collection",
+            "short_title": null,
+            "page_path": "/explore-the-collection/stories/",
+            "url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/",
+            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/",
+            "type": "articles.ArticleIndexPage",
+            "type_label": null,
+            "teaser_text": "Discover the human stories behind the collection. Learn about the people, places and events featured in our records.",
+            "teaser_image": {
+              "id": 890,
+              "jpeg": {
+                "url": "/media/images/Emmeline-pankhurst-h_6zcDbjc.23b1d58d.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/Emmeline-pankhurst-h_6zcDbjc.23b1d58d.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "width": 600,
+                "height": 400
+              },
+              "webp": {
+                "url": "/media/images/Emmeline-pankhurst-.23b1d58d.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/Emmeline-pankhurst-.23b1d58d.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "width": 600,
+                "height": 400
+              }
+            },
+            "first_published_at": "2021-07-15T13:02:45.727000Z",
+            "last_published_at": "2026-01-05T15:37:12.343894Z"
+          },
+          {
+            "id": 458,
+            "title": "On the Record Podcast",
+            "short_title": null,
+            "page_path": "/explore-the-collection/on-the-record-podcast/",
+            "url": "https://www.nationalarchives.gov.uk/explore-the-collection/on-the-record-podcast/",
+            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/on-the-record-podcast/",
+            "type": "blog.BlogPage",
+            "type_label": null,
+            "teaser_text": "The National Archives presents On the Record, a podcast that unearths the real life stories found in our vast collections.",
+            "teaser_image": {
+              "id": 2393,
+              "jpeg": {
+                "url": "/media/images/On_the_Record_VE_Day_.90141c71.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/On_the_Record_VE_Day_.90141c71.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "width": 600,
+                "height": 400
+              },
+              "webp": {
+                "url": "/media/images/On_the_Record_VE_Day.90141c71.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/On_the_Record_VE_Day.90141c71.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "width": 600,
+                "height": 400
+              }
+            },
+            "first_published_at": "2025-07-04T14:08:53.473662Z",
+            "last_published_at": "2025-10-08T09:48:37.812459Z"
+          },
+          {
+            "id": 420,
+            "title": "The collection blog",
+            "short_title": null,
+            "page_path": "/explore-the-collection/the-collection-blog/",
+            "url": "https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/",
+            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/",
+            "type": "blog.BlogPage",
+            "type_label": null,
+            "teaser_text": "Learn how the stories hidden in our documents are uncovered by our experts. Find out how we care for our records, and get tips for your own research.",
+            "teaser_image": {
+              "id": 2398,
+              "jpeg": {
+                "url": "/media/images/visitor-using-catal.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/visitor-using-catal.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "width": 600,
+                "height": 400
+              },
+              "webp": {
+                "url": "/media/images/visitor-using-cata.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/visitor-using-cata.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "width": 600,
+                "height": 400
+              }
+            },
+            "first_published_at": "2025-04-30T13:51:56.776401Z",
+            "last_published_at": "2025-08-21T10:37:49.494051Z"
+          }
+        ],
+        "latest_articles": [
+          {
+            "id": 956,
+            "title": "The birth of the travel guide",
+            "short_title": null,
+            "page_path": "/explore-the-collection/stories/the-birth-of-the-travel-guide/",
+            "url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/the-birth-of-the-travel-guide/",
+            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/the-birth-of-the-travel-guide/",
+            "type": "articles.FocusedArticlePage",
+            "type_label": "Focus on",
+            "teaser_text": "In the 19th century travel evolved from an aristocratic privilege to middle-class reality. Explore how rail guides made this possible.",
+            "teaser_image": {
+              "id": 3257,
+              "jpeg": {
+                "url": "/media/images/two-travel-g.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/two-travel-g.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "width": 600,
+                "height": 400
+              },
+              "webp": {
+                "url": "/media/images/two-travel-.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/two-travel-.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "width": 600,
+                "height": 400
+              }
+            },
+            "first_published_at": "2026-01-27T10:48:01.728408Z",
+            "last_published_at": "2026-01-27T13:20:31.478401Z",
+            "is_newly_published": true
+          },
+          {
+            "id": 951,
+            "title": "Elizabeth I and Robert Dudley, Earl of Leicester",
+            "short_title": null,
+            "page_path": "/explore-the-collection/stories/elizabeth-i-and-robert-dudley-earl-of-leicester/",
+            "url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/elizabeth-i-and-robert-dudley-earl-of-leicester/",
+            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/elizabeth-i-and-robert-dudley-earl-of-leicester/",
+            "type": "articles.ArticlePage",
+            "type_label": "The story of",
+            "teaser_text": "The enduring love shared by Elizabeth I (1533\u20131603) and Robert Dudley (1542\u20131588) helps to explain why Elizabeth never married.",
+            "teaser_image": {
+              "id": 3248,
+              "jpeg": {
+                "url": "/media/images/robert-dudley-t.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/robert-dudley-t.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "width": 600,
+                "height": 400
+              },
+              "webp": {
+                "url": "/media/images/robert-dudley-.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/robert-dudley-.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "width": 600,
+                "height": 400
+              }
+            },
+            "first_published_at": "2026-01-23T11:21:24.525000Z",
+            "last_published_at": "2026-01-26T17:53:34.635227Z",
+            "is_newly_published": true
+          },
+          {
+            "id": 889,
+            "title": "Queer classified adverts and love letters in the 1920s",
+            "short_title": null,
+            "page_path": "/explore-the-collection/stories/queer-classified-adverts-and-love-letters-in-the-1920s/",
+            "url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/queer-classified-adverts-and-love-letters-in-the-1920s/",
+            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/queer-classified-adverts-and-love-letters-in-the-1920s/",
+            "type": "articles.FocusedArticlePage",
+            "type_label": "Focus on",
+            "teaser_text": "In an era when the law criminalised your love, how was it possible to meet members of the same sex and communicate?",
+            "teaser_image": {
+              "id": 3128,
+              "jpeg": {
+                "url": "/media/images/front_cover_the_link.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/front_cover_the_link.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "width": 600,
+                "height": 400
+              },
+              "webp": {
+                "url": "/media/images/front_cover_the_lin.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "full_url": "https://www.nationalarchives.gov.uk/media/images/front_cover_the_lin.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "width": 600,
+                "height": 400
+              }
+            },
+            "first_published_at": "2026-01-06T11:57:44.993355Z",
+            "last_published_at": "2026-01-09T09:15:01.750872Z",
+            "is_newly_published": false
+          }
+        ]
+      }
+    }
+  }
+}
