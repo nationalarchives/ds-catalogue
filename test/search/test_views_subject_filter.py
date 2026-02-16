@@ -122,6 +122,11 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(subject_field.is_visible)
 
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )
+
     @responses.activate
     def test_catalogue_search_context_with_invalid_subjects_params(self):
         """Test behavior with invalid subject IDs."""
@@ -232,6 +237,11 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(subject_field.is_visible)
 
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )
+
     @responses.activate
     def test_catalogue_search_context_without_subjects_params(self):
         """Test that subjects field works correctly when no subjects are selected."""
@@ -312,6 +322,11 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(subject_field.is_visible)
 
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )
+
     @responses.activate
     def test_catalogue_search_context_with_subjects_param(self):
         """Test that subjects parameters are processed correctly."""
@@ -371,3 +386,8 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
 
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(subject_field.is_visible)
+
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )

@@ -5,6 +5,7 @@ from typing import Any
 
 from app.errors import views as errors_view
 from app.lib.api import ResourceNotFound
+from app.lib.constants import DATE_YMD_SEPARATOR
 from app.lib.fields import (
     CharField,
     ChoiceField,
@@ -32,6 +33,7 @@ from .buckets import (
 from .constants import (
     DATE_DISPLAY_FORMAT,
     FILTER_DATATYPE_RECORD,
+    FILTER_FIELDS,
     PAGE_LIMIT,
     RESULTS_PER_PAGE,
     Display,
@@ -557,6 +559,10 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
     def get_context_data(self, **kwargs):
         context: dict = super().get_context_data(**kwargs)
 
+        context["show_banner_for_filters_not_applied"] = (
+            self._show_banner_for_filters_not_applied()
+        )
+
         # add more filter options context if applicable
         if filter_context := self._get_context_data_for_more_filter_options():
             context.update(filter_context)
@@ -578,6 +584,35 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         # call to set filter fields visibility after context is set
         self._set_filters_visible_attr(context)
         return context
+
+    def _show_banner_for_filters_not_applied(self) -> bool:
+        """Returns True if there are any input params that are not valid filter fields.
+        Used in template to show banner to inform user that some filters were not applied.
+        """
+
+        input_params = set(self.request.GET.keys())
+
+        # normalize input params to check against form fields - date fields
+        date_input_param_suffixes = (
+            f"{DATE_YMD_SEPARATOR}{DateKeys.YEAR}",
+            f"{DATE_YMD_SEPARATOR}{DateKeys.MONTH}",
+            f"{DATE_YMD_SEPARATOR}{DateKeys.DAY}",
+        )
+        for param in list(input_params):
+            if param.endswith(date_input_param_suffixes):
+                input_params.discard(param)  # remove date part params
+                input_params.add(
+                    param.rsplit(DATE_YMD_SEPARATOR, 1)[0]
+                )  # add base date field param
+
+        for param in input_params:
+            # check if param is a filter field
+            if param in FILTER_FIELDS:
+                # check if param is not in form fields
+                if param not in self.form.fields:
+                    return True
+
+        return False
 
     def _get_context_data_for_more_filter_options(self) -> dict:
         """Returns context data for more filter choices page.

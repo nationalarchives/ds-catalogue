@@ -80,6 +80,11 @@ class CatalogueSearchViewOnlineFilterTests(TestCase):
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(online_field.is_visible)
 
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )
+
     def test_search_with_invalid_input(self):
         """Test filter with invalid param value."""
 
@@ -121,4 +126,9 @@ class CatalogueSearchViewOnlineFilterTests(TestCase):
         )
         self.assertFalse(
             form.fields.get(FieldsConstant.OPENING_DATE_TO).is_visible
+        )
+
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
         )
