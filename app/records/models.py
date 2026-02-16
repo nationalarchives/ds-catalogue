@@ -360,7 +360,8 @@ class Record(APIModel):
     @cached_property
     def clean_description(self) -> str:
         """Returns value for cleanDescription if found, empty str otherwise.
-        cleanDescription contains HTML markup for highlighting search terms."""
+        cleanDescription contains HTML markup for highlighting search terms.
+        This fild usually comes from the search API response."""
         return self.get("cleanDescription", "")
 
     @cached_property
