@@ -360,8 +360,7 @@ class Record(APIModel):
     @cached_property
     def clean_description(self) -> str:
         """Returns value for cleanDescription if found, empty str otherwise."""
-        if clean_description := self.get("cleanDescription", ""):
-            return clean_description
+        return self.get("cleanDescription", "")
 
     @cached_property
     def no_html_description(self) -> str:

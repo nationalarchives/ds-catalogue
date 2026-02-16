@@ -58,7 +58,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.publication_note, [])
         self.assertEqual(self.record.related_materials, ())
         self.assertEqual(self.record.description, "")
-        self.assertEqual(self.record.clean_description, None)
+        self.assertEqual(self.record.clean_description, "")
         self.assertEqual(self.record.no_html_description, "")
         self.assertEqual(self.record.separated_materials, ())
         self.assertEqual(self.record.unpublished_finding_aids, [])
