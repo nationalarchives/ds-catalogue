@@ -734,6 +734,7 @@ class RecordModelTests(SimpleTestCase):
     def test_clean_description(self):
         self.record = Record(self.template_details)
         # patch raw data
+        # cleanDescription contains HTML markup for highlighting search terms
         self.record._raw["cleanDescription"] = (
             "Appellant: <mark>Florence</mark> Emily <mark>Fenn</mark>. Respondent: Ernest William <mark>Fenn</mark>. Type: Wife's petition for divorce [wd]. "
         )
