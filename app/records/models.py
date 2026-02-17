@@ -20,7 +20,7 @@ from app.records.utils import (
     extract,
     format_link,
 )
-from config.jinja2 import format_number
+from config.jinja import format_number
 from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
 from lxml import etree
