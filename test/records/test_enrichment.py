@@ -248,12 +248,12 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_executor = Mock()
         mock_executor_class.return_value.__enter__.return_value = mock_executor
 
-        # Track the fetch_subjects method by id
-        subjects_method_id = id(helper._fetch_subjects)
+        # Track the fetch_subjects method by name instead of id
+        subjects_method_name = helper._fetch_subjects.__name__
 
         # Make submit raise RuntimeError for subjects only
         def submit_side_effect(fn, *args, **kwargs):
-            if id(fn) == subjects_method_id:
+            if getattr(fn, "__name__", None) == subjects_method_name:
                 raise RuntimeError("Executor shutdown")
             # For other functions, return a mock future
             mock_future = Mock()
