@@ -74,7 +74,7 @@ def _validate_search_results(results, page):
         2. when search api is queried other than "q" e.g. "collection",
         "level", "held_by", etc. results in no matches.
         In both cases, "buckets" cound have counts or not.
-        Buckets counts depend on the "q" param.
+        Bucket counts depend on the "q" param.
         """
         if not _has_config_bucket_entries(results["buckets"]):
             raise ResourceNotFound("No results found")
