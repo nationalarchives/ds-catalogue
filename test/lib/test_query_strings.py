@@ -1,6 +1,6 @@
 import unittest
 
-from config.jinja2 import (
+from config.jinja import (
     qs_append_value,
     qs_is_value_active,
     qs_remove_value,

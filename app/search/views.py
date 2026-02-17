@@ -18,7 +18,7 @@ from app.lib.pagination import pagination_object
 from app.main.global_alert import fetch_global_alert_api_data
 from app.records.constants import TNA_LEVELS
 from app.search.api import search_records
-from config.jinja2 import qs_remove_value, qs_replace_value, qs_toggle_value
+from config.jinja import qs_remove_value, qs_replace_value, qs_toggle_value
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.views.generic import TemplateView

@@ -166,7 +166,7 @@ class CatalogueSearchViewDefaultTests(TestCase):
             FieldsConstant.OPENING_DATE_TO,
         ]
         tna_form_field_names = set(form.fields.keys())
-        self.assertTrue(set(tna_field_names) == set(tna_form_field_names))
+        self.assertSetEqual(set(tna_field_names), set(tna_form_field_names))
 
         # ### form fields ###
 

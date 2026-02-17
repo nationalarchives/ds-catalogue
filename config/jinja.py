@@ -5,8 +5,11 @@ import re
 from datetime import datetime
 from urllib.parse import unquote
 
+from app.lib.constants import DATE_YMD_SEPARATOR
+from app.lib.fields import DateKeys
 from app.lib.xslt_transformations import apply_generic_xsl
 from app.records.utils import change_discovery_record_details_links
+from app.search.constants import FieldsConstant
 from django.conf import settings
 from django.http import QueryDict
 from django.templatetags.static import static
@@ -65,16 +68,71 @@ def parse_json(s):
 
 def base64_encode(s):
     s = bytes(s, "utf-8")
-    s = base64.b64encode(s)
+    s = base64.urlsafe_b64encode(s)
     return s.decode("utf-8", "ignore")
+
+
+def _allowed_search_qs_keys() -> set[str]:
+    date_fields = {
+        FieldsConstant.COVERING_DATE_FROM,
+        FieldsConstant.COVERING_DATE_TO,
+        FieldsConstant.OPENING_DATE_FROM,
+        FieldsConstant.OPENING_DATE_TO,
+    }
+    allowed = {
+        FieldsConstant.Q,
+        FieldsConstant.GROUP,
+        FieldsConstant.SORT,
+        FieldsConstant.DISPLAY,
+        FieldsConstant.FILTER_LIST,
+        FieldsConstant.LEVEL,
+        FieldsConstant.COLLECTION,
+        FieldsConstant.SUBJECT,
+        FieldsConstant.ONLINE,
+        FieldsConstant.CLOSURE,
+        FieldsConstant.HELD_BY,
+        "page",
+    }
+    for field in date_fields:
+        allowed.add(field)
+        for date_key in DateKeys:
+            allowed.add(f"{field}{DATE_YMD_SEPARATOR}{date_key.value}")
+    return allowed
+
+
+def sanitize_search_qs(encoded: str) -> str:
+    """Decode a base64 search query and rebuild a safe, allowlisted query string."""
+
+    decoded = base64_decode(encoded)
+    if not decoded:
+        return ""
+
+    qs = QueryDict(decoded, mutable=False)
+    if not qs:
+        return ""
+
+    allowed = _allowed_search_qs_keys()
+    cleaned = QueryDict(mutable=True)
+    for key in allowed:
+        values = [value for value in qs.getlist(key) if value != ""]
+        if values:
+            cleaned.setlist(key, values)
+
+    return cleaned.urlencode()
 
 
 def base64_decode(s):
+    if not s:
+        return ""
     try:
-        s = base64.b64decode(s)
+        raw = s.encode("utf-8")
+        padding = (-len(raw)) % 4
+        if padding:
+            raw += b"=" * padding
+        decoded = base64.urlsafe_b64decode(raw)
     except Exception:
-        return s
-    return s.decode("utf-8", "ignore")
+        return ""
+    return decoded.decode("utf-8", "ignore")
 
 
 def now_iso_8601():
@@ -323,6 +381,7 @@ def environment(**options):
             "format_number": format_number,
             "base64_encode": base64_encode,
             "base64_decode": base64_decode,
+            "sanitize_search_qs": sanitize_search_qs,
             "sanitise_record_field": sanitise_record_field,
             "apply_generic_xsl": apply_generic_xsl,
             "parse_json": parse_json,
