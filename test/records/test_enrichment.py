@@ -454,7 +454,7 @@ class TestRecordEnrichmentHelper(TestCase):
             for c in mock_logger.warning.call_args_list
             if "related" in str(c).lower()
         ]
-        self.assertGreaterEqual(len(warning_calls), 0)
+        self.assertGreater(len(warning_calls), 0)
 
     @patch("app.records.enrichment.sentry_sdk")
     def test_process_future_result_calls_sentry_on_timeout(
