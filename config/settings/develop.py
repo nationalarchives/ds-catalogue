@@ -1,9 +1,12 @@
+import logging
 import os
 
 from config.util import strtobool
 
 from .features import *
 from .production import *
+
+logger = logging.getLogger(__name__)
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
@@ -31,4 +34,5 @@ if DEBUG:
             "SHOW_COLLAPSED": True,
         }
     except ImportError:
-        pass
+        message = "Debug toolbar is not installed"
+        logger.warning(message)

@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from sysconfig import get_path
 
@@ -6,6 +7,8 @@ from config.util import get_bool_env, get_int_env, strtobool
 from django.utils.csp import CSP
 
 from .features import *
+
+logger = logging.getLogger(__name__)
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
@@ -138,9 +141,13 @@ try:
             data = json.load(package_json)
             TNA_FRONTEND_VERSION = data["version"] or ""
         except ValueError:
-            pass
+            message = "Invalid JSON in package.json for TNA frontend; skipping version setting."
+            logger.warning(message)
 except FileNotFoundError:
-    pass
+    message = (
+        "package.json for TNA frontend not found; skipping version setting."
+    )
+    logger.warning(message)
 
 
 SECRET_KEY: str = os.environ.get("SECRET_KEY", "")

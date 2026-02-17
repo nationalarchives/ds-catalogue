@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 import re
 from datetime import datetime
 from urllib.parse import unquote
@@ -11,6 +12,8 @@ from django.http import QueryDict
 from django.templatetags.static import static
 from django.urls import reverse
 from jinja2 import Environment
+
+logger = logging.getLogger(__name__)
 
 
 def slugify(s):
@@ -287,9 +290,13 @@ def environment(**options):
                 data = json.load(package_json)
                 TNA_FRONTEND_VERSION = data["version"] or ""
             except ValueError:
-                pass
+                message = "Invalid JSON in package.json for TNA frontend; skipping version setting."
+                logger.warning(message)
     except FileNotFoundError:
-        pass
+        message = (
+            "package.json for TNA frontend not found; skipping version setting."
+        )
+        logger.warning(message)
 
     env.globals.update(
         {
