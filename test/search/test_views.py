@@ -102,6 +102,96 @@ class CatalogueSearchViewDefaultTests(TestCase):
 
         self.assertIsInstance(context_data.get("results"), list)
         self.assertEqual(len(context_data.get("results")), 1)
+
+    @responses.activate
+    def test_catalogue_search_context_with_params(self):
+
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "id": "C654321",
+                                "source": "CAT",
+                            }
+                        }
+                    }
+                ],
+                "aggregations": [
+                    {
+                        "name": "level",
+                        "entries": [
+                            {"value": "Item", "doc_count": 80},
+                            {"value": "Division", "doc_count": 3},
+                        ],
+                    },
+                    {
+                        "name": "collection",
+                        "entries": [
+                            {"value": "BT", "doc_count": 40},
+                            {"value": "WO", "doc_count": 20},
+                        ],
+                    },
+                    {
+                        "name": "closure",
+                        "entries": [
+                            {
+                                "value": "Open Document, Open Description",
+                                "doc_count": 100,
+                            },
+                        ],
+                    },
+                    {
+                        "name": "subject",
+                        "entries": [
+                            {"value": "Army", "doc_count": 10},
+                            {"value": "Navy", "doc_count": 5},
+                        ],
+                    },
+                ],
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "tna", "count": 1},
+                        ],
+                    }
+                ],
+                "stats": {
+                    "total": 100,
+                    "results": 10,
+                },
+            },
+            status=HTTPStatus.OK,
+        )
+
+        response = self.client.get(
+            "/catalogue/search/",
+            {
+                FieldsConstant.Q: "naval records",
+                FieldsConstant.GROUP: "tna",
+                FieldsConstant.SORT: "relevance",
+                FieldsConstant.LEVEL: "Item",
+                FieldsConstant.COLLECTION: "WO",
+                FieldsConstant.CLOSURE: "Open Document, Open Description",
+                FieldsConstant.SUBJECT: "Navy",
+            },
+        )
+        context_data = response.context_data
+        form = context_data.get("form")
+
+        # Ensure the view responds correctly and the form reflects the query params
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertTrue(form.is_bound)
+        self.assertEqual(form.cleaned_data[FieldsConstant.Q], "naval records")
+        self.assertEqual(form.cleaned_data[FieldsConstant.GROUP], "tna")
+        self.assertEqual(form.cleaned_data[FieldsConstant.SORT], "relevance")
+
+        self.assertIsInstance(context_data.get("results"), list)
+        self.assertEqual(len(context_data.get("results")), 1)
         self.assertIsInstance(context_data.get("results")[0], Record)
         self.assertEqual(
             context_data.get("stats"),
