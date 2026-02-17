@@ -1,3 +1,4 @@
+# codeql[py/unused-global-variable]: Django settings are used dynamically by the framework
 import os
 
 from config.util import strtobool

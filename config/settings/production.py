@@ -1,3 +1,4 @@
+# codeql[py/unused-global-variable]: Django settings are used dynamically by the framework
 import json
 import os
 from sysconfig import get_path
