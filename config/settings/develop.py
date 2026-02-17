@@ -5,8 +5,6 @@ from config.util import strtobool
 from .features import *
 from .production import *
 
-logger = logging.getLogger(__name__)
-
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
 DEBUG = strtobool(os.getenv("DEBUG", "False"))
