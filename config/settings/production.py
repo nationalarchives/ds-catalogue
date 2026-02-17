@@ -48,7 +48,7 @@ TEMPLATES = [
         ],
         "APP_DIRS": True,
         "OPTIONS": {
-            "environment": "config.jinja2.environment",
+            "environment": "config.jinja.environment",
         },
     },
     {
