@@ -34,5 +34,5 @@ if DEBUG:
             "SHOW_COLLAPSED": True,
         }
     except ImportError:
-        message = "Debug toolbar is not installed"
-        logger.warning(message)
+        # Debug toolbar is not installed
+        pass
