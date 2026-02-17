@@ -62,7 +62,7 @@ def _validate_search_results(results, page):
     if "data" not in results:
         raise Exception("No data returned")
     if "buckets" not in results:
-        raise Exception("No 'buckets' returned")
+        raise Exception("Search API response missing required 'buckets' field")
 
     if not len(results["data"]) and page == 1:
         """
