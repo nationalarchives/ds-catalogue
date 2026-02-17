@@ -351,7 +351,7 @@ def environment(**options):
                 # Invalid JSON in package.json for TNA frontend; skipping version setting.
                 pass
     except FileNotFoundError:
-        # "package.json for TNA frontend not found; skipping version setting."
+        # package.json for TNA frontend not found; skipping version setting.
         pass
 
     env.globals.update(
