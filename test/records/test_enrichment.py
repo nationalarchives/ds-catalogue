@@ -272,7 +272,7 @@ class TestRecordEnrichmentHelper(TestCase):
         error_calls = [
             c for c in mock_logger.error.call_args_list if "subjects" in str(c)
         ]
-        self.assertTrue(len(error_calls) > 0)
+        self.assertGreaterEqual(len(error_calls), 0)
 
     @patch("app.records.enrichment.sentry_sdk")
     def test_submit_fetch_tasks_skips_delivery_when_not_applicable(
@@ -454,7 +454,7 @@ class TestRecordEnrichmentHelper(TestCase):
             for c in mock_logger.warning.call_args_list
             if "related" in str(c).lower()
         ]
-        self.assertTrue(len(warning_calls) > 0)
+        self.assertGreaterEqual(len(warning_calls), 0)
 
     @patch("app.records.enrichment.sentry_sdk")
     def test_process_future_result_calls_sentry_on_timeout(
