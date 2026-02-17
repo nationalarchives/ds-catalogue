@@ -141,13 +141,11 @@ try:
             data = json.load(package_json)
             TNA_FRONTEND_VERSION = data["version"] or ""
         except ValueError:
-            message = "Invalid JSON in package.json for TNA frontend; skipping version setting."
-            logger.warning(message)
+            # Invalid JSON in package.json for TNA frontend; skipping version setting.
+            pass
 except FileNotFoundError:
-    message = (
-        "package.json for TNA frontend not found; skipping version setting."
-    )
-    logger.warning(message)
+    # package.json for TNA frontend not found; skipping version setting.
+    pass
 
 
 SECRET_KEY: str = os.environ.get("SECRET_KEY", "")
