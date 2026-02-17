@@ -428,6 +428,7 @@ class RecordModelTests(SimpleTestCase):
         )
 
     # TODO: Re-enable this test when archon template is ready
+    # codeql[py/commented-out-code]: commented out until archon template is ready
     # def test_invalid_data_for_held_by_url(self):
     #     self.record = Record(self.template_details)
     #     # patch raw data
