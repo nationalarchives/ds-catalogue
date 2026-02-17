@@ -7,7 +7,7 @@
     <div class="tna-column tna-column--full">
     {% if request.GET.get('search') %}
       <div class="back-link-group tna-!--padding-top-s tna-!--padding-bottom-s">
-        <a href="{{ url('search:catalogue') }}?{{ request.GET.get('search') | base64_decode }}#record-{{ record.id }}" class="tna-back-link">
+        <a href="{{ url('search:catalogue') }}?{{ request.GET.get('search') | sanitize_search_qs }}#record-{{ record.id }}" class="tna-back-link">
           <!-- <i class="fa-solid fa-arrow-left back-link__icon" aria-hidden="true"></i> -->
           <span class="tna-back-link__inner">Back to search results</span>
         </a>
