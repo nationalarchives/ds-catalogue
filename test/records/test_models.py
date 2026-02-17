@@ -1,3 +1,4 @@
+import unittest
 from unittest.mock import patch
 
 from app.records.models import Record
@@ -427,21 +428,20 @@ class RecordModelTests(SimpleTestCase):
             "https://discovery.nationalarchives.gov.uk/details/a/A13530841",
         )
 
-    # TODO: Re-enable this test when archon template is ready
-    # codeql[py/commented-out-code]: commented out until archon template is ready
-    # def test_invalid_data_for_held_by_url(self):
-    #     self.record = Record(self.template_details)
-    #     # patch raw data
-    #     self.record._raw["iaid"] = "C12345"
-    #     self.record._raw["heldById"] = "INVALID"
+    @unittest.skip("TODO: Re-enable this test when archon template is ready")
+    def test_invalid_data_for_held_by_url(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["iaid"] = "C12345"
+        self.record._raw["heldById"] = "INVALID"
 
-    #     with self.assertLogs("app.records.models", level="WARNING") as lc:
-    #         result = self.record.held_by_url
-    #     self.assertEqual(self.record.held_by_url, result)
-    #     self.assertIn(
-    #         "WARNING:app.records.models:held_by_url:Record(C12345):No reverse match for record_details with held_by_id=INVALID",
-    #         lc.output,
-    #     )
+        with self.assertLogs("app.records.models", level="WARNING") as lc:
+            result = self.record.held_by_url
+        self.assertEqual(self.record.held_by_url, result)
+        self.assertIn(
+            "WARNING:app.records.models:held_by_url:Record(C12345):No reverse match for record_details with held_by_id=INVALID",
+            lc.output,
+        )
 
     def test_held_by_count(self):
         self.record = Record(self.template_details)
