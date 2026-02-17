@@ -1,6 +1,5 @@
 import base64
 import json
-import logging
 import re
 from datetime import datetime
 from urllib.parse import unquote
@@ -15,8 +14,6 @@ from django.http import QueryDict
 from django.templatetags.static import static
 from django.urls import reverse
 from jinja2 import Environment
-
-logger = logging.getLogger(__name__)
 
 
 def slugify(s):

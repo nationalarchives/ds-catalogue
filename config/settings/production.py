@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 from sysconfig import get_path
 
@@ -7,8 +6,6 @@ from config.util import get_bool_env, get_int_env, strtobool
 from django.utils.csp import CSP
 
 from .features import *
-
-logger = logging.getLogger(__name__)
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
