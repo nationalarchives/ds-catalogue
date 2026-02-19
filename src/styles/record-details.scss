@@ -202,6 +202,7 @@
 
 .record-hierarchy {
   padding-top: spacing.space(0.75);
+  background:white;
 
   &__count {
     padding-top: spacing.space(0.125);
@@ -266,4 +267,14 @@
   h3 {
     color: black;
   }
+}
+
+.etna-accordion__content {
+  background:white;
+}
+
+.bar-divider{
+  border-bottom:solid 1px rgb(38, 38, 42, 0.25);
+  margin-left:15px;
+  width:99%;
 }
