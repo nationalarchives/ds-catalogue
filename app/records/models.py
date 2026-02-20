@@ -241,13 +241,11 @@ class Record(APIModel):
             # TODO: Temporary link to Discovery until archon template is ready
             return f"https://discovery.nationalarchives.gov.uk/details/a/{self.held_by_id}"
             # TODO: commented out until archon template is ready
-            # codeql[py/commented-out-code]: commented out until archon template is ready
             # try:
             #     return reverse(
             #         "records:details",
             #         kwargs={"id": self.held_by_id},
             #     )
-            # codeql[py/commented-out-code]: commented out until archon template is ready
             # except NoReverseMatch:
             #     # warning for partially valid record
             #     logger.warning(
