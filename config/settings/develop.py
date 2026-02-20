@@ -1,4 +1,4 @@
-# codeql[py/unused-global-variable]: Django settings are used dynamically by the framework
+# codeql[unused-global-variable]: Django settings are used dynamically by the framework
 # This intentionally avoids defining __all__ in settings, as it is a CodeQL anti-pattern
 # to suppress unused-variable warnings in this way. Django settings files typically
 # contain many variables that are accessed dynamically.
