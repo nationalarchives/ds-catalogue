@@ -138,8 +138,10 @@ try:
             data = json.load(package_json)
             TNA_FRONTEND_VERSION = data["version"] or ""
         except ValueError:
+            # Invalid JSON in package.json for TNA frontend; skipping version setting.
             pass
 except FileNotFoundError:
+    # package.json for TNA frontend not found; skipping version setting.
     pass
 
 
