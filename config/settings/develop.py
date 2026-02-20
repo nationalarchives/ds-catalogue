@@ -32,4 +32,5 @@ if DEBUG:
             "SHOW_COLLAPSED": True,
         }
     except ImportError:
+        # Debug toolbar is not installed
         pass
