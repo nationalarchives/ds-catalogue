@@ -248,12 +248,12 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_executor = Mock()
         mock_executor_class.return_value.__enter__.return_value = mock_executor
 
-        # Track the fetch_subjects method by id
-        subjects_method_id = id(helper._fetch_subjects)
+        # Track the fetch_subjects method by name instead of id
+        subjects_method_name = helper._fetch_subjects.__name__
 
         # Make submit raise RuntimeError for subjects only
         def submit_side_effect(fn, *args, **kwargs):
-            if id(fn) == subjects_method_id:
+            if getattr(fn, "__name__", None) == subjects_method_name:
                 raise RuntimeError("Executor shutdown")
             # For other functions, return a mock future
             mock_future = Mock()
@@ -272,7 +272,7 @@ class TestRecordEnrichmentHelper(TestCase):
         error_calls = [
             c for c in mock_logger.error.call_args_list if "subjects" in str(c)
         ]
-        self.assertGreaterEqual(len(error_calls), 0)
+        self.assertGreater(len(error_calls), 0)
 
     @patch("app.records.enrichment.sentry_sdk")
     def test_submit_fetch_tasks_skips_delivery_when_not_applicable(
@@ -454,7 +454,7 @@ class TestRecordEnrichmentHelper(TestCase):
             for c in mock_logger.warning.call_args_list
             if "related" in str(c).lower()
         ]
-        self.assertGreaterEqual(len(warning_calls), 0)
+        self.assertGreater(len(warning_calls), 0)
 
     @patch("app.records.enrichment.sentry_sdk")
     def test_process_future_result_calls_sentry_on_timeout(
