@@ -1,8 +1,7 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% from 'components/breadcrumbs/macro.html' import tnaBreadcrumbs %}
 {% from 'components/button/macro.html' import tnaButton %}
-{% from 'components/card/macro.html' import tnaCard %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 {% from 'components/compound-filters/macro.html' import tnaCompoundFilters %}
 {% from 'components/date-search/macro.html' import tnaDateSearch %}
@@ -22,14 +21,15 @@
 {% from 'search/macros/filters/online.html' import online %}
 {% from 'search/macros/search_results.html' import search_results %}
 {% from 'search/macros/filters/checkboxes_with_submit.html' import checkboxes_with_submit %}
+{% from 'search/macros/filters_not_applied_banner.html' import filters_not_applied_banner %}
 
 {%- set pageTitle = 'Catalogue search results' -%}
 {%- set encodedQuery = request.GET.urlencode() | base64_encode -%}
 
 {% block stylesheets %}
 {{ super() }}
-    <link rel="stylesheet" href="{{ static('catalogue-results.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
-{% endblock %}
+    <link rel="stylesheet" href="{{ static('catalogue-results.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
+{% endblock stylesheets %}
 
 {% block skipLink %}
 {% if results %}
@@ -38,24 +38,23 @@
     'text': 'Skip to results'
   }) }}
 
-
   {{ tnaSkipLink({
     'href': 'skip-from-filters-to-results',
     'text': 'Skip to search filters'
   }) }}
 {% endif %}
 {{ super() }}
-{% endblock %}
+{% endblock skipLink %}
 
 {% block head %}
   {{ super() }}
   {% for property in analytics_data %}
     <meta name="tna_root:{{ property }}" content="{{ analytics_data[property] | none_to_empty_string() }}">
   {% endfor %}
-{% endblock %}
+{% endblock head %}
 
 {% block beforeContent %}
-<div class="tna-background-accent">
+<div class="tna-background-accent-light">
   <div class="tna-container">
     <div class="tna-column tna-column--full">
       {{ tnaBreadcrumbs({
@@ -70,18 +69,18 @@
           }
         ],
         'structuredData': True,
-        'classes': 'tna-!--padding-vertical-s'
+        'classes': 'tna-!--margin-vertical-s'
       }) }}
     </div>
   </div>
 </div>
-{% endblock %}
+{% endblock beforeContent %}
 
 {% block content %}
-<div class="tna-background-accent">
+<div class="tna-background-accent-light">
   {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
 </div>
-<div class="tna-background-accent tna-!--padding-top-s">
+<div class="tna-background-accent-light tna-!--padding-top-s">
   <div class="tna-container">
     <form id="search-form" method="get" class="tna-column tna-column--full">
       {{ tnaSearchField({
@@ -100,19 +99,20 @@
           'small': True
         }) }}
       </div> -->
-      <input type="hidden" name="display" value="{{ request.GET.get('display') or 'list' }}">
+      {# display condition handles invalid group input #}
+      <input type="hidden" name="display" value="{{ form.fields.display.value if form.fields.display else display_options.LIST.value }}">
       <input type="hidden" name="group" value="{{ request.GET.get('group') or bucket_keys.TNA }}">
       {% if form.fields.group.value==bucket_keys.TNA %}
         {# preserve invalid inputs from disappearing when other filters are updated until invalids are removed #}
         {% if form.fields['level'].error %}
-          {% for value in  form.fields['level'].value %}
+          {% for value in form.fields['level'].value %}
             <input type="hidden" name="level" value="{{ value }}">
           {% endfor %}
         {% endif %}
       {% endif %}
     </form>
     <div class="tna-column tna-column-full">
-      <a href="{{ url('main:catalogue') }}">Start new search</a>
+      <a href="{{ url('search:catalogue') }}">Start new search</a>
     </div>
     <div class="tna-column tna-column--full">
       {{ tnaSecondaryNavigation({
@@ -143,7 +143,9 @@
 
     {{ under_development_banner() }}
 
-    <h2 class="tna-heading-l tna-!--margin-top-xs">Filters</h2>
+    {% if filters_visible %}
+      <h2 class="tna-heading-l tna-!--margin-top-xs">Filters</h2>
+    {% endif %}
 
     {# This skip link is revealed on focus, including where a user has landed on it by using the 'Skip to search filters' link #}
     <div class="skip-from-filters-to-results">
@@ -181,18 +183,36 @@
     {% endif %}
 
     {% if form.fields.group.value==bucket_keys.TNA %}
-      {{ online(request) }}
+      {% if form.fields.online.is_visible %}
+        {{ online(request) }}
+      {% endif %}
       {# {{ search_within(request) }} #}
-      {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
-      {{ checkboxes_with_submit(request, form.fields['collection']) }}
-      {{ checkboxes_with_submit(request, form.fields['subject']) }}
-      {{ checkboxes_with_submit(request, form.fields['level']) }}
-      {{ date_input(form.fields.opening_date_from, form.fields.opening_date_to, 'Filter by record opening date') }}
-      {{ checkboxes_with_submit(request, form.fields['closure']) }}
+      {% if form.fields.covering_date_from.is_visible or form.fields.covering_date_to.is_visible %}
+        {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
+      {% endif %}
+      {% if form.fields.collection.is_visible %}
+        {{ checkboxes_with_submit(request, form.fields.collection) }}
+      {% endif %}
+      {% if form.fields.subject.is_visible %}
+        {{ checkboxes_with_submit(request, form.fields.subject) }}
+      {% endif %}
+      {% if form.fields.level.is_visible %}
+        {{ checkboxes_with_submit(request, form.fields.level) }}
+      {% endif %}
+      {% if form.fields.opening_date_from.is_visible or form.fields.opening_date_to.is_visible %}
+        {{ date_input(form.fields.opening_date_from, form.fields.opening_date_to, 'Filter by record opening date') }}
+      {% endif %}
+      {% if form.fields.closure.is_visible %}
+        {{ checkboxes_with_submit(request, form.fields.closure) }}
+      {% endif %}
     {% elif form.fields.group.value==bucket_keys.NON_TNA %}
       {# {{ search_within(request) }} #}
-      {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
-      {{ checkboxes_with_submit(request, form.fields['held_by']) }}
+      {% if form.fields.covering_date_from.is_visible or form.fields.covering_date_to.is_visible %}
+        {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
+      {% endif %}
+      {% if form.fields.held_by.is_visible %}
+        {{ checkboxes_with_submit(request, form.fields.held_by) }}
+      {% endif %}
     {% endif %}
     
     
@@ -237,13 +257,13 @@
         <div class="tna-button-group tna-button-group--small tna-!--no-margin-top">
           {{ tnaButton({
             'text': 'Display as list',
-            'href': '?' + qs_replace_value(request.GET, 'display', 'list'),
+            'href': '?' + qs_replace_value(request.GET, fields_constant.DISPLAY, display_options.LIST.value),
             'icon': 'list',
             'iconOnly': True
           }) }}
           {{ tnaButton({
             'text': 'Display as grid',
-            'href': '?' + qs_replace_value(request.GET, 'display', 'grid'),
+            'href': '?' + qs_replace_value(request.GET, fields_constant.DISPLAY, display_options.GRID.value),
             'icon': 'grip',
             'iconOnly': True
           }) }}
@@ -251,7 +271,8 @@
       </div>
     </div>
     <h2 class="tna-visually-hidden">Results</h2>
-    {{ search_results(request, results, encodedQuery) }}
+    {{ filters_not_applied_banner() if show_banner_for_filters_not_applied }}
+    {{ search_results(request, display_options, form.fields.display.value, results, encodedQuery) }}
   </div>
   <div class="tna-column tna-column--full tna-!--margin-top-l">
     {{ tnaPagination(pagination) }}
@@ -261,6 +282,7 @@
   </div>
   {% else %}
   <div class="tna-column tna-column--width-3-4 tna-column--width-2-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-l">
+    {{ filters_not_applied_banner() if show_banner_for_filters_not_applied }}
     <h2 class="tna-heading-xl">No results found</h2>
     <p>No results were found for your query.</p>
     <p>Try widening your search.</p>
@@ -291,9 +313,9 @@
 </section>  
 
 </div>
-{% endblock %}
+{% endblock content %}
 
 {% block bodyEnd %}
 {{ super() }}
-    <script src="{{ static('catalogue-results.min.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
-{% endblock %}
+    <script src="{{ static('catalogue-results.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+{% endblock bodyEnd %}

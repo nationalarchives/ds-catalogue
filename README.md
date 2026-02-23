@@ -40,17 +40,22 @@ docker compose exec app cp -r /app/node_modules/@nationalarchives/frontend/natio
 
 ### Run tests
 
+Both of these work as an option to run tests:
+
 ```sh
-docker compose exec dev poetry run python manage.py test
+docker compose exec app poetry run pytest --ds=config.settings.test
+docker compose exec app poetry run python manage.py test --settings=config.settings.test
 ```
 
 ### Format and lint code
 
 ```sh
-docker compose exec dev format
+docker compose exec app format
 ```
 
 ## Environment variables
+
+**Caution:** Do not add sensitive environment variables outside the `.env` file.
 
 In addition to the [base Docker image variables](https://github.com/nationalarchives/docker/blob/main/docker/tna-python-django/README.md#environment-variables), this application has support for:
 
@@ -76,17 +81,23 @@ In addition to the [base Docker image variables](https://github.com/nationalarch
 
 See [Sentry's official guide](https://docs.sentry.io/platforms/python/guides/django/) for further information on configuring Sentry for Django projects.
 
-`.env` variables:
+### `.env` variables:
 
-| Variable                   | Purpose                                                                    |
-| -------------------------- | -------------------------------------------------------------------------- |
-| `ROSETTA_API_URL`          | The base API URL for Rosetta, including the `/rosetta/data` path           |
-| `WAGTAIL_API_URL`          | The base API URL for Wagtail                                               |
-| `WAGTAIL_API_TIMEOUT`      | Maximum timeout of Wagtail api (seconds)                                   |
-| `DELIVERY_OPTIONS_API_URL` | Api for Delivery options                                                   |
-| `DCS_PREFIXES`             | Comma separated list of document prefixes for distressing content          |
-| `STAFFIN_IP_ADDRESSES`     | Comma separated list of CIDR format IP addresses identifying staff access  |
-| `ONSITE_IP_ADDRESSES`      | Comma separated list of CIDR format IP addresses identifying onsite access |
-| `MAX_SUBJECTS_PER_RECORD`  | Maximum number of subjects displayed on details screen                     |
+**Note**: Only sensitive values need to go in the `.env` file.
+
+| Variable                         | Purpose                                                                      |
+| -------------------------------- | ---------------------------------------------------------------------------- |
+| `ROSETTA_API_URL`                | The base API URL for Rosetta, including the `/rosetta/data` path             |
+| `WAGTAIL_API_URL`                | The base API URL for Wagtail                                                 |
+| `DELIVERY_OPTIONS_API_URL`       | The base API URL for Delivery options                                        |
+| `WAGTAIL_API_TIMEOUT`            | Maximum timeout of Wagtail api (seconds)                                     |
+| `DELIVERY_OPTIONS_API_TIMEOUT`   | Maximum timeout of Delivery Options api (seconds)                            |
+| `ROSETTA_ENRICHMENT_API_TIMEOUT` | Maximum timeout of Rosetta api (only for data enrichment)                    |
+| `DCS_PREFIXES`                   | Comma separated list of document prefixes for distressing content            |
+| `STAFFIN_IP_ADDRESSES`           | Comma separated list of CIDR format IP addresses identifying staff access    |
+| `ONSITE_IP_ADDRESSES`            | Comma separated list of CIDR format IP addresses identifying onsite access   |
+| `MAX_SUBJECTS_PER_RECORD`        | Maximum number of subjects displayed on details screen                       |
+| `ENABLE_PARALLEL_API_CALLS`      | True = use parallel code for detail page api calls, False for sequential     |
+| `ENRICHMENT_TIMING_ENABLED`      | True = show api call timings in log (works for both sequential and parallel) |
 
 TODO: Find where the IP_ADDRESSES are documented and link to document here

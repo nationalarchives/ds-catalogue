@@ -18,16 +18,12 @@ Including another URLconf
 from urllib.parse import urljoin
 
 from app.errors.views import page_not_found_error_view, server_error_view
-from app.records import converters
 from django.apps import apps
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.http import HttpResponseRedirect
-from django.urls import include, path, re_path, register_converter
-from django.utils.http import url_has_allowed_host_and_scheme
-
-register_converter(converters.IDConverter, "id")
+from django.urls import include, path, re_path
 
 handler404 = "app.errors.views.page_not_found_error_view"
 
@@ -85,9 +81,9 @@ urlpatterns = (
 )
 
 if apps.is_installed("debug_toolbar"):
-    urlpatterns = [
-        path("__debug__/", include("debug_toolbar.urls")),
-    ] + urlpatterns
+    from debug_toolbar.toolbar import debug_toolbar_urls
+
+    urlpatterns = urlpatterns + debug_toolbar_urls()
 
 if settings.DEBUG:
     urlpatterns += [

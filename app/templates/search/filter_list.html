@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% from 'components/breadcrumbs/macro.html' import tnaBreadcrumbs %}
 {% from 'components/button/macro.html' import tnaButton %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
@@ -9,11 +9,11 @@
 
 {% block stylesheets %}
   {{ super() }}
-  <link rel="stylesheet" href="{{ static('catalogue-results.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
-{% endblock %}
+  <link rel="stylesheet" href="{{ static('catalogue-results.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
+{% endblock stylesheets %}
 
 {% block beforeContent %}
-  <div class="tna-background-accent">
+  <div class="tna-background-accent-light">
     <div class="tna-container">
       <div class="tna-column tna-column--full">
         {{ tnaBreadcrumbs({
@@ -32,7 +32,7 @@
             }
           ],
           'structuredData': True,
-          'classes': 'tna-!--padding-vertical-s'
+          'classes': 'tna-!--margin-vertical-s'
         }) }}
       </div>
       <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-s tna-!--margin-bottom-m">
@@ -40,7 +40,7 @@
       </div>
     </div>
   </div>
-{% endblock %}
+{% endblock beforeContent %}
   
 {% block content %}
   <form id="long-filters-form" method="get" action="{{ url('search:catalogue') }}"> 
@@ -108,12 +108,12 @@
     {{ render_hidden_fields(request, form, bucket_keys, mfc_field) }}
   </form>
 
-  <div class="tna-background-accent">
+  <div class="tna-background-accent-light">
     {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
   </div>
-{% endblock %}
+{% endblock content %}
 
 {% block bodyEnd %}
   {{ super() }}
-  <script src="{{ static('catalogue-results.min.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
-{% endblock %}
+  <script src="{{ static('catalogue-results.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+{% endblock bodyEnd %}

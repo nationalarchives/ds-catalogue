@@ -25,7 +25,7 @@ class CoveringDateFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "source": "CAT",
                             }
                         }
@@ -113,15 +113,34 @@ class CoveringDateFilterTests(TestCase):
             [
                 {
                     "label": "Record date from: 01-01-1999",
-                    "href": "?covering_date_to-year=2000&covering_date_to-month=12&covering_date_to-day=31&group=tna&sort=",
+                    "href": "?covering_date_to-year=2000&covering_date_to-month=12&covering_date_to-day=31&group=tna&sort=&display=list",
                     "title": "Remove 01-01-1999 record date from",
                 },
                 {
                     "label": "Record date to: 31-12-2000",
-                    "href": "?covering_date_from-year=1999&covering_date_from-month=01&covering_date_from-day=1&group=tna&sort=",
+                    "href": "?covering_date_from-year=1999&covering_date_from-month=01&covering_date_from-day=1&group=tna&sort=&display=list",
                     "title": "Remove 31-12-2000 record date to",
                 },
             ],
+        )
+
+        self.assertEqual(
+            self.response.context_data.get("filters_visible"), True
+        )
+        self.assertTrue(covering_date_from_field.is_visible)
+        self.assertTrue(covering_date_to_field.is_visible)
+
+        # other fields visibility
+        self.assertTrue(form.fields.get(FieldsConstant.ONLINE).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.COLLECTION).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.LEVEL).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.SUBJECT).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.CLOSURE).is_visible)
+        self.assertTrue(
+            form.fields.get(FieldsConstant.OPENING_DATE_FROM).is_visible
+        )
+        self.assertTrue(
+            form.fields.get(FieldsConstant.OPENING_DATE_TO).is_visible
         )
 
     @responses.activate
@@ -135,7 +154,7 @@ class CoveringDateFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "source": "CAT",
                             }
                         }
@@ -194,16 +213,22 @@ class CoveringDateFilterTests(TestCase):
             [
                 {
                     "label": "Record date from: 01-01-1999",
-                    "href": "?covering_date_to-year=2000&group=tna&sort=",
+                    "href": "?covering_date_to-year=2000&group=tna&sort=&display=list",
                     "title": "Remove 01-01-1999 record date from",
                 },
                 {
                     "label": "Record date to: 31-12-2000",
-                    "href": "?covering_date_from-year=1999&group=tna&sort=",
+                    "href": "?covering_date_from-year=1999&group=tna&sort=&display=list",
                     "title": "Remove 31-12-2000 record date to",
                 },
             ],
         )
+
+        self.assertEqual(
+            self.response.context_data.get("filters_visible"), True
+        )
+        self.assertTrue(covering_date_from_field.is_visible)
+        self.assertTrue(covering_date_to_field.is_visible)
 
 
 class CoveringDateFilterErrorTests(TestCase):
@@ -285,10 +310,29 @@ class CoveringDateFilterErrorTests(TestCase):
             [
                 {
                     "label": "Record date to: 31-12-1999",
-                    "href": "?covering_date_from-year=2000&group=tna&sort=",
+                    "href": "?covering_date_from-year=2000&group=tna&sort=&display=list",
                     "title": "Remove 31-12-1999 record date to",
                 }
             ],
+        )
+
+        self.assertEqual(
+            self.response.context_data.get("filters_visible"), True
+        )
+        self.assertTrue(covering_date_from_field.is_visible)
+        self.assertTrue(covering_date_to_field.is_visible)
+
+        # other fields visibility
+        self.assertFalse(form.fields.get(FieldsConstant.ONLINE).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.COLLECTION).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.LEVEL).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.SUBJECT).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.CLOSURE).is_visible)
+        self.assertFalse(
+            form.fields.get(FieldsConstant.OPENING_DATE_FROM).is_visible
+        )
+        self.assertFalse(
+            form.fields.get(FieldsConstant.OPENING_DATE_TO).is_visible
         )
 
     @responses.activate
@@ -348,3 +392,9 @@ class CoveringDateFilterErrorTests(TestCase):
             self.response.context_data.get("selected_filters"),
             [],
         )
+
+        self.assertEqual(
+            self.response.context_data.get("filters_visible"), True
+        )
+        self.assertTrue(covering_date_from_field.is_visible)
+        self.assertTrue(covering_date_to_field.is_visible)

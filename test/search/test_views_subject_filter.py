@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 import responses
+from app.search.constants import FieldsConstant
 from django.conf import settings
 from django.test import TestCase
 
@@ -20,7 +21,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "source": "CAT",
                             }
                         }
@@ -58,7 +59,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
             "/catalogue/search/?q=military&subject=Army&subject=Air Force"
         )
         context_data = response.context_data
-        subject_field = context_data.get("form").fields["subject"]
+        subject_field = context_data.get("form").fields[FieldsConstant.SUBJECT]
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
@@ -118,6 +119,14 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
             "",
         )
 
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(subject_field.is_visible)
+
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )
+
     @responses.activate
     def test_catalogue_search_context_with_invalid_subjects_params(self):
         """Test behavior with invalid subject IDs."""
@@ -130,7 +139,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "source": "CAT",
                             }
                         }
@@ -165,7 +174,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
             "/catalogue/search/?q=test&subject=Army&subject=invalid&subject=999"
         )
         context_data = response.context_data
-        subject_field = context_data.get("form").fields["subject"]
+        subject_field = context_data.get("form").fields[FieldsConstant.SUBJECT]
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
@@ -225,6 +234,14 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
             ],
         )
 
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(subject_field.is_visible)
+
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )
+
     @responses.activate
     def test_catalogue_search_context_without_subjects_params(self):
         """Test that subjects field works correctly when no subjects are selected."""
@@ -237,7 +254,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "source": "CAT",
                             }
                         }
@@ -270,7 +287,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
 
         response = self.client.get("/catalogue/search/?q=test")
         context_data = response.context_data
-        subject_field = context_data.get("form").fields["subject"]
+        subject_field = context_data.get("form").fields[FieldsConstant.SUBJECT]
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
@@ -302,6 +319,14 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
         # No subject filters should be in selected filters
         self.assertEqual(context_data.get("selected_filters"), [])
 
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(subject_field.is_visible)
+
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )
+
     @responses.activate
     def test_catalogue_search_context_with_subjects_param(self):
         """Test that subjects parameters are processed correctly."""
@@ -314,7 +339,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "source": "CAT",
                             }
                         }
@@ -349,6 +374,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
             "/catalogue/search/?subject=Army&subject=Navy"
         )
         context_data = response.context_data
+        subject_field = context_data.get("form").fields[FieldsConstant.SUBJECT]
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
@@ -357,3 +383,11 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
         ]
         self.assertIn("Subject: Army", filter_labels)
         self.assertIn("Subject: Navy", filter_labels)
+
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(subject_field.is_visible)
+
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )

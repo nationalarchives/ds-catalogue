@@ -1,5 +1,5 @@
 import responses
-from app.lib.api import JSONAPIClient, rosetta_request_handler
+from app.lib.api import rosetta_request_handler
 from django.conf import settings
 from django.test import SimpleTestCase
 
@@ -13,7 +13,7 @@ class TestJSONAPIClientGetRequest(SimpleTestCase):
             responses.GET,
             f"{settings.ROSETTA_API_URL}/get?id=C123456",
             status=200,
-            json={"data": [{"@template": {"details": {"iaid": "C123456"}}}]},
+            json={"data": [{"@template": {"details": {"id": "C123456"}}}]},
         )
 
         reponse_dict = rosetta_request_handler(
@@ -21,5 +21,5 @@ class TestJSONAPIClientGetRequest(SimpleTestCase):
         )
         self.assertDictEqual(
             reponse_dict,
-            {"data": [{"@template": {"details": {"iaid": "C123456"}}}]},
+            {"data": [{"@template": {"details": {"id": "C123456"}}}]},
         )

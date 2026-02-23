@@ -19,7 +19,7 @@ class CatalogueSearchViewIntegrationTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "source": "CAT",
                             }
                         }
@@ -72,3 +72,8 @@ class CatalogueSearchViewIntegrationTests(TestCase):
         # Assert the online checkbox is not included if group is set to 'nonTna'
         non_tna_response = self.client.get("/catalogue/search/?group=nonTna")
         self.assertNotIn('name="online"', force_str(non_tna_response.content))
+
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )

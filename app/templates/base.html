@@ -7,7 +7,7 @@
 {%- from 'components/global-header/macro.html' import tnaGlobalHeader -%}
 {%- from 'components/phase-banner/macro.html' import tnaPhaseBanner -%}
 
-{%- set theme = request.COOKIES['theme'] or 'system' -%}
+{%- set theme = request.COOKIES['theme'] or 'light' -%}
 {%- set themeAccent = themeAccent if themeAccent else 'green' -%}
 {%- set htmlAttributes = {
   'data-ga4id': app_config.GA4_ID or '',
@@ -29,7 +29,7 @@
     <link rel="apple-touch-icon" sizes="256x256" href="{{ static('assets/images/icon-256x256.png') }}">
     <link rel="apple-touch-icon" sizes="512x512" href="{{ static('assets/images/icon-512x512.png') }}">
     <link rel="apple-touch-icon" sizes="1024x1024" href="{{ static('assets/images/icon-1024x1024.png') }}">
-{% endblock %}
+{% endblock headIcons %}
 
 {% block head %}
     <meta name="tna.response.generated" content="{{ now_iso_8601() }}">
@@ -38,44 +38,40 @@
     <meta name="tna.app.build-version" content="{{ app_config.BUILD_VERSION }}">
     <meta name="tna.app.tna-frontend" content="{{ app_config.TNA_FRONTEND_VERSION }}">
     <meta name="tna.settings.theme" content="{{ theme }}">
-{% endblock %}
+{% endblock head %}
 
 {% block stylesheets %}
     <link rel="preconnect" href="https://use.typekit.net">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://use.typekit.net/kaq6qqh.css">
-    <link rel="stylesheet" href="{{ static('main.css') }}?v={{ app_config.BUILD_VERSION }}">
-    <link rel="stylesheet" href="{{ static('font-awesome.css') }}?v={{ app_config.BUILD_VERSION }}">
+    <link rel="stylesheet" href="{{ static('main.css') ~ '?v=' ~ app_config.BUILD_VERSION }}">
+    <link rel="stylesheet" href="{{ static('font-awesome.css') ~ '?v=' ~ app_config.BUILD_VERSION }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400..700&family=Roboto+Mono:wght@400..500&display=swap" media="screen,print">
-    <link rel="stylesheet" href="{{ static('ie.css') }}?v={{ app_config.BUILD_VERSION }}" media="all and (-ms-high-contrast: none), (-ms-high-contrast: active)">
-
-{% endblock %}
+    <link rel="stylesheet" href="{{ static('ie.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="all and (-ms-high-contrast: none), (-ms-high-contrast: active)">
+{% endblock stylesheets %}
 
 {% block cookies %}
 {% if 'cookie_preferences_set' not in request.COOKIES %}
 {{ tnaCookieBanner({
   'serviceName': 'The National Archives',
-  'cookiesUrl_': url('main:cookies'),
   'cookiesUrl': 'https://www.nationalarchives.gov.uk/cookies/',
   'preferencesSetKey': 'dontShowCookieNotice'
 }) | indent(6) }}
 {% endif %}
-{% endblock %}
+{% endblock cookies %}
 
 {% block header %}
-{% if feature.PHASE_BANNER %}
-{{ tnaPhaseBanner({
-  'phase': 'Beta',
-  'message': 'This search is currently in beta.',
-  'classes': 'tna-background-contrast'
-}) | indent(6) }}
-{% endif %}
 {{ tnaGlobalHeader({
   'defaultContent': True,
-  'defaultContentBaseURL': 'https://www.nationalarchives.gov.uk'
+  'defaultContentBaseURL': 'https://www.nationalarchives.gov.uk',
+  'phaseBanner': {
+    'phase': 'Beta',
+    'message': 'This is a new way to search our records, which we’re still working on. Alternatively you can search our existing catalogue, <a href="https://discovery.nationalarchives.gov.uk/">Discovery</a>.',
+    'classes': 'tna-background-contrast'
+  } if feature.PHASE_BANNER else None
 }) | indent(6) }}
-{% endblock %}
+{% endblock header %}
 
 {% block beforeContent %}
 {% if breadcrumbs and breadcrumbs | length > 0 %}
@@ -88,7 +84,7 @@
         </div>
       </div>
 {% endif %}
-{% endblock %}
+{% endblock beforeContent %}
 
 {% block footer %}
 {{ tnaFooter({
@@ -98,9 +94,9 @@
   'defaultContentBaseURL': 'https://www.nationalarchives.gov.uk',
   'classes': 'tna-!--margin-top-l'
 }) | indent(4) }}
-{% endblock %}
+{% endblock footer %}
 
 {% block bodyEnd %}
-<script src="{{ static('main.min.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
-<script src="{{ static('analytics.min.js') }}?v={{ app_config.BUILD_VERSION }}" defer></script>
-{% endblock %}
+<script src="{{ static('main.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+<script src="{{ static('analytics.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+{% endblock bodyEnd %}

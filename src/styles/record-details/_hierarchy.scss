@@ -1,0 +1,33 @@
+@use "@nationalarchives/frontend/nationalarchives/tools/borders";
+@use "@nationalarchives/frontend/nationalarchives/tools/media";
+@use "@nationalarchives/frontend/nationalarchives/tools/spacing";
+
+.record-hierarchy {
+  padding-top: spacing.space(0.75);
+
+  &__count {
+    padding-top: spacing.space(0.125);
+    padding-right: spacing.space(0.5);
+    padding-bottom: spacing.space(0.125);
+
+    text-align: right;
+
+    @include borders.rounded-border;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+.large-icon {
+  font-size: 2em;
+
+  @include media.on-larger-than-tiny {
+    margin-left: spacing.space(1);
+  }
+}
+
+.hierarchy-pagination {
+  margin-right: spacing.space(1);
+  margin-bottom: spacing.space(1);
+  margin-left: spacing.space(1);
+}

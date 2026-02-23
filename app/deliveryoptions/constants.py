@@ -1,5 +1,3 @@
-import json
-import os
 from enum import Enum, IntEnum
 
 import app.deliveryoptions.helpers as h
@@ -190,3 +188,7 @@ delivery_option_tags = {
     "{WebsiteUrlText}": h.get_website_url_text,
     "{YourOrderLink}": h.get_your_order_link,
 }
+
+# TODO: Refactor to use Enums throughout the codebase
+DELIVERY_OPTIONS_TNA_LEVELS = [6, 7]  # Piece and Item
+DELIVERY_OPTIONS_NON_TNA_LEVELS = [3]  # Sub-sub-fonds

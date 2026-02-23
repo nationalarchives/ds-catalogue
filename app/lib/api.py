@@ -39,7 +39,7 @@ class JSONAPIClient:
     def add_parameters(self, params):
         self.params = self.params | params
 
-    def get(self, path="/") -> dict:
+    def get(self, path="/", timeout=None) -> dict:
         """Makes a request to the config API. Returns decoded json,
         otherwise raises error"""
         url = f"{self.api_url}/{path.lstrip('/')}"
@@ -52,6 +52,7 @@ class JSONAPIClient:
                 url,
                 params=self.params,
                 headers=headers,
+                timeout=timeout,
             )
         except ConnectionError:
             logger.error("JSON API connection error")
@@ -71,6 +72,17 @@ class JSONAPIClient:
                 return response.json()
             except JSONDecodeError:
                 logger.error("JSON API provided non-JSON response")
+
+                # TODO: Consider logging the full response somewhere secure for debugging
+                number_of_characters_to_log = 100
+                truncated_text = response.text[:number_of_characters_to_log]
+                suffix = (
+                    " ... [truncated]"
+                    if len(response.text) > number_of_characters_to_log
+                    else ""
+                )
+                logger.error(f"Non-JSON response: {truncated_text}{suffix}")
+
                 raise Exception("Non-JSON response provided")
 
         if response.status_code == HTTPStatus.BAD_REQUEST:
@@ -86,12 +98,12 @@ class JSONAPIClient:
         raise Exception("Request failed")
 
 
-def rosetta_request_handler(uri, params={}) -> dict:
+def rosetta_request_handler(uri, params={}, timeout=None) -> dict:
     """Prepares and initiates the api url requested and returns response data"""
     api_url = settings.ROSETTA_API_URL
     if not api_url:
         raise Exception("ROSETTA_API_URL not set")
     client = JSONAPIClient(api_url)
     client.add_parameters(params)
-    data = client.get(uri)
+    data = client.get(uri, timeout=timeout)
     return data

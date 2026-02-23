@@ -74,29 +74,31 @@
         </div>
       </div>
 
-      {% set previous = None %}
-      {% set next = None %}
+      {% if record.previous or record.next %}
+        {% if record.previous %}
+          {% set previous = {
+            'href': record.previous.url,
+            'text': 'Previous ' ~ (record.previous.level | lower),
+            'description': (record.previous.summary_title or record.previous.title) ~ ' (' ~ (record.previous.reference_number or record.previous.id) ~ ')'
+          } %}
+        {% else %}
+          {% set previous = None %}
+        {% endif %}
 
-      {% if record.previous %}
-        {% set previous = {
-          'text': 'Previous ' + (record.previous.level | lower) + ': ' + record.previous.reference_number,
-          'href': record.previous.url
-        } %}
-      {% endif %}
+        {% if record.next %}
+          {% set next = {
+            'href': record.next.url,
+            'text': 'Next ' ~ (record.next.level | lower),
+            'description': (record.next.summary_title or record.next.title) ~ ' (' ~ (record.next.reference_number or record.next.id) ~ ')'
+          } %}
+        {% else %}
+          {% set next = None %}
+        {% endif %}
 
-      {% if record.next %}
-        {% set next = {
-          'text': 'Next ' + (record.next.level | lower) + ': ' + record.next.reference_number,
-          'href': record.next.url
-        } %}
-      {% endif %}
-
-      {% if previous or next %}
         {{ tnaPagination({
           'previous': previous,
           'next': next,
-          'spaced': True,
-          'solid': True
+          'classes': 'hierarchy-pagination'
         }) }}
       {% endif %}
     </div>

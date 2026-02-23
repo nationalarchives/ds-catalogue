@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import logging
-import re
 from typing import Any
 
 import sentry_sdk
-from app.lib.xslt_transformations import apply_schema_xsl, apply_series_xsl
+from app.lib.xslt_transformations import (
+    apply_schema_xsl,
+    apply_series_xsl,
+    has_series_xsl,
+)
 from app.records.constants import (
     NON_TNA_LEVELS,
     SUBJECTS_LIMIT,
@@ -13,18 +16,15 @@ from app.records.constants import (
     TNA_LEVELS,
 )
 from app.records.utils import (
-    change_discovery_record_details_links,
     extract,
-    format_extref_links,
     format_link,
 )
-from config.jinja2 import format_number
+from config.jinja import format_number
 from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
 from lxml import etree
 
 from .constants import MISSING_COUNT_TEXT
-from .converters import IDConverter
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ class APIModel:
 
 class APIResponse(APIModel):
     def __init__(self, raw_data: dict[str, Any]):
-        self._raw = raw_data
+        super().__init__(raw_data)
 
     @cached_property
     def record(self) -> Record:
@@ -61,37 +61,23 @@ class APIResponse(APIModel):
 
 class Record(APIModel):
     def __init__(self, raw_data: dict[str, Any]):
-        self._raw = raw_data
+        super().__init__(raw_data)
 
     def __str__(self):
-        return f"{self.summary_title} ({self.iaid})"
+        return f"{self.summary_title} ({self.id})"
 
     @cached_property
-    def iaid(self) -> str:
+    def id(self) -> str:
         """
-        Return the "iaid" value for this record. If the data is unavailable,
-        or is not a valid iaid, a blank string is returned.
+        Return the "id" value for this record. If the data is unavailable,
+        a blank string is returned.
         """
         try:
-            candidate = self._raw["iaid"]
+            id = self._raw["id"]
         except KeyError:
             # value from other places
-            candidate = self.get("@admin.id", default="")
-
-        if not candidate:
-            # value from other places
-            identifiers = self.get("identifier", ())
-            for item in identifiers:
-                try:
-                    candidate = item["iaid"]
-                except KeyError:
-                    candidate = ""
-
-        if candidate and re.match(IDConverter.regex, candidate):
-            # value is not guaranteed to be a valid 'iaid', so we must
-            # check it before returning it as one
-            return candidate
-        return ""
+            id = self.get("@admin.id", default="")
+        return id
 
     @cached_property
     def source(self) -> str:
@@ -128,6 +114,11 @@ class Record(APIModel):
         return self.get("title", "")
 
     @cached_property
+    def clean_title(self) -> str:
+        """Returns the api value of the attr if found, empty str otherwise."""
+        return self.get("cleanTitle", "")
+
+    @cached_property
     def summary_title(self) -> str:
         """Returns the api value of the attr if found, empty str otherwise."""
         if details_summary_title := self.get("summaryTitle", ""):
@@ -138,6 +129,23 @@ class Record(APIModel):
     def clean_summary_title(self) -> str:
         """Returns the api value of the attr if found, summary_title str otherwise."""
         return self.get("cleanSummaryTitle", self.summary_title)
+
+    @cached_property
+    def clean_title_or_summary_title(self) -> str:
+        """Returns clean_title if present and shorter than clean_summary_title,
+        otherwise returns clean_summary_title."""
+
+        clean_value = ""
+        clean_title_length = len(self.clean_title)
+        clean_summary_title_length = len(self.clean_summary_title)
+        if (
+            clean_title_length > 0
+            and clean_title_length <= clean_summary_title_length
+        ):
+            clean_value = self.clean_title
+        else:
+            clean_value = self.clean_summary_title
+        return clean_value
 
     @cached_property
     def date_covering(self) -> str:
@@ -232,22 +240,29 @@ class Record(APIModel):
         if self.held_by_id:
             # TODO: Temporary link to Discovery until archon template is ready
             return f"https://discovery.nationalarchives.gov.uk/details/a/{self.held_by_id}"
-            try:
-                return reverse(
-                    "records:details",
-                    kwargs={"id": self.held_by_id},
-                )
-            except NoReverseMatch:
-                # warning for partially valid record
-                logger.warning(
-                    f"held_by_url:Record({self.iaid}):No reverse match for record_details with held_by_id={self.held_by_id}"
-                )
+            # TODO: commented out until archon template is ready
+            # try:
+            #     return reverse(
+            #         "records:details",
+            #         kwargs={"id": self.held_by_id},
+            #     )
+            # except NoReverseMatch:
+            #     # warning for partially valid record
+            #     logger.warning(
+            #         f"held_by_url:Record({self.id}):No reverse match for record_details with held_by_id={self.held_by_id}"
+            #     )
         return ""
 
     @cached_property
-    def held_by_count(self) -> str:
-        """Returns the api value formatted of the attr if found, default text otherwise.
+    def held_by_count(self) -> str | None:
+        """Returns None for TNA records, otherwise formatted api value
+        formatted. Siliently logs and returns default text if missing.
         Usually expected to be present to show in the UI."""
+
+        if self.is_tna:
+            # For TNA records, heldByCount isn't same as bucket count,
+            # the presentation layer html handles this case separately.
+            return None
 
         count = self.get("heldByCount", None)
         if not count:
@@ -331,7 +346,7 @@ class Record(APIModel):
     @cached_property
     def related_materials(self) -> tuple[dict[str, Any], ...]:
         """Returns transformed data which is a tuple of dict if found, empty tuple otherwise."""
-        inc_msg = f"related_materials:Record({self.iaid}):"
+        inc_msg = f"related_materials:Record({self.id}):"
         return tuple(
             dict(
                 description=item.get("description", ""),
@@ -344,9 +359,10 @@ class Record(APIModel):
 
     @cached_property
     def clean_description(self) -> str:
-        """Returns value for cleanDescription if found, empty str otherwise."""
-        if clean_description := self.get("cleanDescription", ""):
-            return clean_description
+        """Returns value for cleanDescription if found, empty str otherwise.
+        cleanDescription contains HTML markup for highlighting search terms.
+        This fild usually comes from the search API response."""
+        return self.get("cleanDescription", "")
 
     @cached_property
     def no_html_description(self) -> str:
@@ -355,18 +371,20 @@ class Record(APIModel):
 
     @cached_property
     def description(self) -> str:
-        """Returns the api value of the attr if found, empty str otherwise."""
-        if description := self.raw_description:
-            description = format_extref_links(description)
-            description = apply_schema_xsl(description, self.description_schema)
-            description = change_discovery_record_details_links(description)
-            return description
-        description = self.get("description.value", "")
-        if series := self.hierarchy_series:
-            description = apply_series_xsl(description, series.reference_number)
-        description = format_extref_links(description)
-        description = change_discovery_record_details_links(description)
-        return description
+        """Returns the api value of the attr if found, empty str otherwise.
+        Applies series-specific or schema-based XSLT transformation as needed.
+        """
+
+        # Use raw_description as the base description
+        description = self.raw_description
+
+        # Apply series-specific transformation if applicable first
+        series = self.hierarchy_series
+        if series and has_series_xsl(series.reference_number):
+            return apply_series_xsl(description, series.reference_number)
+
+        # Fallback to schema-based transformation
+        return apply_schema_xsl(description, self.description_schema)
 
     @cached_property
     def raw_description(self) -> str:
@@ -384,7 +402,7 @@ class Record(APIModel):
     @cached_property
     def separated_materials(self) -> tuple[dict[str, Any], ...]:
         """Returns transformed data which is a tuple of dict if found, empty tuple otherwise."""
-        inc_msg = f"separated_materials:Record({self.iaid}):"
+        inc_msg = f"separated_materials:Record({self.id}):"
         return tuple(
             dict(
                 description=item.get("description", ""),
@@ -411,7 +429,7 @@ class Record(APIModel):
                     hierarchy_item | {"page_record_is_tna": self.is_tna}
                 )
                 # skips current record from showing in hierarchy bar
-                if self.iaid == hierarchy_record.iaid:
+                if self.id == hierarchy_record.id:
                     continue
                 hierarchy_records += (hierarchy_record,)
 
@@ -431,7 +449,7 @@ class Record(APIModel):
             sentry_sdk.capture_message(message, level="error")
             # add context for debugging in Sentry
             sentry_sdk.set_context(
-                "missing_info", {"hierarchy_record_id": {self.iaid}}
+                "missing_info", {"hierarchy_record_id": {self.id}}
             )
             return MISSING_COUNT_TEXT
         return format_number(count)
@@ -480,10 +498,10 @@ class Record(APIModel):
 
     @cached_property
     def url(self) -> str:
-        """Returns record detail url for iaid, empty str otherwise."""
-        if self.iaid:
+        """Returns record detail url for id, empty str otherwise."""
+        if self.id:
             try:
-                return reverse("records:details", kwargs={"id": self.iaid})
+                return reverse("records:details", kwargs={"id": self.id})
             except NoReverseMatch:
                 pass
         return ""
@@ -525,7 +543,6 @@ class Record(APIModel):
         """Returns up to SUBJECTS_LIMIT items from the api value of the attr if found, empty list otherwise."""
         return self.get("subjects", [])[:SUBJECTS_LIMIT]
 
-    # Add to your Record class in app/records/models.py
     @property
     def subjects_enrichment(self) -> dict:
         """Returns subjects enrichment data if available."""

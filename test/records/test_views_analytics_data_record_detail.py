@@ -2,18 +2,18 @@ from unittest.mock import Mock, patch
 
 import responses
 from app.deliveryoptions.constants import AvailabilityCondition
-from app.records.mixins import DeliveryOptionsMixin
 from django.conf import settings
 from django.test import TestCase
 
 
 class TestAnalyticsDataInRecordDetailsView(TestCase):
 
-    def setUp(self):
-        self.mixin = DeliveryOptionsMixin()
-
     @responses.activate
-    def test_analytics_record_details(self):
+    @patch("app.records.enrichment.delivery_options_request_handler")
+    @patch("app.records.enrichment.get_availability_group")
+    def test_analytics_record_details(
+        self, mock_get_availability_group, mock_delivery_handler
+    ):
 
         responses.add(
             responses.GET,
@@ -23,7 +23,7 @@ class TestAnalyticsDataInRecordDetailsView(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C1731303",
+                                "id": "C1731303",
                                 "referenceNumber": "CO 166/2",
                                 "source": "CAT",
                                 "groupArray": [
@@ -102,7 +102,8 @@ class TestAnalyticsDataInRecordDetailsView(TestCase):
             status=200,
         )
 
-        mock_delivery_response = [
+        # Mock delivery options API response
+        mock_delivery_handler.return_value = [
             {
                 "options": AvailabilityCondition.OrderOriginal.value,
                 "surrogateLinks": [],
@@ -112,43 +113,30 @@ class TestAnalyticsDataInRecordDetailsView(TestCase):
 
         mock_availability_group = Mock()
         mock_availability_group.name = "AVAILABLE_IN_PERSON_WITH_COPYING"
+        mock_get_availability_group.return_value = mock_availability_group
 
-        with (
-            patch(
-                "app.records.mixins.delivery_options_request_handler",
-                return_value=mock_delivery_response,
-            ),
-            patch(
-                "app.records.mixins.get_availability_group",
-                return_value=mock_availability_group,
-            ),
-        ):
+        response = self.client.get("/catalogue/id/C1731303/")
 
-            _ = self.mixin.get_delivery_options_context("C1731303")
-            response = self.client.get("/catalogue/id/C1731303/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.resolver_match.view_name, "records:details")
+        self.assertTemplateUsed("records/record_detail.html")
 
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(
-                response.resolver_match.view_name, "records:details"
-            )
-            self.assertTemplateUsed("records/record_detail.html")
-
-            self.assertEqual(
-                response.context_data.get("analytics_data"),
-                {
-                    "content_group": "TNA catalogue",
-                    "page_type": "RecordDetailView[TNA catalogue record description]",
-                    "reader_type": "",
-                    "user_type": "",
-                    "taxonomy_topic": "Caribbean;Navy;Operations, battles and campaigns",
-                    "taxonomy_term": "not in use",
-                    "time_period": "not in use",
-                    "catalogue_repository": "66-The National Archives",
-                    "catalogue_level": "6-Piece",
-                    "catalogue_series": "CO 166-Secretary of State for the Colonies and War and Colonial Department: Martinique,...",
-                    "catalogue_reference": "CO 166/2-Military and Naval",
-                    "catalogue_datasource": "CAT",
-                    "delivery_option_category": "AVAILABLE_IN_PERSON_WITH_COPYING",
-                    "delivery_option": "OrderOriginal",
-                },
-            )
+        self.assertEqual(
+            response.context_data.get("analytics_data"),
+            {
+                "content_group": "TNA catalogue",
+                "page_type": "RecordDetailView[TNA catalogue record description]",
+                "reader_type": "",
+                "user_type": "",
+                "taxonomy_topic": "Caribbean;Navy;Operations, battles and campaigns",
+                "taxonomy_term": "not in use",
+                "time_period": "not in use",
+                "catalogue_repository": "66-The National Archives",
+                "catalogue_level": "6-Piece",
+                "catalogue_series": "CO 166-Secretary of State for the Colonies and War and Colonial Department: Martinique,...",
+                "catalogue_reference": "CO 166/2-Military and Naval",
+                "catalogue_datasource": "CAT",
+                "delivery_option_category": "AVAILABLE_IN_PERSON_WITH_COPYING",
+                "delivery_option": "OrderOriginal",
+            },
+        )

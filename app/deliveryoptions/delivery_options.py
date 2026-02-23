@@ -13,7 +13,6 @@ import json
 import logging
 import re
 from functools import lru_cache
-from ipaddress import ip_address
 from typing import Any, Dict, List, Optional, Union
 
 from app.deliveryoptions.constants import (
@@ -23,12 +22,10 @@ from app.deliveryoptions.constants import (
     AvailabilityGroup,
     delivery_option_tags,
 )
-from app.deliveryoptions.departments import DEPARTMENT_DETAILS
 from app.deliveryoptions.helpers import get_dept
 from app.deliveryoptions.reader_type import get_reader_type
 from app.records.models import Record
 from django.conf import settings
-from django.core.cache import cache
 from django.http import HttpRequest
 
 logger = logging.getLogger(__name__)
@@ -326,7 +323,7 @@ def construct_delivery_options(
 
     if api_length := len(api_result) != 1:
         raise ValueError(
-            f"Expected one record only ({api_length}) from DORIS database for IAID {record.iaid}"
+            f"Expected one record only ({api_length}) from DORIS database for IAID {record.id}"
         )
 
     delivery_options_context_dict = {}

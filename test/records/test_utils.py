@@ -93,34 +93,21 @@ class TestFormatLink(SimpleTestCase):
                 result = format_link(value)
                 self.assertEqual(result, expected)
 
-    def test_format_link_with_invalid_data(self):
+    def test_format_link_with_missing_id_data(self):
+        """Tests handling of missing data received from API response."""
+
         test_data = (
-            (
-                "invalid id",
-                '<a href="INVALID">some value</a>',
-                (
-                    {"id": "INVALID", "href": "", "text": "some value"},
-                    "WARNING:app.records.utils:format_link:No reverse match for record_details with iaid=INVALID",
-                ),
-            ),
             (
                 "missing id",
                 "some value",
-                (
-                    {"id": "", "href": "", "text": "some value"},
-                    "WARNING:app.records.utils:format_link:No reverse match for record_details with iaid=None",
-                ),
+                {"id": "", "href": "", "text": "some value"},
             ),
         )
 
         for label, value, expected in test_data:
             with self.subTest(label):
-                with self.assertLogs(
-                    "app.records.utils", level="WARNING"
-                ) as lc:
-                    result = format_link(value)
-                self.assertIn(expected[1], lc.output)
-                self.assertEqual(result, expected[0])
+                result = format_link(value)
+                self.assertEqual(result, expected)
 
 
 class TestChangeDiscoveryRecordDetailsLinks(SimpleTestCase):
@@ -144,7 +131,7 @@ class TestChangeDiscoveryRecordDetailsLinks(SimpleTestCase):
             (
                 "invalid ID",
                 '<a href="https://discovery.nationalarchives.gov.uk/details/r/notvalid/">C361</a>',
-                '<a href="https://discovery.nationalarchives.gov.uk/details/r/notvalid/">C361</a>',
+                '<a href="/catalogue/id/notvalid/">C361</a>',
             ),
             (
                 "valid link with blank target",

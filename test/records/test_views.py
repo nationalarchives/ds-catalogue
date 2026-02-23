@@ -2,7 +2,6 @@ from unittest.mock import Mock, patch
 
 import responses
 from app.deliveryoptions.constants import AvailabilityCondition
-from app.records.mixins import DeliveryOptionsMixin
 from app.records.models import Record
 from django.conf import settings
 from django.test import RequestFactory, TestCase
@@ -21,7 +20,7 @@ class TestRecordView(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "title": "Test Title",
                                 "source": "CAT",
                                 "heldByCount": 100,
@@ -52,7 +51,7 @@ class TestRecordView(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "A13530600",
+                                "id": "A13530600",
                                 "title": "Test Title",
                                 "source": "ARCHON",
                             }
@@ -82,7 +81,7 @@ class TestSubjectLinks(TestCase):
                 {
                     "@template": {
                         "details": {
-                            "iaid": "C123456",
+                            "id": "C123456",
                             "referenceNumber": "ADM 363/540/126",
                             "title": "Test Record with Subjects",
                             "summaryTitle": "Test Record",
@@ -132,7 +131,7 @@ class TestSubjectLinks(TestCase):
                 {
                     "@template": {
                         "details": {
-                            "iaid": "C789012",
+                            "id": "C789012",
                             "source": "CAT",
                             "heldByCount": 100,
                             "subjects": [
@@ -190,7 +189,7 @@ class TestSubjectLinks(TestCase):
                 {
                     "@template": {
                         "details": {
-                            "iaid": "C456789",
+                            "id": "C456789",
                             "source": "CAT",
                             "heldByCount": 100,
                             "subjects": [],
@@ -241,16 +240,21 @@ class TestSubjectLinks(TestCase):
 
 
 class DoAvailabilityGroupTestCase(TestCase):
-    """Tests for delivery options mixin functionality"""
+    """Tests for delivery options functionality"""
 
     def setUp(self):
-        self.mixin = DeliveryOptionsMixin()
         self.factory = RequestFactory()
 
-    def test_do_availability_group_present_when_found(self):
+    @patch("app.records.enrichment.delivery_options_request_handler")
+    @patch("app.records.enrichment.get_availability_group")
+    def test_do_availability_group_present_when_found(
+        self, mock_get_availability_group, mock_delivery_handler
+    ):
         """Test that do_availability_group is included when get_availability_group returns a value."""
+        from app.records.enrichment import RecordEnrichmentHelper
+
         # Use DigitizedDiscovery which is in AVAILABLE_ONLINE_TNA_ONLY group
-        mock_delivery_response = [
+        mock_delivery_handler.return_value = [
             {
                 "options": AvailabilityCondition.DigitizedDiscovery.value,
                 "surrogateLinks": [],
@@ -260,31 +264,31 @@ class DoAvailabilityGroupTestCase(TestCase):
 
         mock_availability_group = Mock()
         mock_availability_group.name = "AVAILABLE_ONLINE_TNA_ONLY"
+        mock_get_availability_group.return_value = mock_availability_group
 
-        with (
-            patch(
-                "app.records.mixins.delivery_options_request_handler",
-                return_value=mock_delivery_response,
-            ),
-            patch(
-                "app.records.mixins.get_availability_group",
-                return_value=mock_availability_group,
-            ),
-        ):
+        mock_record = Mock()
+        mock_record.id = "TEST123"
 
-            context = self.mixin.get_delivery_options_context("TEST123")
+        helper = RecordEnrichmentHelper(mock_record)
+        context = helper._get_delivery_api_data()
 
-            self.assertIn("delivery_option", context)
-            self.assertEqual(context["delivery_option"], "DigitizedDiscovery")
-            self.assertIn("do_availability_group", context)
-            self.assertEqual(
-                context["do_availability_group"], "AVAILABLE_ONLINE_TNA_ONLY"
-            )
+        self.assertIn("delivery_option", context)
+        self.assertEqual(context["delivery_option"], "DigitizedDiscovery")
+        self.assertIn("do_availability_group", context)
+        self.assertEqual(
+            context["do_availability_group"], "AVAILABLE_ONLINE_TNA_ONLY"
+        )
 
-    def test_do_availability_group_absent_when_not_found(self):
+    @patch("app.records.enrichment.delivery_options_request_handler")
+    @patch("app.records.enrichment.get_availability_group")
+    def test_do_availability_group_absent_when_not_found(
+        self, mock_get_availability_group, mock_delivery_handler
+    ):
         """Test that do_availability_group is excluded when get_availability_group returns None."""
-        # Use OrderException which is in REDUNDANT_OR_IRRELEVANT group
-        mock_delivery_response = [
+        from app.records.enrichment import RecordEnrichmentHelper
+
+        # Use OrderException
+        mock_delivery_handler.return_value = [
             {
                 "options": AvailabilityCondition.OrderException.value,
                 "surrogateLinks": [],
@@ -292,54 +296,187 @@ class DoAvailabilityGroupTestCase(TestCase):
             }
         ]
 
-        with (
-            patch(
-                "app.records.mixins.delivery_options_request_handler",
-                return_value=mock_delivery_response,
-            ),
-            patch(
-                "app.records.mixins.get_availability_group", return_value=None
-            ),
-        ):
+        mock_get_availability_group.return_value = None
 
-            context = self.mixin.get_delivery_options_context("TEST123")
+        mock_record = Mock()
+        mock_record.id = "TEST123"
 
-            self.assertIn("delivery_option", context)
-            self.assertEqual(context["delivery_option"], "OrderException")
-            self.assertNotIn("do_availability_group", context)
+        helper = RecordEnrichmentHelper(mock_record)
+        context = helper._get_delivery_api_data()
 
-    def test_get_delivery_options_handles_errors_gracefully(self):
-        """Test that errors return empty dict without crashing."""
+        self.assertIn("delivery_option", context)
+        self.assertEqual(context["delivery_option"], "OrderException")
+        self.assertNotIn("do_availability_group", context)
+
+    @patch("app.records.enrichment.delivery_options_request_handler")
+    def test_get_delivery_options_handles_errors_gracefully(
+        self, mock_delivery_handler
+    ):
+        """Test that errors are handled gracefully."""
+        from app.records.enrichment import RecordEnrichmentHelper
+
         # Test various error conditions
         test_cases = [
-            (Exception("API Error"), "API exception"),
-            ([{"no_options_key": "value"}], "Missing options key"),
-            ([], "Empty response"),
-            (None, "None response"),
-            (
-                [{"options": 999999}],
-                "Invalid enum value",
-            ),  # Invalid AvailabilityCondition value
+            # API exceptions - caught by outer try/except, returns {}
+            (Exception("API Error"), "API exception", {}),
+            # API returns bad data - handled by _get_delivery_api_data, returns {}, but temp context added
+            ([{"no_options_key": "value"}], "Missing options key", True),
+            ([], "Empty response", True),
+            (None, "None response", True),
+            ([{"options": 999999}], "Invalid enum value", True),
         ]
 
-        for mock_response, description in test_cases:
+        for mock_response, description, *has_temp in test_cases:
+            # has_temp will be [True] or [] depending on if it was provided
+            expect_temp_context = has_temp[0] if has_temp else False
+
             with self.subTest(description=description):
                 if isinstance(mock_response, Exception):
-                    with patch(
-                        "app.records.mixins.delivery_options_request_handler",
-                        side_effect=mock_response,
-                    ):
-                        context = self.mixin.get_delivery_options_context(
-                            "TEST123"
-                        )
+                    mock_delivery_handler.side_effect = mock_response
                 else:
-                    with patch(
-                        "app.records.mixins.delivery_options_request_handler",
-                        return_value=mock_response,
-                    ):
-                        context = self.mixin.get_delivery_options_context(
-                            "TEST123"
-                        )
+                    mock_delivery_handler.return_value = mock_response
+                    mock_delivery_handler.side_effect = None
 
-                self.assertEqual(context, {})
+                mock_record = Mock()
+                mock_record.id = "TEST123"
+
+                helper = RecordEnrichmentHelper(mock_record)
+                context = helper._fetch_delivery_options()
+
+                # Should NOT get API-specific keys
+                self.assertNotIn("delivery_option", context)
                 self.assertNotIn("do_availability_group", context)
+
+                if expect_temp_context:
+                    # When API returns bad data (not exception), temp context is still added
+                    self.assertIn("delivery_options_heading", context)
+                    self.assertIn("delivery_instructions", context)
+                    self.assertIn("tna_discovery_link", context)
+                else:
+                    # When API raises exception, returns completely empty dict
+                    self.assertEqual(context, {})
+
+
+class TestNonTNARecordAvailability(TestCase):
+    """Tests for availability display on records held by other archives."""
+
+    @responses.activate
+    def test_non_tna_record_shows_availability_boxes(self):
+        """Test that non-TNA records show the 'Is it available online?' and 'Can I see it in person?' boxes."""
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id=C123456",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "id": "C123456",
+                                "title": "Test Record at Other Archive",
+                                "source": "CAT",
+                                "level": "Item",
+                                "heldBy": "British Library",
+                                "heldById": "A13530841",
+                            }
+                        }
+                    }
+                ]
+            },
+            status=200,
+        )
+
+        response = self.client.get("/catalogue/id/C123456/")
+
+        self.assertEqual(response.status_code, 200)
+
+        # Should show both availability boxes
+        self.assertContains(response, "Is it available online?")
+        self.assertContains(response, "Can I see it in person?")
+
+        # Should show the correct messages for non-TNA records
+        self.assertContains(
+            response,
+            "Maybe, but not on The National Archives website. This record is held at British Library.",
+        )
+        self.assertContains(
+            response,
+            "Not at The National Archives, but you may be able to view it in person at British Library.",
+        )
+
+        # Should NOT show the "Access information is unavailable" message
+        self.assertNotContains(response, "Access information is unavailable")
+
+    @responses.activate
+    def test_non_tna_record_shows_held_by_url_link(self):
+        """Test that non-TNA records show 'How to view it' link when held_by_url is available."""
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id=C123456",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "id": "C123456",
+                                "title": "Test Record at Other Archive",
+                                "source": "CAT",
+                                "level": "Item",
+                                "heldBy": "British Library",
+                                "heldById": "A13530841",
+                            }
+                        }
+                    }
+                ]
+            },
+            status=200,
+        )
+
+        response = self.client.get("/catalogue/id/C123456/")
+
+        self.assertEqual(response.status_code, 200)
+
+        # Should contain the "How to view it" link pointing to the archive
+        self.assertContains(
+            response,
+            '<a href="https://discovery.nationalarchives.gov.uk/details/a/A13530841">How to view it</a>',
+        )
+
+    @responses.activate
+    def test_non_tna_record_without_held_by_url_no_link(self):
+        """Test that non-TNA records without held_by_url don't show 'How to view it' link."""
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id=C123456",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "id": "C123456",
+                                "title": "Test Record at Other Archive",
+                                "source": "CAT",
+                                "level": "Item",
+                                "heldBy": "Some Other Archive",
+                                # No heldById means no held_by_url
+                            }
+                        }
+                    }
+                ]
+            },
+            status=200,
+        )
+
+        response = self.client.get("/catalogue/id/C123456/")
+
+        self.assertEqual(response.status_code, 200)
+
+        # Should show the availability boxes
+        self.assertContains(response, "Is it available online?")
+        self.assertContains(response, "Can I see it in person?")
+
+        # Should show the archive name
+        self.assertContains(response, "Some Other Archive")
+
+        # Should NOT contain "How to view it" link in the availability boxes
+        # (We check for the specific pattern in the availability message)
+        self.assertNotContains(response, ">How to view it</a>")

@@ -4,8 +4,10 @@ import math
 from typing import Any
 
 from app.errors import views as errors_view
-from app.lib.api import JSONAPIClient, ResourceNotFound
+from app.lib.api import ResourceNotFound
+from app.lib.constants import DATE_YMD_SEPARATOR
 from app.lib.fields import (
+    CharField,
     ChoiceField,
     DateKeys,
     DynamicMultipleChoiceField,
@@ -13,10 +15,10 @@ from app.lib.fields import (
     ToDateField,
 )
 from app.lib.pagination import pagination_object
+from app.main.global_alert import fetch_global_alert_api_data
 from app.records.constants import TNA_LEVELS
 from app.search.api import search_records
-from config.jinja2 import qs_remove_value, qs_replace_value, qs_toggle_value
-from django.conf import settings
+from config.jinja import qs_remove_value, qs_replace_value, qs_toggle_value
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.views.generic import TemplateView
@@ -31,11 +33,14 @@ from .buckets import (
 from .constants import (
     DATE_DISPLAY_FORMAT,
     FILTER_DATATYPE_RECORD,
+    FILTER_FIELDS,
     PAGE_LIMIT,
     RESULTS_PER_PAGE,
+    Display,
     Sort,
 )
 from .forms import (
+    CatalogueSearchBaseForm,
     CatalogueSearchNonTnaForm,
     CatalogueSearchTnaForm,
     FieldsConstant,
@@ -79,7 +84,7 @@ class APIMixin:
         # filter records for a bucket
         add_filter(params, f"group:{current_bucket.key}")
 
-        # applies to catalogue records to filter records with iaid in the results
+        # applies to catalogue records to filter records with id in the results
         if current_bucket.key == BucketKeys.NON_TNA.value:
             add_filter(params, FILTER_DATATYPE_RECORD)
 
@@ -298,6 +303,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
     default_group = BucketKeys.TNA.value
     default_sort = Sort.RELEVANCE.value  # sort includes ordering
+    default_display = Display.LIST.value
 
     def setup(self, request: HttpRequest, *args, **kwargs) -> None:
         """Creates the form instance and some attributes"""
@@ -305,30 +311,31 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         super().setup(request, *args, **kwargs)
         self.form_kwargs = self.get_form_kwargs()
 
+        self.bucket_list: BucketList = copy.deepcopy(CATALOGUE_BUCKETS)
+        self.api_result = None
+
+        # validate group param first to create appropriate form
+        if self.form_kwargs.get("data").get("group") not in [
+            BucketKeys.TNA.value,
+            BucketKeys.NON_TNA.value,
+        ]:
+            # invalid group param, create base form to show errors
+            self.form = CatalogueSearchBaseForm(**self.form_kwargs)
+
+            self.current_bucket_key = None
+            self.validate_suspicious_operation()
+            return
+
         # create two separate forms for TNA and NonTNA with different fields
         if self.form_kwargs.get("data").get("group") == BucketKeys.TNA.value:
             self.form = CatalogueSearchTnaForm(**self.form_kwargs)
-
-            # ensure only single value is bound to ChoiceFields
-            for field_name, field in self.form.fields.items():
-                if isinstance(field, ChoiceField):
-                    if (
-                        len(self.form_kwargs.get("data").getlist(field_name))
-                        > 1
-                    ):
-                        logger.info(
-                            f"ChoiceField {field_name} can only bind to single value"
-                        )
-                        raise SuspiciousOperation(
-                            f"ChoiceField {field_name} can only bind to single value"
-                        )
-
         else:
             self.form = CatalogueSearchNonTnaForm(**self.form_kwargs)
 
-        self.bucket_list: BucketList = copy.deepcopy(CATALOGUE_BUCKETS)
+        # keep current bucket key for display focus
         self.current_bucket_key = self.form.fields[FieldsConstant.GROUP].value
-        self.api_result = None
+
+        self.validate_suspicious_operation()
 
     def get_form_kwargs(self) -> dict[str, Any]:
         """Returns request data with default values if not given."""
@@ -354,7 +361,49 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         return {
             FieldsConstant.GROUP: self.default_group,
             FieldsConstant.SORT: self.default_sort,
+            FieldsConstant.DISPLAY: self.default_display,
         }
+
+    def validate_suspicious_operation(self):
+        """Validates that ChoiceField, CharField, FromDateField, and ToDateField
+        each only bind to a single value.
+        Raises SuspiciousOperation if multiple values are bound to these fields.
+        """
+
+        for field_name, field in self.form.fields.items():
+            # ensure only single value is bound to fields
+            if isinstance(field, (ChoiceField, CharField)):
+                if len(self.form_kwargs.get("data").getlist(field_name)) > 1:
+                    logger.info(
+                        f"Field {field_name} can only bind to single value"
+                    )
+                    raise SuspiciousOperation(
+                        f"Field {field_name} can only bind to single value"
+                    )
+            elif isinstance(field, (FromDateField, ToDateField)):
+                for date_key in (
+                    DateKeys.YEAR.value,
+                    DateKeys.MONTH.value,
+                    DateKeys.DAY.value,
+                ):
+                    # add date part key to field name to check input params
+                    date_field_name = (
+                        f"{field_name}{field.date_ymd_separator}{date_key}"
+                    )
+                    if (
+                        len(
+                            self.form_kwargs.get("data").getlist(
+                                date_field_name
+                            )
+                        )
+                        > 1
+                    ):
+                        logger.info(
+                            f"Field {date_field_name} can only bind to single value"
+                        )
+                        raise SuspiciousOperation(
+                            f"Field {date_field_name} can only bind to single value"
+                        )
 
     def get(self, request, *args, **kwargs) -> HttpResponse:
         """
@@ -510,23 +559,17 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
     def get_context_data(self, **kwargs):
         context: dict = super().get_context_data(**kwargs)
 
+        context["show_banner_for_filters_not_applied"] = (
+            self._show_banner_for_filters_not_applied()
+        )
+
         # add more filter options context if applicable
         if filter_context := self._get_context_data_for_more_filter_options():
             context.update(filter_context)
 
         self.selected_filters = self.build_selected_filters_list()
 
-        global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
-        global_alerts_client.add_parameters(
-            {"fields": "_,global_alert,mourning_notice"}
-        )
-        try:
-            context["global_alert"] = global_alerts_client.get(
-                f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}/"
-            )
-        except Exception as e:
-            logger.error(e)
-            context["global_alert"] = {}
+        context["global_alert"] = fetch_global_alert_api_data()
 
         context.update(
             {
@@ -534,9 +577,42 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
                 "selected_filters": self.selected_filters,
                 "analytics_data": self.get_datalayer_data(self.request),
                 "bucket_keys": BucketKeys,
+                "display_options": Display,
+                "fields_constant": FieldsConstant,
             }
         )
+        # call to set filter fields visibility after context is set
+        self._set_filters_visible_attr(context)
         return context
+
+    def _show_banner_for_filters_not_applied(self) -> bool:
+        """Returns True if there are any input params that are not valid filter fields.
+        Used in template to show banner to inform user that some filters were not applied.
+        """
+
+        input_params = set(self.request.GET.keys())
+
+        # normalize input params to check against form fields - date fields
+        date_input_param_suffixes = (
+            f"{DATE_YMD_SEPARATOR}{DateKeys.YEAR}",
+            f"{DATE_YMD_SEPARATOR}{DateKeys.MONTH}",
+            f"{DATE_YMD_SEPARATOR}{DateKeys.DAY}",
+        )
+        for param in list(input_params):
+            if param.endswith(date_input_param_suffixes):
+                input_params.discard(param)  # remove date part params
+                input_params.add(
+                    param.rsplit(DATE_YMD_SEPARATOR, 1)[0]
+                )  # add base date field param
+
+        for param in input_params:
+            # check if param is a filter field
+            if param in FILTER_FIELDS:
+                # check if param is not in form fields
+                if param not in self.form.fields:
+                    return True
+
+        return False
 
     def _get_context_data_for_more_filter_options(self) -> dict:
         """Returns context data for more filter choices page.
@@ -728,3 +804,160 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
                     )
 
         return qs_value
+
+    def _set_filters_visible_attr(self, context):
+        """Sets filter fields visibility based on current form state and api results.
+        Also sets context['filters_visible'] to indicate if any filters are visible.
+
+        Calls and sets individual filter field's is_visible attribute only when group
+        field has a valid value.
+
+        NOTE: Ensure that this method is called after all context data is set to
+        determine visibility.
+        """
+
+        has_results = bool(self.api_result and self.api_result.stats_total > 0)
+
+        # overall filters visibility
+        group = self.form.fields[FieldsConstant.GROUP].cleaned
+
+        # typically used to show/hide the filters label
+        context["filters_visible"] = False  # default to False
+        # valid group value present
+        if group:
+            # hide filters - only online field has error and no results
+            if (
+                group == BucketKeys.TNA.value
+                and FieldsConstant.ONLINE in self.form.errors
+                and len(self.form.errors) == 1
+            ) and not has_results:
+                pass  # default is False
+            # hide filters - no results, no errors, no selected filters
+            elif (
+                not has_results
+                and len(self.form.errors) == 0
+                and len(self.form.non_field_errors) == 0
+                and self.selected_filters == []
+            ):
+                pass  # default is False
+            # hide filters when using non-filter fields
+            elif (
+                not has_results
+                # using any() since there could be either sort or display
+                # field errors or both
+                and any(
+                    field in self.form.errors
+                    for field in (FieldsConstant.SORT, FieldsConstant.DISPLAY)
+                )
+                and self.selected_filters == []
+            ):
+                pass  # default is False
+            # everything else, show filters
+            else:
+                context["filters_visible"] = True
+
+        # call individual group specific filter visibility setters only when
+        # group field has a valid value, since fields depend on group value
+        if group == BucketKeys.TNA.value:
+            self._set_tna_filter_attr(has_results)
+        elif group == BucketKeys.NON_TNA.value:
+            self._set_non_tna_filter_attr(has_results)
+
+    def _set_tna_filter_attr(self, has_results):
+        """Sets TNA specific filter fields visibility. The is_visible
+        attribute is added dynamically here instead of the field definition
+        to allow more complex logic based on form state and api results.
+        """
+
+        # online filter
+        self.form.fields[FieldsConstant.ONLINE].is_visible = False
+        if has_results:
+            self.form.fields[FieldsConstant.ONLINE].is_visible = True
+
+        # covering date filters
+        self.form.fields[FieldsConstant.COVERING_DATE_FROM].is_visible = False
+        self.form.fields[FieldsConstant.COVERING_DATE_TO].is_visible = False
+        if (
+            has_results
+            or self.form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(
+                "year"
+            )
+            or self.form.fields[FieldsConstant.COVERING_DATE_TO].value.get(
+                "year"
+            )
+        ):
+            # visible if api results or input values are set
+            self.form.fields[FieldsConstant.COVERING_DATE_FROM].is_visible = (
+                True
+            )
+            self.form.fields[FieldsConstant.COVERING_DATE_TO].is_visible = True
+
+        # collection filter
+        self.form.fields[FieldsConstant.COLLECTION].is_visible = False
+        if self.form.fields[FieldsConstant.COLLECTION].items:
+            # visible if items set (with api agg values or input values)
+            self.form.fields[FieldsConstant.COLLECTION].is_visible = True
+
+        # subject filter
+        self.form.fields[FieldsConstant.SUBJECT].is_visible = False
+        if self.form.fields[FieldsConstant.SUBJECT].items:
+            # visible if items set (with api agg values or input values)
+            self.form.fields[FieldsConstant.SUBJECT].is_visible = True
+
+        # level filter
+        self.form.fields[FieldsConstant.LEVEL].is_visible = False
+        if self.form.fields[FieldsConstant.LEVEL].items:
+            # visible if items set (with api agg values or input values)
+            self.form.fields[FieldsConstant.LEVEL].is_visible = True
+
+        # opening date filters
+        self.form.fields[FieldsConstant.OPENING_DATE_FROM].is_visible = False
+        self.form.fields[FieldsConstant.OPENING_DATE_TO].is_visible = False
+        if (
+            has_results
+            or self.form.fields[FieldsConstant.OPENING_DATE_FROM].value.get(
+                "year"
+            )
+            or self.form.fields[FieldsConstant.OPENING_DATE_TO].value.get(
+                "year"
+            )
+        ):
+            # visible if api results or input values are set
+            self.form.fields[FieldsConstant.OPENING_DATE_FROM].is_visible = True
+            self.form.fields[FieldsConstant.OPENING_DATE_TO].is_visible = True
+
+        # closure filter
+        self.form.fields[FieldsConstant.CLOSURE].is_visible = False
+        if self.form.fields[FieldsConstant.CLOSURE].items:
+            # visible if items set (with api agg values or input values)
+            self.form.fields[FieldsConstant.CLOSURE].is_visible = True
+
+    def _set_non_tna_filter_attr(self, has_results):
+        """Sets Non TNA specific filter fields visibility. The is_visible
+        attribute is added dynamically here instead of the field definition
+        to allow more complex logic based on form state and api results.
+        """
+
+        # covering date filters
+        self.form.fields[FieldsConstant.COVERING_DATE_FROM].is_visible = False
+        self.form.fields[FieldsConstant.COVERING_DATE_TO].is_visible = False
+        if (
+            has_results
+            or self.form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(
+                "year"
+            )
+            or self.form.fields[FieldsConstant.COVERING_DATE_TO].value.get(
+                "year"
+            )
+        ):
+            # visible if api results or input values are set
+            self.form.fields[FieldsConstant.COVERING_DATE_FROM].is_visible = (
+                True
+            )
+            self.form.fields[FieldsConstant.COVERING_DATE_TO].is_visible = True
+
+        # held_by filter
+        self.form.fields[FieldsConstant.HELD_BY].is_visible = False
+        if self.form.fields[FieldsConstant.HELD_BY].items:
+            # visible if items set (with api agg values or input values)
+            self.form.fields[FieldsConstant.HELD_BY].is_visible = True

@@ -1,10 +1,8 @@
 """Module for basic form which to work with customised fields."""
 
-from typing import Any
-
 from django.http import QueryDict
 
-from .fields import BaseField, MultiPartDateField
+from .fields import BaseField
 
 
 class BaseForm:
@@ -28,10 +26,16 @@ class BaseForm:
     def __init__(self, data: QueryDict | None = None) -> None:
 
         self.data: QueryDict = data or QueryDict("")
-        self._fields = self.add_fields()
+        self._fields = self._init_fields()
         self._non_field_errors = None
 
         self.bind_fields()
+
+    def _init_fields(self) -> dict[str, BaseField]:
+        """Initialises fields by calling add_fields().
+        Note: Keeps separate outside __init__ to prevent calling
+        overridable methods during object initialization."""
+        return self.add_fields()
 
     @property
     def fields(self) -> dict[str, BaseField]:

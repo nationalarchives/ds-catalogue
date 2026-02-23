@@ -39,6 +39,41 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             "ERROR:app.lib.api:JSON API provided non-JSON response", lc.output
         )
 
+        with self.assertRaisesMessage(Exception, "Non-JSON response provided"):
+            with self.assertLogs("app.lib.api", level="DEBUG") as lc:
+                _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
+        self.assertIn("ERROR:app.lib.api:Non-JSON response: ", lc.output)
+
+    @responses.activate
+    def test_non_json_with_truncation(self):
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id=C123456",
+            status=200,  # 200:Ok
+            body="{ invalid json - "  # malformed JSON
+            "This is a test response that is not JSON."
+            " It contains more than 100 characters to test the truncation "
+            "logic in the logging functionality. "
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        )
+
+        with self.assertRaisesMessage(Exception, "Non-JSON response provided"):
+            with self.assertLogs("app.lib.api", level="ERROR") as lc:
+                _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
+        self.assertIn(
+            "ERROR:app.lib.api:JSON API provided non-JSON response", lc.output
+        )
+
+        with self.assertRaisesMessage(Exception, "Non-JSON response provided"):
+            with self.assertLogs("app.lib.api", level="DEBUG") as lc:
+                _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
+        self.assertIn(
+            "ERROR:app.lib.api:Non-JSON response: "
+            "{ invalid json - This is a test response that is not JSON. "
+            "It contains more than 100 characters to t ... [truncated]",
+            lc.output,
+        )
+
     @responses.activate
     def test_bad_request_with_400(self):
         responses.add(

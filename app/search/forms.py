@@ -1,3 +1,4 @@
+from app.lib.constants import DATE_YMD_SEPARATOR
 from app.lib.fields import (
     CharField,
     ChoiceField,
@@ -10,17 +11,38 @@ from app.records.constants import TNA_LEVELS
 
 from .buckets import CATALOGUE_BUCKETS, Aggregation
 from .collection_names import COLLECTION_CHOICES
-from .constants import DATE_DISPLAY_FORMAT, FieldsConstant, Sort
+from .constants import (
+    DATE_DISPLAY_FORMAT,
+    Display,
+    FieldsConstant,
+    Sort,
+)
 
 
 class CatalogueSearchBaseForm(BaseForm):
+    """This is Base form that corresponds to top level (UI) for catalogue search
+    page. Other fields and validations are added in subclass forms."""
 
     def add_fields(self):
 
         return {
+            # determines the Catalogue Search TNA or NonTNA form to use
             FieldsConstant.GROUP: ChoiceField(
                 choices=CATALOGUE_BUCKETS.as_choices(),
             ),
+            # search term
+            FieldsConstant.Q: CharField(),
+        }
+
+
+class CatalogueSearchCommonForm(CatalogueSearchBaseForm):
+    """Common fields and validation for TNA and Non-TNA catalogue search forms."""
+
+    def add_fields(self):
+
+        fields = super().add_fields()
+
+        return fields | {
             FieldsConstant.SORT: ChoiceField(
                 choices=[
                     (Sort.RELEVANCE.value, "Relevance"),
@@ -30,9 +52,15 @@ class CatalogueSearchBaseForm(BaseForm):
                     (Sort.TITLE_DESC.value, "Title (Z–A)"),
                 ],
             ),
-            FieldsConstant.Q: CharField(),
             FieldsConstant.FILTER_LIST: ChoiceField(
                 choices=Aggregation.as_input_choices_for_long_aggs(),
+            ),
+            FieldsConstant.DISPLAY: ChoiceField(
+                choices=[
+                    (Display.LIST.value, "List view"),
+                    (Display.GRID.value, "Grid view"),
+                ],
+                required=False,
             ),
         }
 
@@ -84,7 +112,7 @@ class CatalogueSearchBaseForm(BaseForm):
         return error_messages
 
 
-class CatalogueSearchTnaForm(CatalogueSearchBaseForm):
+class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
 
     def add_fields(self):
 
@@ -128,25 +156,25 @@ class CatalogueSearchTnaForm(CatalogueSearchBaseForm):
                 label="From",
                 active_filter_label="Record date from",
                 progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator="-",  # FE component uses this value as separator for ymd date entry
+                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
             ),
             FieldsConstant.COVERING_DATE_TO: ToDateField(
                 label="To",
                 active_filter_label="Record date to",
                 progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator="-",  # FE component uses this value as separator for ymd date entry
+                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
             ),
             FieldsConstant.OPENING_DATE_FROM: FromDateField(
                 label="From",
                 active_filter_label="Opening date from",
                 progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator="-",  # FE component uses this value as separator for ymd date entry
+                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
             ),
             FieldsConstant.OPENING_DATE_TO: ToDateField(
                 label="To",
                 active_filter_label="Opening date to",
                 progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator="-",  # FE component uses this value as separator for ymd date entry
+                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
             ),
         }
 
@@ -161,7 +189,7 @@ class CatalogueSearchTnaForm(CatalogueSearchBaseForm):
         return error_messages
 
 
-class CatalogueSearchNonTnaForm(CatalogueSearchBaseForm):
+class CatalogueSearchNonTnaForm(CatalogueSearchCommonForm):
 
     def add_fields(self):
 
@@ -172,13 +200,13 @@ class CatalogueSearchNonTnaForm(CatalogueSearchBaseForm):
                 label="From",
                 active_filter_label="Record date from",
                 progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator="-",  # FE component uses this value as separator for ymd date entry
+                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
             ),
             FieldsConstant.COVERING_DATE_TO: ToDateField(
                 label="To",
                 active_filter_label="Record date to",
                 progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator="-",  # FE component uses this value as separator for ymd date entry
+                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
             ),
             FieldsConstant.HELD_BY: DynamicMultipleChoiceField(
                 label="Held by",

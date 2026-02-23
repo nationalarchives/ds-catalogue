@@ -1,6 +1,8 @@
+import unittest
 from unittest.mock import patch
 
 from app.records.models import Record
+from config.jinja import sanitise_record_field
 from django.test import SimpleTestCase
 
 
@@ -14,13 +16,15 @@ class RecordModelTests(SimpleTestCase):
     def test_empty_for_optional_attributes(self):
         self.record = Record(self.template_details)
 
-        self.assertEqual(self.record.iaid, "")
+        self.assertEqual(self.record.id, "")
         self.assertEqual(self.record.source, "")
         self.assertEqual(self.record.custom_record_type, "")
         self.assertEqual(self.record.reference_number, "")
         self.assertEqual(self.record.title, "")
+        self.assertEqual(self.record.clean_title, "")
         self.assertEqual(self.record.summary_title, "")
         self.assertEqual(self.record.clean_summary_title, "")
+        self.assertEqual(self.record.clean_title_or_summary_title, "")
         self.assertEqual(self.record.date_covering, "")
         self.assertEqual(self.record.creator, [])
         self.assertEqual(self.record.dimensions, "")
@@ -55,7 +59,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.publication_note, [])
         self.assertEqual(self.record.related_materials, ())
         self.assertEqual(self.record.description, "")
-        self.assertEqual(self.record.clean_description, None)
+        self.assertEqual(self.record.clean_description, "")
         self.assertEqual(self.record.no_html_description, "")
         self.assertEqual(self.record.separated_materials, ())
         self.assertEqual(self.record.unpublished_finding_aids, [])
@@ -69,16 +73,16 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.subjects_enrichment, {})
         self.assertEqual(self.record.has_subjects_enrichment, False)
 
-    def test_iaid(self):
+    def test_id(self):
 
         self.record = Record(self.template_details)
 
         # patch raw data
-        self.record._raw["iaid"] = "C123456"
+        self.record._raw["id"] = "C123456"
 
-        self.assertEqual(self.record.iaid, "C123456")
+        self.assertEqual(self.record.id, "C123456")
 
-    def test_iaid_other_places(self):
+    def test_id_other_places(self):
         self.record = Record(self.template_details)
         # patch raw data
         self.record._raw["@previous"] = {
@@ -89,9 +93,9 @@ class RecordModelTests(SimpleTestCase):
         }
         self.record._raw["parent"] = {"@admin": {"id": "C199"}}
 
-        self.assertEqual(self.record.previous.iaid, "C11827824")
-        self.assertEqual(self.record.next.iaid, "C11827826")
-        self.assertEqual(self.record.parent.iaid, "C199")
+        self.assertEqual(self.record.previous.id, "C11827824")
+        self.assertEqual(self.record.next.id, "C11827826")
+        self.assertEqual(self.record.parent.id, "C199")
 
     def test_source(self):
         self.record = Record(self.template_details)
@@ -155,6 +159,15 @@ class RecordModelTests(SimpleTestCase):
             ),
         )
 
+    def test_clean_title(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["cleanTitle"] = "Copy enrolled mortgage for £100"
+        self.assertEqual(
+            self.record.clean_title,
+            "Copy enrolled mortgage for £100",
+        )
+
     def test_summary_title(self):
         self.record = Record(self.template_details)
         # patch raw data
@@ -164,7 +177,7 @@ class RecordModelTests(SimpleTestCase):
     def test_summary_title_other_places(self):
         self.record = Record(self.template_details)
         # patch raw data
-        self.record._raw["iaid"] = "C11827825"
+        self.record._raw["id"] = "C11827825"
         self.record._raw["groupArray"] = [
             {"value": "record"},
             {"value": "tna"},
@@ -323,7 +336,7 @@ class RecordModelTests(SimpleTestCase):
     def test_level_code_other_places(self):
         self.record = Record(self.template_details)
         # patch raw data
-        self.record._raw["iaid"] = "C11827825"
+        self.record._raw["id"] = "C11827825"
         self.record._raw["groupArray"] = [
             {"value": "record"},
             {"value": "tna"},
@@ -415,20 +428,20 @@ class RecordModelTests(SimpleTestCase):
             "https://discovery.nationalarchives.gov.uk/details/a/A13530841",
         )
 
-    # TODO: Re-enable this test when archon template is ready
-    # def test_invalid_data_for_held_by_url(self):
-    #     self.record = Record(self.template_details)
-    #     # patch raw data
-    #     self.record._raw["iaid"] = "C12345"
-    #     self.record._raw["heldById"] = "INVALID"
+    @unittest.skip("TODO: Re-enable this test when archon template is ready")
+    def test_invalid_data_for_held_by_url(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["iaid"] = "C12345"
+        self.record._raw["heldById"] = "INVALID"
 
-    #     with self.assertLogs("app.records.models", level="WARNING") as lc:
-    #         result = self.record.held_by_url
-    #     self.assertEqual(self.record.held_by_url, result)
-    #     self.assertIn(
-    #         "WARNING:app.records.models:held_by_url:Record(C12345):No reverse match for record_details with held_by_id=INVALID",
-    #         lc.output,
-    #     )
+        with self.assertLogs("app.records.models", level="WARNING") as lc:
+            result = self.record.held_by_url
+        self.assertEqual(self.record.held_by_url, result)
+        self.assertIn(
+            "WARNING:app.records.models:held_by_url:Record(C12345):No reverse match for record_details with held_by_id=INVALID",
+            lc.output,
+        )
 
     def test_held_by_count(self):
         self.record = Record(self.template_details)
@@ -627,29 +640,34 @@ class RecordModelTests(SimpleTestCase):
             "value": (
                 """C16248: Online descriptions of individual records can be viewed """
                 """on Discovery, see <a class=\"extref\" """
-                """href=\"f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
+                """href=\"a48f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
                 """"C16248: Also see the Royal Botanic Gardens, Kew """
-                """<a class=\"extref\" href=\"https://www2.calmview.co.uk/kew/calmview"""
-                """/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">online catalogue</a>"""
-                """C244: <span class=\"emph-italic\">Censuses of Population</span>"""
-                """C244: <span class=\"list\"><span class=\"item\">Correspondence and """
-                """papers</span></span>"""
+                """Also see the Royal Botanic Gardens, Kew <a class=\"extref\" """
+                """href=\"https://www2.calmview.co.uk/kew/calmview/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">"""
+                """online catalogue</a>"""
             ),
             "schema": "",
-            "raw": "",
+            "raw": (
+                """C16248: Online descriptions of individual records can be viewed """
+                """on Discovery, see <extref """
+                """href=&#34https://discovery.nationalarchives.gov.uk/details/r/a48f41eb-1496-446c-8bf8-21dc681223da&#34>RM 2</extref>."""
+                """"C16248: Also see the Royal Botanic Gardens, Kew """
+                """Also see the Royal Botanic Gardens, Kew <extref """
+                """href=&#34https://www2.calmview.co.uk/kew/calmview/Record.aspx?src=CalmView.Catalog&#38;id=MN&#38;pos=1&#34>"""
+                """online catalogue</extref>"""
+            ),
         }
+        sanitised = sanitise_record_field(self.record.description)
         self.assertEqual(
-            self.record.description,
+            sanitised,
             (
                 """C16248: Online descriptions of individual records can be viewed """
-                """on Discovery, see <a class=\"extref\" """
-                """href=\"f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
-                """"C16248: Also see the Royal Botanic Gardens, Kew """
-                """<a class=\"extref\" href=\"https://www2.calmview.co.uk/kew/calmview"""
-                """/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">online catalogue</a>"""
-                """C244: <span class=\"emph-italic\">Censuses of Population</span>"""
-                """C244: <span class=\"list\"><span class=\"item\">Correspondence and """
-                """papers</span></span>"""
+                """on Discovery, see <a """
+                """href="/catalogue/id/a48f41eb-1496-446c-8bf8-21dc681223da/">RM 2</a>."""
+                """"C16248: Also see the Royal Botanic Gardens, Kew"""
+                """ Also see the Royal Botanic Gardens, Kew """
+                """<a href="https://www2.calmview.co.uk/kew/calmview/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1" """
+                """title="Opens in a new tab" target="_blank">online catalogue</a>"""
             ),
         )
 
@@ -690,7 +708,7 @@ class RecordModelTests(SimpleTestCase):
             "raw": (
                 """C16248: Online descriptions of individual records can be viewed """
                 """on Discovery, see <a class=\"extref\" """
-                """href=\"f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
+                """href=\"a48f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
                 """"C16248: Also see the Royal Botanic Gardens, Kew """
                 """<a class=\"extref\" href=\"https://www2.calmview.co.uk/kew/calmview"""
                 """/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">online catalogue</a>"""
@@ -704,7 +722,7 @@ class RecordModelTests(SimpleTestCase):
             (
                 """C16248: Online descriptions of individual records can be viewed """
                 """on Discovery, see <a class=\"extref\" """
-                """href=\"f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
+                """href=\"a48f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
                 """"C16248: Also see the Royal Botanic Gardens, Kew """
                 """<a class=\"extref\" href=\"https://www2.calmview.co.uk/kew/calmview"""
                 """/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">online catalogue</a>"""
@@ -717,6 +735,7 @@ class RecordModelTests(SimpleTestCase):
     def test_clean_description(self):
         self.record = Record(self.template_details)
         # patch raw data
+        # cleanDescription contains HTML markup for highlighting search terms
         self.record._raw["cleanDescription"] = (
             "Appellant: <mark>Florence</mark> Emily <mark>Fenn</mark>. Respondent: Ernest William <mark>Fenn</mark>. Type: Wife's petition for divorce [wd]. "
         )
@@ -789,7 +808,7 @@ class RecordModelTests(SimpleTestCase):
     def test_hierarchy(self):
         self.record = Record(self.template_details)
         # patch raw data
-        self.record._raw["iaid"] = "C11827825"
+        self.record._raw["id"] = "C11827825"
         self.record._raw["groupArray"] = [
             {"value": "record"},
             {"value": "tna"},
@@ -910,7 +929,7 @@ class RecordModelTests(SimpleTestCase):
                 self.assertEqual(
                     (
                         hierarchy_record.is_tna,
-                        hierarchy_record.iaid,
+                        hierarchy_record.id,
                         hierarchy_record.url,
                         hierarchy_record.level_code,
                         hierarchy_record.level,
@@ -924,7 +943,7 @@ class RecordModelTests(SimpleTestCase):
     def test_next(self):
         self.record = Record(self.template_details)
         # patch raw data
-        self.record._raw["iaid"] = "C11827825"
+        self.record._raw["id"] = "C11827825"
         self.record._raw["groupArray"] = [
             {"value": "record"},
             {"value": "tna"},
@@ -939,7 +958,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertIsInstance(self.record.next, Record)
         self.assertEqual(
             (
-                self.record.next.iaid,
+                self.record.next.id,
                 self.record.next.url,
                 self.record.next.level_code,
                 self.record.next.level,
@@ -959,7 +978,7 @@ class RecordModelTests(SimpleTestCase):
     def test_previous(self):
         self.record = Record(self.template_details)
         # patch raw data
-        self.record._raw["iaid"] = "C11827825"
+        self.record._raw["id"] = "C11827825"
         self.record._raw["groupArray"] = [
             {"value": "record"},
             {"value": "tna"},
@@ -975,7 +994,7 @@ class RecordModelTests(SimpleTestCase):
 
         self.assertEqual(
             (
-                self.record.previous.iaid,
+                self.record.previous.id,
                 self.record.previous.url,
                 self.record.previous.level_code,
                 self.record.previous.level,
@@ -1010,7 +1029,7 @@ class RecordModelTests(SimpleTestCase):
         self.assertIsInstance(self.record.parent, Record)
         self.assertEqual(
             (
-                self.record.parent.iaid,
+                self.record.parent.id,
                 self.record.parent.reference_number,
                 self.record.parent.summary_title,
             ),
@@ -1055,7 +1074,7 @@ class RecordModelTests(SimpleTestCase):
         self.record = Record(self.template_details)
 
         # patch raw data
-        self.record._raw["iaid"] = "C11827825"
+        self.record._raw["id"] = "C11827825"
 
         self.assertEqual(
             self.record.url,
@@ -1151,3 +1170,65 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(
             second_result, ["Test subject"]
         )  # Original value, not modified
+
+
+class CleanTitleOrCleanSummaryTitleTests(SimpleTestCase):
+    maxDiff = None
+
+    def setUp(self):
+
+        self.template_details = {"some value": "some value"}
+
+    def test_clean_title_or_summary_title_with_empty_title(self):
+        self.record = Record(self.template_details)
+
+        # patch raw data
+        self.record._raw["cleanTitle"] = ""
+        self.record._raw["cleanSummaryTitle"] = (
+            "This is the clean summary title"
+        )
+        self.assertEqual(
+            self.record.clean_title_or_summary_title,
+            "This is the clean summary title",
+        )
+
+    def test_clean_title_or_summary_title_with_shorter_title(self):
+        self.record = Record(self.template_details)
+
+        # patch raw data
+        self.record._raw["cleanTitle"] = "This is the clean title"
+        self.record._raw["cleanSummaryTitle"] = (
+            "This is the clean summary title longer than title"
+        )
+        self.assertEqual(
+            self.record.clean_title_or_summary_title,
+            "This is the clean title",
+        )
+
+    def test_clean_title_or_summary_title_with_longer_title(self):
+        self.record = Record(self.template_details)
+
+        # patch raw data
+        self.record._raw["cleanTitle"] = (
+            "This is the clean title longer than summary title"
+        )
+        self.record._raw["cleanSummaryTitle"] = (
+            "This is the clean summary title"
+        )
+        self.assertEqual(
+            self.record.clean_title_or_summary_title,
+            "This is the clean summary title",
+        )
+
+    def test_clean_title_or_summary_title_with_same_length(self):
+        self.record = Record(self.template_details)
+
+        # patch raw data
+        self.record._raw["cleanTitle"] = "This   is   the   clean   title"
+        self.record._raw["cleanSummaryTitle"] = (
+            "This is the clean summary title"
+        )
+        self.assertEqual(
+            self.record.clean_title_or_summary_title,
+            "This   is   the   clean   title",
+        )

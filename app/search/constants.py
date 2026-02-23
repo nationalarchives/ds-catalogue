@@ -37,3 +37,25 @@ class FieldsConstant:
     COVERING_DATE_TO = "covering_date_to"
     OPENING_DATE_FROM = "opening_date_from"
     OPENING_DATE_TO = "opening_date_to"
+    DISPLAY = "display"
+
+
+FILTER_FIELDS = [
+    FieldsConstant.ONLINE,
+    FieldsConstant.LEVEL,
+    FieldsConstant.COLLECTION,
+    FieldsConstant.SUBJECT,
+    FieldsConstant.CLOSURE,
+    FieldsConstant.HELD_BY,
+    FieldsConstant.COVERING_DATE_FROM,
+    FieldsConstant.COVERING_DATE_TO,
+    FieldsConstant.OPENING_DATE_FROM,
+    FieldsConstant.OPENING_DATE_TO,
+]
+
+
+class Display(StrEnum):
+    """Options for displaying /search results."""
+
+    LIST = "list"
+    GRID = "grid"

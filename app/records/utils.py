@@ -1,8 +1,10 @@
 import logging
 import re
+import time
+from functools import wraps
 from typing import Any, Dict
 
-from app.records.converters import IDConverter
+from django.conf import settings
 from django.urls import NoReverseMatch, reverse
 from pyquery import PyQuery as pq
 
@@ -11,39 +13,30 @@ logger = logging.getLogger(__name__)
 
 def format_link(link_html: str, inc_msg: str = "") -> Dict[str, str]:
     """
-    Extracts iaid and text from a link HTML string, e.g. "<a href="C5789">DEFE 31</a>"
+    Extracts id and text from a link HTML string, e.g. "<a href="C5789">DEFE 31</a>"
     and returns as dict in the format: `{"id":"C5789", "href": "/catalogue/id/C5789/", "text":"DEFE 31"}
 
     inc_msg includes message with logger if sepcified
     Ex:inc_msg <method_name>:Record(<id):"
     """
     document = pq(link_html)
-    iaid = document.attr("href")
+    # if None, return empty value
+    id = document.attr("href") or ""
     try:
-        href = reverse("records:details", kwargs={"id": iaid})
+        href = reverse("records:details", kwargs={"id": id})
     except NoReverseMatch:
         href = ""
         # warning for partially valid data
         logger.warning(
-            f"{inc_msg}format_link:No reverse match for record_details with iaid={iaid}"
+            f"{inc_msg}format_link:No reverse match for record_details with id={id}"
         )
-    return {"id": iaid or "", "href": href, "text": document.text()}
-
-
-def format_extref_links(html: str) -> str:
-    regex = re.compile(f'<a class="extref" href="{IDConverter.regex}"')
-    html = re.sub(
-        regex,
-        lambda m: f'<a class="extref" href="{reverse("records:details", kwargs={"id": m.group(1)})}"',
-        html,
-    )
-    return html
+    return {"id": id or "", "href": href, "text": document.text()}
 
 
 def change_discovery_record_details_links(html: str) -> str:
     regex = re.compile(
         r'href="https?://discovery.nationalarchives.gov.uk/(details/r/|SearchUI/details\?Uri=)'
-        + IDConverter.regex
+        + r'([^"/]+)'  # Capture the id part
         + r'/?"( title="Opens in a new tab")?( target="_blank")?',
         re.IGNORECASE,
     )
@@ -95,3 +88,29 @@ def extract(source: Dict[str, Any], key: str, default: Any = None) -> Any:
         return default
 
     return current
+
+
+def log_enrichment_execution_time(func):
+    """Decorator to log execution time of a method."""
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        # Only time and log if timing logging is enabled
+        if not settings.ENRICHMENT_TIMING_ENABLED:
+            return func(self, *args, **kwargs)
+
+        start_time = time.time()
+        result = func(self, *args, **kwargs)
+        elapsed_time = time.time() - start_time
+
+        mode = (
+            "parallel" if settings.ENABLE_PARALLEL_API_CALLS else "sequential"
+        )
+        logger.info(
+            f"Enrichment fetch for record {self.record.id} completed in "
+            f"{elapsed_time:.3f}s (mode: {mode})"
+        )
+
+        return result
+
+    return wrapper

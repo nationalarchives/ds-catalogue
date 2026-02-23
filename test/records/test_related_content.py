@@ -2,7 +2,7 @@
 Tests for subjects enrichment functionality
 """
 
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from app.lib.api import ResourceNotFound
 from app.records.api import (  # CHANGED: from views to api
@@ -25,7 +25,7 @@ class SubjectsEnrichmentTests(TestCase):
     def setUp(self):
         # Sample record data like what comes from your API
         self.sample_record_data = {
-            "iaid": "C123456",
+            "id": "C123456",
             "title": "RAF Operations File",
             "subjects": [
                 "World War, 1939-1945",
@@ -143,6 +143,7 @@ class SubjectsEnrichmentTests(TestCase):
                 "tags": "world-war-1939-1945,aviation,royal-air-force,military-operations",
                 "limit": 10,
             },
+            timeout=None,
         )
 
     # Test 4: get_subjects_enrichment function failure
@@ -400,7 +401,7 @@ class SubjectsEnrichmentTests(TestCase):
         """Test record detail view when record has no subjects"""
         # Record data without subjects
         record_data_no_subjects = {
-            "iaid": "C123456",
+            "id": "C123456",
             "title": "Record without subjects",
             "subjects": [],
         }

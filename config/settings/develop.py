@@ -2,8 +2,8 @@ import os
 
 from config.util import strtobool
 
-from .base import *
 from .features import *
+from .production import *
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
@@ -15,19 +15,21 @@ if DEBUG:
     # logging
     LOGGING["root"]["level"] = "DEBUG"  # noqa: F405
 
-    # debug toolbar
-    INSTALLED_APPS += [  # noqa: F405
-        "debug_toolbar",
-    ]
+    try:
+        import debug_toolbar
 
-    MIDDLEWARE = [
-        "debug_toolbar.middleware.DebugToolbarMiddleware",
-    ] + MIDDLEWARE  # noqa: F405
+        INSTALLED_APPS += [  # noqa: F405
+            "debug_toolbar",
+        ]
 
-    def show_toolbar(request) -> bool:
-        return True
+        MIDDLEWARE = [
+            "debug_toolbar.middleware.DebugToolbarMiddleware",
+        ] + MIDDLEWARE  # noqa: F405
 
-    DEBUG_TOOLBAR_CONFIG = {
-        "SHOW_TOOLBAR_CALLBACK": show_toolbar,
-        "SHOW_COLLAPSED": True,
-    }
+        DEBUG_TOOLBAR_CONFIG = {
+            "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+            "SHOW_COLLAPSED": True,
+        }
+    except ImportError:
+        # Debug toolbar is not installed
+        pass

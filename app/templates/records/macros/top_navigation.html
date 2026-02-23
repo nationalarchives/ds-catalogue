@@ -7,9 +7,9 @@
     <div class="tna-column tna-column--full">
     {% if request.GET.get('search') %}
       <div class="back-link-group tna-!--padding-top-s tna-!--padding-bottom-s">
-        <a href="{{ url('search:catalogue') }}?{{ request.GET.get('search') | base64_decode }}#record-{{ record.iaid }}" class="back-link">
-          <i class="fa-solid fa-arrow-left back-link__icon" aria-hidden="true"></i>
-          <span class="back-link__text">Back to search results</span>
+        <a href="{{ url('search:catalogue') }}?{{ request.GET.get('search') | sanitize_search_qs }}#record-{{ record.id }}" class="tna-back-link">
+          <!-- <i class="fa-solid fa-arrow-left back-link__icon" aria-hidden="true"></i> -->
+          <span class="tna-back-link__inner">Back to search results</span>
         </a>
         <a href="{{ url('search:catalogue') }}" class="back-link">
           <!-- <i class="fa-solid fa-search back-link__icon" aria-hidden="true"></i> -->
@@ -33,12 +33,12 @@
           }
         ],
         'structuredData': True,
-        'classes': 'tna-!--padding-vertical-s'
+        'classes': 'tna-!--margin-vertical-s'
       }) }}
     {% endif %}
-      {% set record_details_path = url('records:details', kwargs={'id': record.iaid}) %}
-      {% set related_records_path = url('records:related', kwargs={'id': record.iaid}) %}
-      {% set help_path = url('records:help', kwargs={'id': record.iaid}) %}
+      {% set record_details_path = url('records:details', kwargs={'id': record.id}) %}
+      {% set related_records_path = url('records:related', kwargs={'id': record.id}) %}
+      {% set help_path = url('records:help', kwargs={'id': record.id}) %}
       {% if request.GET.get('search') %}
         {% set record_details_path = record_details_path + '?search=' + request.GET.get('search') %}
         {% set related_records_path = related_records_path + '?search=' + request.GET.get('search') %}

@@ -1,5 +1,5 @@
-ARG IMAGE=ghcr.io/nationalarchives/tna-python-django
-ARG IMAGE_TAG=latest
+ARG IMAGE=ghcr.io/nationalarchives/tna-python
+ARG IMAGE_TAG=1
 
 FROM "$IMAGE":"$IMAGE_TAG"
 
@@ -15,13 +15,17 @@ COPY --chown=app . .
 # Install dependencies
 RUN tna-build
 
-# Copy in the static assets from TNA Frontend
-RUN mkdir /app/app/static/assets; \
-    cp -r /app/node_modules/@nationalarchives/frontend/nationalarchives/assets/* /app/app/static/assets; \
-    poetry run python /app/manage.py collectstatic --no-input --clear
+# Create a directory for Django file-based cache
+RUN mkdir -p /home/app/django_cache
 
-# Delete source files, tests and docs
-RUN rm -fR /app/src /app/test /app/docs
+# Copy in the static assets from TNA Frontend, collect static files and remove source files
+RUN mkdir -p /app/app/static/assets; \
+    cp -r /app/node_modules/@nationalarchives/frontend/nationalarchives/assets/* /app/app/static/assets; \
+    poetry run python /app/manage.py collectstatic --no-input --clear; \
+    rm -fR /app/src
+
+# Clean up build dependencies
+RUN tna-clean
 
 # Run the application
-CMD ["tna-run", "config.wsgi:application"]
+CMD ["tna-asgi", "config.asgi:application"]

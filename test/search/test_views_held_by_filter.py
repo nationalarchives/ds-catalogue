@@ -1,6 +1,6 @@
 import responses
 from app.records.models import Record
-from app.search.forms import FieldsConstant
+from app.search.constants import FieldsConstant
 from django.conf import settings
 from django.test import TestCase
 
@@ -25,7 +25,7 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "89d4c544-3d43-43a7-ae95-79e3bba0c25b",
+                                "id": "89d4c544-3d43-43a7-ae95-79e3bba0c25b",
                                 "heldBy": "Devon Archives and Local Studies Service (South West Heritage Trust)",
                                 "referenceNumber": "4420M/Z 13",
                             }
@@ -34,7 +34,7 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C3828406",
+                                "id": "C3828406",
                                 "heldBy": "National Library of Wales: Department of Collection Services",
                                 "referenceNumber": "WALE 20/160",
                             }
@@ -148,6 +148,13 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
         self.assertEqual(held_by_field.more_filter_choices_url, "")
         self.assertEqual(held_by_field.more_filter_choices_text, "")
 
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(held_by_field.is_visible)
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )
+
     @responses.activate
     def test_catalogue_search_context_for_held_by_does_not_exist(
         self,
@@ -223,3 +230,6 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
             held_by_field.more_filter_choices_available,
             False,
         )
+
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(held_by_field.is_visible)

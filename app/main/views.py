@@ -5,6 +5,8 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.template import loader
 
+from .global_alert import fetch_global_alert_api_data
+
 logger = logging.getLogger(__name__)
 
 
@@ -49,22 +51,6 @@ def catalogue(request):
         logger.error(e)
         context["top_pages"] = []
 
-    global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
-    global_alerts_client.add_parameters(
-        {"fields": "_,global_alert,mourning_notice"}
-    )
-    try:
-        context["global_alert"] = global_alerts_client.get(
-            f"/pages/{settings.WAGTAIL_HOME_PAGE_ID}/"
-        )
-    except Exception as e:
-        logger.error(e)
-        context["global_alert"] = {}
+    context["global_alert"] = fetch_global_alert_api_data()
 
-    return HttpResponse(template.render(context, request))
-
-
-def cookies(request):
-    template = loader.get_template("main/cookies.html")
-    context = {"foo": "bar"}
     return HttpResponse(template.render(context, request))

@@ -17,7 +17,7 @@ class TestRecordDetailsById(SimpleTestCase):
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/get?id=C198022",
-            json={"data": [{"@template": {"details": {"iaid": "C198022"}}}]},
+            json={"data": [{"@template": {"details": {"id": "C198022"}}}]},
             status=200,
         )
         result = record_details_by_id(id="C198022")
@@ -90,7 +90,7 @@ class TestWagtailAPIIntegration(SimpleTestCase):
         mock_client_class.assert_called_once_with(
             "https://test-api.example.com", {"tags": "aviation"}
         )
-        mock_client.get.assert_called_once_with("/article_tags/")
+        mock_client.get.assert_called_once_with("/article_tags/", timeout=None)
 
         self.assertEqual(result, {"items": [{"title": "Test Article"}]})
 

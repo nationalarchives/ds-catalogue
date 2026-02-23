@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 import responses
+from app.search.constants import FieldsConstant
 from django.conf import settings
 from django.test import TestCase
 
@@ -22,7 +23,7 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "source": "CAT",
                             }
                         }
@@ -30,7 +31,7 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C7890",
+                                "id": "C7890",
                                 "source": "CAT",
                             }
                         }
@@ -132,6 +133,9 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
             "",
         )
 
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(closure_field.is_visible)
+
     @responses.activate
     def test_catalogue_search_context_with_invalid_closure_param(self):
 
@@ -143,7 +147,7 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
                     {
                         "@template": {
                             "details": {
-                                "iaid": "C123456",
+                                "id": "C123456",
                                 "source": "CAT",
                             }
                         }
@@ -182,7 +186,7 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
             "/catalogue/search/?q=ufo&closure=Open+Document,+Open+Description&closure=invalid"
         )
         context_data = response.context_data
-        closure_field = context_data.get("form").fields["closure"]
+        closure_field = context_data.get("form").fields[FieldsConstant.CLOSURE]
 
         self.assertEqual(
             closure_field.value,
@@ -232,3 +236,6 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
             closure_field.more_filter_choices_available,
             False,
         )
+
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(closure_field.is_visible)
