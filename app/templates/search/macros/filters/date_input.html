@@ -1,53 +1,23 @@
-{% from 'components/button/macro.html' import tnaButton %}
-{% from 'components/date-search/macro.html' import tnaDateSearch %}
-{% from "components/date-input/macro.html" import tnaDateInput %}
-
-{% set date_hint = 'For example: 1997, 1997 and 1, or 1997 1 and 31' %}
-
-{% macro date_input(date_from, date_to, title) %}
+{% from 'components/button/macro.html' import tnaButton %} {% from
+'components/date-search/macro.html' import tnaDateSearch %} {% from
+"components/date-input/macro.html" import tnaDateInput %} {% set date_hint =
+'For example: 1997, 1997 and 1, or 1997 1 and 31' %} {% macro
+date_input(date_from, date_to, title) %}
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
   <h3 class="tna-heading-m">{{ title }}</h3>
-    {{ tnaDateInput({
-    'label': date_from.label,
-    'headingLevel': 4,
-    'headingSize': "s",
-    'id': date_from.id,
-    'name': date_from.name,
-    'value': date_from.value,
-    'formGroupClasses': 'tna-!--margin-top-s',
-    'progressive': date_from.progressive,
-    'hint': date_hint,
-    'attributes': {
-      'form': 'search-form'
-    }
-    }) }}
+  {{ tnaDateInput({ 'label': date_from.label, 'headingLevel': 4, 'headingSize':
+  "s", 'id': date_from.id, 'name': date_from.name, 'value': date_from.value,
+  'formGroupClasses': 'tna-!--margin-top-s', 'progressive':
+  date_from.progressive, 'hint': date_hint, 'attributes': { 'form':
+  'search-form' } }) }} {{ tnaDateInput({ 'label': date_to.label,
+  'headingLevel': 4, 'headingSize': "s", 'id': date_to.id, 'name': date_to.name,
+  'value': date_to.value, 'formGroupClasses': 'tna-!--margin-top-s',
+  'progressive': date_to.progressive, 'hint': date_hint, 'attributes': { 'form':
+  'search-form' } }) }}
 
-    {{ tnaDateInput({
-    'label': date_to.label,
-    'headingLevel': 4,
-    'headingSize': "s",
-    'id': date_to.id,
-    'name': date_to.name,
-    'value': date_to.value,
-    'formGroupClasses': 'tna-!--margin-top-s',
-    'progressive': date_to.progressive,
-    'hint': date_hint,
-    'attributes': {
-      'form': 'search-form'
-    }
-    }) }}
-  
   <div class="tna-button-group tna-!--margin-top-s">
-    {{ tnaButton({
-      'text': 'Update',
-      'buttonElement': True,
-      'buttonType': 'submit',
-      'small': True,
-      'attributes': {
-        'form': 'search-form'
-      }
-    }) }}
+    {{ tnaButton({ 'text': 'Update', 'buttonElement': True, 'buttonType':
+    'submit', 'small': True, 'attributes': { 'form': 'search-form' } }) }}
   </div>
 </div>
 {% endmacro %}
-  

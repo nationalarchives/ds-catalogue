@@ -1,43 +1,19 @@
-{% from 'components/button/macro.html' import tnaButton %}
-{% from 'components/date-search/macro.html' import tnaDateSearch %}
-
-{% macro date_range(request, name, id, title) %}
+{% from 'components/button/macro.html' import tnaButton %} {% from
+'components/date-search/macro.html' import tnaDateSearch %} {% macro
+date_range(request, name, id, title) %}
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
   <h3 class="tna-heading-m">{{ title }}</h3>
-  {{ tnaDateSearch({
-    'label': 'Enter a start date',
-    'headingLevel': 4,
-    'headingSize': 's',
-    'id': id + '-from',
-    'name': name + '_from',
-    'value': request.GET.get(name + '_from', ''),
-    'formItemClasses': 'tna-!--margin-top-s',
-    'attributes': {
-      'form': 'search-form'
-    }
-  }) }}
-  {{ tnaDateSearch({
-    'label': 'Enter an end date',
-    'headingLevel': 4,
-    'headingSize': 's',
-    'id': id + '-to',
-    'name': name + '_to',
-    'value': request.GET.get(name + '_to', ''),
-    'formItemClasses': 'tna-!--margin-top-s',
-    'attributes': {
-      'form': 'search-form'
-    }
-  }) }}
+  {{ tnaDateSearch({ 'label': 'Enter a start date', 'headingLevel': 4,
+  'headingSize': 's', 'id': id + '-from', 'name': name + '_from', 'value':
+  request.GET.get(name + '_from', ''), 'formItemClasses': 'tna-!--margin-top-s',
+  'attributes': { 'form': 'search-form' } }) }} {{ tnaDateSearch({ 'label':
+  'Enter an end date', 'headingLevel': 4, 'headingSize': 's', 'id': id + '-to',
+  'name': name + '_to', 'value': request.GET.get(name + '_to', ''),
+  'formItemClasses': 'tna-!--margin-top-s', 'attributes': { 'form':
+  'search-form' } }) }}
   <div class="tna-button-group tna-!--margin-top-s">
-    {{ tnaButton({
-      'text': 'Update',
-      'buttonElement': True,
-      'buttonType': 'submit',
-      'small': True,
-      'attributes': {
-        'form': 'search-form'
-      }
-    }) }}
+    {{ tnaButton({ 'text': 'Update', 'buttonElement': True, 'buttonType':
+    'submit', 'small': True, 'attributes': { 'form': 'search-form' } }) }}
   </div>
 </div>
 {% endmacro %}

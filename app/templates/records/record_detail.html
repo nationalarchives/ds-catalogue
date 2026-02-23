@@ -1,55 +1,60 @@
-{% extends "base.html" %}
-
-{%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
-{% from 'records/macros/accordion.html' import etna_accordion %}
-{% from 'records/macros/whats_this_about_sub_sub_series_or_above.html' import whats_this_about_sub_sub_series_or_above %}
-{% from 'records/macros/whats_this_about_piece_or_item.html' import whats_this_about_piece_or_item %}
-{% from 'records/macros/available_online.html' import available_online %}
-{% from 'records/macros/available_in_person.html' import available_in_person %}
-{% from 'records/macros/detail_fields.html' import detail_fields %}
-{% from 'records/macros/hierarchy.html' import hierarchy %}
-{% from 'records/macros/how_to_order.html' import how_to_order %}
-{% from 'records/macros/series_information.html' import series_information %}
-{% from 'records/macros/top_navigation.html' import top_navigation %}
-{% from 'records/macros/related_records_block.html' import related_records_block %}
-{% from 'records/macros/related_content_block.html' import related_content_block %}
-{% from 'records/macros/content_warning.html' import content_warning %}
-
-{%- set pageTitle = (record.clean_title_or_summary_title or '[No title]') | striptags -%}
-
-{% block head %}
-  {{ super() }}
-  {# Analytics meta #}
-  {% for property in analytics_data %}
-    <meta name="tna_root:{{ property }}" content="{{ analytics_data[property] | none_to_empty_string() }}">
-  {% endfor %}
-  <link rel="canonical" href="{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.id})) }}">
-{% endblock head %}
-
-{% block stylesheets %}
-{{ super() }}
-    <link rel="stylesheet" href="{{ static('record-details.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
-{% endblock stylesheets %}
-
-{% block beforeContent %}
-{{ top_navigation(record, request) }}
-{% endblock beforeContent %}
-
-{% block content %}
-{{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
-<div class="tna-section tna-!--padding-top-{{ 's' if distressing_content else 'l' }}">
+{% extends "base.html" %} {%- from 'macros/global_alert_banners.html' import
+global_alert_banners -%} {% from 'records/macros/accordion.html' import
+etna_accordion %} {% from
+'records/macros/whats_this_about_sub_sub_series_or_above.html' import
+whats_this_about_sub_sub_series_or_above %} {% from
+'records/macros/whats_this_about_piece_or_item.html' import
+whats_this_about_piece_or_item %} {% from 'records/macros/available_online.html'
+import available_online %} {% from 'records/macros/available_in_person.html'
+import available_in_person %} {% from 'records/macros/detail_fields.html' import
+detail_fields %} {% from 'records/macros/hierarchy.html' import hierarchy %} {%
+from 'records/macros/how_to_order.html' import how_to_order %} {% from
+'records/macros/series_information.html' import series_information %} {% from
+'records/macros/top_navigation.html' import top_navigation %} {% from
+'records/macros/related_records_block.html' import related_records_block %} {%
+from 'records/macros/related_content_block.html' import related_content_block %}
+{% from 'records/macros/content_warning.html' import content_warning %} {%- set
+pageTitle = (record.clean_title_or_summary_title or '[No title]') | striptags
+-%} {% block head %} {{ super() }} {# Analytics meta #} {% for property in
+analytics_data %}
+<meta
+  name="tna_root:{{ property }}"
+  content="{{ analytics_data[property] | none_to_empty_string() }}"
+/>
+{% endfor %}
+<link
+  rel="canonical"
+  href="{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.id})) }}"
+/>
+{% endblock head %} {% block stylesheets %} {{ super() }}
+<link
+  rel="stylesheet"
+  href="{{ static('record-details.css') ~ '?v=' ~ app_config.BUILD_VERSION }}"
+  media="screen,print"
+/>
+{% endblock stylesheets %} {% block beforeContent %} {{ top_navigation(record,
+request) }} {% endblock beforeContent %} {% block content %} {{
+global_alert_banners(request, global_alert.global_alert,
+global_alert.mourning_notice) }}
+<div
+  class="tna-section tna-!--padding-top-{{ 's' if distressing_content else 'l' }}"
+>
   <div class="tna-container">
-    {{ content_warning(
-        distressing_content,
-        "This record may include content that reflects the trauma and distress experienced by those present during or affected by the event of the time"
-      ) }}
-    <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny tna-!--padding-top-xs">
+    {{ content_warning( distressing_content, "This record may include content
+    that reflects the trauma and distress experienced by those present during or
+    affected by the event of the time" ) }}
+    <div
+      class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny tna-!--padding-top-xs"
+    >
       <hgroup class="tna-hgroup-xl">
         <p class="tna-hgroup__supertitle">{{ record.level }}</p>
         <h1 class="tna-hgroup__title">{{ pageTitle }}</h1>
       </hgroup>
 
-      <p>Catalogue reference: <strong class="reference">{{ record.reference_number }}</strong></p>
+      <p>
+        Catalogue reference:
+        <strong class="reference">{{ record.reference_number }}</strong>
+      </p>
 
       {% if canonical %}
       <p>Canonical: {{ canonical }}</p>
@@ -57,73 +62,54 @@
     </div>
   </div>
 
-  {% if record.is_tna and record.level in ["Series", "Division", "Department", "Sub-series", "Sub-sub-series"] %}
-    {{ whats_this_about_sub_sub_series_or_above(record) }}
-  {% else %}
-    <div class="tna-container">
-      {{ whats_this_about_piece_or_item(record) }}
-
-      {% if do_availability_group and do_availability_group != 'PENDING_CLASSIFICATION' %}
-        {{ available_online(record, do_availability_group) }}
-        {{ available_in_person(record, do_availability_group) }}
-      {% elif not record.is_held_by_tna %}
-        {# Records at other archives - we know where they are, just not at TNA #}
-        {{ available_online(record) }}
-        {{ available_in_person(record) }}
-      {% else %}
-        <div class="tna-column tna-column--width-2-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
-          <div class="tna-aside tna-aside--tight tna-background-contrast full-height-aside">
-            <h2 class="tna-heading-m">Access information is unavailable</h2>
-            <p>Sorry, information for accessing this record is currently unavailable online. Please try again later.</p>
-          </div>
-        </div>
-      {% endif %} 
+  {% if record.is_tna and record.level in ["Series", "Division", "Department",
+  "Sub-series", "Sub-sub-series"] %} {{
+  whats_this_about_sub_sub_series_or_above(record) }} {% else %}
+  <div class="tna-container">
+    {{ whats_this_about_piece_or_item(record) }} {% if do_availability_group and
+    do_availability_group != 'PENDING_CLASSIFICATION' %} {{
+    available_online(record, do_availability_group) }} {{
+    available_in_person(record, do_availability_group) }} {% elif not
+    record.is_held_by_tna %} {# Records at other archives - we know where they
+    are, just not at TNA #} {{ available_online(record) }} {{
+    available_in_person(record) }} {% else %}
+    <div
+      class="tna-column tna-column--width-2-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m"
+    >
+      <div
+        class="tna-aside tna-aside--tight tna-background-contrast full-height-aside"
+      >
+        <h2 class="tna-heading-m">Access information is unavailable</h2>
+        <p>
+          Sorry, information for accessing this record is currently unavailable
+          online. Please try again later.
+        </p>
+      </div>
     </div>
-  {% endif %}
-
-  {{ detail_fields(record, field_labels, request) }}
+    {% endif %}
+  </div>
+  {% endif %} {{ detail_fields(record, field_labels, request) }}
 
   <div class="tna-container tna-!--margin-top-m">
     <div class="tna-column tna-column--full tna-margin-top-m">
-      {% set accordion_items = [] %}
-
-      {% if delivery_option %}
-        {% set accordion_items = accordion_items + [{
-          'title': delivery_options_heading,
-          'body': how_to_order(delivery_instructions, tna_discovery_link)
-        }] %}
-      {% endif %}
-
-      {% if record.hierarchy_series %}
-        {% set accordion_items = accordion_items + [{
-          'title': 'Series information',
-          'body': series_information(record)
-        }] %}
-      {% endif %}
-
-      {% set accordion_items = accordion_items + [{
-        'title': 'Catalogue hierarchy',
-        'body': hierarchy(record)
-      }] %}
-
-      {{ etna_accordion({
-        'accordionItems': accordion_items,
-        'id': 'record-extended-details',
-      }) }}
-
+      {% set accordion_items = [] %} {% if delivery_option %} {% set
+      accordion_items = accordion_items + [{ 'title': delivery_options_heading,
+      'body': how_to_order(delivery_instructions, tna_discovery_link) }] %} {%
+      endif %} {% if record.hierarchy_series %} {% set accordion_items =
+      accordion_items + [{ 'title': 'Series information', 'body':
+      series_information(record) }] %} {% endif %} {% set accordion_items =
+      accordion_items + [{ 'title': 'Catalogue hierarchy', 'body':
+      hierarchy(record) }] %} {{ etna_accordion({ 'accordionItems':
+      accordion_items, 'id': 'record-extended-details', }) }}
     </div>
   </div>
 </div>
 
-{% if record.has_subjects_enrichment %}
-  {{ related_content_block(record) }}
-{% endif %}
-
-{{ related_records_block(record, related_records) }}
-
-{% endblock content %}
-
-{% block bodyEnd %}
-{{ super() }}
-    <script src="{{ static('record-details.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+{% if record.has_subjects_enrichment %} {{ related_content_block(record) }} {%
+endif %} {{ related_records_block(record, related_records) }} {% endblock
+content %} {% block bodyEnd %} {{ super() }}
+<script
+  src="{{ static('record-details.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}"
+  defer
+></script>
 {% endblock bodyEnd %}

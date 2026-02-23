@@ -1,96 +1,63 @@
-{% extends "base.html" %}
-
-{% from 'components/breadcrumbs/macro.html' import tnaBreadcrumbs %}
-{% from 'components/button/macro.html' import tnaButton %}
-{% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
-{% from 'components/compound-filters/macro.html' import tnaCompoundFilters %}
-{% from 'components/date-search/macro.html' import tnaDateSearch %}
-{% from 'components/pagination/macro.html' import tnaPagination %}
-{% from 'components/search-field/macro.html' import tnaSearchField %}
-{% from 'components/secondary-navigation/macro.html' import tnaSecondaryNavigation %}
-{% from 'components/select/macro.html' import tnaSelect %}
-{% from 'components/skip-link/macro.html' import tnaSkipLink %}
-{% from 'components/text-input/macro.html' import tnaTextInput %}
-
-{%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
-{%- from 'macros/under_development_banner.html' import under_development_banner -%}
-{% from 'search/macros/filters/search_within.html' import search_within %}
-{% from 'search/macros/filters/date_range.html' import date_range %}
-{% from 'search/macros/filters/date_input.html' import date_input %}
-{% from 'search/macros/filters/opening_date.html' import opening_date %}
-{% from 'search/macros/filters/online.html' import online %}
-{% from 'search/macros/search_results.html' import search_results %}
-{% from 'search/macros/filters/checkboxes_with_submit.html' import checkboxes_with_submit %}
-{% from 'search/macros/filters_not_applied_banner.html' import filters_not_applied_banner %}
-
-{%- set pageTitle = 'Catalogue search results' -%}
-{%- set encodedQuery = request.GET.urlencode() | base64_encode -%}
-
-{% block stylesheets %}
-{{ super() }}
-    <link rel="stylesheet" href="{{ static('catalogue-results.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
-{% endblock stylesheets %}
-
-{% block skipLink %}
-{% if results %}
-  {{ tnaSkipLink({
-    'href': 'results',
-    'text': 'Skip to results'
-  }) }}
-
-  {{ tnaSkipLink({
-    'href': 'skip-from-filters-to-results',
-    'text': 'Skip to search filters'
-  }) }}
-{% endif %}
-{{ super() }}
-{% endblock skipLink %}
-
-{% block head %}
-  {{ super() }}
-  {% for property in analytics_data %}
-    <meta name="tna_root:{{ property }}" content="{{ analytics_data[property] | none_to_empty_string() }}">
-  {% endfor %}
-{% endblock head %}
-
-{% block beforeContent %}
+{% extends "base.html" %} {% from 'components/breadcrumbs/macro.html' import
+tnaBreadcrumbs %} {% from 'components/button/macro.html' import tnaButton %} {%
+from 'components/checkboxes/macro.html' import tnaCheckboxes %} {% from
+'components/compound-filters/macro.html' import tnaCompoundFilters %} {% from
+'components/date-search/macro.html' import tnaDateSearch %} {% from
+'components/pagination/macro.html' import tnaPagination %} {% from
+'components/search-field/macro.html' import tnaSearchField %} {% from
+'components/secondary-navigation/macro.html' import tnaSecondaryNavigation %} {%
+from 'components/select/macro.html' import tnaSelect %} {% from
+'components/skip-link/macro.html' import tnaSkipLink %} {% from
+'components/text-input/macro.html' import tnaTextInput %} {%- from
+'macros/global_alert_banners.html' import global_alert_banners -%} {%- from
+'macros/under_development_banner.html' import under_development_banner -%} {%
+from 'search/macros/filters/search_within.html' import search_within %} {% from
+'search/macros/filters/date_range.html' import date_range %} {% from
+'search/macros/filters/date_input.html' import date_input %} {% from
+'search/macros/filters/opening_date.html' import opening_date %} {% from
+'search/macros/filters/online.html' import online %} {% from
+'search/macros/search_results.html' import search_results %} {% from
+'search/macros/filters/checkboxes_with_submit.html' import
+checkboxes_with_submit %} {% from
+'search/macros/filters_not_applied_banner.html' import
+filters_not_applied_banner %} {%- set pageTitle = 'Catalogue search results' -%}
+{%- set encodedQuery = request.GET.urlencode() | base64_encode -%} {% block
+stylesheets %} {{ super() }}
+<link
+  rel="stylesheet"
+  href="{{ static('catalogue-results.css') ~ '?v=' ~ app_config.BUILD_VERSION }}"
+  media="screen,print"
+/>
+{% endblock stylesheets %} {% block skipLink %} {% if results %} {{
+tnaSkipLink({ 'href': 'results', 'text': 'Skip to results' }) }} {{
+tnaSkipLink({ 'href': 'skip-from-filters-to-results', 'text': 'Skip to search
+filters' }) }} {% endif %} {{ super() }} {% endblock skipLink %} {% block head
+%} {{ super() }} {% for property in analytics_data %}
+<meta
+  name="tna_root:{{ property }}"
+  content="{{ analytics_data[property] | none_to_empty_string() }}"
+/>
+{% endfor %} {% endblock head %} {% block beforeContent %}
 <div class="tna-background-accent-light">
   <div class="tna-container">
     <div class="tna-column tna-column--full">
-      {{ tnaBreadcrumbs({
-        'items': [
-          {
-            'text': 'Home',
-            'href': '/'
-          },
-          {
-            'text': 'Catalogue',
-            'href': url('main:catalogue')
-          }
-        ],
-        'structuredData': True,
-        'classes': 'tna-!--margin-vertical-s'
-      }) }}
+      {{ tnaBreadcrumbs({ 'items': [ { 'text': 'Home', 'href': '/' }, { 'text':
+      'Catalogue', 'href': url('main:catalogue') } ], 'structuredData': True,
+      'classes': 'tna-!--margin-vertical-s' }) }}
     </div>
   </div>
 </div>
-{% endblock beforeContent %}
-
-{% block content %}
+{% endblock beforeContent %} {% block content %}
 <div class="tna-background-accent-light">
-  {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
+  {{ global_alert_banners(request, global_alert.global_alert,
+  global_alert.mourning_notice) }}
 </div>
 <div class="tna-background-accent-light tna-!--padding-top-s">
   <div class="tna-container">
     <form id="search-form" method="get" class="tna-column tna-column--full">
-      {{ tnaSearchField({
-        'label': pageTitle,
-        'headingLevel': 1,
-        'headingSize': 'l',
-        'id': 'search',
-        'name':  form.fields.q.name,
-        'value': form.fields.q.value
-      }) }}
+      {{ tnaSearchField({ 'label': pageTitle, 'headingLevel': 1, 'headingSize':
+      'l', 'id': 'search', 'name': form.fields.q.name, 'value':
+      form.fields.q.value }) }}
       <!-- <div class="tna-button-group tna-!--margin-top-xs">
         {{ tnaButton({
           'text': 'Start new search',
@@ -100,222 +67,200 @@
         }) }}
       </div> -->
       {# display condition handles invalid group input #}
-      <input type="hidden" name="display" value="{{ form.fields.display.value if form.fields.display else display_options.LIST.value }}">
-      <input type="hidden" name="group" value="{{ request.GET.get('group') or bucket_keys.TNA }}">
-      {% if form.fields.group.value==bucket_keys.TNA %}
-        {# preserve invalid inputs from disappearing when other filters are updated until invalids are removed #}
-        {% if form.fields['level'].error %}
-          {% for value in form.fields['level'].value %}
-            <input type="hidden" name="level" value="{{ value }}">
-          {% endfor %}
-        {% endif %}
-      {% endif %}
+      <input
+        type="hidden"
+        name="display"
+        value="{{ form.fields.display.value if form.fields.display else display_options.LIST.value }}"
+      />
+      <input
+        type="hidden"
+        name="group"
+        value="{{ request.GET.get('group') or bucket_keys.TNA }}"
+      />
+      {% if form.fields.group.value==bucket_keys.TNA %} {# preserve invalid
+      inputs from disappearing when other filters are updated until invalids are
+      removed #} {% if form.fields['level'].error %} {% for value in
+      form.fields['level'].value %}
+      <input type="hidden" name="level" value="{{ value }}" />
+      {% endfor %} {% endif %} {% endif %}
     </form>
     <div class="tna-column tna-column-full">
       <a href="{{ url('search:catalogue') }}">Start new search</a>
     </div>
     <div class="tna-column tna-column--full">
-      {{ tnaSecondaryNavigation({
-        'title': 'Sections',
-        'headingLevel': 2,
-        'items': bucket_list.items,
-        'noBottomBorder': True,
-        'visuallyHideHeading': True,
-        'classes': 'tna-!--margin-top-m etna-results-buckets'
-      }) }}
+      {{ tnaSecondaryNavigation({ 'title': 'Sections', 'headingLevel': 2,
+      'items': bucket_list.items, 'noBottomBorder': True, 'visuallyHideHeading':
+      True, 'classes': 'tna-!--margin-top-m etna-results-buckets' }) }}
     </div>
   </div>
 </div>
 <div class="tna-container">
-  <div id="filter-panel" class="tna-column tna-column--width-1-4 tna-column--width-1-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-l">
-  
+  <div
+    id="filter-panel"
+    class="tna-column tna-column--width-1-4 tna-column--width-1-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-l"
+  >
     {% if results %}
     <div class="mobile-skip">
-      {{ tnaButton({
-        'text': 'Skip to search results',
-        'href': '#results',
-        'plain': True,
-        'small': True,
-        'icon': 'arrow-down'
-      }) }}
+      {{ tnaButton({ 'text': 'Skip to search results', 'href': '#results',
+      'plain': True, 'small': True, 'icon': 'arrow-down' }) }}
     </div>
-    {% endif %}
-
-    {{ under_development_banner() }}
-
-    {% if filters_visible %}
-      <h2 class="tna-heading-l tna-!--margin-top-xs">Filters</h2>
-    {% endif %}
-
-    {# This skip link is revealed on focus, including where a user has landed on it by using the 'Skip to search filters' link #}
+    {% endif %} {{ under_development_banner() }} {% if filters_visible %}
+    <h2 class="tna-heading-l tna-!--margin-top-xs">Filters</h2>
+    {% endif %} {# This skip link is revealed on focus, including where a user
+    has landed on it by using the 'Skip to search filters' link #}
     <div class="skip-from-filters-to-results">
-      {{ tnaSkipLink({
-        'href': 'results',
-        'text': 'This is the search filters section. Skip to search results section.',
-        'attributes': {
-          'id': 'skip-from-filters-to-results'
-        }
-      }) }}
+      {{ tnaSkipLink({ 'href': 'results', 'text': 'This is the search filters
+      section. Skip to search results section.', 'attributes': { 'id':
+      'skip-from-filters-to-results' } }) }}
     </div>
 
     <div class="tna-button-group tna-!--margin-top-xs">
-      {{ tnaButton({
-        'html': '<span id="mobile-filters-text">Add filters</span>' + (' <span class="selected-filters-count">' ~ (selected_filters | length) ~ ' </span>' if (selected_filters | length) else ''),
-        'buttonElement': True,
-        'small': False,
-        'attributes': {
-          'form': 'search-form',
-          'id':'mobile-filters'
-          
-        }
-      }) }}
+      {{ tnaButton({ 'html': '<span id="mobile-filters-text">Add filters</span>'
+      + ('
+      <span class="selected-filters-count"
+        >' ~ (selected_filters | length) ~ ' </span
+      >' if (selected_filters | length) else ''), 'buttonElement': True,
+      'small': False, 'attributes': { 'form': 'search-form',
+      'id':'mobile-filters' } }) }}
     </div>
     {% if selected_filters %}
-        <div class="tna-aside tna-aside--tight tna-background-accent-light tna-!--margin-top-s">
-            <h3 class="tna-heading-m">Active filters {% if selected_filters %} ({{ selected_filters | length }}){% endif %}:</h3>
-            {{ tnaCompoundFilters({
-              'items': selected_filters,
-              'removeAllHref': url('search:catalogue') + '?group=' + form.fields.group.value + '&q=' + form.fields.q.value + '&display=' + (request.GET.get('display') or ''),
-              'removeAllText': 'Reset filters',
-              'classes': 'tna-!--margin-top-s'
-            }) }}
-        </div>
-    {% endif %}
-
-    {% if form.fields.group.value==bucket_keys.TNA %}
-      {% if form.fields.online.is_visible %}
-        {{ online(request) }}
-      {% endif %}
-      {# {{ search_within(request) }} #}
-      {% if form.fields.covering_date_from.is_visible or form.fields.covering_date_to.is_visible %}
-        {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
-      {% endif %}
-      {% if form.fields.collection.is_visible %}
-        {{ checkboxes_with_submit(request, form.fields.collection) }}
-      {% endif %}
-      {% if form.fields.subject.is_visible %}
-        {{ checkboxes_with_submit(request, form.fields.subject) }}
-      {% endif %}
-      {% if form.fields.level.is_visible %}
-        {{ checkboxes_with_submit(request, form.fields.level) }}
-      {% endif %}
-      {% if form.fields.opening_date_from.is_visible or form.fields.opening_date_to.is_visible %}
-        {{ date_input(form.fields.opening_date_from, form.fields.opening_date_to, 'Filter by record opening date') }}
-      {% endif %}
-      {% if form.fields.closure.is_visible %}
-        {{ checkboxes_with_submit(request, form.fields.closure) }}
-      {% endif %}
-    {% elif form.fields.group.value==bucket_keys.NON_TNA %}
-      {# {{ search_within(request) }} #}
-      {% if form.fields.covering_date_from.is_visible or form.fields.covering_date_to.is_visible %}
-        {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
-      {% endif %}
-      {% if form.fields.held_by.is_visible %}
-        {{ checkboxes_with_submit(request, form.fields.held_by) }}
-      {% endif %}
-    {% endif %}
-    
-    
+    <div
+      class="tna-aside tna-aside--tight tna-background-accent-light tna-!--margin-top-s"
+    >
+      <h3 class="tna-heading-m">
+        Active filters {% if selected_filters %} ({{ selected_filters | length
+        }}){% endif %}:
+      </h3>
+      {{ tnaCompoundFilters({ 'items': selected_filters, 'removeAllHref':
+      url('search:catalogue') + '?group=' + form.fields.group.value + '&q=' +
+      form.fields.q.value + '&display=' + (request.GET.get('display') or ''),
+      'removeAllText': 'Reset filters', 'classes': 'tna-!--margin-top-s' }) }}
+    </div>
+    {% endif %} {% if form.fields.group.value==bucket_keys.TNA %} {% if
+    form.fields.online.is_visible %} {{ online(request) }} {% endif %} {# {{
+    search_within(request) }} #} {% if form.fields.covering_date_from.is_visible
+    or form.fields.covering_date_to.is_visible %} {{
+    date_input(form.fields.covering_date_from, form.fields.covering_date_to,
+    'Filter by record date') }} {% endif %} {% if
+    form.fields.collection.is_visible %} {{ checkboxes_with_submit(request,
+    form.fields.collection) }} {% endif %} {% if form.fields.subject.is_visible
+    %} {{ checkboxes_with_submit(request, form.fields.subject) }} {% endif %} {%
+    if form.fields.level.is_visible %} {{ checkboxes_with_submit(request,
+    form.fields.level) }} {% endif %} {% if
+    form.fields.opening_date_from.is_visible or
+    form.fields.opening_date_to.is_visible %} {{
+    date_input(form.fields.opening_date_from, form.fields.opening_date_to,
+    'Filter by record opening date') }} {% endif %} {% if
+    form.fields.closure.is_visible %} {{ checkboxes_with_submit(request,
+    form.fields.closure) }} {% endif %} {% elif
+    form.fields.group.value==bucket_keys.NON_TNA %} {# {{ search_within(request)
+    }} #} {% if form.fields.covering_date_from.is_visible or
+    form.fields.covering_date_to.is_visible %} {{
+    date_input(form.fields.covering_date_from, form.fields.covering_date_to,
+    'Filter by record date') }} {% endif %} {% if form.fields.held_by.is_visible
+    %} {{ checkboxes_with_submit(request, form.fields.held_by) }} {% endif %} {%
+    endif %}
   </div>
   {% if results %}
-  <div id="results" class="tna-column tna-column--width-3-4 tna-column--width-2-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-l">
+  <div
+    id="results"
+    class="tna-column tna-column--width-3-4 tna-column--width-2-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-l"
+  >
     <div class="tna-container tna-container--nested tna-!--padding-bottom-s">
       {% if stats %}
-      <div class="tna-column tna-column--flex-1 tna-column--full-tiny tna-column--align-centre">Showing results {{ results_range.from | format_number }}–{{ results_range.to | format_number }} of {{ stats.total | format_number }}</div>
+      <div
+        class="tna-column tna-column--flex-1 tna-column--full-tiny tna-column--align-centre"
+      >
+        Showing results {{ results_range.from | format_number }}–{{
+        results_range.to | format_number }} of {{ stats.total | format_number }}
+      </div>
       {% endif %}
       <div class="tna-column tna-column--full-tiny tna-column--align-centre">
-        {{ tnaSelect({
-          'label': 'Sort by',
-          'headingLevel': 2,
-          'headingSize': 's',
-          'id': 'sort',
-          'name': form.fields.sort.name,
-          'items': form.fields.sort.items,
-          'selected': form.fields.sort.value,
-          'formItemClasses': 'etna-results-sort-by',
-          'formItemAttributes': {
-            'id': 'sort-form-group'
-          },
-          'attributes': {
-            'form': 'search-form'
-          }
-        }) }}
-        <div class="tna-button-group tna-button-group--small tna-!--margin-top-xs">
-          {{ tnaButton({
-            'text': 'Apply',
-            'buttonElement': True,
-            'buttonType': 'submit',
-            'small': True,
-            'attributes': {
-              'form': 'search-form'
-            }
-          }) }}
+        {{ tnaSelect({ 'label': 'Sort by', 'headingLevel': 2, 'headingSize':
+        's', 'id': 'sort', 'name': form.fields.sort.name, 'items':
+        form.fields.sort.items, 'selected': form.fields.sort.value,
+        'formItemClasses': 'etna-results-sort-by', 'formItemAttributes': { 'id':
+        'sort-form-group' }, 'attributes': { 'form': 'search-form' } }) }}
+        <div
+          class="tna-button-group tna-button-group--small tna-!--margin-top-xs"
+        >
+          {{ tnaButton({ 'text': 'Apply', 'buttonElement': True, 'buttonType':
+          'submit', 'small': True, 'attributes': { 'form': 'search-form' } }) }}
         </div>
       </div>
-      <div class="tna-column tna-column--full-tiny etna-results-layout tna-column--align-centre">
+      <div
+        class="tna-column tna-column--full-tiny etna-results-layout tna-column--align-centre"
+      >
         <h2 class="tna-visually-hidden">Results layout</h2>
-        <div class="tna-button-group tna-button-group--small tna-!--no-margin-top">
-          {{ tnaButton({
-            'text': 'Display as list',
-            'href': '?' + qs_replace_value(request.GET, fields_constant.DISPLAY, display_options.LIST.value),
-            'icon': 'list',
-            'iconOnly': True
-          }) }}
-          {{ tnaButton({
-            'text': 'Display as grid',
-            'href': '?' + qs_replace_value(request.GET, fields_constant.DISPLAY, display_options.GRID.value),
-            'icon': 'grip',
-            'iconOnly': True
-          }) }}
+        <div
+          class="tna-button-group tna-button-group--small tna-!--no-margin-top"
+        >
+          {{ tnaButton({ 'text': 'Display as list', 'href': '?' +
+          qs_replace_value(request.GET, fields_constant.DISPLAY,
+          display_options.LIST.value), 'icon': 'list', 'iconOnly': True }) }} {{
+          tnaButton({ 'text': 'Display as grid', 'href': '?' +
+          qs_replace_value(request.GET, fields_constant.DISPLAY,
+          display_options.GRID.value), 'icon': 'grip', 'iconOnly': True }) }}
         </div>
       </div>
     </div>
     <h2 class="tna-visually-hidden">Results</h2>
-    {{ filters_not_applied_banner() if show_banner_for_filters_not_applied }}
-    {{ search_results(request, display_options, form.fields.display.value, results, encodedQuery) }}
+    {{ filters_not_applied_banner() if show_banner_for_filters_not_applied }} {{
+    search_results(request, display_options, form.fields.display.value, results,
+    encodedQuery) }}
   </div>
   <div class="tna-column tna-column--full tna-!--margin-top-l">
-    {{ tnaPagination(pagination) }}
-    {% if page >= 495 %}
-    <p class="tna-!--align-centre tna-!--margin-top-xs"><small><strong>Only the first 10,000 results are shown, apply filters to narrow your search.</strong></small></p>
+    {{ tnaPagination(pagination) }} {% if page >= 495 %}
+    <p class="tna-!--align-centre tna-!--margin-top-xs">
+      <small
+        ><strong
+          >Only the first 10,000 results are shown, apply filters to narrow your
+          search.</strong
+        ></small
+      >
+    </p>
     {% endif %}
   </div>
   {% else %}
-  <div class="tna-column tna-column--width-3-4 tna-column--width-2-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-l">
+  <div
+    class="tna-column tna-column--width-3-4 tna-column--width-2-3-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-l"
+  >
     {{ filters_not_applied_banner() if show_banner_for_filters_not_applied }}
     <h2 class="tna-heading-xl">No results found</h2>
     <p>No results were found for your query.</p>
     <p>Try widening your search.</p>
 
-    {# TODO: Error logging is temporary for demo and must be formalised #}
-    {% if form.errors or form.non_field_errors %}
-      <h4>Form Errors</h4>
-      <dl class="tna-dl">
-        <dt>Param/ErrorName</dt>
-        <dd>Value</dd>
-        {% for field, error in form.errors.items() %}
-          <dt>{{ field }}</dt>
-          <dd>{{ error.text }}</dd>
-        {% endfor %}
-        {% for error in form.non_field_errors %}
-          <dt>NONFIELDERROR</dt>
-          <dd>{{ error.text }}</dd>
-        {% endfor %}
-      </dl>
+    {# TODO: Error logging is temporary for demo and must be formalised #} {% if
+    form.errors or form.non_field_errors %}
+    <h4>Form Errors</h4>
+    <dl class="tna-dl">
+      <dt>Param/ErrorName</dt>
+      <dd>Value</dd>
+      {% for field, error in form.errors.items() %}
+      <dt>{{ field }}</dt>
+      <dd>{{ error.text }}</dd>
+      {% endfor %} {% for error in form.non_field_errors %}
+      <dt>NONFIELDERROR</dt>
+      <dd>{{ error.text }}</dd>
+      {% endfor %}
+    </dl>
     {% endif %}
   </div>
   {% endif %}
-  <section class="tna-column tna-column--full tna-!--hide-on-print tna-!--margin-top-l">
-      <hr>
-      <p>
-        <a href="#top" class="tna-button tna-button--small tna-button--plain"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i>Back to top</a>
-      </p>
-</section>  
-
+  <section
+    class="tna-column tna-column--full tna-!--hide-on-print tna-!--margin-top-l"
+  >
+    <hr />
+    <p>
+      <a href="#top" class="tna-button tna-button--small tna-button--plain"
+        ><i class="fa-solid fa-arrow-up" aria-hidden="true"></i>Back to top</a
+      >
+    </p>
+  </section>
 </div>
-{% endblock content %}
-
-{% block bodyEnd %}
-{{ super() }}
-    <script src="{{ static('catalogue-results.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+{% endblock content %} {% block bodyEnd %} {{ super() }}
+<script
+  src="{{ static('catalogue-results.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}"
+  defer
+></script>
 {% endblock bodyEnd %}

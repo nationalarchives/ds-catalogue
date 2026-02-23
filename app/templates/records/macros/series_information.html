@@ -1,23 +1,29 @@
-{% macro series_information(record) %}
-
-  {% if record.hierarchy_series %}
-    <div class="tna-container tna-container--nested">
-      <div class="tna-column tna-column--full">
-        <div class="tna-container tna-container--nested tna-!--margin-top-xs">
-          <div class="tna-column">
-            <div class="tna-background-accent square">
-              <p class="tna-heading-m">{{ record.hierarchy_series.reference_number }}</p>
-            </div>
-          </div>
-          <div class="tna-column">
-            <h3 class="tna-heading-m">{{ record.hierarchy_series.summary_title }}</h3>
-            <p>See the series level description for more information about this record.</p>
-            <p>
-              <a href="{{ record.hierarchy_series.url }}">View series description</a>
-            </p>
-          </div>
+{% macro series_information(record) %} {% if record.hierarchy_series %}
+<div class="tna-container tna-container--nested">
+  <div class="tna-column tna-column--full">
+    <div class="tna-container tna-container--nested tna-!--margin-top-xs">
+      <div class="tna-column">
+        <div class="tna-background-accent square">
+          <p class="tna-heading-m">
+            {{ record.hierarchy_series.reference_number }}
+          </p>
         </div>
       </div>
+      <div class="tna-column">
+        <h3 class="tna-heading-m">
+          {{ record.hierarchy_series.summary_title }}
+        </h3>
+        <p>
+          See the series level description for more information about this
+          record.
+        </p>
+        <p>
+          <a href="{{ record.hierarchy_series.url }}"
+            >View series description</a
+          >
+        </p>
+      </div>
     </div>
-  {% endif %}
-{% endmacro %}
+  </div>
+</div>
+{% endif %} {% endmacro %}

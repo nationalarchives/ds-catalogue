@@ -1,29 +1,14 @@
-{% from 'components/button/macro.html' import tnaButton %}
-{% from 'components/text-input/macro.html' import tnaTextInput %}
-
-{% macro search_within(request) %}
+{% from 'components/button/macro.html' import tnaButton %} {% from
+'components/text-input/macro.html' import tnaTextInput %} {% macro
+search_within(request) %}
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
-  {{ tnaTextInput({
-    'label': 'Search within results',
-    'headingLevel': 3,
-    'headingSize': 'm',
-    'id': 'search-within',
-    'name': 'search_within',
-    'value': request.GET.get('search_within') or '',
-    'attributes': {
-      'form': 'search-form'
-    }
-  }) }}
+  {{ tnaTextInput({ 'label': 'Search within results', 'headingLevel': 3,
+  'headingSize': 'm', 'id': 'search-within', 'name': 'search_within', 'value':
+  request.GET.get('search_within') or '', 'attributes': { 'form': 'search-form'
+  } }) }}
   <div class="tna-button-group tna-!--margin-top-s">
-    {{ tnaButton({
-      'text': 'Update',
-      'buttonElement': True,
-      'buttonType': 'submit',
-      'small': True,
-      'attributes': {
-        'form': 'search-form'
-      }
-    }) }}
+    {{ tnaButton({ 'text': 'Update', 'buttonElement': True, 'buttonType':
+    'submit', 'small': True, 'attributes': { 'form': 'search-form' } }) }}
   </div>
 </div>
 {% endmacro %}

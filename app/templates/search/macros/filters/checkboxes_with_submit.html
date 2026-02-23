@@ -1,38 +1,16 @@
-{% from 'components/button/macro.html' import tnaButton %}
-{% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
-
-{% macro checkboxes_with_submit(request, field) %}
-  <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
-    {{ tnaCheckboxes({
-      'label': field.label,
-      'headingLevel': 3,
-      'headingSize': 'm',
-      'id': field.id,
-      'name': field.name,
-      'items': field.items,
-      'small': True,
-      'attributes': {
-        'form': 'search-form'
-      }
-    }) }}
-    <div class="tna-button-group tna-button-group--small tna-!--margin-top-s">
-      {{ tnaButton({
-        'text': 'Update',
-        'buttonElement': True,
-        'buttonType': 'submit',
-        'small': True,
-        'attributes': {
-          'form': 'search-form'
-        }
-      }) }}
-      {% if field.more_filter_choices_available %}
-        {{ tnaButton({
-          'text': field.more_filter_choices_text,
-          'href': field.more_filter_choices_url,
-          'plain': True,
-          'small': True
-        }) }}
-      {% endif %}
-    </div>
+{% from 'components/button/macro.html' import tnaButton %} {% from
+'components/checkboxes/macro.html' import tnaCheckboxes %} {% macro
+checkboxes_with_submit(request, field) %}
+<div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
+  {{ tnaCheckboxes({ 'label': field.label, 'headingLevel': 3, 'headingSize':
+  'm', 'id': field.id, 'name': field.name, 'items': field.items, 'small': True,
+  'attributes': { 'form': 'search-form' } }) }}
+  <div class="tna-button-group tna-button-group--small tna-!--margin-top-s">
+    {{ tnaButton({ 'text': 'Update', 'buttonElement': True, 'buttonType':
+    'submit', 'small': True, 'attributes': { 'form': 'search-form' } }) }} {% if
+    field.more_filter_choices_available %} {{ tnaButton({ 'text':
+    field.more_filter_choices_text, 'href': field.more_filter_choices_url,
+    'plain': True, 'small': True }) }} {% endif %}
   </div>
+</div>
 {% endmacro %}

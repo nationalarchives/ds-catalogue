@@ -1,23 +1,29 @@
-{% macro whats_this_about_sub_sub_series_or_above(record) %}
-  {% set PREFERRED_DESCRIPTION_LENGTH = 250 %}
-  <div class="tna-container tna-!--margin-top-m">
-    <div class="tna-column tna-column--full">
-      <div class="tna-!--padding-vertical-m tna-background-accent-light etna-rounded-corners">
-        <div class="tna-container">
-          <div class="tna-column tna-column--full">
-            <h2 class="tna-heading-l">What's it about?</h2>
+{% macro whats_this_about_sub_sub_series_or_above(record) %} {% set
+PREFERRED_DESCRIPTION_LENGTH = 250 %}
+<div class="tna-container tna-!--margin-top-m">
+  <div class="tna-column tna-column--full">
+    <div
+      class="tna-!--padding-vertical-m tna-background-accent-light etna-rounded-corners"
+    >
+      <div class="tna-container">
+        <div class="tna-column tna-column--full">
+          <h2 class="tna-heading-l">What's it about?</h2>
+        </div>
+        <div class="tna-column tna-column--align-centre tna-!--margin-top-xs">
+          <div class="square tna-background-contrast">
+            <p class="tna-heading-m">{{ record.reference_number }}</p>
           </div>
-          <div class="tna-column tna-column--align-centre tna-!--margin-top-xs">
-            <div class="square tna-background-contrast">
-              <p class="tna-heading-m">{{ record.reference_number }}</p>
-            </div>
-          </div>
-          <div
-            class="tna-column tna-column--flex-1 tna-column--full-small tna-column--full-tiny tna-column--align-centre tna-!--margin-top-xs">
-            <p>{{ record.no_html_description | truncate(PREFERRED_DESCRIPTION_LENGTH) }}</p>
-          </div>
+        </div>
+        <div
+          class="tna-column tna-column--flex-1 tna-column--full-small tna-column--full-tiny tna-column--align-centre tna-!--margin-top-xs"
+        >
+          <p>
+            {{ record.no_html_description |
+            truncate(PREFERRED_DESCRIPTION_LENGTH) }}
+          </p>
         </div>
       </div>
     </div>
   </div>
+</div>
 {% endmacro %}

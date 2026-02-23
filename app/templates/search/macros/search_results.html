@@ -1,43 +1,46 @@
-{% macro search_results(request, display_options, display_mode, results, encodedQuery) %}
-  <ul class="etna-results etna-results--{{ display_mode }}">
-    {% for result in results %}
-
-      {% set details_url = url('records:details', kwargs={'id': result.id}) + '?search=' + encodedQuery %}
-
-      {% if display_mode == display_options.GRID.value %}
-        <li id="record-{{ result.id }}">
-          <h3 class="tna-heading-s"><a href="{{ details_url }}">{{ result.summary_title | safe }}</a></h3>
-          <dl class="etna-result-attributes etna-result-attributes--grid">
-            <dt>Held by</dt>
-            <dd>{{ result.held_by }}</dd>
-            <dt>Date</dt>
-            <dd>{{ result.date_covering }}</dd>
-            <dt>Reference</dt>
-            <dd>{{ result.reference_number }}</dd>
-          </dl>
-        </li>
-      {% else %}
-        <li id="record-{{ result.id }}">
-          <dl class="tna-dl-chips">
-            <dt>Catalogue level</dt>
-            <dd>
-              <span class="tna-dl-chips__item">
-                {{ result.level }}
-              </span>
-            </dd>
-          </dl>
-          <h3 class="tna-heading-m tna-!--no-margin-top tna-!--no-padding-top"><a href="{{ details_url }}">{{ result.summary_title | safe }}</a></h3>
-          <p>{{ result.clean_description | truncate_preserve_mark_tags() | remove_string_case_insensitive('scope and content') | safe }}</p>
-          <dl class="etna-result-attributes etna-result-attributes--list">
-            <dt>Held by</dt>
-            <dd>{{ result.held_by }}</dd>
-            <dt>Date</dt>
-            <dd>{{ result.date_covering }}</dd>
-            <dt>Reference</dt>
-            <dd>{{ result.reference_number }}</dd>
-          </dl>
-        </li>
-      {% endif %}
-    {% endfor %}
-  </ul>
+{% macro search_results(request, display_options, display_mode, results,
+encodedQuery) %}
+<ul class="etna-results etna-results--{{ display_mode }}">
+  {% for result in results %} {% set details_url = url('records:details',
+  kwargs={'id': result.id}) + '?search=' + encodedQuery %} {% if display_mode ==
+  display_options.GRID.value %}
+  <li id="record-{{ result.id }}">
+    <h3 class="tna-heading-s">
+      <a href="{{ details_url }}">{{ result.summary_title | safe }}</a>
+    </h3>
+    <dl class="etna-result-attributes etna-result-attributes--grid">
+      <dt>Held by</dt>
+      <dd>{{ result.held_by }}</dd>
+      <dt>Date</dt>
+      <dd>{{ result.date_covering }}</dd>
+      <dt>Reference</dt>
+      <dd>{{ result.reference_number }}</dd>
+    </dl>
+  </li>
+  {% else %}
+  <li id="record-{{ result.id }}">
+    <dl class="tna-dl-chips">
+      <dt>Catalogue level</dt>
+      <dd>
+        <span class="tna-dl-chips__item"> {{ result.level }} </span>
+      </dd>
+    </dl>
+    <h3 class="tna-heading-m tna-!--no-margin-top tna-!--no-padding-top">
+      <a href="{{ details_url }}">{{ result.summary_title | safe }}</a>
+    </h3>
+    <p>
+      {{ result.clean_description | truncate_preserve_mark_tags() |
+      remove_string_case_insensitive('scope and content') | safe }}
+    </p>
+    <dl class="etna-result-attributes etna-result-attributes--list">
+      <dt>Held by</dt>
+      <dd>{{ result.held_by }}</dd>
+      <dt>Date</dt>
+      <dd>{{ result.date_covering }}</dd>
+      <dt>Reference</dt>
+      <dd>{{ result.reference_number }}</dd>
+    </dl>
+  </li>
+  {% endif %} {% endfor %}
+</ul>
 {% endmacro %}

@@ -1,55 +1,39 @@
-{% extends "base.html" %}
-
-{%- from 'components/breadcrumbs/macro.html' import tnaBreadcrumbs %}
-{%- from 'components/card/macro.html' import tnaCard -%}
-{%- from 'components/search-field/macro.html' import tnaSearchField %}
-{%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
-{%- from 'macros/under_development_banner.html' import under_development_banner -%}
-
-{%- set pageTitle = 'Search our catalogue' -%}
-
-{% block stylesheets %}
-{{ super() }}
-    <link rel="stylesheet" href="{{ static('landing.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
-{% endblock stylesheets %}
-
-{% block beforeContent %}
+{% extends "base.html" %} {%- from 'components/breadcrumbs/macro.html' import
+tnaBreadcrumbs %} {%- from 'components/card/macro.html' import tnaCard -%} {%-
+from 'components/search-field/macro.html' import tnaSearchField %} {%- from
+'macros/global_alert_banners.html' import global_alert_banners -%} {%- from
+'macros/under_development_banner.html' import under_development_banner -%} {%-
+set pageTitle = 'Search our catalogue' -%} {% block stylesheets %} {{ super() }}
+<link
+  rel="stylesheet"
+  href="{{ static('landing.css') ~ '?v=' ~ app_config.BUILD_VERSION }}"
+  media="screen,print"
+/>
+{% endblock stylesheets %} {% block beforeContent %}
 <div class="tna-background-accent-light">
   <div class="tna-container">
     <div class="tna-column tna-column--full">
-      {{ tnaBreadcrumbs({
-        'items': [
-          {
-            'text': 'Home',
-            'href': '/'
-          }
-        ],
-        'structuredData': True,
-        'classes': 'tna-!--margin-vertical-s'
-      }) }}
+      {{ tnaBreadcrumbs({ 'items': [ { 'text': 'Home', 'href': '/' } ],
+      'structuredData': True, 'classes': 'tna-!--margin-vertical-s' }) }}
     </div>
   </div>
 </div>
-{% endblock beforeContent %}
-
-{% block content %}
+{% endblock beforeContent %} {% block content %}
 <div class="tna-background-accent-light">
-  {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
+  {{ global_alert_banners(request, global_alert.global_alert,
+  global_alert.mourning_notice) }}
 </div>
-<div class="tna-background-accent-light tna-!--padding-top-s tna-!--padding-bottom-m">
+<div
+  class="tna-background-accent-light tna-!--padding-top-s tna-!--padding-bottom-m"
+>
   <div class="tna-container">
     <div class="tna-column tna-column--full">
       <form action="{{ url('search:catalogue') }}" method="get">
         <h1 class="tna-heading-l">{{ pageTitle }}</h1>
-        {{ tnaSearchField({
-          'label': 'Search by keyword, place, person, or catalogue reference',
-          'headingLevel': 2,
-          'headingSize': 'xs',
-          'id': 'search',
-          'name': 'q',
-          'value': request.GET.get('q') or '',
-          'formItemClasses': 'tna-!--no-margin-top'
-        }) }}
+        {{ tnaSearchField({ 'label': 'Search by keyword, place, person, or
+        catalogue reference', 'headingLevel': 2, 'headingSize': 'xs', 'id':
+        'search', 'name': 'q', 'value': request.GET.get('q') or '',
+        'formItemClasses': 'tna-!--no-margin-top' }) }}
       </form>
     </div>
   </div>
@@ -199,13 +183,9 @@ hiding this work for now 22.09.2025-->
 <div class="tna-section">
   <div class="tna-container">
     <div class="tna-column tna-column--full">
-
       {{ under_development_banner() }}
-
     </div>
-    
   </div>
-
 </div>
 
 <div class="tna-!--margin-top-xs">
@@ -217,41 +197,24 @@ hiding this work for now 22.09.2025-->
   </div>
   <ul class="tna-container">
     {% for page in top_pages %}
-    <li class="tna-column tna-column--width-1-3 tna-column--width-1-2-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
-      {% set card_content = {
-        'supertitle': 'Explore the collection',
-        'title': page.title,
-        'headingLevel': 3,
-        'headingSize': 's',
-        'href': page.full_url,
-        'body': page.teaser_text | safe,
-        'fullAreaClick': True,
-        'style': 'plain',
-        'classes': 'tna-card--full-height'
-      } %}
-      {%- if page.teaser_image %}
-        {% set card_content = dict(card_content, **{
-          'imageAlt': '',
-          'imageSrc': page.teaser_image.jpeg.full_url,
-          'imageWidth': page.teaser_image.jpeg.width,
-          'imageHeight': page.teaser_image.jpeg.height,
-          'imageSources': [
-            {
-              'src': page.teaser_image.webp.full_url,
-              'type': 'image/webp',
-              'width': page.teaser_image.webp.width,
-              'height': page.teaser_image.webp.height
-            }
-          ]
-        }) %}
-      {%- endif %}
-      {{ tnaCard(card_content) }}
+    <li
+      class="tna-column tna-column--width-1-3 tna-column--width-1-2-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-m"
+    >
+      {% set card_content = { 'supertitle': 'Explore the collection', 'title':
+      page.title, 'headingLevel': 3, 'headingSize': 's', 'href': page.full_url,
+      'body': page.teaser_text | safe, 'fullAreaClick': True, 'style': 'plain',
+      'classes': 'tna-card--full-height' } %} {%- if page.teaser_image %} {% set
+      card_content = dict(card_content, **{ 'imageAlt': '', 'imageSrc':
+      page.teaser_image.jpeg.full_url, 'imageWidth':
+      page.teaser_image.jpeg.width, 'imageHeight':
+      page.teaser_image.jpeg.height, 'imageSources': [ { 'src':
+      page.teaser_image.webp.full_url, 'type': 'image/webp', 'width':
+      page.teaser_image.webp.width, 'height': page.teaser_image.webp.height } ]
+      }) %} {%- endif %} {{ tnaCard(card_content) }}
     </li>
     {% endfor %}
   </ul>
-  {% endif %}
-
-  {% if pages %}
+  {% endif %} {% if pages %}
   <div class="tna-container tna-!--margin-top-l">
     <div class="tna-column tna-column--full">
       <h3 class="tna-heading-l">Discover something new</h3>
@@ -259,35 +222,20 @@ hiding this work for now 22.09.2025-->
   </div>
   <ul class="tna-container tna-container--nested">
     {% for page in pages %}
-    <li class="tna-column tna-column--width-1-3 tna-column--width-1-2-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
-      {% set card_content = {
-        'supertitle': page.type_label,
-        'title': page.title,
-        'headingLevel': 3,
-        'headingSize': 's',
-        'href': page.full_url,
-        'body': page.teaser_text | safe,
-        'fullAreaClick': True,
-        'style': 'plain',
-        'classes': 'tna-card--full-height'
-      } %}
-      {%- if page.teaser_image %}
-        {% set card_content = dict(card_content, **{
-          'imageAlt': '',
-          'imageSrc': page.teaser_image.jpeg.full_url,
-          'imageWidth': page.teaser_image.jpeg.width,
-          'imageHeight': page.teaser_image.jpeg.height,
-          'imageSources': [
-            {
-              'src': page.teaser_image.webp.full_url,
-              'type': 'image/webp',
-              'width': page.teaser_image.webp.width,
-              'height': page.teaser_image.webp.height
-            }
-          ]
-        }) %}
-      {%- endif %}
-      {{ tnaCard(card_content) }}
+    <li
+      class="tna-column tna-column--width-1-3 tna-column--width-1-2-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-m"
+    >
+      {% set card_content = { 'supertitle': page.type_label, 'title':
+      page.title, 'headingLevel': 3, 'headingSize': 's', 'href': page.full_url,
+      'body': page.teaser_text | safe, 'fullAreaClick': True, 'style': 'plain',
+      'classes': 'tna-card--full-height' } %} {%- if page.teaser_image %} {% set
+      card_content = dict(card_content, **{ 'imageAlt': '', 'imageSrc':
+      page.teaser_image.jpeg.full_url, 'imageWidth':
+      page.teaser_image.jpeg.width, 'imageHeight':
+      page.teaser_image.jpeg.height, 'imageSources': [ { 'src':
+      page.teaser_image.webp.full_url, 'type': 'image/webp', 'width':
+      page.teaser_image.webp.width, 'height': page.teaser_image.webp.height } ]
+      }) %} {%- endif %} {{ tnaCard(card_content) }}
     </li>
     {% endfor %}
   </ul>
