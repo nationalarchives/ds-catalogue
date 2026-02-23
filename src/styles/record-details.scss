@@ -207,12 +207,13 @@
     color: black;
   }
 }
+
 .etna-accordion__content {
   background: white;
 }
 
 .bar-divider {
-  border-bottom: solid 1px rgb(38, 38, 42, 0.25);
+  border-bottom: solid 1px rgb(38 38 42 / 25%);
   margin-left: 15px;
   width: 99%;
 }
