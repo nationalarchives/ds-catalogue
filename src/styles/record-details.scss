@@ -189,3 +189,32 @@
     border-color: var(--accent-border);
   }
 }
+
+.piece-adjustment {
+  color: black;
+
+  background-color: white;
+
+  border: solid 3px rgb(0 98 59);
+  border-radius: 3px;
+
+  i {
+    color: rgb(0 98 59);
+    font-weight: bold;
+  }
+
+  h3 {
+    color: black;
+  }
+}
+
+.etna-accordion__content {
+  background: white;
+}
+
+.bar-divider {
+  border-bottom: solid 1px rgb(38 38 42 / 25%);
+
+  width: 96%;
+  margin-left: 15px;
+}
