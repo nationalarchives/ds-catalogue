@@ -16,13 +16,13 @@
         '1-6',
         '1-12'
       ] %}
-      <div class="tna-background-tint record-hierarchy tna-!--margin-top-xs">
+      <div class="record-hierarchy tna-!--margin-top-xs">
         {# HELD BY #}
         <div class="tna-container tna-container--nested">
           <div class="tna-column tna-column--width-{{ hierarchy_column_widths[0] }} tna-column--align-centre">
             <div class="tna-background-accent record-hierarchy__count">{{ record.held_by_count | override_tna_record_count(record) }} records</div>
           </div>
-          <div class="tna-column tna-column--full">
+          <div class="tna-column tna-column--full bar-divider">
             <div class="tna-aside tna-aside--tight">
               <!-- <hgroup class="tna-hgroup-s">
                 <h3>
@@ -44,7 +44,7 @@
               <div class="tna-column tna-column--width-{{ hierarchy_column_widths[loop.index] }} tna-column--align-centre">
                 <div class="tna-background-accent record-hierarchy__count">{{ hierarchy_record.hierarchy_count }} records</div>
               </div>
-              <div class="tna-column tna-column--full">
+              <div class="tna-column tna-column--full bar-divider">
                 <div class="tna-aside tna-aside--tight">
                   <!-- <hgroup class="tna-hgroup-s">
                     <p class="tna-hgroup__supertitle">{{ hierarchy_record.level }}</p>
@@ -61,7 +61,7 @@
         {% endif %}
         
         {# THIS RECORD #}
-        <div class="tna-aside tna-aside--tight tna-background-accent tna-!--no-margin-top record-hierarchy-this">
+        <div class="tna-aside tna-aside--tight tna-background-accent tna-!--no-margin-top record-hierarchy-this piece-adjustment">
           <div class="tna-container tna-container--nested">
             <div class="tna-column tna-column--align-centre">
               <i class="fa-solid fa-check large-icon" aria-hidden="true"></i>
