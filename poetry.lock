@@ -582,22 +582,18 @@ dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "requests
 
 [[package]]
 name = "pytest-django"
-version = "4.11.1"
+version = "4.12.0"
 description = "A Django plugin for pytest."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "pytest_django-4.11.1-py3-none-any.whl", hash = "sha256:1b63773f648aa3d8541000c26929c1ea63934be1cfa674c76436966d73fe6a10"},
-    {file = "pytest_django-4.11.1.tar.gz", hash = "sha256:a949141a1ee103cb0e7a20f1451d355f83f5e4a5d07bdd4dcfdd1fd0ff227991"},
+    {file = "pytest_django-4.12.0-py3-none-any.whl", hash = "sha256:3ff300c49f8350ba2953b90297d23bf5f589db69545f56f1ec5f8cff5da83e85"},
+    {file = "pytest_django-4.12.0.tar.gz", hash = "sha256:df94ec819a83c8979c8f6de13d9cdfbe76e8c21d39473cfe2b40c9fc9be3c758"},
 ]
 
 [package.dependencies]
 pytest = ">=7.0.0"
-
-[package.extras]
-docs = ["sphinx", "sphinx_rtd_theme"]
-testing = ["Django", "django-configurations (>=2.0)"]
 
 [[package]]
 name = "pyyaml"
@@ -744,14 +740,14 @@ tests = ["coverage (>=6.0.0)", "flake8", "mypy", "pytest (>=7.0.0)", "pytest-asy
 
 [[package]]
 name = "sentry-sdk"
-version = "2.52.0"
+version = "2.53.0"
 description = "Python client for Sentry (https://sentry.io)"
 optional = false
 python-versions = ">=3.6"
 groups = ["main"]
 files = [
-    {file = "sentry_sdk-2.52.0-py2.py3-none-any.whl", hash = "sha256:931c8f86169fc6f2752cb5c4e6480f0d516112e78750c312e081ababecbaf2ed"},
-    {file = "sentry_sdk-2.52.0.tar.gz", hash = "sha256:fa0bec872cfec0302970b2996825723d67390cdd5f0229fb9efed93bd5384899"},
+    {file = "sentry_sdk-2.53.0-py2.py3-none-any.whl", hash = "sha256:46e1ed8d84355ae54406c924f6b290c3d61f4048625989a723fd622aab838899"},
+    {file = "sentry_sdk-2.53.0.tar.gz", hash = "sha256:6520ef2c4acd823f28efc55e43eb6ce2e6d9f954a95a3aa96b6fd14871e92b77"},
 ]
 
 [package.dependencies]
@@ -823,18 +819,18 @@ doc = ["sphinx"]
 
 [[package]]
 name = "tna-frontend-jinja"
-version = "0.33.0"
+version = "0.35.1"
 description = "TNA Frontend Jinja templates"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "tna_frontend_jinja-0.33.0-py3-none-any.whl", hash = "sha256:0e841f29f03307e5a6f2d92f52f57908cde8734d1ad4a7e1d1bce8cb7dcb1531"},
-    {file = "tna_frontend_jinja-0.33.0.tar.gz", hash = "sha256:b40a4e61e6e1eda0210102d7761ab04658ad48bcc8c18bf4f9b3ebfeb25c203e"},
+    {file = "tna_frontend_jinja-0.35.1-py3-none-any.whl", hash = "sha256:260d21ccf6abb95e7ae200ea7133932b19f8c325221fbdbb6bc2af12cdc47fa2"},
+    {file = "tna_frontend_jinja-0.35.1.tar.gz", hash = "sha256:950612a777171b166806fcd853d1099d3935630d006300019d34218c95e4c3b1"},
 ]
 
 [package.dependencies]
-Jinja2 = ">=3"
+jinja2 = "*"
 
 [[package]]
 name = "tzdata"
@@ -885,4 +881,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "2b8295c93204e1620c34d79d535b19c297a531141885075e878886c423c8d68e"
+content-hash = "10f6efb18bcccf6431cc9bf6df56173ae37cdd09108d53eedcaf51f723ac5d3c"
