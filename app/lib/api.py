@@ -105,8 +105,10 @@ class JSONAPIClient:
         raise Exception("Request failed")
 
 
-def rosetta_request_handler(uri, params={}, timeout=None) -> dict:
+def rosetta_request_handler(uri, params=None, timeout=None) -> dict:
     """Prepares and initiates the api url requested and returns response data"""
+    if params is None:
+        params = {}
     api_url = settings.ROSETTA_API_URL
     if not api_url:
         raise Exception("ROSETTA_API_URL not set")
