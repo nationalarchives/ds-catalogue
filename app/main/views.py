@@ -21,6 +21,10 @@ def catalogue(request):
     context = {}
 
     pages_client = JSONAPIClient(settings.WAGTAIL_API_URL)
+    if settings.WAGTAIL_API_KEY:
+        pages_client.add_header(
+            "Authorization", f"Token {settings.WAGTAIL_API_KEY}"
+        )
     pages_client.add_parameters(
         {
             "child_of": settings.WAGTAIL_EXPLORE_THE_COLLECTION_STORIES_PAGE_ID,
@@ -36,6 +40,10 @@ def catalogue(request):
         context["pages"] = []
 
     top_pages_client = JSONAPIClient(settings.WAGTAIL_API_URL)
+    if settings.WAGTAIL_API_KEY:
+        top_pages_client.add_header(
+            "Authorization", f"Token {settings.WAGTAIL_API_KEY}"
+        )
     top_pages_client.add_parameters(
         {
             "child_of": settings.WAGTAIL_EXPLORE_THE_COLLECTION_PAGE_ID,
