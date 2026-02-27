@@ -1,10 +1,8 @@
 import logging
 
-from app.main.wagtail_content import (
-    get_landing_page_global_alert,
-    get_landing_page_mourning_notice,
-    get_latest_articles,
-    get_top_pages,
+from app.main.api import (
+    fetch_global_notifications,
+    get_explore_the_collection,
 )
 from django.http import HttpResponse
 from django.template import loader
@@ -21,11 +19,14 @@ def index(request):
 def catalogue(request):
     template = loader.get_template("main/catalogue.html")
 
+    explore = get_explore_the_collection()
+    notifications = fetch_global_notifications()
+
     context = {
-        "pages": get_latest_articles()[:3],
-        "top_pages": get_top_pages()[:3],
-        "global_alert": get_landing_page_global_alert(),
-        "mourning_notice": get_landing_page_mourning_notice(),
+        "pages": explore.get("latest_articles", [])[:3],
+        "top_pages": explore.get("top_pages", [])[:3],
+        "global_alert": notifications.get("global_alert") if notifications else None,
+        "mourning_notice": notifications.get("mourning_notice") if notifications else None,
     }
 
     return HttpResponse(template.render(context, request))

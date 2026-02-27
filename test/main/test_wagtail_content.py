@@ -5,7 +5,7 @@ from app.main.constants import (
     NOTIFICATIONS_CACHE_KEY,
     WAGTAIL_API_CACHE_TIMEOUT,
 )
-from app.main.wagtail_content import (
+from app.main.api import (
     fetch_landing_page_data,
     fetch_notifications_data,
     get_global_alert,
@@ -28,7 +28,7 @@ class TestFetchNotificationsData(TestCase):
     def tearDown(self):
         cache.clear()
 
-    @patch("app.main.wagtail_content.JSONAPIClient")
+    @patch("app.main.api.JSONAPIClient")
     def test_fetches_from_api_when_cache_empty(self, mock_client_class):
         """Test that data is fetched from API when cache is empty."""
         mock_client = Mock()
@@ -43,7 +43,7 @@ class TestFetchNotificationsData(TestCase):
         mock_client.get.assert_called_once_with("/globals/notifications/")
         self.assertEqual(result["global_alert"]["title"], "Test Alert")
 
-    @patch("app.main.wagtail_content.JSONAPIClient")
+    @patch("app.main.api.JSONAPIClient")
     def test_returns_cached_data_when_available(self, mock_client_class):
         """Test that cached data is returned without API call."""
         cached_data = {
@@ -61,7 +61,7 @@ class TestFetchNotificationsData(TestCase):
         mock_client_class.assert_not_called()
         self.assertEqual(result["global_alert"]["title"], "Cached Alert")
 
-    @patch("app.main.wagtail_content.JSONAPIClient")
+    @patch("app.main.api.JSONAPIClient")
     def test_caches_api_response(self, mock_client_class):
         """Test that API response is cached."""
         mock_client = Mock()
@@ -77,7 +77,7 @@ class TestFetchNotificationsData(TestCase):
         self.assertIsNotNone(cached)
         self.assertEqual(cached["global_alert"]["title"], "New Alert")
 
-    @patch("app.main.wagtail_content.JSONAPIClient")
+    @patch("app.main.api.JSONAPIClient")
     def test_returns_none_on_api_error(self, mock_client_class):
         """Test that None is returned when API call fails."""
         mock_client = Mock()
@@ -88,7 +88,7 @@ class TestFetchNotificationsData(TestCase):
 
         self.assertIsNone(result)
 
-    @patch("app.main.wagtail_content.JSONAPIClient")
+    @patch("app.main.api.JSONAPIClient")
     def test_does_not_cache_on_api_error(self, mock_client_class):
         """Test that failed API responses are not cached."""
         mock_client = Mock()
@@ -110,7 +110,7 @@ class TestFetchLandingPageData(TestCase):
     def tearDown(self):
         cache.clear()
 
-    @patch("app.main.wagtail_content.JSONAPIClient")
+    @patch("app.main.api.JSONAPIClient")
     def test_fetches_from_api_when_cache_empty(self, mock_client_class):
         """Test that data is fetched from API when cache is empty."""
         mock_client = Mock()
@@ -131,7 +131,7 @@ class TestFetchLandingPageData(TestCase):
             result["explore_the_collection"]["top_pages"][0]["title"], "Page 1"
         )
 
-    @patch("app.main.wagtail_content.JSONAPIClient")
+    @patch("app.main.api.JSONAPIClient")
     def test_returns_cached_data_when_available(self, mock_client_class):
         """Test that cached data is returned without API call."""
         cached_data = {
@@ -156,7 +156,7 @@ class TestFetchLandingPageData(TestCase):
             "Cached Page",
         )
 
-    @patch("app.main.wagtail_content.JSONAPIClient")
+    @patch("app.main.api.JSONAPIClient")
     def test_caches_api_response(self, mock_client_class):
         """Test that API response is cached."""
         mock_client = Mock()
@@ -179,7 +179,7 @@ class TestFetchLandingPageData(TestCase):
             "New Page",
         )
 
-    @patch("app.main.wagtail_content.JSONAPIClient")
+    @patch("app.main.api.JSONAPIClient")
     def test_returns_none_on_api_error(self, mock_client_class):
         """Test that None is returned when API call fails."""
         mock_client = Mock()
@@ -200,7 +200,7 @@ class TestGetGlobalAlert(TestCase):
     def tearDown(self):
         cache.clear()
 
-    @patch("app.main.wagtail_content.fetch_notifications_data")
+    @patch("app.main.api.fetch_notifications_data")
     def test_returns_global_alert_when_present(self, mock_fetch):
         """Test that global_alert is returned when present."""
         mock_fetch.return_value = {
@@ -219,7 +219,7 @@ class TestGetGlobalAlert(TestCase):
         self.assertEqual(result["title"], "Alert Title")
         self.assertEqual(result["uid"], 12345)
 
-    @patch("app.main.wagtail_content.fetch_notifications_data")
+    @patch("app.main.api.fetch_notifications_data")
     def test_returns_none_when_no_alert(self, mock_fetch):
         """Test that None is returned when no global_alert."""
         mock_fetch.return_value = {
@@ -231,7 +231,7 @@ class TestGetGlobalAlert(TestCase):
 
         self.assertIsNone(result)
 
-    @patch("app.main.wagtail_content.fetch_notifications_data")
+    @patch("app.main.api.fetch_notifications_data")
     def test_returns_none_when_fetch_fails(self, mock_fetch):
         """Test that None is returned when fetch fails."""
         mock_fetch.return_value = None
@@ -250,7 +250,7 @@ class TestGetMourningNotice(TestCase):
     def tearDown(self):
         cache.clear()
 
-    @patch("app.main.wagtail_content.fetch_notifications_data")
+    @patch("app.main.api.fetch_notifications_data")
     def test_returns_mourning_notice_when_present(self, mock_fetch):
         """Test that mourning_notice is returned when present."""
         mock_fetch.return_value = {
@@ -265,7 +265,7 @@ class TestGetMourningNotice(TestCase):
 
         self.assertEqual(result["title"], "Mourning Title")
 
-    @patch("app.main.wagtail_content.fetch_notifications_data")
+    @patch("app.main.api.fetch_notifications_data")
     def test_returns_none_when_no_notice(self, mock_fetch):
         """Test that None is returned when no mourning_notice."""
         mock_fetch.return_value = {
@@ -277,7 +277,7 @@ class TestGetMourningNotice(TestCase):
 
         self.assertIsNone(result)
 
-    @patch("app.main.wagtail_content.fetch_notifications_data")
+    @patch("app.main.api.fetch_notifications_data")
     def test_returns_none_when_fetch_fails(self, mock_fetch):
         """Test that None is returned when fetch fails."""
         mock_fetch.return_value = None
@@ -296,7 +296,7 @@ class TestGetTopPages(TestCase):
     def tearDown(self):
         cache.clear()
 
-    @patch("app.main.wagtail_content.fetch_landing_page_data")
+    @patch("app.main.api.fetch_landing_page_data")
     def test_returns_top_pages_when_present(self, mock_fetch):
         """Test that top_pages list is returned when present."""
         mock_fetch.return_value = {
@@ -316,7 +316,7 @@ class TestGetTopPages(TestCase):
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]["title"], "Page 1")
 
-    @patch("app.main.wagtail_content.fetch_landing_page_data")
+    @patch("app.main.api.fetch_landing_page_data")
     def test_returns_empty_list_when_no_pages(self, mock_fetch):
         """Test that empty list is returned when no top_pages."""
         mock_fetch.return_value = {
@@ -332,7 +332,7 @@ class TestGetTopPages(TestCase):
 
         self.assertEqual(result, [])
 
-    @patch("app.main.wagtail_content.fetch_landing_page_data")
+    @patch("app.main.api.fetch_landing_page_data")
     def test_returns_empty_list_when_fetch_fails(self, mock_fetch):
         """Test that empty list is returned when fetch fails."""
         mock_fetch.return_value = None
@@ -341,7 +341,7 @@ class TestGetTopPages(TestCase):
 
         self.assertEqual(result, [])
 
-    @patch("app.main.wagtail_content.fetch_landing_page_data")
+    @patch("app.main.api.fetch_landing_page_data")
     def test_returns_empty_list_when_explore_missing(self, mock_fetch):
         """Test that empty list is returned when explore_the_collection is missing."""
         mock_fetch.return_value = {
@@ -363,7 +363,7 @@ class TestGetLatestArticles(TestCase):
     def tearDown(self):
         cache.clear()
 
-    @patch("app.main.wagtail_content.fetch_landing_page_data")
+    @patch("app.main.api.fetch_landing_page_data")
     def test_returns_latest_articles_when_present(self, mock_fetch):
         """Test that latest_articles list is returned when present."""
         mock_fetch.return_value = {
@@ -384,7 +384,7 @@ class TestGetLatestArticles(TestCase):
         self.assertEqual(len(result), 3)
         self.assertEqual(result[0]["title"], "Article 1")
 
-    @patch("app.main.wagtail_content.fetch_landing_page_data")
+    @patch("app.main.api.fetch_landing_page_data")
     def test_returns_empty_list_when_no_articles(self, mock_fetch):
         """Test that empty list is returned when no latest_articles."""
         mock_fetch.return_value = {
@@ -400,7 +400,7 @@ class TestGetLatestArticles(TestCase):
 
         self.assertEqual(result, [])
 
-    @patch("app.main.wagtail_content.fetch_landing_page_data")
+    @patch("app.main.api.fetch_landing_page_data")
     def test_returns_empty_list_when_fetch_fails(self, mock_fetch):
         """Test that empty list is returned when fetch fails."""
         mock_fetch.return_value = None
@@ -419,7 +419,7 @@ class TestGetLandingPageGlobalAlert(TestCase):
     def tearDown(self):
         cache.clear()
 
-    @patch("app.main.wagtail_content.fetch_landing_page_data")
+    @patch("app.main.api.fetch_landing_page_data")
     def test_returns_global_alert_from_landing_page_data(self, mock_fetch):
         """Test that global_alert is returned from landing page data."""
         mock_fetch.return_value = {
@@ -435,7 +435,7 @@ class TestGetLandingPageGlobalAlert(TestCase):
 
         self.assertEqual(result["title"], "Landing Alert")
 
-    @patch("app.main.wagtail_content.fetch_landing_page_data")
+    @patch("app.main.api.fetch_landing_page_data")
     def test_returns_none_when_fetch_fails(self, mock_fetch):
         """Test that None is returned when fetch fails."""
         mock_fetch.return_value = None
@@ -454,7 +454,7 @@ class TestGetLandingPageMourningNotice(TestCase):
     def tearDown(self):
         cache.clear()
 
-    @patch("app.main.wagtail_content.fetch_landing_page_data")
+    @patch("app.main.api.fetch_landing_page_data")
     def test_returns_mourning_notice_from_landing_page_data(self, mock_fetch):
         """Test that mourning_notice is returned from landing page data."""
         mock_fetch.return_value = {
@@ -470,7 +470,7 @@ class TestGetLandingPageMourningNotice(TestCase):
 
         self.assertEqual(result["title"], "Landing Mourning")
 
-    @patch("app.main.wagtail_content.fetch_landing_page_data")
+    @patch("app.main.api.fetch_landing_page_data")
     def test_returns_none_when_fetch_fails(self, mock_fetch):
         """Test that None is returned when fetch fails."""
         mock_fetch.return_value = None

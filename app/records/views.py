@@ -2,7 +2,7 @@
 
 import logging
 
-from app.main.wagtail_content import get_global_alert, get_mourning_notice
+from app.main.api import fetch_global_notifications
 from app.records.enrichment import RecordEnrichmentHelper
 from app.records.labels import FIELD_LABELS
 from app.records.mixins import RecordContextMixin
@@ -33,8 +33,9 @@ class RecordDetailView(RecordContextMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         # Global alerts
-        context["global_alert"] = get_global_alert()
-        context["mourning_notice"] = get_mourning_notice()
+        notifications = fetch_global_notifications()
+        context["global_alert"] = notifications.get("global_alert") if notifications else None
+        context["mourning_notice"] = notifications.get("mourning_notice") if notifications else None
 
         record = context["record"]
 
