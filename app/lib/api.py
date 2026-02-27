@@ -39,9 +39,13 @@ class JSONAPIClient:
                 # "Accept": "application/json",  # TODO: This breaks the Rosetta API for some reason, investigate and re-add if possible
             }
             if default_headers is None
-            else default_headers
+            # Copy the provided headers to prevent accidental mutation of the
+            # externally supplied dictionary
+            else dict(default_headers)
         )
-        self.params = {} if default_params is None else default_params
+        # Copy the provided params to prevent accidental mutation of the
+        # externally supplied dictionary
+        self.params = {} if default_params is None else dict(default_params)
 
     def add_parameter(self, key, value):
         self.params[key] = value
