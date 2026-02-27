@@ -26,17 +26,22 @@ class JSONAPIClient:
     The errors are handled by custom middleware in the app.
     """
 
-    def __init__(self, api_url, defaultHeaders=None, defaultParams=None):
+    def __init__(
+        self,
+        api_url: str,
+        default_headers: dict | None = None,
+        default_params: dict | None = None,
+    ):
         self.api_url = api_url
         self.headers = (
             {
                 "Cache-Control": "no-cache",
                 # "Accept": "application/json",  # TODO: This breaks the Rosetta API for some reason, investigate and re-add if possible
             }
-            if defaultHeaders is None
-            else defaultHeaders
+            if default_headers is None
+            else default_headers
         )
-        self.params = {} if defaultParams is None else defaultParams
+        self.params = {} if default_params is None else default_params
 
     def add_parameter(self, key, value):
         self.params[key] = value
