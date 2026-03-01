@@ -2,7 +2,7 @@
 
 {% macro hierarchy(record) %}
   <div class="tna-container tna-container--nested">
-    <div class="tna-column tna-column--full">
+    <div class="tna-column tna-column--full tna-background-tint">
       {% set hierarchy_column_widths = [
         '11-12',
         '5-6',
@@ -16,7 +16,7 @@
         '1-6',
         '1-12'
       ] %}
-      <div class="record-hierarchy tna-!--margin-top-xs">
+      <div class="record-hierarchy tna-!--margin-top-xs  tna-background-tint">
         {# HELD BY #}
         <div class="tna-container tna-container--nested">
           <div class="tna-column tna-column--width-{{ hierarchy_column_widths[0] }} tna-column--align-centre">
