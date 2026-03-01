@@ -11,7 +11,7 @@
     "jsonBody": {
       "global_alert": {
         "title": "Test Alert",
-        "message": "This is a test global alert for PR review (2)",
+        "message": "Test global alert from Wagtail Notifications Api",
         "alert_level": "high",
         "cascade": true,
         "uid": 234567896

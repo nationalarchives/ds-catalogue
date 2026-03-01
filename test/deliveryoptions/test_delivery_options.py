@@ -363,19 +363,16 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.records.views.get_global_alert")
-    @patch("app.records.views.get_mourning_notice")
+    @patch("app.records.views.fetch_global_notifications")
     def test_delivery_options_added_to_context(
         self,
-        mock_mourning,
-        mock_alert,
+        mock_notifications,
         mock_record_details,
         mock_delivery,
         mock_distressing,
     ):
         """Test that delivery options are added to context for standard records."""
-        mock_alert.return_value = None
-        mock_mourning.return_value = None
+        mock_notifications.return_value = {"global_alert": None, "mourning_notice": None}
 
         mock_record = Mock()
         mock_record.id = "C123456"
@@ -404,19 +401,16 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.records.views.get_global_alert")
-    @patch("app.records.views.get_mourning_notice")
+    @patch("app.records.views.fetch_global_notifications")
     def test_no_delivery_options_for_archon_records(
         self,
-        mock_mourning,
-        mock_alert,
+        mock_notifications,
         mock_record_details,
         mock_delivery,
         mock_distressing,
     ):
         """Test that delivery options are not fetched for ARCHON records."""
-        mock_alert.return_value = None
-        mock_mourning.return_value = None
+        mock_notifications.return_value = {"global_alert": None, "mourning_notice": None}
 
         mock_record = Mock()
         mock_record.id = "C123456"
@@ -443,14 +437,12 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
 
     @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.records.views.get_global_alert")
-    @patch("app.records.views.get_mourning_notice")
+    @patch("app.records.views.fetch_global_notifications")
     def test_distressing_content_flag_added_to_context(
-        self, mock_mourning, mock_alert, mock_record_details, mock_distressing
+        self, mock_notifications, mock_record_details, mock_distressing
     ):
         """Test that distressing content flag is added to context."""
-        mock_alert.return_value = None
-        mock_mourning.return_value = None
+        mock_notifications.return_value = {"global_alert": None, "mourning_notice": None}
 
         mock_record = Mock()
         mock_record.id = "C123456"

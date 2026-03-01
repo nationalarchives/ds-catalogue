@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/catalogue/landing/"
+    "urlPattern": "/catalogue/landing/?$"
   },
   "response": {
     "status": 200,
@@ -9,10 +9,16 @@
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "global_alert": null,
+      "global_alert": {
+        "title": "Test Alert",
+        "message": "Test global alert from Wagtail Landing Api",
+        "alert_level": "high",
+        "cascade": true,
+        "uid": 234567890
+      },
       "mourning_notice": {
         "title": "Test Mourning Notice",
-        "message": "This is a test mourning notice for PR review (3)"
+        "message": "Test mourning notice from Wagtail Landing Api"
       },
       "explore_the_collection": {
         "top_pages": [
@@ -29,14 +35,14 @@
             "teaser_image": {
               "id": 1261,
               "jpeg": {
-                "url": "/media/images/hg-nhs-nursing-recru_ErAvk7A.2bf8584e.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/hg-nhs-nursing-recru_ErAvk7A.2bf8584e.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "url": "/media/images/test-image-1261.jpg",
+                "full_url": "https://example.com/media/images/test-image-1261.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/hg-nhs-nursing-recr_bkp7Cva.2bf8584e.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/hg-nhs-nursing-recr_bkp7Cva.2bf8584e.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "url": "/media/images/test-image-1261.webp",
+                "full_url": "https://example.com/media/images/test-image-1261.webp",
                 "width": 600,
                 "height": 400
               }
@@ -57,14 +63,14 @@
             "teaser_image": {
               "id": 961,
               "jpeg": {
-                "url": "/media/images/hg-domesday-abbrev_sPCS0hF.d3c32e09.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/hg-domesday-abbrev_sPCS0hF.d3c32e09.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "url": "/media/images/test-image-961.jpg",
+                "full_url": "https://example.com/media/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/hg-domesday-abbre.d3c32e09.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/hg-domesday-abbre.d3c32e09.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "url": "/media/images/test-image-961.webp",
+                "full_url": "https://example.com/media/images/test-image-961.webp",
                 "width": 600,
                 "height": 400
               }
@@ -85,14 +91,14 @@
             "teaser_image": {
               "id": 890,
               "jpeg": {
-                "url": "/media/images/Emmeline-pankhurst-h_6zcDbjc.23b1d58d.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/Emmeline-pankhurst-h_6zcDbjc.23b1d58d.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "url": "/media/images/test-image-890.jpg",
+                "full_url": "https://example.com/media/images/test-image-890.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/Emmeline-pankhurst-.23b1d58d.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/Emmeline-pankhurst-.23b1d58d.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "url": "/media/images/test-image-890.webp",
+                "full_url": "https://example.com/media/images/test-image-890.webp",
                 "width": 600,
                 "height": 400
               }
@@ -113,14 +119,14 @@
             "teaser_image": {
               "id": 2393,
               "jpeg": {
-                "url": "/media/images/On_the_Record_VE_Day_.90141c71.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/On_the_Record_VE_Day_.90141c71.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "url": "/media/images/test-image-2393.jpg",
+                "full_url": "https://example.com/media/images/test-image-2393.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/On_the_Record_VE_Day.90141c71.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/On_the_Record_VE_Day.90141c71.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "url": "/media/images/test-image-2393.webp",
+                "full_url": "https://example.com/media/images/test-image-2393.webp",
                 "width": 600,
                 "height": 400
               }
@@ -141,14 +147,14 @@
             "teaser_image": {
               "id": 2398,
               "jpeg": {
-                "url": "/media/images/visitor-using-catal.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/visitor-using-catal.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "url": "/media/images/test-image-2398.jpg",
+                "full_url": "https://example.com/media/images/test-image-2398.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/visitor-using-cata.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/visitor-using-cata.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "url": "/media/images/test-image-2398.webp",
+                "full_url": "https://example.com/media/images/test-image-2398.webp",
                 "width": 600,
                 "height": 400
               }
@@ -171,14 +177,14 @@
             "teaser_image": {
               "id": 3257,
               "jpeg": {
-                "url": "/media/images/two-travel-g.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/two-travel-g.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "url": "/media/images/test-image-3257.jpg",
+                "full_url": "https://example.com/media/images/test-image-3257.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/two-travel-.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/two-travel-.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "url": "/media/images/test-image-3257.webp",
+                "full_url": "https://example.com/media/images/test-image-3257.webp",
                 "width": 600,
                 "height": 400
               }
@@ -196,18 +202,18 @@
             "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/elizabeth-i-and-robert-dudley-earl-of-leicester/",
             "type": "articles.ArticlePage",
             "type_label": "The story of",
-            "teaser_text": "The enduring love shared by Elizabeth I (1533\u20131603) and Robert Dudley (1542\u20131588) helps to explain why Elizabeth never married.",
+            "teaser_text": "The enduring love shared by Elizabeth I (1533–1603) and Robert Dudley (1542–1588) helps to explain why Elizabeth never married.",
             "teaser_image": {
               "id": 3248,
               "jpeg": {
-                "url": "/media/images/robert-dudley-t.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/robert-dudley-t.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "url": "/media/images/test-image-3248.jpg",
+                "full_url": "https://example.com/media/images/test-image-3248.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/robert-dudley-.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/robert-dudley-.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "url": "/media/images/test-image-3248.webp",
+                "full_url": "https://example.com/media/images/test-image-3248.webp",
                 "width": 600,
                 "height": 400
               }
@@ -229,14 +235,14 @@
             "teaser_image": {
               "id": 3128,
               "jpeg": {
-                "url": "/media/images/front_cover_the_link.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/front_cover_the_link.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+                "url": "/media/images/test-image-3128.jpg",
+                "full_url": "https://example.com/media/images/test-image-3128.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/front_cover_the_lin.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
-                "full_url": "https://www.nationalarchives.gov.uk/media/images/front_cover_the_lin.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+                "url": "/media/images/test-image-3128.webp",
+                "full_url": "https://example.com/media/images/test-image-3128.webp",
                 "width": 600,
                 "height": 400
               }

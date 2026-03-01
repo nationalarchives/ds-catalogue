@@ -11,14 +11,14 @@
     "jsonBody": {
       "global_alert": {
         "title": "Test Alert",
-        "message": "This is a test global alert for PR review (1)",
+        "message": "Test global alert from Wagtail Notifications Api",
         "alert_level": "high",
         "cascade": true,
         "uid": 234567890
       },
       "mourning_notice": {
         "title": "Test Mourning Notice",
-        "message": "This is a test mourning notice for PR review (1)"
+        "message": "Test mourning notice from Wagtail Notifications Api"
       }
     }
   }
