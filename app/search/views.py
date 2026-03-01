@@ -570,8 +570,12 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         self.selected_filters = self.build_selected_filters_list()
 
         notifications = fetch_global_notifications()
-        context["global_alert"] = notifications.get("global_alert") if notifications else None
-        context["mourning_notice"] = notifications.get("mourning_notice") if notifications else None
+        context["global_alert"] = (
+            notifications.get("global_alert") if notifications else None
+        )
+        context["mourning_notice"] = (
+            notifications.get("mourning_notice") if notifications else None
+        )
 
         context.update(
             {

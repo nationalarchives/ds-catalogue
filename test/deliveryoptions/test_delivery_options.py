@@ -372,7 +372,10 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_distressing,
     ):
         """Test that delivery options are added to context for standard records."""
-        mock_notifications.return_value = {"global_alert": None, "mourning_notice": None}
+        mock_notifications.return_value = {
+            "global_alert": None,
+            "mourning_notice": None,
+        }
 
         mock_record = Mock()
         mock_record.id = "C123456"
@@ -410,7 +413,10 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_distressing,
     ):
         """Test that delivery options are not fetched for ARCHON records."""
-        mock_notifications.return_value = {"global_alert": None, "mourning_notice": None}
+        mock_notifications.return_value = {
+            "global_alert": None,
+            "mourning_notice": None,
+        }
 
         mock_record = Mock()
         mock_record.id = "C123456"
@@ -442,7 +448,10 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         self, mock_notifications, mock_record_details, mock_distressing
     ):
         """Test that distressing content flag is added to context."""
-        mock_notifications.return_value = {"global_alert": None, "mourning_notice": None}
+        mock_notifications.return_value = {
+            "global_alert": None,
+            "mourning_notice": None,
+        }
 
         mock_record = Mock()
         mock_record.id = "C123456"
