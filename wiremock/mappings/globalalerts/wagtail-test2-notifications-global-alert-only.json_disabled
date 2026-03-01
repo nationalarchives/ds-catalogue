@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/globals/notifications/"
+    "urlPattern": "/globals/notifications/?$"
   },
   "response": {
     "status": 200,
