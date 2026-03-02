@@ -138,6 +138,12 @@ def now_iso_8601():
     return now_date
 
 
+def now_iso_8601_date():
+    now = datetime.now()
+    now_date = now.strftime("%Y-%m-%d")
+    return now_date
+
+
 def dump_json(obj):
     return json.dumps(obj, indent=2)
 
@@ -364,6 +370,7 @@ def environment(**options):
             "feature": {"PHASE_BANNER": settings.FEATURE_PHASE_BANNER},
             "url": reverse,
             "now_iso_8601": now_iso_8601,
+            "now_iso_8601_date": now_iso_8601_date,
             "qs_append_value": qs_append_value,
             "qs_is_value_active": qs_is_value_active,
             "qs_remove_value": qs_remove_value,

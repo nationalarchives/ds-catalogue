@@ -49,6 +49,7 @@
     <link rel="stylesheet" href="{{ static('font-awesome.css') ~ '?v=' ~ app_config.BUILD_VERSION }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400..700&family=Roboto+Mono:wght@400..500&display=swap" media="screen,print">
     <link rel="stylesheet" href="{{ static('ie.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="all and (-ms-high-contrast: none), (-ms-high-contrast: active)">
+    <link rel="stylesheet" href="https://www.nationalarchives.gov.uk/enrichment/css/logo-adornments.css?date={{ now_iso_8601_date() }}" media="screen">
 {% endblock stylesheets %}
 
 {% block cookies %}
@@ -99,4 +100,5 @@
 {% block bodyEnd %}
 <script src="{{ static('main.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
 <script src="{{ static('analytics.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+<script type="module" src="https://www.nationalarchives.gov.uk/enrichment/js/logo-adornments.js?date={{ now_iso_8601_date() }}" defer></script>
 {% endblock bodyEnd %}
