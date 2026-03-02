@@ -73,14 +73,13 @@ class ChipField {
     const label = document.createElement("span");
     label.textContent = value;
 
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "tna-compound-filters__link";
-    button.dataset.value = value;
-    button.setAttribute("aria-label", `Remove ${value}`);
-    button.textContent = "×";
+    const removeLink = document.createElement("a");
+    removeLink.href = "#";
+    removeLink.className = "tna-compound-filters__link";
+    removeLink.dataset.value = value;
+    removeLink.setAttribute("aria-label", `Remove ${value}`);
 
-    li.append(label, button);
+    li.append(label, removeLink);
     this.list.appendChild(li);
   }
 
