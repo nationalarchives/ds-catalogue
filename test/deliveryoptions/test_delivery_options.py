@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 
 from app.deliveryoptions.constants import (
     DELIVERY_OPTIONS_CONFIG,
+    AvailabilityCondition,
     AvailabilityGroup,
     delivery_option_tags,
 )
@@ -13,6 +14,7 @@ from app.deliveryoptions.delivery_options import (
     surrogate_link_builder,
 )
 from app.deliveryoptions.helpers import (
+    BASE_TNA_HOME_URL,
     get_access_condition_text,
     get_added_to_basket_text,
     get_advance_order_information,
@@ -361,11 +363,20 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.main.global_alert.JSONAPIClient")
+    @patch("app.records.views.fetch_global_notifications")
     def test_delivery_options_added_to_context(
-        self, mock_client, mock_record_details, mock_delivery, mock_distressing
+        self,
+        mock_notifications,
+        mock_record_details,
+        mock_delivery,
+        mock_distressing,
     ):
         """Test that delivery options are added to context for standard records."""
+        mock_notifications.return_value = {
+            "global_alert": None,
+            "mourning_notice": None,
+        }
+
         mock_record = Mock()
         mock_record.id = "C123456"
         mock_record.reference_number = "TEST 123"
@@ -384,10 +395,6 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_delivery.return_value = [{"options": 25}]
         mock_distressing.return_value = False
 
-        mock_client_instance = Mock()
-        mock_client_instance.get.return_value = {}
-        mock_client.return_value = mock_client_instance
-
         request = self.factory.get("/test/")
         view = RecordDetailView.as_view()
         response = view(request, id="C123456")
@@ -397,11 +404,20 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.main.global_alert.JSONAPIClient")
+    @patch("app.records.views.fetch_global_notifications")
     def test_no_delivery_options_for_archon_records(
-        self, mock_client, mock_record_details, mock_delivery, mock_distressing
+        self,
+        mock_notifications,
+        mock_record_details,
+        mock_delivery,
+        mock_distressing,
     ):
         """Test that delivery options are not fetched for ARCHON records."""
+        mock_notifications.return_value = {
+            "global_alert": None,
+            "mourning_notice": None,
+        }
+
         mock_record = Mock()
         mock_record.id = "C123456"
         mock_record.reference_number = "TEST 123"
@@ -417,10 +433,6 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
 
         mock_distressing.return_value = False
 
-        mock_client_instance = Mock()
-        mock_client_instance.get.return_value = {}
-        mock_client.return_value = mock_client_instance
-
         request = self.factory.get("/test/")
         view = RecordDetailView.as_view()
         response = view(request, id="C123456")
@@ -431,11 +443,16 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
 
     @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.main.global_alert.JSONAPIClient")
+    @patch("app.records.views.fetch_global_notifications")
     def test_distressing_content_flag_added_to_context(
-        self, mock_client, mock_record_details, mock_distressing
+        self, mock_notifications, mock_record_details, mock_distressing
     ):
         """Test that distressing content flag is added to context."""
+        mock_notifications.return_value = {
+            "global_alert": None,
+            "mourning_notice": None,
+        }
+
         mock_record = Mock()
         mock_record.id = "C123456"
         mock_record.reference_number = "HO 616/123"
@@ -450,10 +467,6 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_record.summary_title = ""
 
         mock_distressing.return_value = True
-
-        mock_client_instance = Mock()
-        mock_client_instance.get.return_value = {}
-        mock_client.return_value = mock_client_instance
 
         request = self.factory.get("/test/")
         view = RecordDetailView.as_view()

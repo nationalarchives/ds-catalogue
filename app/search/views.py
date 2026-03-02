@@ -15,7 +15,7 @@ from app.lib.fields import (
     ToDateField,
 )
 from app.lib.pagination import pagination_object
-from app.main.global_alert import fetch_global_alert_api_data
+from app.main.api import fetch_global_notifications
 from app.records.constants import TNA_LEVELS
 from app.search.api import search_records
 from config.jinja import qs_remove_value, qs_replace_value, qs_toggle_value
@@ -569,7 +569,13 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
         self.selected_filters = self.build_selected_filters_list()
 
-        context["global_alert"] = fetch_global_alert_api_data()
+        notifications = fetch_global_notifications()
+        context["global_alert"] = (
+            notifications.get("global_alert") if notifications else None
+        )
+        context["mourning_notice"] = (
+            notifications.get("mourning_notice") if notifications else None
+        )
 
         context.update(
             {

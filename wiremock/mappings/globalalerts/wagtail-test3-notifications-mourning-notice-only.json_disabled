@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/globals/notifications/?$"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "global_alert": null,
+      "mourning_notice": {
+        "title": "Test Mourning Notice",
+        "message": "Test mourning notice from Wagtail Notifications Api"
+      }
+    }
+  }
+}
