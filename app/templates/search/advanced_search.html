@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{%- from "components/breadcrumbs/macro.html" import tnaBreadcrumbs -%}
+{%- from "components/search-field/macro.html" import tnaSearchField -%}
+{%- from "macros/global_alert_banners.html" import global_alert_banners -%}
+{%- from "components/text-input/macro.html" import tnaTextInput -%}
+{%- from "components/textarea/macro.html" import tnaTextarea -%}
+{%- from "components/button/macro.html" import tnaButton -%}
+{%- from "components/fieldset/macro.html" import tnaFieldset -%}
+{%- from "components/date-input/macro.html" import tnaDateInput -%}
+{%- set pageTitle = "Advanced search" -%}
+
+{% block stylesheets %}
+{{ super() }}
+    <link rel="stylesheet" href="{{ static('landing.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
+{% endblock stylesheets %}
+
+{% block beforeContent %}
+<div class="tna-background-accent-light">
+  <div class="tna-container">
+    <div class="tna-column tna-column--full">
+      {{ tnaBreadcrumbs({
+        'items': [
+          {
+            'text': 'Home',
+            'href': '/'
+          },
+          {
+            'text': 'Catalogue',
+            'href': url('main:catalogue')
+          }
+        ],
+        'structuredData': True,
+        'classes': 'tna-!--margin-vertical-s'
+      }) }}
+    </div>
+  </div>
+</div>
+{% endblock beforeContent %}
+
+{% block content %}
+<div class="tna-background-accent-light">
+  {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
+</div>
+<div class="tna-background-accent-light tna-!--padding-top-s tna-!--padding-bottom-m">
+  <div class="tna-container">
+    <div class="tna-column tna-column--full">
+      <h1 class="tna-heading-l">{{ pageTitle }}</h1>
+      <p>Advanced search functionality coming soon.</p>
+      <p><a href="{{ url('main:catalogue') }}">Back to catalogue search</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="tna-container">
+  <div class="tna-column tna-column--tna-column--full">
+
+    <form action="" method="get" novalidate class="tna-!--margin-top-m">
+
+      {% call tnaFieldset({
+        "legend": "Include words in your search",
+        "headingLevel": 2,
+        "headingSize": "l",
+        "id": "include_fieldset"
+      }) %}
+
+        {{ tnaTextInput({
+          "label": "Find all these words",
+          "headingLevel": 3,
+          "headingSize": "m",
+          "id": "words_all",
+          "name": "words_all",
+          "value": "",
+          "hint": "Type the important words: medal, card, John Smith"
+        }) }}
+
+        {{ tnaTextInput({
+          "label": "Find exact words or phase",
+          "headingLevel": 3,
+          "headingSize": "m",
+          "id": "words_exact",
+          "name": "words_exact",
+          "value": "",
+          "hint": "Put exact words in quotes: 'John Smith'"
+        }) }}
+
+        {{ tnaTextInput({
+          "label": "Find any of these words",
+          "headingLevel": 3,
+          "headingSize": "m",
+          "id": "words_any",
+          "name": "words_any",
+          "value": "",
+          "hint": "Seperate the words with a comma: medal, card, John Smith"
+        }) }}
+
+      {% endcall %}
+
+      {% call tnaFieldset({
+        "legend": "Exclude these words",
+        "headingLevel": 2,
+        "headingSize": "l",
+        "id": "exclude_fieldset"
+      }) %}
+
+        {{ tnaTextInput({
+          "label": "Ignore these words",
+          "headingLevel": 3,
+          "headingSize": "m",
+          "id": "words_exclude",
+          "name": "words_exclude",
+          "value": "",
+          "hint": "Seperate the words with a comma: medal, card, John Smith"
+        }) }}
+
+      {% endcall %}
+
+      {% call tnaFieldset({
+        "legend": "Add references to your search",
+        "headingLevel": 2,
+        "headingSize": "l",
+        "id": "references_fieldset"
+      }) %}
+
+        {{ tnaTextarea({
+          "attributes": {
+            "data-js-chip-field": ''
+          },
+          "label": "Find records in or within these references",
+          "headingLevel": 4,
+          "headingSize": "m",
+          "id": "feedback",
+          "name": "feedback",
+          "value": ""
+        }) }}
+
+      {% endcall %}
+
+
+      {% call tnaFieldset({
+        "legend": "Add dates to your search",
+        "headingLevel": 2,
+        "headingSize": "l",
+        "id": "references_fieldset",
+        "hint": "Find results within a particular date range, add a year first"
+      }) %}
+
+        {{ tnaDateInput({
+          "label": "From Year",
+          "headingLevel": 3,
+          "headingSize": "m",
+          "id": "date",
+          "name": "date",
+          "value": "",
+          "hint": "",
+          "progressive": True
+        }) }}
+
+        {{ tnaDateInput({
+          "label": "To Year",
+          "headingLevel": 3,
+          "headingSize": "m",
+          "id": "date",
+          "name": "date",
+          "value": "",
+          "hint": "",
+          "progressive": True
+        }) }}
+
+      {% endcall %}
+
+
+
+      <div class="tna-button-group">
+        {{ tnaButton({
+          "text": "Search",
+          "buttonElement": true,
+          "buttonType": "submit"
+        }) }}
+        {{ tnaButton({
+          "text": "Reset",
+          "buttonElement": true,
+          "buttonType": "reset",
+          "plain": true
+        }) }}
+      </div>
+
+    </form>
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block bodyEnd %}
+  {{ super() }}
+  <script src="{{ static('chip-field.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+{% endblock bodyEnd %}
