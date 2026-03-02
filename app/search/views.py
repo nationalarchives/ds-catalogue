@@ -926,3 +926,16 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         if self.form.fields[FieldsConstant.HELD_BY].items:
             # visible if items set (with api agg values or input values)
             self.form.fields[FieldsConstant.HELD_BY].is_visible = True
+
+
+def advanced_search(request):
+    """View for the advanced search page."""
+    from django.http import HttpResponse
+    from django.template import loader
+    from app.main.global_alert import fetch_global_alert_api_data
+
+    template = loader.get_template("search/advanced_search.html")
+    context = {
+        "global_alert": fetch_global_alert_api_data(),
+    }
+    return HttpResponse(template.render(context, request))
