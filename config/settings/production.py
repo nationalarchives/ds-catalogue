@@ -124,6 +124,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # TNA Configuration
 
 CONTAINER_IMAGE: str = os.environ.get("CONTAINER_IMAGE", "")
+# Generated in the CI/CD process
 BUILD_VERSION: str = os.environ.get("BUILD_VERSION", "")
 TNA_FRONTEND_VERSION: str = ""
 try:
