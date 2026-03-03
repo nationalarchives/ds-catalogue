@@ -152,7 +152,9 @@ except FileNotFoundError:
     pass
 
 
-SECRET_KEY: str = os.environ.get("SECRET_KEY", "")
+# security-critical settings. No defaults allowed to prevent
+# accidental misconfiguration. Must be set via environment.
+SECRET_KEY: str = os.environ["SECRET_KEY"]
 
 DEBUG: bool = False
 
