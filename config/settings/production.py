@@ -3,6 +3,7 @@ import os
 from sysconfig import get_path
 
 from config.util import get_bool_env, get_int_env, strtobool
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.csp import CSP
 
 from .features import *
@@ -154,7 +155,12 @@ except FileNotFoundError:
 
 # security-critical settings. No defaults allowed to prevent
 # accidental misconfiguration. Must be set via environment.
-SECRET_KEY: str = os.environ["SECRET_KEY"]
+try:
+    SECRET_KEY: str = os.environ.get("SECRET_KEY")
+except KeyError:
+    raise ImproperlyConfigured(
+        "SECRET_KEY environment variable must be set and cannot be empty."
+    )
 
 DEBUG: bool = False
 
