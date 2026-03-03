@@ -28,6 +28,10 @@
           {
             'text': 'Catalogue',
             'href': url('main:catalogue')
+          },
+          {
+            'text': 'Search',
+            'href': url('search:advanced_search')
           }
         ],
         'structuredData': True,
@@ -46,128 +50,132 @@
   <div class="tna-container">
     <div class="tna-column tna-column--full">
       <h1 class="tna-heading-l">{{ pageTitle }}</h1>
-      <p>Advanced search functionality coming soon.</p>
-      <p><a href="{{ url('main:catalogue') }}">Back to catalogue search</a></p>
+      <p>Use advanced search to ger more specific results from our catalogue.</p>
     </div>
   </div>
 </div>
 
 <div class="tna-container">
-  <div class="tna-column tna-column--tna-column--full">
-
+  <div class="tna-column tna-column--width-2-3 tna-column--full-medium tna-column--full-small tna-column--full-tiny">
     <form action="" method="get" novalidate class="tna-!--margin-top-m">
 
       {% call tnaFieldset({
-        "legend": "Include words in your search",
+        "legend": "Find  records that contain",
         "headingLevel": 2,
         "headingSize": "l",
-        "id": "include_fieldset"
+        "id": "find_fieldset"
       }) %}
 
         {{ tnaTextInput({
-          "label": "Find all these words",
+          "label": "All of these words",
           "headingLevel": 3,
           "headingSize": "m",
-          "id": "words_all",
-          "name": "words_all",
+          "id": "all_words",
+          "name": "all_words",
           "value": "",
-          "hint": "Type the important words: medal, card, John Smith"
+          "hint": "Include the important words, for example: medal card UK"
         }) }}
 
         {{ tnaTextInput({
-          "label": "Find exact words or phase",
+          "label": "These exact words or phrases",
           "headingLevel": 3,
           "headingSize": "m",
-          "id": "words_exact",
-          "name": "words_exact",
+          "id": "exact_words",
+          "name": "exact_words",
           "value": "",
-          "hint": "Put exact words in quotes: 'John Smith'"
+          "hint": "Put words in quotes, for example: \"medal card UK\""
         }) }}
 
-        {{ tnaTextInput({
-          "label": "Find any of these words",
-          "headingLevel": 3,
+        {{ tnaTextarea({
+          "label": "Any of these words",
+          "hint": "Seperate each word with a new line",
+          "headingLevel": 4,
           "headingSize": "m",
-          "id": "words_any",
-          "name": "words_any",
-          "value": "",
-          "hint": "Seperate the words with a comma: medal, card, John Smith"
+          "id": "any_words",
+          "name": "any_words",
+          "value": ""
         }) }}
 
-      {% endcall %}
-
-      {% call tnaFieldset({
-        "legend": "Exclude these words",
-        "headingLevel": 2,
-        "headingSize": "l",
-        "id": "exclude_fieldset"
-      }) %}
-
-        {{ tnaTextInput({
+        {{ tnaTextarea({
           "label": "Ignore these words",
-          "headingLevel": 3,
+          "hint": "Seperate each word with a new line",
+          "headingLevel": 4,
           "headingSize": "m",
-          "id": "words_exclude",
-          "name": "words_exclude",
-          "value": "",
-          "hint": "Seperate the words with a comma: medal, card, John Smith"
+          "id": "ignore_words",
+          "name": "ignore_words",
+          "value": ""
         }) }}
 
       {% endcall %}
 
       {% call tnaFieldset({
-        "legend": "Add references to your search",
+        "legend": "Narrow your results by",
         "headingLevel": 2,
         "headingSize": "l",
-        "id": "references_fieldset"
+        "id": "narrow_fieldset"
       }) %}
 
         {{ tnaTextarea({
           "attributes": {
             "data-js-chip-field": ''
           },
-          "label": "Find records in or within these references",
+          "label": "Search for or within any of these references",
+          "hint": "Seperate each reference with a new line",
           "headingLevel": 4,
           "headingSize": "m",
-          "id": "feedback",
-          "name": "feedback",
+          "id": "references",
+          "name": "references",
           "value": ""
         }) }}
 
+        <h3 class="tna-heading-m">Search within a date range</h3>
+
+        <div class="tna-container tna-container--nested">
+          <div class="tna-column tna-column--width-1-2 tna-column--full-medium tna-column--full-small tna-column--full-tiny">
+            {% call tnaFieldset({
+              "legend": "From",
+              "hint": "For example: 1997, 1999 and 1, or 1997 1 and 31",
+              "headingLevel": 4,
+              "headingSize": "sm",
+              "id": "date_from_fieldset"
+            }) %}
+
+              {{ tnaDateInput({
+                "label": "Year",
+                "headingLevel": 3,
+                "headingSize": "xs",
+                "id": "date_from",
+                "name": "date_from",
+                "value": "",
+              }) }}
+            {% endcall %}
+          </div>
+          <div class="tna-column tna-column--width-1-2 tna-column--full-medium tna-column--full-small tna-column--full-tiny">
+            {% call tnaFieldset({
+              "legend": "To",
+              "hint": "For example: 1997, 1999 and 1, or 1997 1 and 31",
+              "headingLevel": 4,
+              "headingSize": "sm",
+              "id": "date_to_fieldset"
+            }) %}
+
+              {{ tnaDateInput({
+                "label": "Year",
+                "headingLevel": 3,
+                "headingSize": "xs",
+                "id": "date_to",
+                "name": "date_to",
+                "value": "",
+              }) }}
+            {% endcall %}
+          </div>
+
+
+
+
       {% endcall %}
 
 
-      {% call tnaFieldset({
-        "legend": "Add dates to your search",
-        "headingLevel": 2,
-        "headingSize": "l",
-        "id": "references_fieldset",
-        "hint": "Find results within a particular date range, add a year first"
-      }) %}
-
-        {{ tnaDateInput({
-          "label": "From Year",
-          "headingLevel": 3,
-          "headingSize": "m",
-          "id": "date",
-          "name": "date",
-          "value": "",
-          "hint": "",
-          "progressive": True
-        }) }}
-
-        {{ tnaDateInput({
-          "label": "To Year",
-          "headingLevel": 3,
-          "headingSize": "m",
-          "id": "date",
-          "name": "date",
-          "value": "",
-          "hint": "",
-          "progressive": True
-        }) }}
-
-      {% endcall %}
 
 
 
