@@ -99,7 +99,7 @@ class TestDeliveryOptionSubstitution(TestCase):
             "{AddedToBasketText}": "Add to basket",
             "{AdvancedOrdersEmailAddress}": settings.ADVANCED_DOCUMENT_ORDER_EMAIL,
             "{AdvanceOrderInformationUrl}": "https://tnabase.test.url/about/visit-us/",
-            "{ArchiveLink}": "https://discovery.nationalarchives.gov.uk/details/a/A13530124",
+            "{ArchiveLink}": "/catalogue/id/A13530124/",
             "{ArchiveName}": "The National Archives, Kew",
             "{BasketType}": "Digital Downloads",
             "{BasketUrl}": "https://tnabase.test.url/basket/",

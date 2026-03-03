@@ -88,3 +88,8 @@ def apply_series_xsl(source: str, division: str) -> str:
 
 def apply_generic_xsl(source: str) -> str:
     return xsl_transformation(source, "Generic.xsl")
+
+
+def apply_archon_xsl(source: str) -> str:
+    """Applies the Archon XSLT transformation to the provided source string."""
+    return xsl_transformation(source, "Archon.xsl")

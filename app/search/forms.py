@@ -11,7 +11,12 @@ from app.records.constants import TNA_LEVELS
 
 from .buckets import CATALOGUE_BUCKETS, Aggregation
 from .collection_names import COLLECTION_CHOICES
-from .constants import DATE_DISPLAY_FORMAT, Display, FieldsConstant, Sort
+from .constants import (
+    DATE_DISPLAY_FORMAT,
+    Display,
+    FieldsConstant,
+    Sort,
+)
 
 
 class CatalogueSearchBaseForm(BaseForm):

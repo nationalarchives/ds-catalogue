@@ -110,6 +110,11 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(level_field.is_visible)
 
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )
+
     def test_search_with_invalid_level_filters_returns_error_with_no_results(
         self,
     ):
@@ -205,3 +210,8 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
 
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertFalse(level_field.is_visible)
+
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )

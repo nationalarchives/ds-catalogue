@@ -14,6 +14,10 @@ def fetch_global_alert_api_data():
     global_alert = cache.get("global_alert_api_data")
     if global_alert is None:
         global_alerts_client = JSONAPIClient(settings.WAGTAIL_API_URL)
+        if settings.WAGTAIL_API_KEY:
+            global_alerts_client.add_header(
+                "Authorization", f"Token {settings.WAGTAIL_API_KEY}"
+            )
         global_alerts_client.add_parameters(
             {"fields": "_,global_alert,mourning_notice"}
         )
