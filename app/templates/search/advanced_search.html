@@ -69,7 +69,7 @@
         {{ tnaTextInput({
           "label": "All of these words",
           "headingLevel": 3,
-          "headingSize": "m",
+          "headingSize": "s",
           "id": "all_words",
           "name": "all_words",
           "value": "",
@@ -79,7 +79,7 @@
         {{ tnaTextInput({
           "label": "These exact words or phrases",
           "headingLevel": 3,
-          "headingSize": "m",
+          "headingSize": "s",
           "id": "exact_words",
           "name": "exact_words",
           "value": "",
@@ -88,9 +88,9 @@
 
         {{ tnaTextarea({
           "label": "Any of these words",
-          "hint": "Seperate each word with a new line",
-          "headingLevel": 4,
-          "headingSize": "m",
+          "hint": "Put each word on a new line, for example: \nmedal\ncard",
+          "headingLevel": 3,
+          "headingSize": "s",
           "id": "any_words",
           "name": "any_words",
           "value": ""
@@ -98,13 +98,14 @@
 
         {{ tnaTextarea({
           "label": "Ignore these words",
-          "hint": "Seperate each word with a new line",
-          "headingLevel": 4,
-          "headingSize": "m",
+          "headingLevel": 3,
+          "headingSize": "s",
           "id": "ignore_words",
           "name": "ignore_words",
-          "value": ""
+          "value": "",
+          "hint": "Put each word on a new line, for example: \nmedal\ncard"
         }) }}
+
 
       {% endcall %}
 
@@ -116,58 +117,40 @@
       }) %}
 
         {{ tnaTextarea({
-          "attributes": {
-            "data-js-chip-field": ''
-          },
           "label": "Search for or within any of these references",
           "hint": "Seperate each reference with a new line",
-          "headingLevel": 4,
-          "headingSize": "m",
+          "headingLevel": 3,
+          "headingSize": "s",
           "id": "references",
           "name": "references",
           "value": ""
         }) }}
 
-        <h3 class="tna-heading-m">Search within a date range</h3>
+        <h3 class="tna-heading-s">Search within a date range</h3>
 
         <div class="tna-container tna-container--nested">
           <div class="tna-column tna-column--width-1-2 tna-column--full-medium tna-column--full-small tna-column--full-tiny">
-            {% call tnaFieldset({
-              "legend": "From",
-              "hint": "For example: 1997, 1999 and 1, or 1997 1 and 31",
-              "headingLevel": 4,
-              "headingSize": "sm",
-              "id": "date_from_fieldset"
-            }) %}
 
-              {{ tnaDateInput({
-                "label": "Year",
-                "headingLevel": 3,
-                "headingSize": "xs",
-                "id": "date_from",
-                "name": "date_from",
-                "value": "",
-              }) }}
-            {% endcall %}
+            {{ tnaDateInput({
+              "label": "From",
+              "headingLevel": 3,
+              "headingSize": "s",
+              "id": "date_from",
+              "name": "date_from",
+              "value": "",
+              "hint": "For example: 1997, 1999 and 1, or 1997 1 and 31"
+            }) }}
           </div>
           <div class="tna-column tna-column--width-1-2 tna-column--full-medium tna-column--full-small tna-column--full-tiny">
-            {% call tnaFieldset({
-              "legend": "To",
-              "hint": "For example: 1997, 1999 and 1, or 1997 1 and 31",
-              "headingLevel": 4,
-              "headingSize": "sm",
-              "id": "date_to_fieldset"
-            }) %}
-
-              {{ tnaDateInput({
-                "label": "Year",
-                "headingLevel": 3,
-                "headingSize": "xs",
-                "id": "date_to",
-                "name": "date_to",
-                "value": "",
-              }) }}
-            {% endcall %}
+            {{ tnaDateInput({
+              "label": "To",
+              "headingLevel": 3,
+              "headingSize": "s",
+              "id": "date_to",
+              "name": "date_to",
+              "value": "",
+              "hint": "For example: 1997, 1999 and 1, or 1997 1 and 31"
+            }) }}
           </div>
 
 
