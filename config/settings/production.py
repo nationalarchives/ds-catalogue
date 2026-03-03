@@ -72,9 +72,9 @@ ASGI_APPLICATION = "config.asgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# This application is read-only and does not require a database, 
-# but Django requires a database configuration to run. 
-# We use SQLite as it is the simplest option and 
+# This application is read-only and does not require a database,
+# but Django requires a database configuration to run.
+# We use SQLite as it is the simplest option and
 # does not require any additional setup.
 # No migrations will be run and no database file will be created
 # as it functions as a read-only application and does not need to persist any data.
