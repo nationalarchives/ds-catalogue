@@ -155,9 +155,8 @@ except FileNotFoundError:
 
 # security-critical settings. No defaults allowed to prevent
 # accidental misconfiguration. Must be set via environment.
-try:
-    SECRET_KEY: str = os.environ["SECRET_KEY"]
-except KeyError:
+SECRET_KEY: str = os.environ["SECRET_KEY"]
+if not SECRET_KEY:
     raise ImproperlyConfigured(
         "SECRET_KEY environment variable must be set and cannot be empty."
     )
