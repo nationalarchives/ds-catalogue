@@ -10,7 +10,7 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.12"
 requests = "^2.31.0"
-tna-frontend-jinja = "0.33.0"
+tna-frontend-jinja = "0.35.1"
 django = "^6.0"
 whitenoise = "^6.7.0"
 responses = "^0.25.3"
