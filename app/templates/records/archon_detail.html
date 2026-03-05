@@ -1,25 +1,10 @@
 {# #TODO: Replace mock archive data with archive data from API #}
 {% set mock_archive = {
-  'title': 'Shakespeare Birthplace Trust',
   'archon_code': '188',
   'website': 'https://www.shakespeare.org.uk/',
-  'address': [
-    'The Shakespeare Centre',
-    'Henley Street',
-    'Stratford-upon-Avon',
-    'CV37 6QW',
-    'England'
-  ],
-  'phone': '01789 204 016',
-  'email': 'collections@shakespeare.org.uk',
   'about_archive': '<p><strong>Open:</strong> Monday 10.15-12.30, Tuesday 10.15-3, Wednesday 10.15-12.30 by appointment</p><p><strong>Closed:</strong> Bank holidays; Christmas/New Year</p><ul><li>Wheelchair access</li><li>Proof of identity required</li><li>Readers ticket required</li></ul><p>Two hour appointment slots must by booked in advance. See <a href="https://www.shakespeare.org.uk/">website</a> for details</p><p>Readers will need to provide a letter of recommendation to see certain items - please <a href="mailto:collections@shakespeare.org.uk">email</a> for further details<br>Reprographics: Staff can copy certain items for a small fee; self-service photograph permits (certain items only) - £5 per day</p>',
   'current_catalogue_url': 'https://www.nationalarchives.gov.uk/catalogue/',
 } %}
-
-{# Build Google Maps URL #}
-{% set maps_query = (mock_archive.title ~ ' ' ~ (mock_archive.address | join(' '))) | urlencode %}
-{% set google_maps_url = 'https://www.google.com/maps/search/?api=1&query=' ~ maps_query %}
-
 
 {% extends 'base.html' %}
 
@@ -60,61 +45,7 @@
       <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
         <h2 class="tna-heading-l">Contact information</h2>
 
-        <dl class="dl-icon-grid">
-          <div class="dl-icon-grid__item">
-            <i class="dl-icon-grid__icon fa-solid fa-building" aria-hidden="true"></i>
-            <dt class="dl-icon-grid__term">
-              Address
-            </dt>
-            <dd class="dl-icon-grid__definition">
-              <p>
-                {% for line in mock_archive.address %}
-                  {{ line }}{% if not loop.last %}<br>{% endif %}
-                {% endfor %}
-              </p>
-            </dd>
-          </div>
-
-          <div class="dl-icon-grid__item">
-            <i class="dl-icon-grid__icon fa-solid fa-map-marker" aria-hidden="true"></i>
-            <dt class="dl-icon-grid__term tna-visually-hidden">
-              Map
-            </dt>
-            <dd class="dl-icon-grid__definition">
-              <p><a href="{{ google_maps_url }}">View on a map</a></p>
-            </dd>
-          </div>
-
-          <div class="dl-icon-grid__item">
-            <i class="dl-icon-grid__icon fa-solid fa-phone" aria-hidden="true"></i>
-            <dt class="dl-icon-grid__term">
-              Telephone
-            </dt>
-            <dd class="dl-icon-grid__definition">
-              <a href="tel:{{ mock_archive.phone|replace(' ', '') }}">{{ mock_archive.phone }}</a>
-            </dd>
-          </div>
-
-          <div class="dl-icon-grid__item">
-            <i class="dl-icon-grid__icon fa-solid fa-envelope" aria-hidden="true"></i>
-            <dt class="dl-icon-grid__term">
-              Email
-            </dt>
-            <dd class="dl-icon-grid__definition">
-              <a href="mailto:{{ mock_archive.email }}">{{ mock_archive.email }}</a>
-            </dd>
-          </div>
-
-          <div class="dl-icon-grid__item">
-            <i class="dl-icon-grid__icon fa-solid fa-globe" aria-hidden="true"></i>
-            <dt class="dl-icon-grid__term">
-              Website
-            </dt>
-            <dd class="dl-icon-grid__definition">
-              <a href="{{ mock_archive.website }}">{{ mock_archive.website }}</a>
-            </dd>
-          </div>
-        </dl>
+        {{ record.description | sanitise_record_field | safe }}
       </div>
     </div>
 
