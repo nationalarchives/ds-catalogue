@@ -1,4 +1,9 @@
-"""Exceptions used in the application."""
+"""General exceptions used in the application."""
 
-class ResourceNotFound(Exception):
+
+class APIError(Exception):
+    """Base exception for JSON API client errors."""
+
+
+class ResourceNotFound(APIError):
     pass
