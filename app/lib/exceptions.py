@@ -1,4 +1,4 @@
-"""General exceptions used in the application."""
+"""General API exceptions used in the application."""
 
 
 class APIError(Exception):
