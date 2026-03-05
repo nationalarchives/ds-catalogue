@@ -76,7 +76,7 @@ class JSONAPIClient:
             )
         except ConnectionError:
             logger.error("JSON API connection error")
-            raise APIConnectionError("A connection error occured")
+            raise APIConnectionError("A connection error occurred")
         except Timeout:
             logger.error("JSON API timeout")
             raise APITimeoutError("The request timed out")

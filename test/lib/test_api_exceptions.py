@@ -148,7 +148,7 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
         )
 
         with self.assertRaisesMessage(
-            APIConnectionError, "A connection error occured"
+            APIConnectionError, "A connection error occurred"
         ):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
