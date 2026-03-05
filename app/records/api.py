@@ -1,7 +1,7 @@
 import logging
 
 from app.lib.api import JSONAPIClient, rosetta_request_handler
-from app.lib.exceptions import ResourceNotFound
+from app.lib.exceptions import RecordNotFound, ResourceNotFound
 from app.records.models import APIResponse, Record
 from django.conf import settings
 from django.utils.text import slugify
@@ -23,7 +23,7 @@ def record_details_by_id(
         Record object
 
     Raises:
-        ResourceNotFound: If record doesn't exist
+        RecordNotFound: If record doesn't exist
         Exception: If data format is unexpected
 
     Note:
@@ -42,7 +42,7 @@ def record_details_by_id(
         record_data = results["data"][0]
         response = APIResponse(record_data)
         return response.record
-    raise ResourceNotFound(f"id {id} does not exist")
+    raise RecordNotFound(f"id {id} does not exist")
 
 
 def record_details_by_ref(reference: str, params: dict = {}):

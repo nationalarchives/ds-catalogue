@@ -5,7 +5,7 @@ from typing import Any
 
 from app.errors import views as errors_view
 from app.lib.constants import DATE_YMD_SEPARATOR
-from app.lib.exceptions import ResourceNotFound
+from app.lib.exceptions import NoResultsFound
 from app.lib.fields import (
     CharField,
     ChoiceField,
@@ -432,8 +432,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         except PageNotFound:
             # for page=<invalid page number>, page > page limit
             return errors_view.page_not_found_error_view(request=self.request)
-        except ResourceNotFound:
-            # no results
+        except NoResultsFound:
             return self.form_invalid()
 
     @property

@@ -1,5 +1,5 @@
 from app.lib.api import rosetta_request_handler
-from app.lib.exceptions import ResourceNotFound
+from app.lib.exceptions import NoResultsFound
 
 from .buckets import CATALOGUE_BUCKETS
 from .models import APISearchResponse
@@ -78,7 +78,7 @@ def _validate_search_results(results, page):
         Bucket counts depend on the "q" param.
         """
         if not _has_config_bucket_entries(results["buckets"]):
-            raise ResourceNotFound("No results found")
+            raise NoResultsFound("No results found")
 
 
 def _has_config_bucket_entries(buckets):

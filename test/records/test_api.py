@@ -1,7 +1,8 @@
 from unittest.mock import patch
 
 import responses
-from app.lib.api import JSONAPIClient, ResourceNotFound
+from app.lib.api import JSONAPIClient
+from app.lib.exceptions import RecordNotFound
 from app.records.api import record_details_by_id, wagtail_request_handler
 from app.records.models import Record
 from django.conf import settings
@@ -39,7 +40,7 @@ class TestRecordDetailsById(SimpleTestCase):
             _ = record_details_by_id(id="C198022")
 
     @responses.activate
-    def test_resource_not_found_id_does_not_exist(self):
+    def test_record_not_found_id_does_not_exist(self):
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/get?id=C198022",
@@ -48,7 +49,7 @@ class TestRecordDetailsById(SimpleTestCase):
         )
 
         with self.assertRaisesMessage(
-            ResourceNotFound, "id C198022 does not exist"
+            RecordNotFound, "id C198022 does not exist"
         ):
             _ = record_details_by_id(id="C198022")
 

@@ -1,6 +1,6 @@
 import responses
 from app.lib.api import JSONAPIClient
-from app.lib.exceptions import ResourceNotFound
+from app.lib.exceptions import NoResultsFound
 from app.records.models import Record
 from app.search.api import search_records
 from app.search.models import APISearchResponse
@@ -97,7 +97,7 @@ class SearchRecordsTests(SimpleTestCase):
             },
         )
 
-        with self.assertRaisesMessage(ResourceNotFound, "No results found"):
+        with self.assertRaisesMessage(NoResultsFound, "No results found"):
             _ = search_records(query="")
 
     @responses.activate
