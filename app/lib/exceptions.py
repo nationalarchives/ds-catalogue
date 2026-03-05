@@ -15,3 +15,15 @@ class NoResultsFound(APIError):
 
 class RecordNotFound(APIError):
     """A specific record requested by ID does not exist."""
+
+
+class APIConnectionError(APIError):
+    """Raised when a connection error occurs while calling the JSON API."""
+
+
+class APITimeoutError(APIError):
+    """Raised when a request to the JSON API times out."""
+
+
+class APIRedirectError(APIError):
+    """Raised when the JSON API request encounters too many redirects."""

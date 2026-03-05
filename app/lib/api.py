@@ -11,7 +11,13 @@ from requests import (
     get,
 )
 
-from .exceptions import ResourceNotFound
+from .exceptions import (
+    APIConnectionError,
+    APIError,
+    APIRedirectError,
+    APITimeoutError,
+    ResourceNotFound,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -70,16 +76,16 @@ class JSONAPIClient:
             )
         except ConnectionError:
             logger.error("JSON API connection error")
-            raise Exception("A connection error occured")
+            raise APIConnectionError("A connection error occured")
         except Timeout:
             logger.error("JSON API timeout")
-            raise Exception("The request timed out")
+            raise APITimeoutError("The request timed out")
         except TooManyRedirects:
             logger.error("JSON API had too many redirects")
-            raise Exception("Too many redirects")
+            raise APIRedirectError("Too many redirects")
         except Exception as e:
             logger.error(f"Unknown JSON API exception: {e}")
-            raise Exception(str(e))
+            raise APIError(str(e))
         logger.debug(response.url)
         if response.status_code == codes.ok:
             try:

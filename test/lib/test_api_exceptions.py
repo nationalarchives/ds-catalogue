@@ -2,7 +2,12 @@ import unittest.mock as mock
 
 import responses
 from app.lib.api import JSONAPIClient, rosetta_request_handler
-from app.lib.exceptions import ResourceNotFound
+from app.lib.exceptions import (
+    APIConnectionError,
+    APIRedirectError,
+    APITimeoutError,
+    ResourceNotFound,
+)
 from django.conf import settings
 from django.test import SimpleTestCase, override_settings
 from requests import Timeout, TooManyRedirects
@@ -142,7 +147,9 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             "http://this-api-url-does-not-exist/pull?id=C123456",
         )
 
-        with self.assertRaisesMessage(Exception, "A connection error occured"):
+        with self.assertRaisesMessage(
+            APIConnectionError, "A connection error occured"
+        ):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn("ERROR:app.lib.api:JSON API connection error", lc.output)
@@ -156,7 +163,7 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             body=Timeout(),
         )
 
-        with self.assertRaisesMessage(Exception, "The request timed out"):
+        with self.assertRaisesMessage(APITimeoutError, "The request timed out"):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn("ERROR:app.lib.api:JSON API timeout", lc.output)
@@ -170,7 +177,7 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             body=TooManyRedirects(),
         )
 
-        with self.assertRaisesMessage(Exception, "Too many redirects"):
+        with self.assertRaisesMessage(APIRedirectError, "Too many redirects"):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn(
