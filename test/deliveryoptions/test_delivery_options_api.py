@@ -1,7 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from app.lib.api import JSONAPIClient, ResourceNotFound
+from app.lib.api import JSONAPIClient
+from app.lib.exceptions import ResourceNotFound
 from django.conf import settings
 
 

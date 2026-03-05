@@ -2,7 +2,7 @@ import logging
 from http import HTTPStatus
 
 import sentry_sdk
-from app.lib.api import ResourceNotFound
+from app.lib.exceptions import ResourceNotFound
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 

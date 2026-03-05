@@ -1,6 +1,7 @@
 import logging
 
-from app.lib.api import JSONAPIClient, ResourceNotFound, rosetta_request_handler
+from app.lib.api import JSONAPIClient, rosetta_request_handler
+from app.lib.exceptions import ResourceNotFound
 from app.records.models import APIResponse, Record
 from django.conf import settings
 from django.utils.text import slugify

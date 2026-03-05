@@ -4,7 +4,7 @@ Tests for subjects enrichment functionality
 
 from unittest.mock import patch
 
-from app.lib.api import ResourceNotFound
+from app.lib.exceptions import ResourceNotFound
 from app.records.api import (  # CHANGED: from views to api
     get_subjects_enrichment,
 )

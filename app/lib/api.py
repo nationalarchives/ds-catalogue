@@ -11,11 +11,9 @@ from requests import (
     get,
 )
 
+from .exceptions import ResourceNotFound
+
 logger = logging.getLogger(__name__)
-
-
-class ResourceNotFound(Exception):
-    pass
 
 
 class JSONAPIClient:

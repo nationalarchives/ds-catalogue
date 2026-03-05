@@ -1,7 +1,8 @@
 import unittest.mock as mock
 
 import responses
-from app.lib.api import JSONAPIClient, ResourceNotFound, rosetta_request_handler
+from app.lib.api import JSONAPIClient, rosetta_request_handler
+from app.lib.exceptions import ResourceNotFound
 from django.conf import settings
 from django.test import SimpleTestCase, override_settings
 from requests import Timeout, TooManyRedirects

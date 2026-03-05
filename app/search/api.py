@@ -1,4 +1,5 @@
-from app.lib.api import ResourceNotFound, rosetta_request_handler
+from app.lib.api import rosetta_request_handler
+from app.lib.exceptions import ResourceNotFound
 
 from .buckets import CATALOGUE_BUCKETS
 from .models import APISearchResponse
