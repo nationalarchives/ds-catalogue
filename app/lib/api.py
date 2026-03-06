@@ -12,9 +12,13 @@ from requests import (
 )
 
 from .exceptions import (
+    APIBadRequestError,
     APIConnectionError,
     APIError,
+    APIForbiddenError,
+    APINonJSONResponseError,
     APIRedirectError,
+    APIRequestFailedError,
     APITimeoutError,
     ResourceNotFound,
 )
@@ -103,19 +107,19 @@ class JSONAPIClient:
                 )
                 logger.error(f"Non-JSON response: {truncated_text}{suffix}")
 
-                raise Exception("Non-JSON response provided")
+                raise APINonJSONResponseError("Non-JSON response provided")
 
         if response.status_code == HTTPStatus.BAD_REQUEST:
             logger.error(f"Bad request: {response.url}")
-            raise Exception("Bad request")
+            raise APIBadRequestError("Bad request")
         if response.status_code == HTTPStatus.FORBIDDEN:
             logger.warning("Forbidden")
-            raise Exception("Forbidden")
+            raise APIForbiddenError("Forbidden")
         if response.status_code == HTTPStatus.NOT_FOUND:
             logger.warning("Resource not found")
             raise ResourceNotFound("Resource not found")
         logger.error(f"JSON API responded with {response.status_code}")
-        raise Exception("Request failed")
+        raise APIRequestFailedError("Request failed")
 
 
 def rosetta_request_handler(uri, params=None, timeout=None) -> dict:

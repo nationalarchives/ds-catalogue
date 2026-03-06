@@ -5,18 +5,6 @@ class APIError(Exception):
     """Base exception for JSON API client errors."""
 
 
-class ResourceNotFound(APIError):
-    """Raised when the JSON API responds with HTTP 404."""
-
-
-class NoResultsFound(APIError):
-    """Search completed successfully but returned no results."""
-
-
-class RecordNotFound(APIError):
-    """A specific record requested by ID does not exist."""
-
-
 class APIConnectionError(APIError):
     """Raised when a connection error occurs while calling the JSON API."""
 
@@ -27,3 +15,31 @@ class APITimeoutError(APIError):
 
 class APIRedirectError(APIError):
     """Raised when the JSON API request encounters too many redirects."""
+
+
+class APINonJSONResponseError(APIError):
+    """Raised when the JSON API returns a non-JSON response."""
+
+
+class APIBadRequestError(APIError):
+    """Raised when the JSON API responds with HTTP 400."""
+
+
+class APIForbiddenError(APIError):
+    """Raised when the JSON API responds with HTTP 403."""
+
+
+class APIRequestFailedError(APIError):
+    """Raised when the JSON API responds with an unexpected non-OK status."""
+
+
+class ResourceNotFound(APIError):
+    """Raised when the JSON API responds with HTTP 404."""
+
+
+class NoResultsFound(APIError):
+    """Search completed successfully but returned no results."""
+
+
+class RecordNotFound(APIError):
+    """A specific record requested by ID does not exist."""
