@@ -9,6 +9,10 @@ class ChipField {
     this.renderAll();
   }
 
+  /**
+   * Parse the initial values from the textarea
+   * @returns {Set} A set of the initial values
+   */
   parseInitialValues() {
     return new Set(
       this.textarea.value
@@ -18,6 +22,9 @@ class ChipField {
     );
   }
 
+  /**
+   * Create the enhanced input
+   */
   createEnhancedInput() {
     const hint = this.container?.querySelector(".tna-form-item__hint");
 
@@ -35,8 +42,19 @@ class ChipField {
       if (label) label.setAttribute("for", this.input.id);
     }
 
+    this.button = document.createElement("button");
+    this.button.type = "button";
+    this.button.className = "tna-button";
+    this.button.title = "Add";
+    this.button.setAttribute("aria-label", "Add");
+    this.button.innerHTML = "Add";
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "tna-search-field";
+    wrapper.append(this.input, this.button);
+
     this.textarea.hidden = true;
-    this.textarea.parentElement.appendChild(this.input);
+    this.textarea.parentElement.appendChild(wrapper);
 
     this.list = document.createElement("ul");
     this.list.className = "tna-compound-filters tna-!--margin-top-xs";
@@ -44,7 +62,7 @@ class ChipField {
     this.textarea.parentElement.appendChild(this.list);
 
     this.liveRegion = document.createElement("div");
-    this.liveRegion.className = "visually-hidden";
+    this.liveRegion.className = "tna-visually-hidden";
     this.liveRegion.setAttribute("aria-live", "polite");
     this.textarea.parentElement.appendChild(this.liveRegion);
 
@@ -53,10 +71,17 @@ class ChipField {
     }
   }
 
+  /**
+   * Sync the textarea value with the values set
+   */
   syncTextarea() {
     this.textarea.value = Array.from(this.values).join("\n");
   }
 
+  /**
+   * Announce a message to the user
+   * @param {string} message The message to announce
+   */
   announce(message) {
     this.liveRegion.textContent = "";
     requestAnimationFrame(() => {
@@ -64,6 +89,10 @@ class ChipField {
     });
   }
 
+  /**
+   * Render a chip
+   * @param {string} value The value to render
+   */
   renderChip(value) {
     const li = document.createElement("li");
     li.className = "tna-compound-filters__item";
@@ -83,11 +112,18 @@ class ChipField {
     this.list.appendChild(li);
   }
 
+  /**
+   * Render all the chips
+   */
   renderAll() {
     this.list.innerHTML = "";
     this.values.forEach(v => this.renderChip(v));
   }
 
+  /**
+   * Add a value to the field
+   * @param {string} rawValue The raw value to add
+   */
   addValue(rawValue) {
     const value = rawValue.trim();
     if (!value || this.values.has(value)) return;
@@ -99,6 +135,10 @@ class ChipField {
     this.input.value = "";
   }
 
+  /**
+   * Remove a value from the field
+   * @param {string} value The value to remove
+   */
   removeValue(value) {
     if (!this.values.has(value)) return;
 
@@ -113,6 +153,9 @@ class ChipField {
     this.announce(`Removed ${value}`);
   }
 
+  /**
+   * Bind the events to the input and list
+   */
   bindEvents() {
     this.input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
@@ -126,6 +169,11 @@ class ChipField {
       }
     });
 
+    this.button.addEventListener("click", () => {
+      this.addValue(this.input.value);
+      this.input.focus();
+    });
+
     this.list.addEventListener("click", (e) => {
       const button = e.target.closest("button[data-value]");
       if (!button) return;
@@ -134,6 +182,9 @@ class ChipField {
   }
 }
 
+/**
+ * Initialize the chip fields
+ */
 document.querySelectorAll("[data-js-chip-field]").forEach(textarea => {
   new ChipField(textarea);
 });
