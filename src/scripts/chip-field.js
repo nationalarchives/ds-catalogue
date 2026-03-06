@@ -67,7 +67,7 @@ class ChipField {
     this.textarea.parentElement.appendChild(this.liveRegion);
 
     if (hint) {
-      hint.textContent = "Type a series and press Enter to add it";
+      hint.textContent = "Add terms seperately by pressing Enter";
     }
   }
 
