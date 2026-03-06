@@ -3,6 +3,7 @@ import os
 from sysconfig import get_path
 
 from config.util import get_bool_env, get_int_env, strtobool
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.csp import CSP
 
 from .features import *
@@ -72,6 +73,12 @@ ASGI_APPLICATION = "config.asgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# This application is read-only and does not require a database,
+# but Django requires a database configuration to run.
+# We use SQLite as it is the simplest option and
+# does not require any additional setup.
+# No migrations will be run and no database file will be created
+# as it functions as a read-only application and does not need to persist any data.
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -124,6 +131,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # TNA Configuration
 
 CONTAINER_IMAGE: str = os.environ.get("CONTAINER_IMAGE", "")
+# Generated in the CI/CD process
 BUILD_VERSION: str = os.environ.get("BUILD_VERSION", "")
 TNA_FRONTEND_VERSION: str = ""
 try:
@@ -145,7 +153,13 @@ except FileNotFoundError:
     pass
 
 
+# security-critical settings. No defaults allowed to prevent
+# accidental misconfiguration. Must be set via environment.
 SECRET_KEY: str = os.environ.get("SECRET_KEY", "")
+if not SECRET_KEY:
+    raise ImproperlyConfigured(
+        "SECRET_KEY environment variable must be set and cannot be empty."
+    )
 
 DEBUG: bool = False
 
@@ -251,9 +265,6 @@ ADVANCED_DOCUMENT_ORDER_EMAIL = os.getenv(
 IMAGE_LIBRARY_URL = os.getenv(
     "IMAGE_LIBRARY_URL", "https://images.nationalarchives.gov.uk/"
 )
-
-# Generated in the CI/CD process
-BUILD_VERSION = os.getenv("BUILD_VERSION", "")
 
 # TODO: Switch to a more robust cache backend such as Redis in production
 CACHES = {
