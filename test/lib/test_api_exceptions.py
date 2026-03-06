@@ -12,6 +12,7 @@ from app.lib.exceptions import (
     APITimeoutError,
 )
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase, override_settings
 from requests import Timeout, TooManyRedirects
 
@@ -24,7 +25,9 @@ class TestRosettaRequestHandlerException(SimpleTestCase):
     @responses.activate
     def test_config_api_url_not_set(self):
 
-        with self.assertRaisesMessage(Exception, "ROSETTA_API_URL not set"):
+        with self.assertRaisesMessage(
+            ImproperlyConfigured, "ROSETTA_API_URL not set"
+        ):
             _ = rosetta_request_handler(uri="somevalue", params={})
 
 

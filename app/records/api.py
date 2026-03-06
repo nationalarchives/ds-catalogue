@@ -4,6 +4,7 @@ from app.lib.api import JSONAPIClient, rosetta_request_handler
 from app.lib.exceptions import APIResourceNotFound, RecordNotFound
 from app.records.models import APIResponse, Record
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.text import slugify
 
 logger = logging.getLogger(__name__)
@@ -76,7 +77,7 @@ def wagtail_request_handler(uri: str, params: dict = {}, timeout=None) -> dict:
     """
     api_url = settings.WAGTAIL_API_URL
     if not api_url:
-        raise Exception("WAGTAIL_API_URL not set")
+        raise ImproperlyConfigured("WAGTAIL_API_URL not set")
 
     client = JSONAPIClient(api_url, params)
     if settings.WAGTAIL_API_KEY:

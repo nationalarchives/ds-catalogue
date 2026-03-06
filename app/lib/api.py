@@ -2,6 +2,7 @@ import logging
 from http import HTTPStatus
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from requests import (
     ConnectionError,
     JSONDecodeError,
@@ -128,7 +129,7 @@ def rosetta_request_handler(uri, params=None, timeout=None) -> dict:
         params = {}
     api_url = settings.ROSETTA_API_URL
     if not api_url:
-        raise Exception("ROSETTA_API_URL not set")
+        raise ImproperlyConfigured("ROSETTA_API_URL not set")
     client = JSONAPIClient(api_url)
     client.add_parameters(params)
     data = client.get(uri, timeout=timeout)

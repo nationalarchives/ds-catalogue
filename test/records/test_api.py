@@ -6,6 +6,7 @@ from app.lib.exceptions import RecordNotFound
 from app.records.api import record_details_by_id, wagtail_request_handler
 from app.records.models import Record
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase, override_settings
 
 
@@ -99,7 +100,9 @@ class TestWagtailAPIIntegration(SimpleTestCase):
     def test_wagtail_request_handler_missing_url(self):
         """Test wagtail_request_handler when WAGTAIL_API_URL is not set"""
 
-        with self.assertRaisesMessage(Exception, "WAGTAIL_API_URL not set"):
+        with self.assertRaisesMessage(
+            ImproperlyConfigured, "WAGTAIL_API_URL not set"
+        ):
             wagtail_request_handler("/article_tags/", {})
 
     @override_settings(WAGTAIL_API_URL="https://test-api.example.com")
