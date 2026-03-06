@@ -40,7 +40,7 @@ services:
       start_period: 10s
       start_interval: 2s
 
-  mock-delivery-options-api:
+  api-mocks:
     image: wiremock/wiremock:3.13.1
     volumes:
       - ./wiremock:/home/wiremock
