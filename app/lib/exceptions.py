@@ -37,9 +37,13 @@ class APIResourceNotFound(APIError):
     """Raised when the JSON API responds with HTTP 404."""
 
 
-class NoResultsFound(APIError):
+class CatalogueError(Exception):
+    """Base exception for Catalog errors after successful API calls (200)."""
+
+
+class NoResultsFound(CatalogueError):
     """Search completed successfully but returned no results."""
 
 
-class RecordNotFound(APIError):
+class RecordNotFound(CatalogueError):
     """A specific record requested by ID does not exist."""
