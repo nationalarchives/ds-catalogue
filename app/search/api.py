@@ -1,5 +1,9 @@
 from app.lib.api import rosetta_request_handler
-from app.lib.exceptions import NoResultsFound
+from app.lib.exceptions import (
+    NoResultsFound,
+    SearchResponseMissingBucketsError,
+    SearchResponseMissingDataError,
+)
 
 from .buckets import CATALOGUE_BUCKETS
 from .models import APISearchResponse
@@ -61,9 +65,11 @@ def _build_search_params(
 
 def _validate_search_results(results, page):
     if "data" not in results:
-        raise Exception("No data returned")
+        raise SearchResponseMissingDataError("No data returned")
     if "buckets" not in results:
-        raise Exception("Search API response missing required 'buckets' field")
+        raise SearchResponseMissingBucketsError(
+            "Search API response missing required 'buckets' field"
+        )
 
     if not len(results["data"]) and page == 1:
         """

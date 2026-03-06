@@ -47,3 +47,11 @@ class NoResultsFound(CatalogueError):
 
 class RecordNotFound(CatalogueError):
     """A specific record requested by ID does not exist."""
+
+
+class SearchResponseMissingDataError(CatalogueError):
+    """Raised when the search API response is missing the 'data' field."""
+
+
+class SearchResponseMissingBucketsError(CatalogueError):
+    """Raised when the search API response is missing the 'buckets' field."""
