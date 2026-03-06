@@ -88,6 +88,7 @@
           "hint": "Put words in quotes, for example: \"medal card UK\""
         }) }}
 
+        {% block any_words_field %}
         {{ tnaTextarea({
           "formItemClasses": "tna-!--margin-top-s",
           "label": "Any of these words",
@@ -98,7 +99,9 @@
           "name": "any_words",
           "value": ""
         }) }}
+        {% endblock any_words_field %}
 
+        {% block ignore_words_field %}
         {{ tnaTextarea({
           "formItemClasses": "tna-!--margin-top-s",
           "label": "Ignore these words",
@@ -109,6 +112,7 @@
           "value": "",
           "hint": "Put each word on a new line, for example: \nmedal\ncard"
         }) }}
+        {% endblock ignore_words_field %}
 
 
       {% endcall %}
@@ -120,6 +124,7 @@
         "id": "narrow_fieldset"
       }) %}
 
+        {% block references_field %}
         {{ tnaTextarea({
           "formItemClasses": "tna-!--margin-top-s",
           "label": "Search for or within any of these references",
@@ -130,6 +135,7 @@
           "name": "references",
           "value": ""
         }) }}
+        {% endblock references_field %}
 
         <h3 class="tna-heading-s">Search within a date range</h3>
 
@@ -186,8 +192,3 @@
 </div>
 
 {% endblock content %}
-
-{% block bodyEnd %}
-  {{ super() }}
-  <script src="{{ static('chip-field.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
-{% endblock bodyEnd %}

@@ -939,3 +939,16 @@ def advanced_search(request):
         "global_alert": fetch_global_alert_api_data(),
     }
     return HttpResponse(template.render(context, request))
+
+
+def advanced_search_js(request):
+    """JS-enhanced version of the advanced search page for testing."""
+    from django.http import HttpResponse
+    from django.template import loader
+    from app.main.global_alert import fetch_global_alert_api_data
+
+    template = loader.get_template("search/advanced_search_js.html")
+    context = {
+        "global_alert": fetch_global_alert_api_data(),
+    }
+    return HttpResponse(template.render(context, request))

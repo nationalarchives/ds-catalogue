@@ -1,0 +1,56 @@
+{% extends "search/advanced_search.html" %}
+
+{%- from "components/textarea/macro.html" import tnaTextarea -%}
+
+{% block any_words_field %}
+        {{ tnaTextarea({
+          "formItemClasses": "tna-!--margin-top-s",
+          "label": "Any of these words",
+          "hint": "Put each word on a new line, for example: \nmedal\ncard",
+          "headingLevel": 3,
+          "headingSize": "s",
+          "id": "any_words",
+          "name": "any_words",
+          "value": "",
+          "attributes": {
+            "data-js-chip-field": ""
+          }
+        }) }}
+{% endblock any_words_field %}
+
+{% block ignore_words_field %}
+        {{ tnaTextarea({
+          "formItemClasses": "tna-!--margin-top-s",
+          "label": "Ignore these words",
+          "headingLevel": 3,
+          "headingSize": "s",
+          "id": "ignore_words",
+          "name": "ignore_words",
+          "value": "",
+          "hint": "Put each word on a new line, for example: \nmedal\ncard",
+          "attributes": {
+            "data-js-chip-field": ""
+          }
+        }) }}
+{% endblock ignore_words_field %}
+
+{% block references_field %}
+        {{ tnaTextarea({
+          "formItemClasses": "tna-!--margin-top-s",
+          "label": "Search for or within any of these references",
+          "hint": "Seperate each reference with a new line",
+          "headingLevel": 3,
+          "headingSize": "s",
+          "id": "references",
+          "name": "references",
+          "value": "",
+          "attributes": {
+            "data-js-chip-field": ""
+          }
+        }) }}
+{% endblock references_field %}
+
+{% block bodyEnd %}
+  {{ super() }}
+  <script src="{{ static('chip-field.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+{% endblock bodyEnd %}
