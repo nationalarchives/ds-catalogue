@@ -33,7 +33,7 @@ class APIRequestFailedError(APIError):
     """Raised when the JSON API responds with an unexpected non-OK status."""
 
 
-class ResourceNotFound(APIError):
+class APIResourceNotFound(APIError):
     """Raised when the JSON API responds with HTTP 404."""
 
 

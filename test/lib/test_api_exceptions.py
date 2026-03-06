@@ -8,8 +8,8 @@ from app.lib.exceptions import (
     APINonJSONResponseError,
     APIRedirectError,
     APIRequestFailedError,
+    APIResourceNotFound,
     APITimeoutError,
-    ResourceNotFound,
 )
 from django.conf import settings
 from django.test import SimpleTestCase, override_settings
@@ -115,7 +115,9 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             status=404,  # 404:not found
         )
 
-        with self.assertRaisesMessage(ResourceNotFound, "Resource not found"):
+        with self.assertRaisesMessage(
+            APIResourceNotFound, "Resource not found"
+        ):
             with self.assertLogs("app.lib.api", level="WARNING") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn("WARNING:app.lib.api:Resource not found", lc.output)

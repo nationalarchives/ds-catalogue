@@ -19,8 +19,8 @@ from .exceptions import (
     APINonJSONResponseError,
     APIRedirectError,
     APIRequestFailedError,
+    APIResourceNotFound,
     APITimeoutError,
-    ResourceNotFound,
 )
 
 logger = logging.getLogger(__name__)
@@ -117,7 +117,7 @@ class JSONAPIClient:
             raise APIForbiddenError("Forbidden")
         if response.status_code == HTTPStatus.NOT_FOUND:
             logger.warning("Resource not found")
-            raise ResourceNotFound("Resource not found")
+            raise APIResourceNotFound("Resource not found")
         logger.error(f"JSON API responded with {response.status_code}")
         raise APIRequestFailedError("Request failed")
 

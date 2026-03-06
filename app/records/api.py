@@ -1,7 +1,7 @@
 import logging
 
 from app.lib.api import JSONAPIClient, rosetta_request_handler
-from app.lib.exceptions import RecordNotFound, ResourceNotFound
+from app.lib.exceptions import APIResourceNotFound, RecordNotFound
 from app.records.models import APIResponse, Record
 from django.conf import settings
 from django.utils.text import slugify
@@ -113,7 +113,7 @@ def get_subjects_enrichment(
             "/article_tags/", params, timeout=timeout
         )
         return results
-    except ResourceNotFound:
+    except APIResourceNotFound:
         logger.warning(f"No subjects enrichment found for {subjects_param}")
         return {}
     except Exception as e:

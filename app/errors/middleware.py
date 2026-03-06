@@ -2,7 +2,11 @@ import logging
 from http import HTTPStatus
 
 import sentry_sdk
-from app.lib.exceptions import NoResultsFound, RecordNotFound, ResourceNotFound
+from app.lib.exceptions import (
+    APIResourceNotFound,
+    NoResultsFound,
+    RecordNotFound,
+)
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 
@@ -30,7 +34,7 @@ class CustomExceptionMiddleware:
             raise  # re-raise error
 
         if isinstance(
-            exception, (ResourceNotFound, RecordNotFound, NoResultsFound)
+            exception, (APIResourceNotFound, RecordNotFound, NoResultsFound)
         ):
             return page_not_found_error_view(request=request)
 
