@@ -54,6 +54,9 @@ class TestRecordView(TestCase):
                                 "id": "A13530600",
                                 "title": "Test Title",
                                 "source": "ARCHON",
+                                "description": {
+                                    "raw": "<contacts><addressline1><![CDATA[Kew]]></addressline1></contacts>"
+                                },
                             }
                         }
                     }
@@ -438,7 +441,7 @@ class TestNonTNARecordAvailability(TestCase):
         # Should contain the "How to view it" link pointing to the archive
         self.assertContains(
             response,
-            '<a href="https://discovery.nationalarchives.gov.uk/details/a/A13530841">How to view it</a>',
+            '<a href="/catalogue/id/A13530841/">How to view it</a>',
         )
 
     @responses.activate

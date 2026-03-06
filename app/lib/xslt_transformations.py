@@ -54,11 +54,16 @@ SERIES_TRANSFORMATIONS = {
 logger = logging.getLogger(__name__)
 
 
-def xsl_transformation(source: str, schema_file: str) -> str:
+def xsl_transformation(
+    source: str, schema_file: str, *, parse_as_xml: bool = False
+) -> str:
     if not source:
         logger.warning("Empty source provided for XSLT transformation")
         return ""
-    dom = html.fromstring(source)
+    if parse_as_xml:
+        dom = etree.fromstring(source.encode("utf-8"))
+    else:
+        dom = html.fromstring(source)
     try:
         xslt = etree.parse(f"app/resources/xslt/{schema_file}")
     except Exception as e:
@@ -88,3 +93,10 @@ def apply_series_xsl(source: str, division: str) -> str:
 
 def apply_generic_xsl(source: str) -> str:
     return xsl_transformation(source, "Generic.xsl")
+
+
+def apply_archon_xsl(source: str) -> str:
+    """Applies the Archon XSLT transformation to the provided source string.
+    Uses XML parsing so CDATA and structure (e.g. <br /> in addressline1) are preserved.
+    """
+    return xsl_transformation(source, "Archon.xsl", parse_as_xml=True)
