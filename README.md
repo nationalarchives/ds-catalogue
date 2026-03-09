@@ -87,6 +87,8 @@ See [Sentry's official guide](https://docs.sentry.io/platforms/python/guides/dja
 
 | Variable                         | Purpose                                                                      |
 | -------------------------------- | ---------------------------------------------------------------------------- |
+| `SECRET_KEY`                     | For cryptographic signing, ensuring the integrity of sessions, CSRF tokens,  |
+|                                  | and other security-related data.                                             |
 | `ROSETTA_API_URL`                | The base API URL for Rosetta, including the `/rosetta/data` path             |
 | `WAGTAIL_API_URL`                | The base API URL for Wagtail                                                 |
 | `DELIVERY_OPTIONS_API_URL`       | The base API URL for Delivery options                                        |

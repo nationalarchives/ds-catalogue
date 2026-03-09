@@ -166,7 +166,7 @@ class CatalogueSearchViewDefaultTests(TestCase):
             FieldsConstant.OPENING_DATE_TO,
         ]
         tna_form_field_names = set(form.fields.keys())
-        self.assertTrue(set(tna_field_names) == set(tna_form_field_names))
+        self.assertSetEqual(set(tna_field_names), set(tna_form_field_names))
 
         # ### form fields ###
 
@@ -385,3 +385,8 @@ class CatalogueSearchViewDefaultTests(TestCase):
         self.assertTrue(online_field.is_visible)
         self.assertTrue(opening_date_from_field.is_visible)
         self.assertTrue(opening_date_to_field.is_visible)
+
+        self.assertEqual(
+            response.context_data.get("show_banner_for_filters_not_applied"),
+            False,
+        )

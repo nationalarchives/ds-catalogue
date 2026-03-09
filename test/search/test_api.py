@@ -71,7 +71,9 @@ class SearchRecordsTests(SimpleTestCase):
             status=200,
         )
 
-        with self.assertRaisesMessage(Exception, "No 'buckets' returned"):
+        with self.assertRaisesMessage(
+            Exception, "Search API response missing required 'buckets' field"
+        ):
             _ = search_records(query="")
 
     @responses.activate
