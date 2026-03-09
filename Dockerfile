@@ -21,7 +21,7 @@ RUN mkdir -p /home/app/django_cache
 # Copy in the static assets from TNA Frontend, collect static files and remove source files
 RUN mkdir -p /app/app/static/assets; \
     cp -r /app/node_modules/@nationalarchives/frontend/nationalarchives/assets/* /app/app/static/assets; \
-    poetry run python /app/manage.py collectstatic --no-input --clear; \
+    SECRET_KEY=build poetry run python /app/manage.py collectstatic --no-input --clear; \
     rm -fR /app/src
 
 # Clean up build dependencies
