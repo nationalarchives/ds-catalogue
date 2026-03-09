@@ -73,11 +73,12 @@ def wagtail_request_handler(uri: str, params: dict = {}, timeout=None) -> dict:
     Raises:
         Exception: If WAGTAIL_API_URL is not configured
     """
+
     api_url = settings.WAGTAIL_API_URL
     if not api_url:
         raise Exception("WAGTAIL_API_URL not set")
 
-    client = JSONAPIClient(api_url, params)
+    client = JSONAPIClient(api_url, default_params=params)
     if settings.WAGTAIL_API_KEY:
         client.add_header("Authorization", f"Token {settings.WAGTAIL_API_KEY}")
     return client.get(uri, timeout=timeout)

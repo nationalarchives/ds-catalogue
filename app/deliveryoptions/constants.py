@@ -115,10 +115,13 @@ class AvailabilityGroup(Enum):
 
     CLOSED_TNA_OR_PA = {
         AvailabilityCondition.ClosedFOIReview,
-        AvailabilityCondition.ClosedRetainedDeptKnown,
         AvailabilityCondition.ClosedRetainedDeptUnKnown,
         AvailabilityCondition.AccessUnderReview,
         AvailabilityCondition.PaidSearch,
+    }
+
+    CLOSED_RETAINED = {
+        AvailabilityCondition.ClosedRetainedDeptKnown,
     }
 
     # The remaining groups do not fit in with those above and are not part of the
