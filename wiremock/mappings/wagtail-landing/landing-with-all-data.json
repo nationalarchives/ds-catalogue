@@ -35,14 +35,14 @@
             "teaser_image": {
               "id": 1261,
               "jpeg": {
-                "url": "/media/images/test-image-1261.jpg",
-                "full_url": "https://example.com/media/images/test-image-1261.jpg",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/test-image-1261.webp",
-                "full_url": "https://example.com/media/images/test-image-1261.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -63,14 +63,14 @@
             "teaser_image": {
               "id": 961,
               "jpeg": {
-                "url": "/media/images/test-image-961.jpg",
-                "full_url": "https://example.com/media/images/test-image-961.jpg",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/test-image-961.webp",
-                "full_url": "https://example.com/media/images/test-image-961.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -91,14 +91,14 @@
             "teaser_image": {
               "id": 890,
               "jpeg": {
-                "url": "/media/images/test-image-890.jpg",
-                "full_url": "https://example.com/media/images/test-image-890.jpg",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/test-image-890.webp",
-                "full_url": "https://example.com/media/images/test-image-890.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -119,14 +119,14 @@
             "teaser_image": {
               "id": 2393,
               "jpeg": {
-                "url": "/media/images/test-image-2393.jpg",
-                "full_url": "https://example.com/media/images/test-image-2393.jpg",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/test-image-2393.webp",
-                "full_url": "https://example.com/media/images/test-image-2393.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -147,14 +147,14 @@
             "teaser_image": {
               "id": 2398,
               "jpeg": {
-                "url": "/media/images/test-image-2398.jpg",
-                "full_url": "https://example.com/media/images/test-image-2398.jpg",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/test-image-2398.webp",
-                "full_url": "https://example.com/media/images/test-image-2398.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -177,14 +177,14 @@
             "teaser_image": {
               "id": 3257,
               "jpeg": {
-                "url": "/media/images/test-image-3257.jpg",
-                "full_url": "https://example.com/media/images/test-image-3257.jpg",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/test-image-3257.webp",
-                "full_url": "https://example.com/media/images/test-image-3257.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -202,18 +202,18 @@
             "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/elizabeth-i-and-robert-dudley-earl-of-leicester/",
             "type": "articles.ArticlePage",
             "type_label": "The story of",
-            "teaser_text": "The enduring love shared by Elizabeth I (1533–1603) and Robert Dudley (1542–1588) helps to explain why Elizabeth never married.",
+            "teaser_text": "The enduring love shared by Elizabeth I (1533\u20131603) and Robert Dudley (1542\u20131588) helps to explain why Elizabeth never married.",
             "teaser_image": {
               "id": 3248,
               "jpeg": {
-                "url": "/media/images/test-image-3248.jpg",
-                "full_url": "https://example.com/media/images/test-image-3248.jpg",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/test-image-3248.webp",
-                "full_url": "https://example.com/media/images/test-image-3248.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -235,14 +235,14 @@
             "teaser_image": {
               "id": 3128,
               "jpeg": {
-                "url": "/media/images/test-image-3128.jpg",
-                "full_url": "https://example.com/media/images/test-image-3128.jpg",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "/media/images/test-image-3128.webp",
-                "full_url": "https://example.com/media/images/test-image-3128.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }

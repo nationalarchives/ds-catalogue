@@ -14,7 +14,7 @@ services:
       - DJANGO_SUPERUSER_PASSWORD=admin
       - DJANGO_SUPERUSER_USERNAME=admin
       - COOKIE_DOMAIN=localhost
-      - CSP_IMG_SRC='self',*.nationalarchives.gov.uk
+      - CSP_IMG_SRC='self',*.nationalarchives.gov.uk,http://localhost:65501
       - CSP_STYLE_SRC='self',fonts.googleapis.com,p.typekit.net,use.typekit.net
       - CSP_FONT_SRC='self',fonts.gstatic.com,use.typekit.net
       - CSP_FRAME_SRC='self',www.youtube.com

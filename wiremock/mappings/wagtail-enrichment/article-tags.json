@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/article_tags/"
+    "urlPath": "/article_tags/"
   },
   "response": {
     "status": 200,
@@ -25,14 +25,14 @@
           "title": "Geoffrey Chaucer wine grant teaser",
           "description": "",
           "jpeg": {
-            "url": "/media/images/geoffrey-chaucer-gra_2hYyRT6.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
-            "full_url": "https://localhost/media/images/geoffrey-chaucer-gra_2hYyRT6.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           },
           "webp": {
-            "url": "/media/images/geoffrey-chaucer-grant-.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
-            "full_url": "https://localhost/media/images/geoffrey-chaucer-grant-.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           }
@@ -57,14 +57,14 @@
           "title": "Matchgirls (Wellcome)",
           "description": "A group of young working class women stand together looking directly at the camera",
           "jpeg": {
-            "url": "/media/images/matchgirls_wel_9HJn1Zb.1e8ff4a0.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
-            "full_url": "https://localhost/media/images/matchgirls_wel_9HJn1Zb.1e8ff4a0.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           },
           "webp": {
-            "url": "/media/images/matchgirls_we.1e8ff4a0.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
-            "full_url": "https://localhost/media/images/matchgirls_we.1e8ff4a0.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           }
@@ -89,14 +89,14 @@
           "title": "The existing research into battered women teaser",
           "description": "",
           "jpeg": {
-            "url": "/media/images/MH-154-835-leaflet-t_W7ebLoP.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
-            "full_url": "https://localhost/media/images/MH-154-835-leaflet-t_W7ebLoP.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 517,
             "height": 344
           },
           "webp": {
-            "url": "/media/images/MH-154-835-leaflet-te.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
-            "full_url": "https://localhost/media/images/MH-154-835-leaflet-te.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 517,
             "height": 344
           }
@@ -121,14 +121,14 @@
           "title": "Section 28 part 2 teaser",
           "description": "",
           "jpeg": {
-            "url": "/media/images/section-28-2-scales-_O6MDn3I.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
-            "full_url": "https://localhost/media/images/section-28-2-scales-_O6MDn3I.2e16d0ba.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           },
           "webp": {
-            "url": "/media/images/section-28-2-scales-.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
-            "full_url": "https://localhost/media/images/section-28-2-scales-.2e16d0ba.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           }
@@ -153,14 +153,14 @@
           "title": "origins_28_header.jpg",
           "description": "",
           "jpeg": {
-            "url": "/media/images/origins_28_h_V6076o5.f3991c00.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
-            "full_url": "https://localhost/media/images/origins_28_h_V6076o5.f3991c00.fill-600x400.format-jpeg.jpegquality-60.bgcolor-fff.jpg",
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           },
           "webp": {
-            "url": "/media/images/origins_28_.f3991c00.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
-            "full_url": "https://localhost/media/images/origins_28_.f3991c00.fill-600x400.format-webp.webpquality-70.bgcolor-fff.webp",
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           }
