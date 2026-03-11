@@ -1,0 +1,5 @@
+ignore:
+  sensitive_data:
+    BUILTIN-125:
+      /app/wiremock/mappings/wagtail-landing/landing-with-all-data.json:
+        reason: FALSE_POSITIVE
