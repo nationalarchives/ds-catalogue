@@ -27,16 +27,16 @@
             "type_label": null,
             "teaser_text": "Our collection shines a light on many aspects of life, from the stories of states to different people's experiences. Browse these topics for just a taste.",
             "teaser_image": {
-              "id": 1261,
+              "id": 961,
               "jpeg": {
-                "url": "http://localhost:65501/images/test-image-1261.jpg",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
                 "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
-                "url": "http://localhost:65501/images/test-image-961.webp",
-                "full_url": "http://localhost:65501/images/test-image-961.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -63,8 +63,8 @@
                 "height": 400
               },
               "webp": {
-                "url": "http://localhost:65501/images/test-image-961.webp",
-                "full_url": "http://localhost:65501/images/test-image-961.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -83,7 +83,7 @@
             "type_label": null,
             "teaser_text": "Discover the human stories behind the collection. Learn about the people, places and events featured in our records.",
             "teaser_image": {
-              "id": 890,
+              "id": 961,
               "jpeg": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
                 "full_url": "http://localhost:65501/images/test-image-961.jpg",
@@ -91,8 +91,8 @@
                 "height": 400
               },
               "webp": {
-                "url": "http://localhost:65501/images/test-image-961.webp",
-                "full_url": "http://localhost:65501/images/test-image-961.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -111,7 +111,7 @@
             "type_label": null,
             "teaser_text": "The National Archives presents On the Record, a podcast that unearths the real life stories found in our vast collections.",
             "teaser_image": {
-              "id": 2393,
+              "id": 961,
               "jpeg": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
                 "full_url": "http://localhost:65501/images/test-image-961.jpg",
@@ -119,8 +119,8 @@
                 "height": 400
               },
               "webp": {
-                "url": "http://localhost:65501/images/test-image-961.webp",
-                "full_url": "http://localhost:65501/images/test-image-961.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -139,7 +139,7 @@
             "type_label": null,
             "teaser_text": "Learn how the stories hidden in our documents are uncovered by our experts. Find out how we care for our records, and get tips for your own research.",
             "teaser_image": {
-              "id": 2398,
+              "id": 961,
               "jpeg": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
                 "full_url": "http://localhost:65501/images/test-image-961.jpg",
@@ -147,8 +147,8 @@
                 "height": 400
               },
               "webp": {
-                "url": "http://localhost:65501/images/test-image-961.webp",
-                "full_url": "http://localhost:65501/images/test-image-961.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -169,7 +169,7 @@
             "type_label": "Focus on",
             "teaser_text": "In the 19th century travel evolved from an aristocratic privilege to middle-class reality. Explore how rail guides made this possible.",
             "teaser_image": {
-              "id": 3257,
+              "id": 961,
               "jpeg": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
                 "full_url": "http://localhost:65501/images/test-image-961.jpg",
@@ -177,8 +177,8 @@
                 "height": 400
               },
               "webp": {
-                "url": "http://localhost:65501/images/test-image-961.webp",
-                "full_url": "http://localhost:65501/images/test-image-961.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -196,9 +196,9 @@
             "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/elizabeth-i-and-robert-dudley-earl-of-leicester/",
             "type": "articles.ArticlePage",
             "type_label": "The story of",
-            "teaser_text": "The enduring love shared by Elizabeth I (1533–1603) and Robert Dudley (1542–1588) helps to explain why Elizabeth never married.",
+            "teaser_text": "The enduring love shared by Elizabeth I (1533\u20131603) and Robert Dudley (1542\u20131588) helps to explain why Elizabeth never married.",
             "teaser_image": {
-              "id": 3248,
+              "id": 961,
               "jpeg": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
                 "full_url": "http://localhost:65501/images/test-image-961.jpg",
@@ -206,8 +206,8 @@
                 "height": 400
               },
               "webp": {
-                "url": "http://localhost:65501/images/test-image-961.webp",
-                "full_url": "http://localhost:65501/images/test-image-961.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -227,7 +227,7 @@
             "type_label": "Focus on",
             "teaser_text": "In an era when the law criminalised your love, how was it possible to meet members of the same sex and communicate?",
             "teaser_image": {
-              "id": 3128,
+              "id": 961,
               "jpeg": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
                 "full_url": "http://localhost:65501/images/test-image-961.jpg",
@@ -235,8 +235,8 @@
                 "height": 400
               },
               "webp": {
-                "url": "http://localhost:65501/images/test-image-961.webp",
-                "full_url": "http://localhost:65501/images/test-image-961.webp",
+                "url": "http://localhost:65501/images/test-image-961.jpg",
+                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
