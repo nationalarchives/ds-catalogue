@@ -19,7 +19,7 @@ from app.records.utils import (
     extract,
     format_link,
 )
-from config.jinja2 import format_number
+from config.jinja import format_number
 from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
 from lxml import etree
@@ -359,9 +359,10 @@ class Record(APIModel):
 
     @cached_property
     def clean_description(self) -> str:
-        """Returns value for cleanDescription if found, empty str otherwise."""
-        if clean_description := self.get("cleanDescription", ""):
-            return clean_description
+        """Returns value for cleanDescription if found, empty str otherwise.
+        cleanDescription contains HTML markup for highlighting search terms.
+        This fild usually comes from the search API response."""
+        return self.get("cleanDescription", "")
 
     @cached_property
     def no_html_description(self) -> str:
@@ -542,7 +543,6 @@ class Record(APIModel):
         """Returns up to SUBJECTS_LIMIT items from the api value of the attr if found, empty list otherwise."""
         return self.get("subjects", [])[:SUBJECTS_LIMIT]
 
-    # Add to your Record class in app/records/models.py
     @property
     def subjects_enrichment(self) -> dict:
         """Returns subjects enrichment data if available."""

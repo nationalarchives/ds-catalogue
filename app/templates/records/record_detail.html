@@ -36,7 +36,7 @@
 {% endblock beforeContent %}
 
 {% block content %}
-{{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
+{{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice, 'm') }}
 <div class="tna-section tna-!--padding-top-{{ 's' if distressing_content else 'l' }}">
   <div class="tna-container">
     {{ content_warning(
@@ -91,10 +91,15 @@
         </div>
       {% else %}
         {# No JS - show server-rendered delivery options #}
-        {% if do_availability_group and do_availability_group != 'PENDING_CLASSIFICATION' %}
+  
+      {% if do_availability_group and do_availability_group != 'PENDING_CLASSIFICATION' %}
           {{ available_online(record, do_availability_group) }}
           {{ available_in_person(record, do_availability_group) }}
-        {% else %}
+        {% elif not record.is_held_by_tna %}
+        {# Records at other archives - we know where they are, just not at TNA #}
+        {{ available_online(record) }}
+        {{ available_in_person(record) }}
+      {% else %}
           <div class="tna-column tna-column--width-2-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
             <div class="tna-aside tna-aside--tight tna-background-contrast full-height-aside">
               <h2 class="tna-heading-m">Access information is unavailable</h2>
@@ -102,7 +107,7 @@
             </div>
           </div>
         {% endif %}
-      {% endif %}
+      {% endif %} 
     </div>
   {% endif %}
 

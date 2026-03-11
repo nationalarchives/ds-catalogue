@@ -8,7 +8,9 @@ from django.utils.text import slugify
 logger = logging.getLogger(__name__)
 
 
-def record_details_by_id(id: str, params: dict = {}, timeout=None) -> Record:
+def record_details_by_id(
+    id: str, params: dict | None = None, timeout=None
+) -> Record:
     """
     Fetches a record by its ID from the Rosetta API.
 
@@ -27,6 +29,8 @@ def record_details_by_id(id: str, params: dict = {}, timeout=None) -> Record:
         The errors are handled by a custom middleware in the app.
     """
     uri = "get"
+    if params is None:
+        params = {}
     params.update({"id": id})
     results = rosetta_request_handler(uri, params, timeout=timeout)
     if "data" not in results:
@@ -73,7 +77,9 @@ def wagtail_request_handler(uri: str, params: dict = {}, timeout=None) -> dict:
     if not api_url:
         raise Exception("WAGTAIL_API_URL not set")
 
-    client = JSONAPIClient(api_url, params)
+    client = JSONAPIClient(api_url, default_params=params)
+    if settings.WAGTAIL_API_KEY:
+        client.add_header("Authorization", f"Token {settings.WAGTAIL_API_KEY}")
     return client.get(uri, timeout=timeout)
 
 
