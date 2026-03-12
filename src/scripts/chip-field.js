@@ -176,9 +176,10 @@ class ChipField {
     });
 
     this.list.addEventListener("click", (e) => {
-      const button = e.target.closest("button[data-value]");
-      if (!button) return;
-      this.removeValue(button.dataset.value);
+      const link = e.target.closest(".tna-compound-filters__link");
+      if (!link) return;
+      e.preventDefault();
+      this.removeValue(link.dataset.value);
     });
   }
 }
