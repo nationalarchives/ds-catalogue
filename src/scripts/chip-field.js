@@ -67,7 +67,8 @@ class ChipField {
     this.textarea.parentElement.appendChild(this.liveRegion);
 
     if (hint) {
-      hint.textContent = "Add terms seperately by pressing Enter";
+      const customHint = this.textarea.dataset.jsChipHint;
+      hint.textContent = customHint || "Add terms separately by pressing Enter";
     }
   }
 

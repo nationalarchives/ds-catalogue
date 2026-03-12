@@ -77,41 +77,43 @@
             "hint": "Include the important words, for example: medal card UK"
           }) }}
 
-          {{ tnaTextInput({
-            "formItemClasses": "tna-!--margin-top-s",
-            "label": "These exact words or phrases",
-            "headingLevel": 3,
-            "headingSize": "s",
-            "id": "exact_words",
-            "name": "exact_words",
-            "value": "",
-            "hint": "Put words in quotes, for example: \"medal card UK\""
-          }) }}
+          {% block exact_words_field %}
+            {{ tnaTextarea({
+              "formItemClasses": "tna-!--margin-top-s",
+              "label": "These exact words or phrases",
+              "headingLevel": 3,
+              "headingSize": "s",
+              "id": "exact_words",
+              "name": "exact_words",
+              "value": "",
+              "hint": "Put each word on a new line, for example:<br>medal<br>card" | safe
+            }) }}
+          {% endblock exact_words_field %}
 
           {% block any_words_field %}
-          {{ tnaTextarea({
-            "formItemClasses": "tna-!--margin-top-s",
-            "label": "Any of these words",
-            "hint": "Put each word on a new line, for example: \nmedal\ncard",
-            "headingLevel": 3,
-            "headingSize": "s",
-            "id": "any_words",
-            "name": "any_words",
-            "value": ""
-          }) }}
+            {{ tnaTextarea({
+              "formItemClasses": "tna-!--margin-top-s",
+              "label": "Any of these words",
+              "headingLevel": 3,
+              "headingSize": "s",
+              "id": "any_words",
+              "name": "any_words",
+              "value": "",
+              "hint": "Put each word on a new line, for example:<br>medal<br>card" | safe
+            }) }}
           {% endblock any_words_field %}
 
           {% block ignore_words_field %}
-          {{ tnaTextarea({
-            "formItemClasses": "tna-!--margin-top-s",
-            "label": "Ignore these words",
-            "headingLevel": 3,
-            "headingSize": "s",
-            "id": "ignore_words",
-            "name": "ignore_words",
-            "value": "",
-            "hint": "Put each word on a new line, for example: \nmedal\ncard"
-          }) }}
+            {{ tnaTextarea({
+              "formItemClasses": "tna-!--margin-top-s",
+              "label": "Ignore these words",
+              "headingLevel": 3,
+              "headingSize": "s",
+              "id": "ignore_words",
+              "name": "ignore_words",
+              "value": "",
+              "hint": "Put each word on a new line, for example:<br>medal<br>card" | safe
+            }) }}
           {% endblock ignore_words_field %}
 
         {% endcall %}
@@ -127,7 +129,7 @@
             {{ tnaTextarea({
               "formItemClasses": "tna-!--margin-top-s",
               "label": "Search for or within any of these references",
-              "hint": "Separate each reference with a new line",
+              "hint": "Put each cartalogue reference on a new line, for example: <br>WO 95<br>WO 95" | safe,
               "headingLevel": 3,
               "headingSize": "s",
               "id": "references",
@@ -158,7 +160,7 @@
                 "id": "date_to",
                 "name": "date_to",
                 "value": "",
-                "hint": "For example: 1997, 1999 and 1, or 1997 1 and 31"
+                "hint": "For example: 1997, 1999 and 1, or 1997 1 and 31",
               }) }}
             </div>
         {% endcall %}

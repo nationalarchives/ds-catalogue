@@ -2,6 +2,23 @@
 
 {%- from "components/textarea/macro.html" import tnaTextarea -%}
 
+{% block exact_words_field %}
+  {{ tnaTextarea({
+    "formItemClasses": "tna-!--margin-top-s",
+    "label": "These exact words or phrases",
+    "hint": "Put each word on a new line, for example: \nmedal\ncard",
+    "headingLevel": 3,
+    "headingSize": "s",
+    "id": "exact_words",
+    "name": "exact_words",
+    "value": "",
+    "attributes": {
+      "data-js-chip-field": "",
+      "data-js-chip-hint": "Add words or phrases separately"
+    }
+  }) }}
+{% endblock exact_words_field %}
+
 {% block any_words_field %}
   {{ tnaTextarea({
     "formItemClasses": "tna-!--margin-top-s",
@@ -13,7 +30,8 @@
     "name": "any_words",
     "value": "",
     "attributes": {
-      "data-js-chip-field": ""
+      "data-js-chip-field": "",
+      "data-js-chip-hint": "Add words separately"
     }
   }) }}
 {% endblock any_words_field %}
@@ -29,7 +47,8 @@
     "value": "",
     "hint": "Put each word on a new line, for example: \nmedal\ncard",
     "attributes": {
-      "data-js-chip-field": ""
+      "data-js-chip-field": "",
+      "data-js-chip-hint": "Add words separately"
     }
   }) }}
 {% endblock ignore_words_field %}
@@ -45,7 +64,8 @@
   "name": "references",
   "value": "",
   "attributes": {
-    "data-js-chip-field": ""
+    "data-js-chip-field": "",
+    "data-js-chip-hint": "Add catalogue references separately"
   }
 }) }}
 {% endblock references_field %}
