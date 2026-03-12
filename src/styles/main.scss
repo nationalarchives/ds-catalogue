@@ -4,32 +4,19 @@
 
 @use "@nationalarchives/frontend/nationalarchives/all";
 
+@use "themes/light";
+
 @use "main/global-alert";
 
 .etna-rounded-corners {
   @include borders.rounded-border;
 }
 
-.tna-card {
-  &--full-height {
-    height: 100%;
-
-    box-sizing: border-box;
-
-    @include colour.on-high-contrast-and-forced-colours {
-      height: auto;
-    }
-  }
-}
-
-.tna-\!--align-centre {
-  text-align: center !important;
-}
-
-.development-notice {
+ernal-notice {
   padding: spacing.space(1);
 
   @include colour.blue-accent;
   @include colour.thick-keyline-accent;
   @include borders.rounded-border;
+}
 }
