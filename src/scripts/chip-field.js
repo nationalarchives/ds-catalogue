@@ -134,6 +134,7 @@ class ChipField {
     this.renderChip(value);
     this.announce(`Added ${value}`);
     this.input.value = "";
+    this.dispatchChange();
   }
 
   /**
@@ -152,6 +153,14 @@ class ChipField {
     chip?.remove();
 
     this.announce(`Removed ${value}`);
+    this.dispatchChange();
+  }
+
+  dispatchChange() {
+    this.textarea.dispatchEvent(new CustomEvent("chipchange", {
+      bubbles: true,
+      detail: { values: Array.from(this.values) }
+    }));
   }
 
   /**

@@ -70,7 +70,23 @@
 }) }}
 {% endblock references_field %}
 
+{% block stylesheets %}
+{{ super() }}
+    <link rel="stylesheet" href="{{ static('advanced-search-query.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
+{% endblock stylesheets %}
+
+{% block search_preview %}
+  <div class="search-preview tna-!--margin-top-l" data-js-search-preview hidden>
+    <p>
+      <strong>Your search:</strong>
+      <span>Find</span>
+      <span data-js-search-preview-query></span>
+    </p>
+  </div>
+{% endblock search_preview %}
+
 {% block bodyEnd %}
   {{ super() }}
   <script src="{{ static('chip-field.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+  <script src="{{ static('advanced-search-query.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
 {% endblock bodyEnd %}
