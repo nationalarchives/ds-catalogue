@@ -1,0 +1,9 @@
+// Light theme specific color overrides
+@use "@nationalarchives/frontend/nationalarchives/tools/colour";
+
+// Override the tna-background-tint class for light theme only
+html[data-tna-theme="light"] {
+  .tna-background-tint {
+    background-color: rgb(244 244 244) !important;
+  }
+}
