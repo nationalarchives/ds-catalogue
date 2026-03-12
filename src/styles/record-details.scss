@@ -193,7 +193,7 @@
 .piece-adjustment {
   color: black;
 
-  background-color: white;
+  background-color: rgb(242 242 242);
 
   border: solid 3px rgb(0 98 59);
   border-radius: 3px;
@@ -217,4 +217,8 @@
 
   width: 96%;
   margin-left: 15px;
+}
+
+.tna-background-tint-adjust {
+  // background:rgb(242 242 242) !important;
 }
