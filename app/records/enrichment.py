@@ -121,7 +121,7 @@ class RecordEnrichmentHelper:
                 f"{name}: {completion_times[name]:.3f}s"
                 for name in completion_order
             )
-            logger.info(
+            logger.warning(
                 f"Record {self.record.id} completion order: [{timing_details}]"
             )
 
