@@ -32,15 +32,32 @@ class TestClosedRetainedAvailability(TestCase):
             details["heldById"] = held_by_id
         return {"data": [{"@template": {"details": details}}]}
 
+    def _setup_closed_retained_mocks(
+        self, mock_get_availability_group, mock_delivery_handler
+    ):
+        """Configure mocks for a ClosedRetainedDeptKnown record."""
+        mock_delivery_handler.return_value = [
+            {
+                "options": AvailabilityCondition.ClosedRetainedDeptKnown.value,
+                "surrogateLinks": [],
+                "advancedOrderUrlParameters": "",
+            }
+        ]
+        mock_availability_group = Mock()
+        mock_availability_group.name = (
+            "CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE"
+        )
+        mock_get_availability_group.return_value = mock_availability_group
+
     @responses.activate
     @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.enrichment.get_availability_group")
-    def test_closed_retained_online_availability_message(
+    def test_closed_retained_display(
         self, mock_get_availability_group, mock_delivery_handler
     ):
         """
-        Test that a CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE non-TNA record shows the correct
-        'Is it available online?' message.
+        Test that a CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE non-TNA record
+        shows the correct online/in-person availability messages and GOV.UK FOI link.
         """
         responses.add(
             responses.GET,
@@ -50,108 +67,26 @@ class TestClosedRetainedAvailability(TestCase):
             ),
             status=200,
         )
-
-        mock_delivery_handler.return_value = [
-            {
-                "options": AvailabilityCondition.ClosedRetainedDeptKnown.value,
-                "surrogateLinks": [],
-                "advancedOrderUrlParameters": "",
-            }
-        ]
-
-        mock_availability_group = Mock()
-        mock_availability_group.name = (
-            "CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE"
+        self._setup_closed_retained_mocks(
+            mock_get_availability_group, mock_delivery_handler
         )
-        mock_get_availability_group.return_value = mock_availability_group
 
         response = self.client.get("/catalogue/id/C123456/")
 
         self.assertEqual(response.status_code, 200)
+        # Online availability
         self.assertContains(response, "Is it available online?")
         self.assertContains(
             response,
             "Not on The National Archives website. This record is held at Creating government department or its successor.",
         )
-
-    @responses.activate
-    @patch("app.records.enrichment.delivery_options_request_handler")
-    @patch("app.records.enrichment.get_availability_group")
-    def test_closed_retained_in_person_availability_message(
-        self, mock_get_availability_group, mock_delivery_handler
-    ):
-        """
-        Test that a CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE non-TNA record shows the correct
-        'Can I see it in person?' message, including the held_by name.
-        """
-        responses.add(
-            responses.GET,
-            f"{settings.ROSETTA_API_URL}/get?id=C123456",
-            json=self._make_rosetta_response(
-                "C123456", held_by="Ministry of Defence"
-            ),
-            status=200,
-        )
-
-        mock_delivery_handler.return_value = [
-            {
-                "options": AvailabilityCondition.ClosedRetainedDeptKnown.value,
-                "surrogateLinks": [],
-                "advancedOrderUrlParameters": "",
-            }
-        ]
-
-        mock_availability_group = Mock()
-        mock_availability_group.name = (
-            "CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE"
-        )
-        mock_get_availability_group.return_value = mock_availability_group
-
-        response = self.client.get("/catalogue/id/C123456/")
-
-        self.assertEqual(response.status_code, 200)
+        # In-person availability
         self.assertContains(response, "Can I see it in person?")
         self.assertContains(
             response,
             "Not at The National Archives. This record is closed and retained by Ministry of Defence.",
         )
-
-    @responses.activate
-    @patch("app.records.enrichment.delivery_options_request_handler")
-    @patch("app.records.enrichment.get_availability_group")
-    def test_closed_retained_shows_foi_link(
-        self, mock_get_availability_group, mock_delivery_handler
-    ):
-        """
-        Test that a CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE non-TNA record shows the GOV.UK FOI link
-        in the 'Can I see it in person?' box.
-        """
-        responses.add(
-            responses.GET,
-            f"{settings.ROSETTA_API_URL}/get?id=C123456",
-            json=self._make_rosetta_response(
-                "C123456", held_by="Ministry of Defence"
-            ),
-            status=200,
-        )
-
-        mock_delivery_handler.return_value = [
-            {
-                "options": AvailabilityCondition.ClosedRetainedDeptKnown.value,
-                "surrogateLinks": [],
-                "advancedOrderUrlParameters": "",
-            }
-        ]
-
-        mock_availability_group = Mock()
-        mock_availability_group.name = (
-            "CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE"
-        )
-        mock_get_availability_group.return_value = mock_availability_group
-
-        response = self.client.get("/catalogue/id/C123456/")
-
-        self.assertEqual(response.status_code, 200)
+        # FOI link
         self.assertContains(
             response,
             'href="https://www.gov.uk/make-a-freedom-of-information-request"',
@@ -176,20 +111,9 @@ class TestClosedRetainedAvailability(TestCase):
             ),
             status=200,
         )
-
-        mock_delivery_handler.return_value = [
-            {
-                "options": AvailabilityCondition.ClosedRetainedDeptKnown.value,
-                "surrogateLinks": [],
-                "advancedOrderUrlParameters": "",
-            }
-        ]
-
-        mock_availability_group = Mock()
-        mock_availability_group.name = (
-            "CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE"
+        self._setup_closed_retained_mocks(
+            mock_get_availability_group, mock_delivery_handler
         )
-        mock_get_availability_group.return_value = mock_availability_group
 
         response = self.client.get("/catalogue/id/C123456/")
 
