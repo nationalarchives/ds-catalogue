@@ -2,7 +2,7 @@
   <div class="tna-column tna-column--width-1-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
     <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
       <h2 class="tna-heading-m">Can I see it in person?</h2>
-      {# do_availability_group has only been implemented for TNA records, except for CLOSED_RETAINED #}
+      {# do_availability_group has only been implemented for TNA records, except for CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE #}
       {% if record.is_held_by_tna %}
         {# Show this where the record is available online with us only #}
         {% if do_availability_group == "AVAILABLE_ONLINE_TNA_ONLY" %}
@@ -47,7 +47,7 @@
         {% endif %}
       {% else %}
         {# Show this for closed and retained records #}
-        {% if do_availability_group == "CLOSED_RETAINED" %}
+        {% if do_availability_group == "CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE" %}
           <p>Not at The National Archives. This record is closed and retained by {{ record.held_by }}. <a href="https://www.gov.uk/make-a-freedom-of-information-request">Visit GOV.UK for more information</a>.</p>
         {% else %}
           <p>Not at The National Archives, but you may be able to view it in person at {{ record.held_by }}.{% if record.held_by_url %} <a href="{{ record.held_by_url }}">How to view it</a>.{% endif %}</p>

@@ -120,7 +120,7 @@ class AvailabilityGroup(Enum):
         AvailabilityCondition.PaidSearch,
     }
 
-    CLOSED_RETAINED = {
+    CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE = {
         AvailabilityCondition.ClosedRetainedDeptKnown,
     }
 

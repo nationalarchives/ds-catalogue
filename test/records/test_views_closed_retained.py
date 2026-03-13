@@ -9,7 +9,7 @@ from django.test import TestCase
 class TestClosedRetainedAvailability(TestCase):
     """
     Tests for availability display on records with ClosedRetainedDeptKnown
-    availability condition (CLOSED_RETAINED group).
+    availability condition (CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE group).
 
     These are records that are not held by TNA but appear on the TNA register,
     and are closed and retained by a known government department.
@@ -39,7 +39,7 @@ class TestClosedRetainedAvailability(TestCase):
         self, mock_get_availability_group, mock_delivery_handler
     ):
         """
-        Test that a CLOSED_RETAINED non-TNA record shows the correct
+        Test that a CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE non-TNA record shows the correct
         'Is it available online?' message.
         """
         responses.add(
@@ -60,14 +60,12 @@ class TestClosedRetainedAvailability(TestCase):
         ]
 
         mock_availability_group = Mock()
-        mock_availability_group.name = "CLOSED_RETAINED"
+        mock_availability_group.name = (
+            "CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE"
+        )
         mock_get_availability_group.return_value = mock_availability_group
 
         response = self.client.get("/catalogue/id/C123456/")
-
-        print("mock called:", mock_get_availability_group.called)
-        print("mock call count:", mock_get_availability_group.call_count)
-        print("delivery handler called:", mock_delivery_handler.called)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Is it available online?")
@@ -83,7 +81,7 @@ class TestClosedRetainedAvailability(TestCase):
         self, mock_get_availability_group, mock_delivery_handler
     ):
         """
-        Test that a CLOSED_RETAINED non-TNA record shows the correct
+        Test that a CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE non-TNA record shows the correct
         'Can I see it in person?' message, including the held_by name.
         """
         responses.add(
@@ -104,7 +102,9 @@ class TestClosedRetainedAvailability(TestCase):
         ]
 
         mock_availability_group = Mock()
-        mock_availability_group.name = "CLOSED_RETAINED"
+        mock_availability_group.name = (
+            "CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE"
+        )
         mock_get_availability_group.return_value = mock_availability_group
 
         response = self.client.get("/catalogue/id/C123456/")
@@ -123,7 +123,7 @@ class TestClosedRetainedAvailability(TestCase):
         self, mock_get_availability_group, mock_delivery_handler
     ):
         """
-        Test that a CLOSED_RETAINED non-TNA record shows the GOV.UK FOI link
+        Test that a CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE non-TNA record shows the GOV.UK FOI link
         in the 'Can I see it in person?' box.
         """
         responses.add(
@@ -144,7 +144,9 @@ class TestClosedRetainedAvailability(TestCase):
         ]
 
         mock_availability_group = Mock()
-        mock_availability_group.name = "CLOSED_RETAINED"
+        mock_availability_group.name = (
+            "CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE"
+        )
         mock_get_availability_group.return_value = mock_availability_group
 
         response = self.client.get("/catalogue/id/C123456/")
@@ -163,7 +165,7 @@ class TestClosedRetainedAvailability(TestCase):
         self, mock_get_availability_group, mock_delivery_handler
     ):
         """
-        Test that a CLOSED_RETAINED record does not fall through to the
+        Test that a CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE record does not fall through to the
         default non-TNA messages ('Maybe, but not on The National Archives website').
         """
         responses.add(
@@ -184,7 +186,9 @@ class TestClosedRetainedAvailability(TestCase):
         ]
 
         mock_availability_group = Mock()
-        mock_availability_group.name = "CLOSED_RETAINED"
+        mock_availability_group.name = (
+            "CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE"
+        )
         mock_get_availability_group.return_value = mock_availability_group
 
         response = self.client.get("/catalogue/id/C123456/")
