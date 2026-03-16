@@ -1,9 +1,8 @@
 import responses
 from app.lib.api import JSONAPIClient
 from app.lib.exceptions import (
+    MissingAPIAttributeError,
     NoResultsFound,
-    SearchResponseMissingBucketsError,
-    SearchResponseMissingDataError,
 )
 from app.records.models import Record
 from app.search.api import search_records
@@ -59,7 +58,7 @@ class SearchRecordsTests(SimpleTestCase):
         )
 
         with self.assertRaisesMessage(
-            SearchResponseMissingDataError, "No data returned"
+            MissingAPIAttributeError, "No data returned"
         ):
             _ = search_records(query="")
 
@@ -79,7 +78,7 @@ class SearchRecordsTests(SimpleTestCase):
         )
 
         with self.assertRaisesMessage(
-            SearchResponseMissingBucketsError,
+            MissingAPIAttributeError,
             "Search API response missing required 'buckets' field",
         ):
             _ = search_records(query="")

@@ -1,7 +1,11 @@
 import logging
 
 from app.lib.api import JSONAPIClient, rosetta_request_handler
-from app.lib.exceptions import APIResourceNotFound, RecordNotFound
+from app.lib.exceptions import (
+    APIResourceNotFound,
+    MissingAPIAttributeError,
+    RecordNotFound,
+)
 from app.records.models import APIResponse, Record
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -36,7 +40,7 @@ def record_details_by_id(
     params.update({"id": id})
     results = rosetta_request_handler(uri, params, timeout=timeout)
     if "data" not in results:
-        raise Exception(f"No data returned for id {id}")
+        raise MissingAPIAttributeError(f"No data returned for id {id}")
     if len(results["data"]) > 1:
         raise Exception(f"Multiple records returned for id {id}")
     if len(results["data"]) == 1:
