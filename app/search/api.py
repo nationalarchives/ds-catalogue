@@ -64,7 +64,9 @@ def _build_search_params(
 
 def _validate_search_results(results, page):
     if "data" not in results:
-        raise MissingAPIAttributeError("No data returned")
+        raise MissingAPIAttributeError(
+            "Search API response missing required 'data' field"
+        )
     if "buckets" not in results:
         raise MissingAPIAttributeError(
             "Search API response missing required 'buckets' field"

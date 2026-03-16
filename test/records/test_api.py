@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import responses
 from app.lib.api import JSONAPIClient
-from app.lib.exceptions import RecordNotFound
+from app.lib.exceptions import RecordNotFound, MissingAPIAttributeError
 from app.records.api import record_details_by_id, wagtail_request_handler
 from app.records.models import Record
 from django.conf import settings
@@ -27,7 +27,7 @@ class TestRecordDetailsById(SimpleTestCase):
         self.assertIsInstance(result, Record)
 
     @responses.activate
-    def test_no_data_returned_for_id(self):
+    def test_missing_data_field_for_id(self):
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/get?id=C198022",
@@ -36,7 +36,23 @@ class TestRecordDetailsById(SimpleTestCase):
         )
 
         with self.assertRaisesMessage(
-            Exception, "No data returned for id C198022"
+            Exception,
+            "Get API response missing required 'data' field for id C198022",
+        ):
+            _ = record_details_by_id(id="C198022")
+
+    @responses.activate
+    def test_missing_template_field(self):
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id=C198022",
+            json={"data": [{"template": {"details": {"id": "C198022"}}}]},
+            status=200,
+        )
+
+        with self.assertRaisesMessage(
+            MissingAPIAttributeError,
+            "API response missing required '@template' field",
         ):
             _ = record_details_by_id(id="C198022")
 

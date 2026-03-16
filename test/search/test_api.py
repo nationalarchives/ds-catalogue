@@ -49,7 +49,7 @@ class SearchRecordsTests(SimpleTestCase):
         self.assertEqual(api_results.buckets, {"tna": 1})
 
     @responses.activate
-    def test_no_data_returned(self):
+    def test_missing_data_field_raises_error(self):
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
@@ -58,12 +58,13 @@ class SearchRecordsTests(SimpleTestCase):
         )
 
         with self.assertRaisesMessage(
-            MissingAPIAttributeError, "No data returned"
+            MissingAPIAttributeError,
+            "Search API response missing required 'data' field",
         ):
             _ = search_records(query="")
 
     @responses.activate
-    def test_no_buckets_returned(self):
+    def test_missing_buckets_field_raises_error(self):
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",

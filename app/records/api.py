@@ -41,7 +41,9 @@ def record_details_by_id(
     params.update({"id": id})
     results = rosetta_request_handler(uri, params, timeout=timeout)
     if "data" not in results:
-        raise MissingAPIAttributeError(f"No data returned for id {id}")
+        raise MissingAPIAttributeError(
+            f"Get API response missing required 'data' field for id {id}"
+        )
     if len(results["data"]) > 1:
         raise MultipeRecordsError(f"Multiple records returned for id {id}")
     if len(results["data"]) == 1:
