@@ -1,0 +1,13 @@
+ignore:
+  sensitive_data:
+    BUILTIN-125:
+      /app/wiremock/mappings/wagtail-landing/landing-with-all-data.json:
+        reason: FALSE_POSITIVE
+      /app/wiremock/mappings/wagtail-landing/landing-none.json_disabled:
+        reason: FALSE_POSITIVE
+      /app/wiremock/mappings/wagtail-landing/landing-with-global-alert-only.json_disabled:
+        reason: FALSE_POSITIVE
+      /app/wiremock/mappings/wagtail-landing/landing-with-mourning-notice-only.json_disabled:
+        reason: FALSE_POSITIVE
+      /app/wiremock/mappings/wagtail-enrichment/article-tags.json:
+        reason: FALSE_POSITIVE

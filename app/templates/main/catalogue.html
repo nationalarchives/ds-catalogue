@@ -34,7 +34,7 @@
 
 {% block content %}
 <div class="tna-background-accent-light">
-  {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
+  {{ global_alert_banners(request, global_alert, mourning_notice) }}
 </div>
 <div class="tna-background-accent-light tna-!--padding-top-s tna-!--padding-bottom-m">
   <div class="tna-container">
@@ -251,14 +251,14 @@ hiding this work for now 22.09.2025-->
   </ul>
   {% endif %}
 
-  {% if pages %}
+  {% if latest_articles %}
   <div class="tna-container tna-!--margin-top-l">
     <div class="tna-column tna-column--full">
       <h3 class="tna-heading-l">Discover something new</h3>
     </div>
   </div>
   <ul class="tna-container tna-container--nested">
-    {% for page in pages %}
+    {% for page in latest_articles %}
     <li class="tna-column tna-column--width-1-3 tna-column--width-1-2-medium tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
       {% set card_content = {
         'supertitle': page.type_label,
