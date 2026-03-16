@@ -4,6 +4,7 @@ from app.lib.api import JSONAPIClient, rosetta_request_handler
 from app.lib.exceptions import (
     APIResourceNotFound,
     MissingAPIAttributeError,
+    MultipeRecordsError,
     RecordNotFound,
 )
 from app.records.models import APIResponse, Record
@@ -42,7 +43,7 @@ def record_details_by_id(
     if "data" not in results:
         raise MissingAPIAttributeError(f"No data returned for id {id}")
     if len(results["data"]) > 1:
-        raise Exception(f"Multiple records returned for id {id}")
+        raise MultipeRecordsError(f"Multiple records returned for id {id}")
     if len(results["data"]) == 1:
         record_data = results["data"][0]
         response = APIResponse(record_data)

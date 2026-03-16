@@ -51,3 +51,7 @@ class RecordNotFound(CatalogueError):
 
 class MissingAPIAttributeError(CatalogueError):
     """Raised when an expected attribute is missing from the API response."""
+
+
+class MultipeRecordsError(CatalogueError):
+    """Raised when the API response contains multiple records when only one was expected."""
