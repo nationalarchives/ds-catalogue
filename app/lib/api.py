@@ -90,7 +90,7 @@ class JSONAPIClient:
             raise APIRedirectError("Too many redirects")
         except Exception as e:
             logger.error(f"Unknown JSON API exception: {e}")
-            raise APIError(str(e))
+            raise APIError(str(e)) from e
         logger.debug(response.url)
         if response.status_code == codes.ok:
             try:
