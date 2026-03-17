@@ -4,7 +4,7 @@ from app.lib.api import JSONAPIClient, rosetta_request_handler
 from app.lib.exceptions import (
     APIResourceNotFound,
     MissingAPIAttributeError,
-    MultipeRecordsError,
+    MultipleRecordsError,
     RecordNotFound,
 )
 from app.records.models import APIResponse, Record
@@ -45,7 +45,7 @@ def record_details_by_id(
             f"Get API response missing required 'data' field for id {id}"
         )
     if len(results["data"]) > 1:
-        raise MultipeRecordsError(f"Multiple records returned for id {id}")
+        raise MultipleRecordsError(f"Multiple records returned for id {id}")
     if len(results["data"]) == 1:
         record_data = results["data"][0]
         response = APIResponse(record_data)
