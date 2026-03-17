@@ -29,8 +29,10 @@ def record_details_by_id(
         Record object
 
     Raises:
-        RecordNotFound: If record doesn't exist
-        Exception: If data format is unexpected
+        MissingAPIAttributeError: If the API response is missing the required
+        'data' field.
+        MultipeRecordsError: If multiple records are returned for the given id.
+        RecordNotFound: If no record exists for the given id.
 
     Note:
         The errors are handled by a custom middleware in the app.
