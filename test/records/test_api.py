@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import responses
 from app.lib.api import JSONAPIClient
-from app.lib.exceptions import RecordNotFound, MissingAPIAttributeError
+from app.lib.exceptions import MissingAPIAttributeError, RecordNotFound
 from app.records.api import record_details_by_id, wagtail_request_handler
 from app.records.models import Record
 from django.conf import settings
