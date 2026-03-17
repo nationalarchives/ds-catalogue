@@ -2,7 +2,7 @@ import logging
 from typing import Any, Dict, List, Optional
 
 from app.lib.api import JSONAPIClient
-from app.lib.exceptions import RecordNotFound
+from app.lib.exceptions import APIResourceNotFound
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
@@ -55,7 +55,7 @@ def delivery_options_request_handler(
 
         return data
 
-    except RecordNotFound:
+    except APIResourceNotFound:
         # 404 - This record doesn't have delivery options, which is normal
         logger.info(f"No delivery options found for iaid {iaid}")
         return None
