@@ -2,9 +2,10 @@
 
 import logging
 
+from app.main.api import fetch_global_notifications
 from app.records.enrichment import RecordEnrichmentHelper
 from app.records.labels import FIELD_LABELS
-from app.records.mixins import GlobalAlertsMixin, RecordContextMixin
+from app.records.mixins import RecordContextMixin
 from django.views.generic import TemplateView
 
 from .constants import RecordTypes
@@ -12,11 +13,7 @@ from .constants import RecordTypes
 logger = logging.getLogger(__name__)
 
 
-class RecordDetailView(
-    GlobalAlertsMixin,
-    RecordContextMixin,
-    TemplateView,
-):
+class RecordDetailView(RecordContextMixin, TemplateView):
     """View for rendering an individual archive record's details page."""
 
     template_name = "records/record_detail.html"
@@ -36,6 +33,15 @@ class RecordDetailView(
     def get_context_data(self, **kwargs):
         """Build context with record and enrichment data."""
         context = super().get_context_data(**kwargs)
+
+        # Global alerts
+        notifications = fetch_global_notifications()
+        context["global_alert"] = (
+            notifications.get("global_alert") if notifications else None
+        )
+        context["mourning_notice"] = (
+            notifications.get("mourning_notice") if notifications else None
+        )
 
         record = context["record"]
 
