@@ -36,7 +36,7 @@ class TestRecordDetailsById(SimpleTestCase):
         )
 
         with self.assertRaisesMessage(
-            Exception,
+            MissingAPIAttributeError,
             "Get API response missing required 'data' field for id C198022",
         ):
             _ = record_details_by_id(id="C198022")
