@@ -190,6 +190,17 @@ class ChipField {
       e.preventDefault();
       this.removeValue(link.dataset.value);
     });
+
+    /**
+     * Reset the field and chips when the form is reset
+     */
+    const form = this.textarea.closest("form");
+    if (form) {
+      form.addEventListener("reset", () => {
+        this.values.clear();
+        this.list.innerHTML = "";
+      });
+    }
   }
 }
 
