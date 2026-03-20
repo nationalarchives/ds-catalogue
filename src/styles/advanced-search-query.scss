@@ -1,14 +1,21 @@
+@use "@nationalarchives/frontend/nationalarchives/tools/borders";
+@use "@nationalarchives/frontend/nationalarchives/tools/colour";
 @use "@nationalarchives/frontend/nationalarchives/tools/spacing";
 
 .search-preview {
   font-size: 1rem;
 
+  @include colour.colour-font("font-base");
+
   &__term {
     display: inline-block;
     padding: spacing.space(0.25) spacing.space(0.5);
-    background-color: #d9d9d6;
-    border-radius: 3px;
     margin-bottom: spacing.space(0.25);
+
+    @include borders.rounded-border;
+    @include colour.colour-background("background-tint");
+    @include colour.colour-border("keyline");
+    @include colour.colour-font("font-base");
   }
 
   &__operator {
