@@ -965,9 +965,9 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
 def advanced_search(request):
     """View for the advanced search page."""
+    from app.main.global_alert import fetch_global_alert_api_data
     from django.http import HttpResponse
     from django.template import loader
-    from app.main.global_alert import fetch_global_alert_api_data
 
     template = loader.get_template("search/advanced_search.html")
     context = {
@@ -978,9 +978,9 @@ def advanced_search(request):
 
 def advanced_search_js(request):
     """JS-enhanced version of the advanced search page for testing."""
+    from app.main.global_alert import fetch_global_alert_api_data
     from django.http import HttpResponse
     from django.template import loader
-    from app.main.global_alert import fetch_global_alert_api_data
 
     template = loader.get_template("search/advanced_search_js.html")
     context = {
