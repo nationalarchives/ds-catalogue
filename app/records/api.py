@@ -31,7 +31,7 @@ def record_details_by_id(
     Raises:
         MissingAPIAttributeError: If the API response is missing the required
         'data' field.
-        MultipeRecordsError: If multiple records are returned for the given id.
+        MultipleRecordsError: If multiple records are returned for the given id.
         RecordNotFound: If no record exists for the given id.
 
     Note:
