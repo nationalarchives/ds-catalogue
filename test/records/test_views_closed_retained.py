@@ -15,8 +15,8 @@ class TestClosedRetainedAvailability(TestCase):
     and are closed and retained by a known government department.
     """
 
-    def _make_rosetta_response(self, record_id, held_by=None, held_by_id=None):
-        """Helper to build a Rosetta API response for a non-TNA closed/retained record."""
+    def _make_closed_retained_rosetta_response(self, record_id, held_by=None):
+        """Helper to build a Rosetta API response for a closed/retained record."""
         details = {
             "id": record_id,
             "title": "Test Closed Retained Record",
@@ -28,8 +28,6 @@ class TestClosedRetainedAvailability(TestCase):
         }
         if held_by:
             details["heldBy"] = held_by
-        if held_by_id:
-            details["heldById"] = held_by_id
         return {"data": [{"@template": {"details": details}}]}
 
     def _setup_closed_retained_mocks(
@@ -62,7 +60,7 @@ class TestClosedRetainedAvailability(TestCase):
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/get?id=C123456",
-            json=self._make_rosetta_response(
+            json=self._make_closed_retained_rosetta_response(
                 "C123456", held_by="Ministry of Defence"
             ),
             status=200,
@@ -100,13 +98,15 @@ class TestClosedRetainedAvailability(TestCase):
         self, mock_get_availability_group, mock_delivery_handler
     ):
         """
-        Test that a CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE record does not fall through to the
-        default non-TNA messages ('Maybe, but not on The National Archives website').
+        Test that a correctly configured CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE
+        record does not render the default non-TNA fallthrough messages. The mocks are
+        intentionally set up as closed-retained: the assertion is that this condition
+        produces its own specific messages rather than falling through to the catch-all.
         """
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/get?id=C123456",
-            json=self._make_rosetta_response(
+            json=self._make_closed_retained_rosetta_response(
                 "C123456", held_by="Ministry of Defence"
             ),
             status=200,
