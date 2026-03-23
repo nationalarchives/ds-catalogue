@@ -4,8 +4,8 @@ import math
 from typing import Any
 
 from app.errors import views as errors_view
-from app.lib.api import ResourceNotFound
 from app.lib.constants import DATE_YMD_SEPARATOR
+from app.lib.exceptions import NoResultsFound
 from app.lib.fields import (
     CharField,
     ChoiceField,
@@ -15,7 +15,7 @@ from app.lib.fields import (
     ToDateField,
 )
 from app.lib.pagination import pagination_object
-from app.main.global_alert import fetch_global_alert_api_data
+from app.main.api import fetch_global_notifications
 from app.records.constants import TNA_LEVELS
 from app.search.api import search_records
 from config.jinja import qs_remove_value, qs_replace_value, qs_toggle_value
@@ -432,8 +432,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         except PageNotFound:
             # for page=<invalid page number>, page > page limit
             return errors_view.page_not_found_error_view(request=self.request)
-        except ResourceNotFound:
-            # no results
+        except NoResultsFound:
             return self.form_invalid()
 
     @property
@@ -569,7 +568,13 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
         self.selected_filters = self.build_selected_filters_list()
 
-        context["global_alert"] = fetch_global_alert_api_data()
+        notifications = fetch_global_notifications()
+        context["global_alert"] = (
+            notifications.get("global_alert") if notifications else None
+        )
+        context["mourning_notice"] = (
+            notifications.get("mourning_notice") if notifications else None
+        )
 
         context.update(
             {

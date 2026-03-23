@@ -1,8 +1,18 @@
 import unittest.mock as mock
 
 import responses
-from app.lib.api import JSONAPIClient, ResourceNotFound, rosetta_request_handler
+from app.lib.api import JSONAPIClient, rosetta_request_handler
+from app.lib.exceptions import (
+    APIBadRequestError,
+    APIConnectionError,
+    APINonJSONResponseError,
+    APIRedirectError,
+    APIRequestFailedError,
+    APIResourceNotFound,
+    APITimeoutError,
+)
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase, override_settings
 from requests import Timeout, TooManyRedirects
 
@@ -15,7 +25,9 @@ class TestRosettaRequestHandlerException(SimpleTestCase):
     @responses.activate
     def test_config_api_url_not_set(self):
 
-        with self.assertRaisesMessage(Exception, "ROSETTA_API_URL not set"):
+        with self.assertRaisesMessage(
+            ImproperlyConfigured, "ROSETTA_API_URL not set"
+        ):
             _ = rosetta_request_handler(uri="somevalue", params={})
 
 
@@ -32,14 +44,18 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             body="",  # no content JSON: Expecting value: line 1 column 1 (char 0)
         )
 
-        with self.assertRaisesMessage(Exception, "Non-JSON response provided"):
+        with self.assertRaisesMessage(
+            APINonJSONResponseError, "Non-JSON response provided"
+        ):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn(
             "ERROR:app.lib.api:JSON API provided non-JSON response", lc.output
         )
 
-        with self.assertRaisesMessage(Exception, "Non-JSON response provided"):
+        with self.assertRaisesMessage(
+            APINonJSONResponseError, "Non-JSON response provided"
+        ):
             with self.assertLogs("app.lib.api", level="DEBUG") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn("ERROR:app.lib.api:Non-JSON response: ", lc.output)
@@ -57,14 +73,18 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
         )
 
-        with self.assertRaisesMessage(Exception, "Non-JSON response provided"):
+        with self.assertRaisesMessage(
+            APINonJSONResponseError, "Non-JSON response provided"
+        ):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn(
             "ERROR:app.lib.api:JSON API provided non-JSON response", lc.output
         )
 
-        with self.assertRaisesMessage(Exception, "Non-JSON response provided"):
+        with self.assertRaisesMessage(
+            APINonJSONResponseError, "Non-JSON response provided"
+        ):
             with self.assertLogs("app.lib.api", level="DEBUG") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn(
@@ -82,7 +102,7 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             status=400,  # 400:Bad request
         )
 
-        with self.assertRaisesMessage(Exception, "Bad request"):
+        with self.assertRaisesMessage(APIBadRequestError, "Bad request"):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn(
@@ -98,7 +118,9 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             status=404,  # 404:not found
         )
 
-        with self.assertRaisesMessage(ResourceNotFound, "Resource not found"):
+        with self.assertRaisesMessage(
+            APIResourceNotFound, "Resource not found"
+        ):
             with self.assertLogs("app.lib.api", level="WARNING") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn("WARNING:app.lib.api:Resource not found", lc.output)
@@ -111,7 +133,7 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             status=204,  # 204:No content
         )
 
-        with self.assertRaisesMessage(Exception, "Request failed"):
+        with self.assertRaisesMessage(APIRequestFailedError, "Request failed"):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn(
@@ -126,7 +148,7 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             status=500,  # 500:Internal Server Error
         )
 
-        with self.assertRaisesMessage(Exception, "Request failed"):
+        with self.assertRaisesMessage(APIRequestFailedError, "Request failed"):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn(
@@ -141,7 +163,9 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             "http://this-api-url-does-not-exist/pull?id=C123456",
         )
 
-        with self.assertRaisesMessage(Exception, "A connection error occured"):
+        with self.assertRaisesMessage(
+            APIConnectionError, "A connection error occurred"
+        ):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn("ERROR:app.lib.api:JSON API connection error", lc.output)
@@ -155,7 +179,7 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             body=Timeout(),
         )
 
-        with self.assertRaisesMessage(Exception, "The request timed out"):
+        with self.assertRaisesMessage(APITimeoutError, "The request timed out"):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn("ERROR:app.lib.api:JSON API timeout", lc.output)
@@ -169,7 +193,7 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             body=TooManyRedirects(),
         )
 
-        with self.assertRaisesMessage(Exception, "Too many redirects"):
+        with self.assertRaisesMessage(APIRedirectError, "Too many redirects"):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn(

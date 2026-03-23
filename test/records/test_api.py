@@ -1,10 +1,12 @@
 from unittest.mock import patch
 
 import responses
-from app.lib.api import JSONAPIClient, ResourceNotFound
+from app.lib.api import JSONAPIClient
+from app.lib.exceptions import MissingAPIAttributeError, RecordNotFound
 from app.records.api import record_details_by_id, wagtail_request_handler
 from app.records.models import Record
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase, override_settings
 
 
@@ -25,7 +27,7 @@ class TestRecordDetailsById(SimpleTestCase):
         self.assertIsInstance(result, Record)
 
     @responses.activate
-    def test_no_data_returned_for_id(self):
+    def test_missing_data_field_for_id(self):
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/get?id=C198022",
@@ -34,12 +36,28 @@ class TestRecordDetailsById(SimpleTestCase):
         )
 
         with self.assertRaisesMessage(
-            Exception, "No data returned for id C198022"
+            MissingAPIAttributeError,
+            "Get API response missing required 'data' field for id C198022",
         ):
             _ = record_details_by_id(id="C198022")
 
     @responses.activate
-    def test_resource_not_found_id_does_not_exist(self):
+    def test_missing_template_field(self):
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id=C198022",
+            json={"data": [{"template": {"details": {"id": "C198022"}}}]},
+            status=200,
+        )
+
+        with self.assertRaisesMessage(
+            MissingAPIAttributeError,
+            "API response missing required '@template' field",
+        ):
+            _ = record_details_by_id(id="C198022")
+
+    @responses.activate
+    def test_record_not_found_id_does_not_exist(self):
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/get?id=C198022",
@@ -48,7 +66,7 @@ class TestRecordDetailsById(SimpleTestCase):
         )
 
         with self.assertRaisesMessage(
-            ResourceNotFound, "id C198022 does not exist"
+            RecordNotFound, "id C198022 does not exist"
         ):
             _ = record_details_by_id(id="C198022")
 
@@ -98,7 +116,9 @@ class TestWagtailAPIIntegration(SimpleTestCase):
     def test_wagtail_request_handler_missing_url(self):
         """Test wagtail_request_handler when WAGTAIL_API_URL is not set"""
 
-        with self.assertRaisesMessage(Exception, "WAGTAIL_API_URL not set"):
+        with self.assertRaisesMessage(
+            ImproperlyConfigured, "WAGTAIL_API_URL not set"
+        ):
             wagtail_request_handler("/article_tags/", {})
 
     @override_settings(WAGTAIL_API_URL="https://test-api.example.com")
