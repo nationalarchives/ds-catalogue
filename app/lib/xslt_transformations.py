@@ -95,7 +95,7 @@ def apply_archon_xsl(source: str, schema_file: str) -> str:
     Uses XML parsing so CDATA and structure (e.g. <br /> in addressline1) are preserved.
     """
     if not source:
-        logger.warning("Empty source provided for XSLT transformation")
+        logger.warning("Empty source provided for Archon XSLT transformation")
         return ""
 
     dom = etree.fromstring(source.encode("utf-8"))
