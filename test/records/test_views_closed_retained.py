@@ -55,7 +55,8 @@ class TestClosedRetainedAvailability(TestCase):
     ):
         """
         Test that a CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE non-TNA record
-        shows the correct online/in-person availability messages and GOV.UK FOI link.
+        shows the correct online/in-person availability messages and GOV.UK FOI link,
+        and does not fall through to the default non-TNA catch-all messages.
         """
         responses.add(
             responses.GET,
@@ -90,34 +91,7 @@ class TestClosedRetainedAvailability(TestCase):
             'href="https://www.gov.uk/make-a-freedom-of-information-request"',
         )
         self.assertContains(response, "Visit GOV.UK for more information")
-
-    @responses.activate
-    @patch("app.records.enrichment.delivery_options_request_handler")
-    @patch("app.records.enrichment.get_availability_group")
-    def test_closed_retained_does_not_show_non_tna_default_messages(
-        self, mock_get_availability_group, mock_delivery_handler
-    ):
-        """
-        Test that a correctly configured CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE
-        record does not render the default non-TNA fallthrough messages. The mocks are
-        intentionally set up as closed-retained: the assertion is that this condition
-        produces its own specific messages rather than falling through to the catch-all.
-        """
-        responses.add(
-            responses.GET,
-            f"{settings.ROSETTA_API_URL}/get?id=C123456",
-            json=self._make_closed_retained_rosetta_response(
-                "C123456", held_by="Ministry of Defence"
-            ),
-            status=200,
-        )
-        self._setup_closed_retained_mocks(
-            mock_get_availability_group, mock_delivery_handler
-        )
-
-        response = self.client.get("/catalogue/id/C123456/")
-
-        self.assertEqual(response.status_code, 200)
+        # Confirm the default non-TNA catch-all messages are not rendered
         self.assertNotContains(
             response,
             "Maybe, but not on The National Archives website.",
