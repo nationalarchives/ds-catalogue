@@ -84,6 +84,7 @@ def wagtail_request_handler(uri: str, params: dict = {}, timeout=None) -> dict:
     Raises:
         ImproperlyConfigured: If WAGTAIL_API_URL is not configured
     """
+
     api_url = settings.WAGTAIL_API_URL
     if not api_url:
         raise ImproperlyConfigured("WAGTAIL_API_URL not set")
