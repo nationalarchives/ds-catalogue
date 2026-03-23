@@ -382,7 +382,7 @@ class Record(APIModel):
         if self.custom_record_type == RecordTypes.ARCHON:
             # For ARCHON records, apply archon-specific transformation
             # regardless of series or schema
-            return apply_archon_xsl(description)
+            return apply_archon_xsl(description, "ArchonDescription.xsl")
 
         # Apply series-specific transformation if applicable first
         series = self.hierarchy_series
@@ -565,5 +565,16 @@ class Record(APIModel):
         Field appears in ARCHON records."""
 
         if raw_description := self.get("placeDescription.raw", ""):
-            return apply_archon_xsl(raw_description)
+            return apply_archon_xsl(
+                raw_description, "ArchonPlaceDescription.xsl"
+            )
+        return ""
+
+    @cached_property
+    def archon_website(self) -> str:
+        """Returns the transformed api value of the attr if found, empty str otherwise.
+        Field is used only in ARCHON records."""
+
+        if self.custom_record_type == RecordTypes.ARCHON:
+            return apply_archon_xsl(self.raw_description, "ArchonWebsite.xsl")
         return ""
