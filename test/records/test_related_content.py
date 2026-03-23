@@ -4,7 +4,7 @@ Tests for subjects enrichment functionality
 
 from unittest.mock import patch
 
-from app.lib.api import ResourceNotFound
+from app.lib.exceptions import APIResourceNotFound
 from app.records.api import (  # CHANGED: from views to api
     get_subjects_enrichment,
 )
@@ -367,19 +367,19 @@ class SubjectsEnrichmentTests(TestCase):
         self.assertIsInstance(html, str)
         self.assertGreater(len(html), 0)
 
-    # Test 13: Error handling - ResourceNotFound
+    # Test 13: Error handling - APIResourceNotFound
     @patch(
         "app.records.api.wagtail_request_handler"
     )  # CHANGED: from views to api
     def test_resource_not_found_handling(self, mock_wagtail_handler):
-        """Test that ResourceNotFound exceptions are handled gracefully"""
-        mock_wagtail_handler.side_effect = ResourceNotFound(
+        """Test that APIResourceNotFound exceptions are handled gracefully"""
+        mock_wagtail_handler.side_effect = APIResourceNotFound(
             "Resource not found"
         )
 
         result = get_subjects_enrichment(self.sample_record_data["subjects"])
 
-        # Should return empty dict on ResourceNotFound
+        # Should return empty dict on APIResourceNotFound
         self.assertEqual(result, {})
 
     # Test 14: Error handling - general exception

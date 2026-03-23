@@ -4,6 +4,7 @@ import logging
 from typing import Any
 
 import sentry_sdk
+from app.lib.exceptions import MissingAPIAttributeError
 from app.lib.xslt_transformations import (
     apply_schema_xsl,
     apply_series_xsl,
@@ -56,7 +57,9 @@ class APIResponse(APIModel):
     def record(self) -> Record:
         if "@template" in self._raw and "details" in self._raw["@template"]:
             return Record(self._raw["@template"]["details"])
-        raise Exception("Record template not found in response")
+        raise MissingAPIAttributeError(
+            "API response missing required '@template' field"
+        )
 
 
 class Record(APIModel):

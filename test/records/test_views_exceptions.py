@@ -2,6 +2,7 @@ from http import HTTPStatus
 from test.utils import prevent_request_warnings
 
 import responses
+from app.lib.api import APIError
 from django.conf import settings
 from django.test import TestCase, override_settings
 
@@ -57,6 +58,29 @@ class TestRecordViewExceptions(TestCase):
         self.assertIn(
             "There is a problem with the service",
             response.content.decode("utf-8"),
+        )
+
+    @prevent_request_warnings  # suppress test output: Internal Server Error: /catalogue/id/C123456/
+    @responses.activate
+    @override_settings(DEBUG=True)
+    def test_unexpected_exception_reraises_apierror_in_debug(self):
+
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id=C123456",
+            body=Exception("THIS IS AN UNKNOWN API EXCEPTION"),
+        )
+
+        # DEBUG=True makes middleware re-raise exceptions, so assert APIError directly.
+        with self.assertRaisesMessage(
+            APIError, "THIS IS AN UNKNOWN API EXCEPTION"
+        ):
+            with self.assertLogs("app.lib.api", level="ERROR") as log1:
+                _ = self.client.get("/catalogue/id/C123456/")
+
+        self.assertIn(
+            "Unknown JSON API exception: THIS IS AN UNKNOWN API EXCEPTION",
+            "".join(log1.output),
         )
 
     @prevent_request_warnings
