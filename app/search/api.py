@@ -1,4 +1,8 @@
-from app.lib.api import ResourceNotFound, rosetta_request_handler
+from app.lib.api import rosetta_request_handler
+from app.lib.exceptions import (
+    MissingAPIAttributeError,
+    NoResultsFound,
+)
 
 from .buckets import CATALOGUE_BUCKETS
 from .models import APISearchResponse
@@ -60,9 +64,13 @@ def _build_search_params(
 
 def _validate_search_results(results, page):
     if "data" not in results:
-        raise Exception("No data returned")
+        raise MissingAPIAttributeError(
+            "Search API response missing required 'data' field"
+        )
     if "buckets" not in results:
-        raise Exception("Search API response missing required 'buckets' field")
+        raise MissingAPIAttributeError(
+            "Search API response missing required 'buckets' field"
+        )
 
     if not len(results["data"]) and page == 1:
         """
@@ -77,7 +85,7 @@ def _validate_search_results(results, page):
         Bucket counts depend on the "q" param.
         """
         if not _has_config_bucket_entries(results["buckets"]):
-            raise ResourceNotFound("No results found")
+            raise NoResultsFound("No results found")
 
 
 def _has_config_bucket_entries(buckets):
