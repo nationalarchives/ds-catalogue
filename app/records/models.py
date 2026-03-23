@@ -569,3 +569,12 @@ class Record(APIModel):
                 raw_description, "ArchonPlaceDescription.xsl"
             )
         return ""
+
+    @cached_property
+    def archon_website(self) -> str:
+        """Returns the transformed api value of the attr if found, empty str otherwise.
+        Field is used only in ARCHON records."""
+
+        if self.custom_record_type == RecordTypes.ARCHON:
+            return apply_archon_xsl(self.raw_description, "ArchonWebsite.xsl")
+        return ""
