@@ -93,6 +93,8 @@ def apply_generic_xsl(source: str) -> str:
 def apply_archon_xsl(source: str, schema_file: str) -> str:
     """Applies the Archon XSLT transformation to the provided source string.
     Uses XML parsing so CDATA and structure (e.g. <br /> in addressline1) are preserved.
+    TODO: This is a temporary solution to apply the Archon XSLT transformation, and should be
+    refactored to be more flexible and reusable in the future.
     """
     if not source:
         logger.warning("Empty source provided for Archon XSLT transformation")
