@@ -1,5 +1,4 @@
 import responses
-from app.lib.api import JSONAPIClient
 from app.lib.exceptions import (
     MissingAPIAttributeError,
     NoResultsFound,
@@ -12,8 +11,6 @@ from django.test import SimpleTestCase
 
 
 class SearchRecordsTests(SimpleTestCase):
-    def setUp(self):
-        self.records_client = JSONAPIClient
 
     @responses.activate
     def test_search_records_response(self):
