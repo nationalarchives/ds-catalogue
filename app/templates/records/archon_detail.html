@@ -1,5 +1,3 @@
-{# #TODO: Replace mock archive data with archive data from API #}
-
 {% extends "base.html" %}
 
 {% from 'records/macros/top_navigation.html' import top_navigation %}
@@ -30,14 +28,16 @@
     </div>
   </div>
 
-  {# It doesn't appear to be possible to get the website URL from the existing data, without it being parsed through the XSLT #}
-  {# {% call callout(heading='Looking for records?') %} #}
-    {# <p>Visit the <a href="">{{ pageTitle }} website</a> for information on how to access records held there.</p> #}
-  {# {% endcall %} #}
+  {% if record.archon_website %}
+    {% call callout(heading='Looking for records?') %}
+      <p>Visit the <a href="{{ record.archon_website | sanitise_record_field | safe }}">{{ pageTitle }} website</a> for information on how to access records held there.</p>
+    {% endcall %}
+  {% endif %}
 
   <div class="tna-container">
     <div class="tna-column tna-column--full-tiny tna-column--full-small tna-column--width-1-2 tna-!--margin-top-m">
       <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
+
         <h2 class="tna-heading-l">Contact information</h2>
 
         {{ record.description | sanitise_record_field | safe }}
