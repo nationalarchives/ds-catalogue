@@ -26,7 +26,7 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
 from lxml import etree
 
-from .constants import MISSING_COUNT_TEXT, RecordTypes
+from .constants import MISSING_COUNT_TEXT, TNA_ARCHON_CODE, RecordTypes
 
 logger = logging.getLogger(__name__)
 
@@ -575,6 +575,11 @@ class Record(APIModel):
         """Returns the transformed api value of the attr if found, empty str otherwise.
         Field is used only in ARCHON records."""
 
-        if self.custom_record_type == RecordTypes.ARCHON:
-            return apply_archon_xsl(self.raw_description, "ArchonWebsite.xsl")
+        if self.custom_record_type == RecordTypes.ARCHON:  #
+            if self.reference_number != TNA_ARCHON_CODE:
+                # Only apply for NonTNA ARCHON records, to hide presentation
+                # of the field as per Wireframes for TNA ARCHON records
+                return apply_archon_xsl(
+                    self.raw_description, "ArchonWebsite.xsl"
+                )
         return ""

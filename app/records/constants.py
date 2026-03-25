@@ -57,3 +57,6 @@ class RecordTypes(StrEnum):
 
     ARCHON = "ARCHON"
     CREATORS = "CREATORS"
+
+
+TNA_ARCHON_CODE = "66"
