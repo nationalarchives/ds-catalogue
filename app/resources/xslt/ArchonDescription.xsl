@@ -3,7 +3,7 @@
   <xsl:output method="html"/>
 
   <xsl:template match="contacts">
-    <dl class="tna-dl tna-dl-archon-contact">
+    <dl class="tna-dl tna-dl--stacked">
       <xsl:if test="addressline1[normalize-space()] or addresstown[normalize-space()] or postcode[normalize-space()] or addresscountry[normalize-space()]">
         <xsl:call-template name="dl-icon-row">
           <xsl:with-param name="icon" select="'fa-building'"/>
