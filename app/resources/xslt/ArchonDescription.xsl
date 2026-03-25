@@ -29,6 +29,16 @@
         </xsl:call-template>
       </xsl:if>
 
+      <xsl:if test="email[normalize-space()]">
+        <xsl:call-template name="dl-icon-row">
+          <xsl:with-param name="icon" select="'fa-envelope'"/>
+          <xsl:with-param name="term" select="'Email'"/>
+          <xsl:with-param name="content">
+            <a href="mailto:{translate(email, ' ', '')}"><xsl:value-of select="email"/></a>
+          </xsl:with-param>
+        </xsl:call-template>
+      </xsl:if>
+
       <xsl:if test="url[normalize-space()]">
         <xsl:call-template name="dl-icon-row">
           <xsl:with-param name="icon" select="'fa-globe'"/>
