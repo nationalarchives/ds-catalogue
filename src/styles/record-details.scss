@@ -220,7 +220,7 @@
 
   @include colour.tint;
 
-  @include colour.thick-keyline-brand(left, "forest");
+  @include colour.thick-keyline-accent(left);
 
   &__content {
     margin-top: spacing.space(0.5);
