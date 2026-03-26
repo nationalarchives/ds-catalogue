@@ -73,6 +73,9 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.subjects_enrichment, {})
         self.assertEqual(self.record.has_subjects_enrichment, False)
         self.assertEqual(self.record.place_description, "")
+        self.assertEqual(self.record.archon_website, "")
+        self.assertEqual(self.record.archon_catalogue_url, "")
+        self.assertEqual(self.record.archon_discovery_url, "")
 
     def test_id(self):
 
@@ -1177,20 +1180,6 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(
             second_result, ["Test subject"]
         )  # Original value, not modified
-
-    @unittest.skip(
-        "TODO: revisit once fixtures include raw XML + XSLT-transformed output"
-    )
-    def test_place_description(self):
-        self.record = Record(self.template_details)
-        # patch raw data
-        self.record._raw["placeDescription"] = {
-            "raw": "Place description for Archon record without XML tags"
-        }
-        self.assertEqual(
-            self.record.place_description,
-            "Place description for Archon record without XML tags",
-        )
 
 
 class CleanTitleOrCleanSummaryTitleTests(SimpleTestCase):
