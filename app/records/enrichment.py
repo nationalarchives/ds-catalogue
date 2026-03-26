@@ -16,7 +16,7 @@ from app.deliveryoptions.delivery_options import (
     get_availability_group,
     has_distressing_content,
 )
-from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
+from app.lib.constants import BASE_TNA_DISCOVERY_URL
 from app.records.api import get_subjects_enrichment
 from app.records.constants import (
     API_TIMEOUTS,

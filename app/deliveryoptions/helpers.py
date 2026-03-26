@@ -18,14 +18,12 @@ import re
 from typing import List, Optional
 
 from app.deliveryoptions.departments import DEPARTMENT_DETAILS
+from app.lib.constants import BASE_TNA_DISCOVERY_URL
 from app.records.models import Record
 from django.conf import settings
 from django.core.cache import cache
 
 BASE_TNA_HOME_URL = "https://www.nationalarchives.gov.uk"
-
-# TODO: will no longer be needed in time when Etna is fully functional
-BASE_TNA_DISCOVERY_URL = "https://discovery.nationalarchives.gov.uk"
 
 # TODO: Max basket items may be dropped, or disabled at some point
 MAX_BASKET_ITEMS = "10"
