@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import logging
 from typing import Any
+from urllib.parse import urlencode
 
 import sentry_sdk
+from app.lib.constants import BASE_TNA_DISCOVERY_URL
 from app.lib.exceptions import MissingAPIAttributeError
 from app.lib.xslt_transformations import (
     apply_archon_xsl,
@@ -21,6 +23,8 @@ from app.records.utils import (
     extract,
     format_link,
 )
+from app.search.buckets import BucketKeys
+from app.search.constants import FieldsConstant
 from config.jinja import format_number
 from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
@@ -565,9 +569,10 @@ class Record(APIModel):
         Field appears in ARCHON records."""
 
         if raw_description := self.get("placeDescription.raw", ""):
-            return apply_archon_xsl(
-                raw_description, "ArchonPlaceDescription.xsl"
-            )
+            if self.custom_record_type == RecordTypes.ARCHON:
+                return apply_archon_xsl(
+                    raw_description, "ArchonPlaceDescription.xsl"
+                )
         return ""
 
     @cached_property
@@ -575,11 +580,59 @@ class Record(APIModel):
         """Returns the transformed api value of the attr if found, empty str otherwise.
         Field is used only in ARCHON records."""
 
-        if self.custom_record_type == RecordTypes.ARCHON:  #
+        if self.custom_record_type == RecordTypes.ARCHON:
             if self.reference_number != TNA_ARCHON_CODE:
                 # Only apply for NonTNA ARCHON records, to hide presentation
                 # of the field as per Wireframes for TNA ARCHON records
                 return apply_archon_xsl(
                     self.raw_description, "ArchonWebsite.xsl"
                 )
+        return ""
+
+    @cached_property
+    def archon_catalogue_url(self) -> str:
+        """Returns appropriate Catalogue URL for the record, empty str otherwise.
+        Field is used only in ARCHON records."""
+
+        if self.custom_record_type == RecordTypes.ARCHON:
+            try:
+                if self.reference_number == TNA_ARCHON_CODE:
+                    url_name = "main:catalogue"
+                    # landing page for the new catalogue
+                    return f"{reverse(url_name)}"
+                else:
+                    params = {
+                        FieldsConstant.GROUP: BucketKeys.NON_TNA,
+                        # TODO: temporary solution to use clean_title_or_summary_title
+                        # until we have specific aggs collection value
+                        FieldsConstant.HELD_BY: self.clean_title_or_summary_title,
+                    }
+                    url_name = "search:catalogue"
+                    # For other records, link to search results filtered for the record's title
+                    return f"{reverse(url_name)}?{urlencode(params)}"
+            except NoReverseMatch:
+                # warning for partially valid url configuration
+                logger.warning(
+                    f"archon_catalogue_url:Record({self.id}):No reverse match for {url_name}"
+                )
+        return ""
+
+    @cached_property
+    def archon_discovery_url(self) -> str:
+        """Returns appropriate Discovery URL for the record, empty str otherwise.
+        Field is used only in ARCHON records."""
+
+        if self.custom_record_type == RecordTypes.ARCHON:
+            if self.reference_number == TNA_ARCHON_CODE:
+                # landing page for Discovery
+                return f"{BASE_TNA_DISCOVERY_URL}"
+            else:
+                params = {
+                    "_q": "*",
+                    "_hb": "oth",
+                    "_nrar": self.reference_number,
+                }
+                # For other records, link to Discovery search results filtered for the record's
+                # archon reference number
+                return f"{BASE_TNA_DISCOVERY_URL}/results/r?{urlencode(params)}"
         return ""
