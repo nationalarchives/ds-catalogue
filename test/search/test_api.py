@@ -106,7 +106,12 @@ class SearchRecordsTests(SimpleTestCase):
         with self.assertRaisesMessage(NoResultsFound, "No results found"):
             # search query term is not relevant to any record, so that "data" is empty
             # and "buckets"->"entries" is also empty.
-            _ = search_records(query="qwert")
+            _ = search_records(
+                query="qwert",
+                params={
+                    "filter": ["group:tna"], # default filter
+                },
+            )
 
     @responses.activate
     def test_does_not_raise_no_results_found_when_data_is_empty(self):
@@ -124,8 +129,8 @@ class SearchRecordsTests(SimpleTestCase):
                     {
                         "name": "group",
                         # "entries" key is included in the response with at least one configured bucket
-                        # having count when search query term is relevant to some records
-                        # but not matching the "q" param, as per Rosetta API.
+                        # having count when search queried without search term, so that "data" is empty
+                        # but "buckets"->"entries" is not empty.
                         "entries": [
                             {"value": "tna", "count": 100},
                             {"value": "medal", "count": 50},
@@ -137,7 +142,12 @@ class SearchRecordsTests(SimpleTestCase):
 
         try:
             api_result = search_records(
+                # search term is empty to query all records, but its possible that "data" is empty 
+                # if filters are applied which do not match any record, 
+                # but at least one configured bucket has count in the response
                 query="",
+                # adding additional filters to ensure that "data" is empty, 
+                # but at least one configured bucket has count in the response
                 params={
                     "filter": ["group:tna", "level:Division"],
                     "aggs": ["level", "collection", "closure", "subject"],
