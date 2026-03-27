@@ -25,7 +25,7 @@ class TestRecordDetailViewJsEnabled(TestCase):
     @patch("app.records.mixins.cache")
     @patch("app.records.views.RecordEnrichmentHelper")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.main.global_alert.JSONAPIClient")
+    @patch("app.records.views.fetch_global_notifications", return_value={})
     def test_js_enabled_skips_full_enrichment(
         self,
         mock_client,
@@ -74,7 +74,7 @@ class TestRecordDetailViewJsEnabled(TestCase):
     @patch("app.records.mixins.cache")
     @patch("app.records.views.RecordEnrichmentHelper")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.main.global_alert.JSONAPIClient")
+    @patch("app.records.views.fetch_global_notifications", return_value={})
     def test_js_disabled_fetches_full_enrichment(
         self,
         mock_client,
@@ -125,7 +125,7 @@ class TestRecordDetailViewJsEnabled(TestCase):
     @patch("app.records.mixins.cache")
     @patch("app.records.views.RecordEnrichmentHelper")
     @patch("app.records.mixins.record_details_by_id")
-    @patch("app.main.global_alert.JSONAPIClient")
+    @patch("app.records.views.fetch_global_notifications", return_value={})
     def test_js_enabled_false_fetches_full_enrichment(
         self,
         mock_client,

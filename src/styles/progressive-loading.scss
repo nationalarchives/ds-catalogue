@@ -5,24 +5,28 @@
 
 // Loading spinner
 .loading-spinner {
+  min-height: 100px;
+  padding: 2rem 1rem;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1rem;
-  min-height: 100px;
 
   p {
     margin-top: 1rem;
+
     color: #6c757d;
     font-size: 0.875rem;
   }
 }
 
 .spinner {
-  display: inline-block;
   width: 40px;
   height: 40px;
+
+  display: inline-block;
+
   border: 4px solid rgb(0 0 0 / 10%);
   border-left-color: #000;
   border-radius: 50%;
@@ -62,6 +66,7 @@
 // Ensure full height for delivery option placeholders
 .full-height-aside {
   min-height: 200px;
+
   display: flex;
   flex-direction: column;
 
@@ -73,9 +78,9 @@
 // Accessibility: reduce motion for users who prefer it
 @media (prefers-reduced-motion: reduce) {
   .spinner {
-    animation: none;
-    border-left-color: transparent;
     border-top-color: #000;
+    border-left-color: transparent;
+    animation: none;
   }
 
   .progressive-loading.loaded {
@@ -86,6 +91,7 @@
 // Error state
 .tna-aside--warning {
   border-left: 4px solid #d4351c;
+
   background-color: #f3f2f1;
 
   h2 {

@@ -1,5 +1,9 @@
 import responses
-from app.lib.api import JSONAPIClient, ResourceNotFound
+from app.lib.api import JSONAPIClient
+from app.lib.exceptions import (
+    MissingAPIAttributeError,
+    NoResultsFound,
+)
 from app.records.models import Record
 from app.search.api import search_records
 from app.search.models import APISearchResponse
@@ -45,7 +49,7 @@ class SearchRecordsTests(SimpleTestCase):
         self.assertEqual(api_results.buckets, {"tna": 1})
 
     @responses.activate
-    def test_no_data_returned(self):
+    def test_missing_data_field_raises_error(self):
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
@@ -53,11 +57,14 @@ class SearchRecordsTests(SimpleTestCase):
             status=200,
         )
 
-        with self.assertRaisesMessage(Exception, "No data returned"):
+        with self.assertRaisesMessage(
+            MissingAPIAttributeError,
+            "Search API response missing required 'data' field",
+        ):
             _ = search_records(query="")
 
     @responses.activate
-    def test_no_buckets_returned(self):
+    def test_missing_buckets_field_raises_error(self):
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
@@ -72,7 +79,8 @@ class SearchRecordsTests(SimpleTestCase):
         )
 
         with self.assertRaisesMessage(
-            Exception, "Search API response missing required 'buckets' field"
+            MissingAPIAttributeError,
+            "Search API response missing required 'buckets' field",
         ):
             _ = search_records(query="")
 
@@ -96,7 +104,7 @@ class SearchRecordsTests(SimpleTestCase):
             },
         )
 
-        with self.assertRaisesMessage(ResourceNotFound, "No results found"):
+        with self.assertRaisesMessage(NoResultsFound, "No results found"):
             _ = search_records(query="")
 
     @responses.activate

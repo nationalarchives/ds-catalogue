@@ -1,7 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from app.lib.api import JSONAPIClient, ResourceNotFound
+from app.lib.api import JSONAPIClient
+from app.lib.exceptions import APIResourceNotFound
 from django.conf import settings
 
 
@@ -51,7 +52,7 @@ class DeliveryOptionsApiClientTests(unittest.TestCase):
 
         # self.api_client = DeliveryOptionsAPI()
 
-        with self.assertRaises(ResourceNotFound) as context:
+        with self.assertRaises(APIResourceNotFound) as context:
             self.api_client.get()
 
         # Assert the exception message
