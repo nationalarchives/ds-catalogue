@@ -93,6 +93,8 @@ class SearchRecordsTests(SimpleTestCase):
                     "total": 0,
                     "results": 0,
                 },
+                # "buckets"->"entries" key is not included in the response when
+                # there are no matches for the search query term, as per Rosetta API.
                 "buckets": [
                     {
                         "name": "group",
@@ -102,7 +104,9 @@ class SearchRecordsTests(SimpleTestCase):
         )
 
         with self.assertRaisesMessage(NoResultsFound, "No results found"):
-            _ = search_records(query="")
+            # search query term is not relevant to any record, so that "data" is empty
+            # and "buckets"->"entries" is also empty.
+            _ = search_records(query="qwert")
 
     @responses.activate
     def test_does_not_raise_no_results_found_when_data_is_empty(self):
@@ -119,6 +123,9 @@ class SearchRecordsTests(SimpleTestCase):
                 "buckets": [
                     {
                         "name": "group",
+                        # "entries" key is included in the response with at least one configured bucket
+                        # having count when search query term is relevant to some records
+                        # but not matching the "q" param, as per Rosetta API.
                         "entries": [
                             {"value": "tna", "count": 100},
                             {"value": "medal", "count": 50},
@@ -129,7 +136,14 @@ class SearchRecordsTests(SimpleTestCase):
         )
 
         try:
-            api_result = search_records(query="")
+            api_result = search_records(
+                query="",
+                params={
+                    "filter": ["group:tna", "level:Division"],
+                    "aggs": ["level", "collection", "closure", "subject"],
+                    "digitised": "true",
+                },
+            )
         except Exception as e:
             self.fail(
                 f"search_records raised an exception unexpectedly. {str(e)}"
