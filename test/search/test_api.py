@@ -109,7 +109,7 @@ class SearchRecordsTests(SimpleTestCase):
             _ = search_records(
                 query="qwert",
                 params={
-                    "filter": ["group:tna"], # default filter
+                    "filter": ["group:tna"],  # default filter
                 },
             )
 
@@ -142,11 +142,11 @@ class SearchRecordsTests(SimpleTestCase):
 
         try:
             api_result = search_records(
-                # search term is empty to query all records, but its possible that "data" is empty 
-                # if filters are applied which do not match any record, 
+                # search term is empty to query all records, but its possible that "data" is empty
+                # if filters are applied which do not match any record,
                 # but at least one configured bucket has count in the response
                 query="",
-                # adding additional filters to ensure that "data" is empty, 
+                # adding additional filters to ensure that "data" is empty,
                 # but at least one configured bucket has count in the response
                 params={
                     "filter": ["group:tna", "level:Division"],
