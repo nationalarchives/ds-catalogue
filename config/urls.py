@@ -15,70 +15,33 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from urllib.parse import urljoin
-
 from app.errors.views import page_not_found_error_view, server_error_view
 from django.apps import apps
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.http import HttpResponseRedirect
-from django.urls import include, path, re_path
+from django.urls import include, path
 
 handler404 = "app.errors.views.page_not_found_error_view"
 
 
-# ==========================================
-# beta.nationalarchives.gov.uk redirects
-# ------------------------------------------
-# When this service is hosted using the beta
-# subdomain it will have to handle redirects
-# for any content that used to be accessible
-# through the subdomain, and forward them on
-# to the live site.
-# These routes should be removed after about
-# 6 months, at the start of December 2025.
-# ==========================================
-def redirect_to_live_site(request):
-    allowed_paths = [
-        "/explore-the-collection/",
-        "/people/",
-    ]
-    if any(request.path.startswith(path) for path in allowed_paths):
-        new_url = urljoin("https://www.nationalarchives.gov.uk", request.path)
-        return HttpResponseRedirect(new_url)
-    return HttpResponseRedirect("https://www.nationalarchives.gov.uk")
-
-
-old_beta_site_redirect_urls = [
-    re_path(r"^explore-the-collection/.*$", redirect_to_live_site),
-    re_path(r"^people/.*$", redirect_to_live_site),
-]
-# ==========================================
-# END beta.nationalarchives.gov.uk redirects
-# ==========================================
-
-urlpatterns = (
-    [
-        path("", include(("app.main.urls", "main"), namespace="main")),
-        path("healthcheck/", include("app.healthcheck.urls")),
-        path(
-            "catalogue/",
-            include(("app.search.urls", "search"), namespace="search"),
-        ),
-        path(
-            "catalogue/",
-            include(("app.records.urls", "records"), namespace="records"),
-        ),
-        path(
-            "404/",
-            page_not_found_error_view,
-        ),
-        path("admin/", admin.site.urls),
-    ]
-    + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    + old_beta_site_redirect_urls
-)
+urlpatterns = [
+    path("", include(("app.main.urls", "main"), namespace="main")),
+    path("healthcheck/", include("app.healthcheck.urls")),
+    path(
+        "catalogue/",
+        include(("app.search.urls", "search"), namespace="search"),
+    ),
+    path(
+        "catalogue/",
+        include(("app.records.urls", "records"), namespace="records"),
+    ),
+    path(
+        "404/",
+        page_not_found_error_view,
+    ),
+    path("admin/", admin.site.urls),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if apps.is_installed("debug_toolbar"):
     from debug_toolbar.toolbar import debug_toolbar_urls
