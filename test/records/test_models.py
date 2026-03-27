@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from app.records.models import Record
 from config.jinja import sanitise_record_field
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, override_settings
 
 
 class RecordModelTests(SimpleTestCase):
@@ -431,11 +431,19 @@ class RecordModelTests(SimpleTestCase):
         self.record = Record(self.template_details)
         # patch raw data
         self.record._raw["heldById"] = "A13530841"
-        # TODO: Temporary link to Discovery until archon template is ready
-        # self.assertEqual(self.record.held_by_url, "/catalogue/id/A13530841/")
         self.assertEqual(
             self.record.held_by_url,
             "/catalogue/id/A13530841/",
+        )
+
+    @override_settings(FEATURE_ENABLE_RECORD_DETAILS_HELD_BY=False)
+    def test_valid_held_by_url_feature_disabled(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["heldById"] = "A13530841"
+        self.assertEqual(
+            self.record.held_by_url,
+            "https://discovery.nationalarchives.gov.uk/details/a/A13530841",
         )
 
     @unittest.skip("TODO: Re-enable this test when archon template is ready")

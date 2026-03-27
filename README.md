@@ -101,5 +101,6 @@ See [Sentry's official guide](https://docs.sentry.io/platforms/python/guides/dja
 | `MAX_SUBJECTS_PER_RECORD`        | Maximum number of subjects displayed on details screen                       |
 | `ENABLE_PARALLEL_API_CALLS`      | True = use parallel code for detail page api calls, False for sequential     |
 | `ENRICHMENT_TIMING_ENABLED`      | True = show api call timings in log (works for both sequential and parallel) |
+| `FEATURE_ENABLE_RECORD_DETAILS_HELD_BY`      | True=activates held by link to Catalogue, otherwise to Discovery Archon page  |
 
 TODO: Find where the IP_ADDRESSES are documented and link to document here

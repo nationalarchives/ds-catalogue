@@ -26,6 +26,7 @@ from app.records.utils import (
 from app.search.buckets import BucketKeys
 from app.search.constants import FieldsConstant
 from config.jinja import format_number
+from django.conf import settings
 from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
 from lxml import etree
@@ -245,6 +246,8 @@ class Record(APIModel):
     @cached_property
     def held_by_url(self) -> str:
         """Returns url path if the id is found, empty str otherwise."""
+        if not settings.FEATURE_ENABLE_RECORD_DETAILS_HELD_BY:
+            return f"https://discovery.nationalarchives.gov.uk/details/a/{self.held_by_id}"
         if self.held_by_id:
             try:
                 return reverse(
@@ -567,8 +570,19 @@ class Record(APIModel):
     def place_description(self) -> str:
         """Returns the transformed api value of the attr if found, empty str otherwise.
         Field appears in ARCHON records."""
+        raw_description = self.get("placeDescription.raw", "")
 
-        if raw_description := self.get("placeDescription.raw", ""):
+        if (
+            not settings.FEATURE_ENABLE_RECORD_DETAILS_HELD_BY
+            and self.reference_number == TNA_ARCHON_CODE
+        ):
+            # HARCODED: For TNA ARCHON record, when the feature is disabled,
+            # show the expected values for the field, as the API data is inaccurate
+            # This is to avoid user-facing impact while the API data issue is being resolved.
+            raw_description = """<span class="accessconditions"><span class="openinghours">For opening times please consult the &lt;a href="https://www.nationalarchives.gov.uk/about/visit-us/opening-times/ " target="_blank"&gt;website&lt;/a&gt;</span><span class="holidays">See the &lt;a href="https://www.nationalarchives.gov.uk/about/visit-us/opening-times/ " target="_blank"&gt;website&lt;/a&gt;</span><span class="disabledaccess">Wheelchair access</span><span class="comments">If you would like to contact The National Archives please go the &lt;a href="http://www.nationalarchives.gov.uk/contact-us/" target="_blank"&gt;contact form&lt;/a&gt; page on the website and use the form provided
+
+&lt;li&gt;Readers tickets are required for access to original records only. Proof of identity and current address are required to obtain reader tickets. For further details please consult the &lt;a href="https://www.nationalarchives.gov.uk/about/visit-us/researching-here/do-i-need-a-readers-ticket/" target=?_blank?&gt;website&lt;/a&gt;&lt;/li&gt;</span></span>"""
+        if raw_description:
             if self.custom_record_type == RecordTypes.ARCHON:
                 return apply_archon_xsl(
                     raw_description, "ArchonPlaceDescription.xsl"
