@@ -67,7 +67,7 @@
           <p>Available through search results only</p>
           {{ tnaButton({
             'text': 'View all collections in the new catalogue',
-            'href': url('main:catalogue'),
+            'href': record.archon_catalogue_url,
             "icon": "chevron-right",
             "classes": "tna-!--margin-top-s",
             "rightAlignIcon": true
@@ -78,7 +78,7 @@
           <p>Available as search results, lists and to browse</p>
           {{ tnaButton({
             'text': 'View all collections in the current catalogue',
-            'href': 'https://www.nationalarchives.gov.uk/catalogue/',
+            'href': record.archon_discovery_url,
             "icon": "chevron-right",
             "classes": "tna-!--margin-top-s",
             "rightAlignIcon": true
