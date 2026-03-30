@@ -1,7 +1,7 @@
 {% from 'components/breadcrumbs/macro.html' import tnaBreadcrumbs %}
 {% from 'components/secondary-navigation/macro.html' import tnaSecondaryNavigation %}
 
-{% macro top_navigation(record, request) %}
+{% macro top_navigation(record, request, show_secondary_navigation=True) %}
 <div class="tna-background-tint">
   <div class="tna-container">
     <div class="tna-column tna-column--full">
@@ -44,24 +44,26 @@
         {% set related_records_path = related_records_path + '?search=' + request.GET.get('search') %}
         {% set help_path = help_path + '?search=' + request.GET.get('search') %}
       {% endif %}
-      {{ tnaSecondaryNavigation({
-        'title': 'Sections',
-        'headingLevel': 2,
-        'items': [
-          {
-            'name': 'About this record',
-            'href': record_details_path,
-            'current': record_details_path == request.get_full_path()
-          },
-          {
-            'name': 'What is this page?',
-            'href': help_path,
-            'current': help_path == request.get_full_path()
-          }
-        ],
-        'noBottomBorder': True,
-        'visuallyHideHeading': True
-      }) }}
+      {% if show_secondary_navigation %}
+        {{ tnaSecondaryNavigation({
+          'title': 'Sections',
+          'headingLevel': 2,
+          'items': [
+            {
+              'name': 'About this record',
+              'href': record_details_path,
+              'current': record_details_path == request.get_full_path()
+            },
+            {
+              'name': 'What is this page?',
+              'href': help_path,
+              'current': help_path == request.get_full_path()
+            }
+          ],
+          'noBottomBorder': True,
+          'visuallyHideHeading': True
+        }) }}
+      {% endif %}
     </div>
   </div>
 </div>
