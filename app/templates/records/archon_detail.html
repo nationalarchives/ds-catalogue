@@ -1,14 +1,90 @@
 {% extends "base.html" %}
 
+{% from 'records/macros/top_navigation.html' import top_navigation %}
+{% from 'records/macros/callout.html' import callout %}
+{% from 'components/button/macro.html' import tnaButton %}
+
 {%- set pageTitle = (record.title or record.summary_title or '[No title]') | striptags -%}
 
+{% block stylesheets %}
+{{ super() }}
+    <link rel="stylesheet" href="{{ static('record-details.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
+{% endblock stylesheets %}
+
+{% block beforeContent %}
+{{ top_navigation(record, request, show_secondary_navigation=False) }}
+{% endblock beforeContent %}
+
 {% block content %}
-<div class="tna-section">
+<div class="tna-section tna-!--padding-top-l">
   <div class="tna-container">
     <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
-      <h1 class="tna-heading-xl">{{ pageTitle }}</h1>
+      <hgroup class="tna-hgroup-xl">
+        <p class="tna-hgroup__supertitle">Archive</p>
+        <h1 class="tna-hgroup__title">{{ pageTitle }}</h1>
+      </hgroup>
 
-      <p>{{ record.custom_record_type }}</p>
+      <p>Archon code: <strong class="reference">{{ record.reference_number }}</strong></p>
+    </div>
+  </div>
+
+  {% if record.archon_website %}
+    {% call callout(heading='Looking for records?') %}
+      <p>Visit the <a href="{{ record.archon_website | sanitise_record_field | safe }}">{{ pageTitle }} website</a> for information on how to access records held there.</p>
+    {% endcall %}
+  {% endif %}
+
+  <div class="tna-container">
+    <div class="tna-column tna-column--full-tiny tna-column--full-small tna-column--width-1-2 tna-!--margin-top-m">
+      <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
+
+        <h2 class="tna-heading-l">Contact information</h2>
+
+        {{ record.description | sanitise_record_field | safe }}
+      </div>
+    </div>
+
+    <div class="tna-column tna-column--width-1-2 tna-column--full-tiny tna-column--full-small tna-!--margin-top-m">
+      <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
+        <h2 class="tna-heading-l">Information about this archive</h2>
+
+        {{ record.place_description | sanitise_record_field | safe }}
+
+      </div>
+    </div>
+  </div>
+
+  <div class="tna-container">
+    <div class="tna-column tna-column--full tna-!--margin-top-l">
+      <h2 class="tna-heading-l">This archive’s collections</h2>
+      <p>There are two ways to view all collections from <strong>{{ pageTitle }}</strong></p>
+    </div>
+
+    <div class="tna-column tna-column--full tna-!--margin-top-s">
+      <div class="tna-aside tna-aside--split tna-aside--tight tna-background-accent-light">
+        <div class="tna-aside--split__column">
+          <h3 class="tna-heading-m">New catalogue (this website)</h3>
+          <p>Available through search results only</p>
+          {{ tnaButton({
+            'text': 'View all collections in the new catalogue',
+            'href': record.archon_catalogue_url,
+            "icon": "chevron-right",
+            "classes": "tna-!--margin-top-s",
+            "rightAlignIcon": true
+          }) }}
+        </div>
+        <div class="tna-aside--split__column">
+          <h3 class="tna-heading-m">Current catalogue</h3>
+          <p>Available as search results, lists and to browse</p>
+          {{ tnaButton({
+            'text': 'View all collections in the current catalogue',
+            'href': record.archon_discovery_url,
+            "icon": "chevron-right",
+            "classes": "tna-!--margin-top-s",
+            "rightAlignIcon": true
+          }) }}
+        </div>
+      </div>
     </div>
   </div>
 </div>

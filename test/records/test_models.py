@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from app.records.models import Record
 from config.jinja import sanitise_record_field
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, override_settings
 
 
 class RecordModelTests(SimpleTestCase):
@@ -72,6 +72,10 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.subjects, [])
         self.assertEqual(self.record.subjects_enrichment, {})
         self.assertEqual(self.record.has_subjects_enrichment, False)
+        self.assertEqual(self.record.place_description, "")
+        self.assertEqual(self.record.archon_website, "")
+        self.assertEqual(self.record.archon_catalogue_url, "")
+        self.assertEqual(self.record.archon_discovery_url, "")
 
     def test_id(self):
 
@@ -108,6 +112,12 @@ class RecordModelTests(SimpleTestCase):
         # patch raw data
         self.record._raw["source"] = "CAT"
         self.assertEqual(self.record.custom_record_type, "CAT")
+
+    def test_custom_record_type_for_archon(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["source"] = "ARCHON"
+        self.assertEqual(self.record.custom_record_type, "ARCHON")
 
     def test_reference_number(self):
         self.record = Record(self.template_details)
@@ -421,8 +431,16 @@ class RecordModelTests(SimpleTestCase):
         self.record = Record(self.template_details)
         # patch raw data
         self.record._raw["heldById"] = "A13530841"
-        # TODO: Temporary link to Discovery until archon template is ready
-        # self.assertEqual(self.record.held_by_url, "/catalogue/id/A13530841/")
+        self.assertEqual(
+            self.record.held_by_url,
+            "/catalogue/id/A13530841/",
+        )
+
+    @override_settings(FEATURE_ENABLE_RECORD_DETAILS_HELD_BY=False)
+    def test_valid_held_by_url_feature_disabled(self):
+        self.record = Record(self.template_details)
+        # patch raw data
+        self.record._raw["heldById"] = "A13530841"
         self.assertEqual(
             self.record.held_by_url,
             "https://discovery.nationalarchives.gov.uk/details/a/A13530841",
