@@ -1,6 +1,10 @@
 import unittest
 
-from app.lib.xslt_transformations import apply_schema_xsl, apply_series_xsl
+from app.lib.xslt_transformations import (
+    apply_schema_xsl,
+    apply_series_xsl,
+    xsl_transformation,
+)
 
 
 class XsltTransformationsTestCase(unittest.TestCase):
@@ -748,4 +752,42 @@ class XsltTransformationsTestCase(unittest.TestCase):
 <dd>No name on seal. Impression: fair. Condition: fragment</dd>
 </dl>""",
             str(apply_series_xsl(source, series)),
+        )
+
+    def test_xsl_transformation_empty_source(self):
+        """Tests that a warning is logged and an empty string is returned when
+        the source is empty."""
+
+        source = None
+        schema = "Generic.xsl"
+
+        with self.assertLogs(
+            "app.lib.xslt_transformations", level="WARNING"
+        ) as lc:
+            return_value = xsl_transformation(source, schema)
+            self.assertIn("", return_value)
+
+        self.assertIn(
+            "WARNING:app.lib.xslt_transformations:Empty source provided for XSLT transformation",
+            lc.output,
+        )
+
+    def test_xsl_transformation_loading_xslt_file_error(self):
+        """Tests that an error is logged and the original source is returned when there
+        is an error loading the XSLT file."""
+
+        source = '<emph altrender="doctype">G</emph>Joint meeting of the Army-Navy Communication Intelligence Board and Army-Navy Communication Intelligence Co-ordinating Committee, 29 October 1945'
+        schema = "SCHEMA_THAT_DOES_NOT_EXIST"
+
+        with self.assertLogs(
+            "app.lib.xslt_transformations", level="ERROR"
+        ) as lc:
+            return_value = xsl_transformation(source, schema)
+            self.assertEqual(source, return_value)
+
+        self.assertIn(
+            "ERROR:app.lib.xslt_transformations:Unexpected error while loading XSLT file "
+            "'SCHEMA_THAT_DOES_NOT_EXIST': Error reading file 'app/resources/xslt/SCHEMA_THAT_DOES_NOT_EXIST': "
+            'failed to load "app/resources/xslt/SCHEMA_THAT_DOES_NOT_EXIST": No such file or directory',
+            lc.output,
         )

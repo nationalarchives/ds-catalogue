@@ -38,14 +38,29 @@ class TestRecordView(TestCase):
         self.assertTemplateUsed("records/record_detail.html")
         self.assertIsInstance(response.context_data.get("record"), Record)
 
-    @patch("app.records.mixins.record_details_by_id")
-    def test_record_detail_view_for_archive_record(self, mock_record_details):
-        mock_record_details.return_value = _make_record(
-            {
-                "id": "A13530600",
-                "title": "Test Title",
-                "source": "ARCHON",
-            }
+    @responses.activate
+    def test_record_detail_view_for_archive_record(self):
+
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id=A13530600",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "id": "A13530600",
+                                "title": "Test Title",
+                                "source": "ARCHON",
+                                "description": {
+                                    "raw": "<contacts><addressline1><![CDATA[Kew]]></addressline1></contacts>"
+                                },
+                            }
+                        }
+                    }
+                ]
+            },
+            status=200,
         )
 
         response = self.client.get("/catalogue/id/A13530600/")
@@ -341,7 +356,7 @@ class TestNonTNARecordAvailability(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            '<a href="https://discovery.nationalarchives.gov.uk/details/a/A13530841">How to view it</a>',
+            '<a href="/catalogue/id/A13530841/">How to view it</a>',
         )
 
     @patch("app.records.mixins.record_details_by_id")

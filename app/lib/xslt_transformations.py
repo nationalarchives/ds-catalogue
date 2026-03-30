@@ -88,3 +88,27 @@ def apply_series_xsl(source: str, division: str) -> str:
 
 def apply_generic_xsl(source: str) -> str:
     return xsl_transformation(source, "Generic.xsl")
+
+
+def apply_archon_xsl(source: str, schema_file: str) -> str:
+    """Applies the Archon XSLT transformation to the provided source string.
+    Uses XML parsing so CDATA and structure (e.g. <br /> in addressline1) are preserved.
+    TODO: This is a temporary solution to apply the Archon XSLT transformation, and should be
+    refactored to be more flexible and reusable in the future.
+    """
+    if not source:
+        logger.warning("Empty source provided for Archon XSLT transformation")
+        return ""
+
+    dom = etree.fromstring(source.encode("utf-8"))
+
+    try:
+        xslt = etree.parse(f"app/resources/xslt/{schema_file}")
+    except Exception as e:
+        logger.error(
+            f"Unexpected error while loading XSLT file '{schema_file}': {e}"
+        )
+        return source
+    transform = etree.XSLT(xslt)
+    result = transform(dom)
+    return str(result).strip()

@@ -50,11 +50,9 @@ class TestClosedRetainedAvailability(TestCase):
                 "advancedOrderUrlParameters": "",
             }
         ]
-        mock_availability_group = Mock()
-        mock_availability_group.name = (
+        mock_get_availability_group.return_value.name = (
             "CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE"
         )
-        mock_get_availability_group.return_value = mock_availability_group
 
     @patch("app.records.mixins.record_details_by_id")
     @patch("app.records.enrichment.get_subjects_enrichment", return_value={})
