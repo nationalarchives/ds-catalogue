@@ -1,4 +1,4 @@
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import responses
 from app.deliveryoptions.constants import AvailabilityCondition
