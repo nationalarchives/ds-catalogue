@@ -32,6 +32,7 @@ services:
       - WAGTAIL_API_TIMEOUT
       - DELIVERY_OPTIONS_API_TIMEOUT
       - MAX_SUBJECTS_PER_RECORD
+      - FEATURE_ENABLE_HELD_BY_DISCOVERY=True
     ports:
       - 65533:8080
     volumes:

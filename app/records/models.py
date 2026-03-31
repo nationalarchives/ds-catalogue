@@ -246,8 +246,16 @@ class Record(APIModel):
     @cached_property
     def held_by_url(self) -> str:
         """Returns url path if the id is found, empty str otherwise."""
-        if not settings.FEATURE_ENABLE_RECORD_DETAILS_HELD_BY:
-            return f"https://discovery.nationalarchives.gov.uk/details/a/{self.held_by_id}"
+
+        if settings.FEATURE_ENABLE_HELD_BY_DISCOVERY:
+            # For TNA records, do not show discovery url.
+            # Bypass to show Catalogue Archon URL with Temporary API data for
+            # TNA ARCHON record until the API data issue is resolved,
+            # to avoid user-facing impact.
+            if self.is_held_by_tna:
+                pass
+            else:
+                return f"https://discovery.nationalarchives.gov.uk/details/a/{self.held_by_id}"
         if self.held_by_id:
             try:
                 return reverse(
@@ -387,6 +395,15 @@ class Record(APIModel):
         description = self.raw_description
 
         if self.custom_record_type == RecordTypes.ARCHON:
+            if (
+                settings.FEATURE_ENABLE_HELD_BY_DISCOVERY
+                and self.reference_number == TNA_ARCHON_CODE
+            ):
+                # HARCODED: For TNA ARCHON record, when the feature is enabled,
+                # show the expected values for the field, as the API data is inaccurate
+                # This is to avoid user-facing impact while the API data issue is being resolved.
+                description = """<contacts><addressline1><![CDATA[Kew]]></addressline1><addresstown><![CDATA[Richmond]]></addresstown><postcode><![CDATA[TW9 4DU]]></postcode><addresscountry><![CDATA[England]]></addresscountry><telephone><![CDATA[]]></telephone><fax><![CDATA[]]></fax><email><![CDATA[]]></email><url><![CDATA[http://www.nationalarchives.gov.uk]]></url><mapURL><![CDATA[http://www.streetmap.co.uk/streetmap.dll?postcode2map?TW9+4DU]]></mapURL><correspaddr><![CDATA[]]></correspaddr><contactpeople></contactpeople></contacts>"""
+
             # For ARCHON records, apply archon-specific transformation
             # regardless of series or schema
             return apply_archon_xsl(description, "ArchonDescription.xsl")
@@ -573,10 +590,10 @@ class Record(APIModel):
         raw_description = self.get("placeDescription.raw", "")
 
         if (
-            not settings.FEATURE_ENABLE_RECORD_DETAILS_HELD_BY
+            settings.FEATURE_ENABLE_HELD_BY_DISCOVERY
             and self.reference_number == TNA_ARCHON_CODE
         ):
-            # HARCODED: For TNA ARCHON record, when the feature is disabled,
+            # HARCODED: For TNA ARCHON record, when the feature is enabled,
             # show the expected values for the field, as the API data is inaccurate
             # This is to avoid user-facing impact while the API data issue is being resolved.
             raw_description = """<span class="accessconditions"><span class="openinghours">For opening times please consult the &lt;a href="https://www.nationalarchives.gov.uk/about/visit-us/opening-times/ " target="_blank"&gt;website&lt;/a&gt;</span><span class="holidays">See the &lt;a href="https://www.nationalarchives.gov.uk/about/visit-us/opening-times/ " target="_blank"&gt;website&lt;/a&gt;</span><span class="disabledaccess">Wheelchair access</span><span class="comments">If you would like to contact The National Archives please go the &lt;a href="http://www.nationalarchives.gov.uk/contact-us/" target="_blank"&gt;contact form&lt;/a&gt; page on the website and use the form provided
