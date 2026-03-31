@@ -46,7 +46,7 @@
 // Progressive loading container states
 .progressive-loading {
   min-height: 150px;
-  
+
   visibility: hidden;
   // Fade in when content loads
   &.loaded {
