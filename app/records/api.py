@@ -14,6 +14,8 @@ from django.utils.text import slugify
 
 logger = logging.getLogger(__name__)
 
+import time
+import random
 
 def record_details_by_id(
     id: str, params: dict | None = None, timeout=None
@@ -123,6 +125,7 @@ def get_subjects_enrichment(
         results = wagtail_request_handler(
             "/article_tags/", params, timeout=timeout
         )
+        time.sleep(random.uniform(1, 5))
         return results
     except APIResourceNotFound:
         logger.warning(f"No subjects enrichment found for {subjects_param}")

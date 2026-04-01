@@ -8,6 +8,8 @@ from django.core.exceptions import ImproperlyConfigured
 
 logger = logging.getLogger(__name__)
 
+import time
+import random
 
 def delivery_options_request_handler(
     iaid: str,
@@ -40,7 +42,10 @@ def delivery_options_request_handler(
         client.add_parameters({"iaid": iaid})
 
         # Attempt to get data with specific error handling
+        time.sleep(random.uniform(1, 5))
+
         data = client.get(timeout=timeout)
+
 
         # Validate response structure
         if not data or not isinstance(data, list):
