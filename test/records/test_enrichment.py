@@ -363,9 +363,7 @@ class TestRecordEnrichmentHelper(TestCase):
         # Sentry should be called
         mock_sentry.capture_exception.assert_called_once_with(api_error)
 
-    @override_settings(
-        ENRICHMENT_TIMING_ENABLED=True, API_TIMING_LOG_LEVEL="INFO"
-    )
+    @override_settings(ENRICHMENT_TIMING_ENABLED=True)
     @patch("app.records.enrichment.api_timer_logger")
     def test_log_completion_timing_enabled(self, mock_logger: Mock) -> None:
         """Test that timing is logged when flag is enabled"""
@@ -386,9 +384,7 @@ class TestRecordEnrichmentHelper(TestCase):
         self.assertIn("related: 0.589s", log_message)
         self.assertIn("delivery: 0.847s", log_message)
 
-    @override_settings(
-        ENRICHMENT_TIMING_ENABLED=False, API_TIMING_LOG_LEVEL="INFO"
-    )
+    @override_settings(ENRICHMENT_TIMING_ENABLED=False)
     @patch("app.records.enrichment.api_timer_logger")
     def test_log_completion_timing_disabled(self, mock_logger: Mock) -> None:
         """Test that timing is not logged when flag is disabled"""
@@ -400,9 +396,7 @@ class TestRecordEnrichmentHelper(TestCase):
 
         mock_logger.info.assert_not_called()
 
-    @override_settings(
-        ENRICHMENT_TIMING_ENABLED=True, API_TIMING_LOG_LEVEL="INFO"
-    )
+    @override_settings(ENRICHMENT_TIMING_ENABLED=True)
     @patch("app.records.enrichment.api_timer_logger")
     def test_log_completion_timing_empty_list(self, mock_logger: Mock) -> None:
         """Test that nothing is logged when completion order is empty"""
