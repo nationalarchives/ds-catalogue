@@ -377,8 +377,8 @@ class TestRecordEnrichmentHelper(TestCase):
 
         helper._log_completion_timing(completion_order, completion_times)
 
-        mock_logger.warning.assert_called_once()
-        log_message = mock_logger.warning.call_args[0][0]
+        mock_logger.info.assert_called_once()
+        log_message = mock_logger.info.call_args[0][0]
         self.assertIn("completion order", log_message)
         self.assertIn("subjects: 0.342s", log_message)
         self.assertIn("related: 0.589s", log_message)

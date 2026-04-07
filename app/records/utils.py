@@ -106,7 +106,7 @@ def log_enrichment_execution_time(func):
         mode = (
             "parallel" if settings.ENABLE_PARALLEL_API_CALLS else "sequential"
         )
-        logger.warning(
+        logger.info(
             f"Enrichment fetch for record {self.record.id} completed in "
             f"{elapsed_time:.3f}s (mode: {mode})"
         )
