@@ -240,7 +240,8 @@ CLIENT_VERIFY_CERTIFICATES = strtobool(
 # To avoid importing from app constants, define here and reference other places via settings.
 API_TIMING_LOGGER_NAME = "performance.api_timings"
 
-# INFO shows enrichment API timings, WARNING to hide them (default: WARNING)
+# INFO shows enrichment API timings, WARNING to hide them as they can be noisy and
+# are not critical information for normal operation.
 _API_TIMING_LOG_LEVEL = "INFO" if ENRICHMENT_TIMING_ENABLED else "WARNING"
 
 # logging
