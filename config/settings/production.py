@@ -236,6 +236,12 @@ CLIENT_VERIFY_CERTIFICATES = strtobool(
     os.getenv("ROSETTA_CLIENT_VERIFY_CERTIFICATES", "True")
 )
 
+# Logger name for API timing information.#
+# To avoid importing from app constants, define here and reference other places via settings.
+API_TIMING_LOGGER_NAME = "performance.api_timings"
+
+# INFO shows enrichment API timings, WARNING to hide them (default: WARNING)
+API_TIMING_LOG_LEVEL = os.getenv("API_TIMING_LOG_LEVEL", "WARNING")
 
 # logging
 LOGGING = {
@@ -244,6 +250,14 @@ LOGGING = {
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        # Dedicated logger for API timing information, configured to log INFO level messages to console
+        API_TIMING_LOGGER_NAME: {
+            "handlers": ["console"],
+            "level": API_TIMING_LOG_LEVEL,
+            "propagate": False,  # prevents noise leaking
         },
     },
     "root": {

@@ -363,8 +363,10 @@ class TestRecordEnrichmentHelper(TestCase):
         # Sentry should be called
         mock_sentry.capture_exception.assert_called_once_with(api_error)
 
-    @override_settings(ENRICHMENT_TIMING_ENABLED=True)
-    @patch("app.records.enrichment.logger")
+    @override_settings(
+        ENRICHMENT_TIMING_ENABLED=True, API_TIMING_LOG_LEVEL="INFO"
+    )
+    @patch("app.records.enrichment.api_timer_logger")
     def test_log_completion_timing_enabled(self, mock_logger: Mock) -> None:
         """Test that timing is logged when flag is enabled"""
         helper = RecordEnrichmentHelper(self.test_record)
@@ -384,8 +386,10 @@ class TestRecordEnrichmentHelper(TestCase):
         self.assertIn("related: 0.589s", log_message)
         self.assertIn("delivery: 0.847s", log_message)
 
-    @override_settings(ENRICHMENT_TIMING_ENABLED=False)
-    @patch("app.records.enrichment.logger")
+    @override_settings(
+        ENRICHMENT_TIMING_ENABLED=False, API_TIMING_LOG_LEVEL="INFO"
+    )
+    @patch("app.records.enrichment.api_timer_logger")
     def test_log_completion_timing_disabled(self, mock_logger: Mock) -> None:
         """Test that timing is not logged when flag is disabled"""
         helper = RecordEnrichmentHelper(self.test_record)
@@ -394,17 +398,19 @@ class TestRecordEnrichmentHelper(TestCase):
 
         helper._log_completion_timing(completion_order, completion_times)
 
-        mock_logger.warning.assert_not_called()
+        mock_logger.info.assert_not_called()
 
-    @override_settings(ENRICHMENT_TIMING_ENABLED=True)
-    @patch("app.records.enrichment.logger")
+    @override_settings(
+        ENRICHMENT_TIMING_ENABLED=True, API_TIMING_LOG_LEVEL="INFO"
+    )
+    @patch("app.records.enrichment.api_timer_logger")
     def test_log_completion_timing_empty_list(self, mock_logger: Mock) -> None:
         """Test that nothing is logged when completion order is empty"""
         helper = RecordEnrichmentHelper(self.test_record)
 
         helper._log_completion_timing([], {})
 
-        mock_logger.warning.assert_not_called()
+        mock_logger.info.assert_not_called()
 
     @override_settings(
         ENABLE_PARALLEL_API_CALLS=True,

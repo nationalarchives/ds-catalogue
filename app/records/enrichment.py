@@ -31,6 +31,9 @@ from app.records.related import (
 from app.records.utils import log_enrichment_execution_time
 from django.conf import settings
 
+# Dedicated logger for API timing information, configured to log INFO level messages to console
+api_timer_logger = logging.getLogger(settings.API_TIMING_LOGGER_NAME)
+# Regular logger for errors and other messages
 logger = logging.getLogger(__name__)
 
 
@@ -125,7 +128,7 @@ class RecordEnrichmentHelper:
                 f"{name}: {completion_times[name]:.3f}s"
                 for name in completion_order
             )
-            logger.info(
+            api_timer_logger.info(
                 f"Record {self.record.id} completion order: [{timing_details}]"
             )
 
