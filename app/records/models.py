@@ -255,7 +255,7 @@ class Record(APIModel):
             if self.is_held_by_tna:
                 pass
             else:
-                return f"https://discovery.nationalarchives.gov.uk/details/a/{self.held_by_id}"
+                return f"{BASE_TNA_DISCOVERY_URL}/details/a/{self.held_by_id}"
         if self.held_by_id:
             try:
                 return reverse(
