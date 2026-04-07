@@ -241,7 +241,7 @@ CLIENT_VERIFY_CERTIFICATES = strtobool(
 API_TIMING_LOGGER_NAME = "performance.api_timings"
 
 # INFO shows enrichment API timings, WARNING to hide them (default: WARNING)
-API_TIMING_LOG_LEVEL = os.getenv("API_TIMING_LOG_LEVEL", "WARNING")
+_API_TIMING_LOG_LEVEL = "INFO" if ENRICHMENT_TIMING_ENABLED else "WARNING"
 
 # logging
 LOGGING = {
@@ -256,7 +256,7 @@ LOGGING = {
         # Dedicated logger for API timing information, configured to log INFO level messages to console
         API_TIMING_LOGGER_NAME: {
             "handlers": ["console"],
-            "level": API_TIMING_LOG_LEVEL,
+            "level": _API_TIMING_LOG_LEVEL,
             "propagate": False,  # prevents noise leaking
         },
     },
