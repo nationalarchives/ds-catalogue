@@ -236,7 +236,7 @@ CLIENT_VERIFY_CERTIFICATES = strtobool(
     os.getenv("ROSETTA_CLIENT_VERIFY_CERTIFICATES", "True")
 )
 
-# Logger name for API timing information.#
+# Logger name for API timing information.
 # To avoid importing from app constants, define here and reference other places via settings.
 API_TIMING_LOGGER_NAME = "performance.api_timings"
 
