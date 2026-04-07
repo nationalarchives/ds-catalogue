@@ -8,7 +8,7 @@ from django.conf import settings
 from django.urls import NoReverseMatch, reverse
 from pyquery import PyQuery as pq
 
-# Dedicated logger for API timing information, configured to log INFO level messages to console
+# Dedicated logger for API timing information; effective level/handlers come from logging configuration
 api_timer_logger = logging.getLogger(settings.API_TIMING_LOGGER_NAME)
 # Regular logger for errors and other messages
 logger = logging.getLogger(__name__)
