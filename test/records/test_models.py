@@ -436,11 +436,12 @@ class RecordModelTests(SimpleTestCase):
             "/catalogue/id/A13530841/",
         )
 
-    @override_settings(FEATURE_ENABLE_RECORD_DETAILS_HELD_BY=False)
-    def test_valid_held_by_url_feature_disabled(self):
+    @override_settings(FEATURE_ENABLE_HELD_BY_DISCOVERY=True)
+    def test_valid_held_by_url_feature_enabled(self):
         self.record = Record(self.template_details)
         # patch raw data
         self.record._raw["heldById"] = "A13530841"
+        self.record._raw["heldBy"] = "Some other archive"
         self.assertEqual(
             self.record.held_by_url,
             "https://discovery.nationalarchives.gov.uk/details/a/A13530841",
