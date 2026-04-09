@@ -1,4 +1,4 @@
-# Added noqa comments to the XML fragments to ignore trailing whitespace warnings (W291, W293) from flake8.
+# Added noqa comments to the XML fragments to ignore trailing whitespace warnings (W291) from flake8.
 
 
 DESCRIPTION_XML_FRAGMENT = """
