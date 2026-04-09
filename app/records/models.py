@@ -252,13 +252,8 @@ class Record(APIModel):
         """Returns url path if the id is found, empty str otherwise."""
 
         if settings.FEATURE_ENABLE_HELD_BY_DISCOVERY:
-            # For TNA records, do not show discovery url.
-            # Bypass to show Catalogue Archon URL with Temporary API data for
-            # TNA ARCHON record until the API data issue is resolved,
-            # to avoid user-facing impact.
-            if self.is_held_by_tna:
-                pass
-            else:
+            # show Discovery url until API data is resolved
+            if not self.is_held_by_tna:
                 return f"{BASE_TNA_DISCOVERY_URL}/details/a/{self.held_by_id}"
         if self.held_by_id:
             try:
