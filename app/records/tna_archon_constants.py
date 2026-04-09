@@ -7,19 +7,15 @@ DESCRIPTION_XML_FRAGMENT = """
   <addresstown><![CDATA[Richmond]]></addresstown>
   <postcode><![CDATA[TW9 4DU]]></postcode>
   <addresscountry><![CDATA[England]]></addresscountry>
-  
   <telephone><![CDATA[]]></telephone>
   <fax><![CDATA[]]></fax>
   <email><![CDATA[]]></email>
-  
   <url><![CDATA[http://www.nationalarchives.gov.uk]]></url>
   <mapURL><![CDATA[http://www.streetmap.co.uk/streetmap.dll?postcode2map?TW9+4DU]]></mapURL>
-  
   <correspaddr><![CDATA[]]></correspaddr>
-  
   <contactpeople/>
 </contacts>
-"""  # noqa: W291, W293
+"""  # noqa: W291
 
 PLACE_DESCRIPTION_XML_FRAGMENT: str = """
 <span class="accessconditions">
