@@ -188,21 +188,21 @@ class TnaArchonRecordTransformationTests(SimpleTestCase):
         self.assertEqual(
             sanitise_record_field(self.record.place_description),
             """<p><strong>Open: </strong>
-    For opening times please consult the <a href="https://www.www.nationalarchives.gov.uk/about/visit-us/opening-times/" target="_blank">website</a>
+    For opening times please consult the <a href="https://www.nationalarchives.gov.uk/about/visit-us/opening-times/" target="_blank">website</a>
   </p><p><strong>Closed: </strong>
-    See the <a href="https://www.www.nationalarchives.gov.uk/about/visit-us/opening-times/" target="_blank">website</a>
+    See the <a href="https://www.nationalarchives.gov.uk/about/visit-us/opening-times/" target="_blank">website</a>
   </p><ul class="tna-ul"><li>
     Wheelchair access
   </li></ul><div>
     If you would like to contact The National Archives please go to the 
-    <a href="http://www.www.nationalarchives.gov.uk/contact-us/" target="_blank">contact form</a> 
+    <a href="http://www.nationalarchives.gov.uk/contact-us/" target="_blank">contact form</a> 
     page on the website and use the form provided.
     
     <p>
     Readers tickets are required for access to original records only.
     Proof of identity and current address are required to obtain reader tickets.
     For further details please consult the 
-    <a href="https://www.www.nationalarchives.gov.uk/about/visit-us/researching-here/do-i-need-a-readers-ticket/" target="_blank">website</a>.
+    <a href="https://www.nationalarchives.gov.uk/about/visit-us/researching-here/do-i-need-a-readers-ticket/" target="_blank">website</a>.
     </p>
     
   </div>""",  # noqa: W291, W293,
