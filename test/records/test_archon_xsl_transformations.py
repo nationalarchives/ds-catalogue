@@ -184,7 +184,6 @@ class TnaArchonRecordTransformationTests(SimpleTestCase):
         self.assertEqual(self.record.reference_number, TNA_ARCHON_CODE)
 
         # field is sanitised in the template
-        print(f"place_description: {self.record.place_description}")
         self.assertEqual(
             sanitise_record_field(self.record.place_description),
             """<p><strong>Open: </strong>
