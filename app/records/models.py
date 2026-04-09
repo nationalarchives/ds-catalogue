@@ -252,7 +252,7 @@ class Record(APIModel):
         """Returns url path if the id is found, empty str otherwise."""
 
         if settings.FEATURE_ENABLE_HELD_BY_DISCOVERY:
-            # show Discovery url until API data is resolved
+            # For non-TNA held-by records, use the Discovery URL instead of the internal catalogue details URL.
             if not self.is_held_by_tna:
                 return f"{BASE_TNA_DISCOVERY_URL}/details/a/{self.held_by_id}"
         if self.held_by_id:
