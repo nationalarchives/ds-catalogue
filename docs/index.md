@@ -4,11 +4,11 @@
 
 Provides search functionality to query historical and public documents known as records at TNA.
 
-For help setting up a development environment, [view the README](https://github.com/nationalarchives/ds-catalogue/blob/main/README.md).
+For help setting up a development environment, see the project README.
 
 ## Updating this documentation
 
-The navigation for this documentation is configured in [`mkdocs.yml`](https://github.com/nationalarchives/ds-catalogue/blob/main/mkdocs.yml). You can add new markdown files there to get them to appear in the navigation.
+The navigation for this documentation is configured in `mkdocs.yml` at the project root. You can add new markdown files there to get them to appear in the navigation.
 
 Add/Update documentation where relevant in `docs/` folder.
 
