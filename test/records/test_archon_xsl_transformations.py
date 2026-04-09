@@ -121,7 +121,7 @@ class TnaArchonRecordTransformationTests(SimpleTestCase):
         self.record._raw["referenceNumber"] = "66"
         self.record._raw["source"] = "ARCHON"
         self.record._raw["description"] = {
-            "raw": """\u003ccontacts\u003e\u003caddressline1\u003e\u003c![CDATA[Kew]]\u003e\u003c/addressline1\u003e\u003caddresstown\u003e\u003c![CDATA[Richmond]]\u003e\u003c/addresstown\u003e\u003cpostcode\u003e\u003c![CDATA[TW9 4DU]]\u003e\u003c/postcode\u003e\u003caddresscountry\u003e\u003c![CDATA[England]]\u003e\u003c/addresscountry\u003e\u003ctelephone\u003e\u003c![CDATA[]]\u003e\u003c/telephone\u003e\u003cfax\u003e\u003c![CDATA[]]\u003e\u003c/fax\u003e\u003cemail\u003e\u003c![CDATA[]]\u003e\u003c/email\u003e\u003curl\u003e\u003c![CDATA[http://www.nationalarchives.gov.uk]]\u003e\u003c/url\u003e\u003cmapURL\u003e\u003c![CDATA[http://www.streetmap.co.uk/streetmap.dll?postcode2map?TW9+4DU]]\u003e\u003c/mapURL\u003e\u003ccorrespaddr\u003e\u003c![CDATA[]]\u003e\u003c/correspaddr\u003e\u003ccontactpeople\u003e\u003c/contactpeople\u003e\u003c/contacts\u003e"""
+            "raw": """API DATA WILL BE IGNORED AND REPLACED WITH STATIC DATA FOR TNA ARCHON RECORDS"""
         }
 
         self.assertEqual(self.record.custom_record_type, RecordTypes.ARCHON)
@@ -154,7 +154,7 @@ class TnaArchonRecordTransformationTests(SimpleTestCase):
         self.record._raw["source"] = "ARCHON"
         # contains a website url in the description
         self.record._raw["description"] = {
-            "raw": """\u003ccontacts\u003e\u003caddressline1\u003e\u003c![CDATA[Kew]]\u003e\u003c/addressline1\u003e\u003caddresstown\u003e\u003c![CDATA[Richmond]]\u003e\u003c/addresstown\u003e\u003cpostcode\u003e\u003c![CDATA[TW9 4DU]]\u003e\u003c/postcode\u003e\u003caddresscountry\u003e\u003c![CDATA[England]]\u003e\u003c/addresscountry\u003e\u003ctelephone\u003e\u003c![CDATA[]]\u003e\u003c/telephone\u003e\u003cfax\u003e\u003c![CDATA[]]\u003e\u003c/fax\u003e\u003cemail\u003e\u003c![CDATA[]]\u003e\u003c/email\u003e\u003curl\u003e\u003c![CDATA[http://www.nationalarchives.gov.uk]]\u003e\u003c/url\u003e\u003cmapURL\u003e\u003c![CDATA[http://www.streetmap.co.uk/streetmap.dll?postcode2map?TW9+4DU]]\u003e\u003c/mapURL\u003e\u003ccorrespaddr\u003e\u003c![CDATA[]]\u003e\u003c/correspaddr\u003e\u003ccontactpeople\u003e\u003c/contactpeople\u003e\u003c/contacts\u003e"""
+            "raw": """API DATA WILL BE IGNORED AND REPLACED WITH STATIC DATA FOR TNA ARCHON RECORDS"""
         }
 
         self.assertEqual(self.record.custom_record_type, RecordTypes.ARCHON)
@@ -177,15 +177,33 @@ class TnaArchonRecordTransformationTests(SimpleTestCase):
         self.record._raw["referenceNumber"] = "66"
         self.record._raw["source"] = "ARCHON"
         self.record._raw["placeDescription"] = {
-            "raw": """\u003cspan class=\"accessconditions\"\u003e\u003cspan class=\"openinghours\"\u003eFor opening times please consult the &lt;a href=\"http://www.nationalarchives.gov.uk/visit/times.htm?source=ddmenu_visit4\" target=\"_blank\"&gt;website&lt;/a&gt;\u003c/span\u003e\u003cspan class=\"holidays\"/\u003e\u003cspan class=\"disabledaccess\"\u003eWheelchair access\u003c/span\u003e\u003cspan class=\"comments\"\u003eIf you would like to contact The National Archives please go the &lt;a href=\"http://www.nationalarchives.gov.uk/contact/\" target=\"_blank\"&gt;contact form&lt;/a&gt; page on the website and use the form provided\n&lt;li&gt;Readers tickets are required for access to original records only. Proof of identity and current address are required to obtain reader tickets. For further details please consult the &lt;a href=\"http://www.nationalarchives.gov.uk/registration/\" target=?_blank?&gt;website&lt;/a&gt;&lt;/li&gt;\u003c/span\u003e\u003c/span\u003e"""
+            "raw": """API DATA WILL BE IGNORED AND REPLACED WITH STATIC DATA FOR TNA ARCHON RECORDS"""
         }
 
         self.assertEqual(self.record.custom_record_type, RecordTypes.ARCHON)
         self.assertEqual(self.record.reference_number, TNA_ARCHON_CODE)
 
         # field is sanitised in the template
+        print(f"place_description: {self.record.place_description}")
         self.assertEqual(
             sanitise_record_field(self.record.place_description),
-            """<p><strong>Open: </strong>For opening times please consult the <a href="http://www.nationalarchives.gov.uk/visit/times.htm?source=ddmenu_visit4" target="_blank">website</a></p><ul class="tna-ul"><li>Wheelchair access</li></ul><div>If you would like to contact The National Archives please go the <a href="http://www.nationalarchives.gov.uk/contact/" target="_blank">contact form</a> page on the website and use the form provided
-<p>Readers tickets are required for access to original records only. Proof of identity and current address are required to obtain reader tickets. For further details please consult the <a href="http://www.nationalarchives.gov.uk/registration/" target=?_blank?>website</a></p></div>""",
+            """<p><strong>Open: </strong>
+    For opening times please consult the <a href="https://www.www.nationalarchives.gov.uk/about/visit-us/opening-times/" target="_blank">website</a>
+  </p><p><strong>Closed: </strong>
+    See the <a href="https://www.www.nationalarchives.gov.uk/about/visit-us/opening-times/" target="_blank">website</a>
+  </p><ul class="tna-ul"><li>
+    Wheelchair access
+  </li></ul><div>
+    If you would like to contact The National Archives please go to the 
+    <a href="http://www.www.nationalarchives.gov.uk/contact-us/" target="_blank">contact form</a> 
+    page on the website and use the form provided.
+    
+    <p>
+    Readers tickets are required for access to original records only.
+    Proof of identity and current address are required to obtain reader tickets.
+    For further details please consult the 
+    <a href="https://www.www.nationalarchives.gov.uk/about/visit-us/researching-here/do-i-need-a-readers-ticket/" target="_blank">website</a>.
+    </p>
+    
+  </div>""",  # noqa: W291, W293,
         )
