@@ -36,14 +36,14 @@ PLACE_DESCRIPTION_XML_FRAGMENT: str = """
     If you would like to contact The National Archives please go to the 
     &lt;a href="http://www.nationalarchives.gov.uk/contact-us/" target="_blank"&gt;contact form&lt;/a&gt; 
     page on the website and use the form provided.
-    
+
     &lt;li&gt;
     Readers tickets are required for access to original records only.
     Proof of identity and current address are required to obtain reader tickets.
     For further details please consult the 
     &lt;a href="https://www.nationalarchives.gov.uk/about/visit-us/researching-here/do-i-need-a-readers-ticket/" target="_blank"&gt;website&lt;/a&gt;.
     &lt;/li&gt;
-    
+
   </span>
 </span>
-"""  # noqa: W291, W293
+"""  # noqa: W291

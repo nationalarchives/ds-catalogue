@@ -196,13 +196,13 @@ class TnaArchonRecordTransformationTests(SimpleTestCase):
     If you would like to contact The National Archives please go to the 
     <a href="http://www.nationalarchives.gov.uk/contact-us/" target="_blank">contact form</a> 
     page on the website and use the form provided.
-    
+
     <p>
     Readers tickets are required for access to original records only.
     Proof of identity and current address are required to obtain reader tickets.
     For further details please consult the 
     <a href="https://www.nationalarchives.gov.uk/about/visit-us/researching-here/do-i-need-a-readers-ticket/" target="_blank">website</a>.
     </p>
-    
-  </div>""",  # noqa: W291, W293,
+
+  </div>""",  # noqa: W291
         )
