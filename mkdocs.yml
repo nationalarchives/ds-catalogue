@@ -1,5 +1,5 @@
 site_name: DS Search Docs
-repo_url: https://github.com/nationalarchives/ds-search
+repo_url: https://github.com/nationalarchives/ds-catalogue
 theme:
   name: material
   font: false
