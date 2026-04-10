@@ -5,7 +5,6 @@ from unittest.mock import Mock, patch
 
 from app.deliveryoptions.constants import (
     DELIVERY_OPTIONS_CONFIG,
-    AvailabilityCondition,
     AvailabilityGroup,
     delivery_option_tags,
 )
@@ -14,7 +13,6 @@ from app.deliveryoptions.delivery_options import (
     surrogate_link_builder,
 )
 from app.deliveryoptions.helpers import (
-    BASE_TNA_HOME_URL,
     get_access_condition_text,
     get_added_to_basket_text,
     get_advance_order_information,
