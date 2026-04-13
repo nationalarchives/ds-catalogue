@@ -5,8 +5,27 @@ services:
       args:
         IMAGE: ghcr.io/nationalarchives/tna-python-dev
         IMAGE_TAG: preview
+    command:
+      [
+        "poetry",
+        "run",
+        "uvicorn",
+        "config.asgi:application",
+        "--log-level",
+        "debug",
+        "--timeout-keep-alive",
+        "30",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8080",
+        "--lifespan",
+        "off",
+        "--reload",
+      ]
     environment:
       - ENVIRONMENT_NAME=localhost
+      - APPLICATION_PROTOCOL=http
       - DEBUG=True
       - DJANGO_SETTINGS_MODULE=config.settings.develop
       - SECRET_KEY=abc123
