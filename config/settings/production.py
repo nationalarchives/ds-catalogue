@@ -263,7 +263,7 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console"],
-        "level": "WARNING",
+        "level": os.environ.get("LOG_LEVEL", "warning").upper(),
     },
 }
 
