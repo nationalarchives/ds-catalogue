@@ -32,6 +32,10 @@ from django.utils.functional import cached_property
 from lxml import etree
 
 from .constants import MISSING_COUNT_TEXT, TNA_ARCHON_CODE, RecordTypes
+from .tna_archon_constants import (
+    DESCRIPTION_XML_FRAGMENT,
+    PLACE_DESCRIPTION_XML_FRAGMENT,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -248,13 +252,8 @@ class Record(APIModel):
         """Returns url path if the id is found, empty str otherwise."""
 
         if settings.FEATURE_ENABLE_HELD_BY_DISCOVERY:
-            # For TNA records, do not show discovery url.
-            # Bypass to show Catalogue Archon URL with Temporary API data for
-            # TNA ARCHON record until the API data issue is resolved,
-            # to avoid user-facing impact.
-            if self.is_held_by_tna:
-                pass
-            else:
+            # For non-TNA held-by records, use the Discovery URL instead of the internal catalogue details URL.
+            if not self.is_held_by_tna:
                 return f"{BASE_TNA_DISCOVERY_URL}/details/a/{self.held_by_id}"
         if self.held_by_id:
             try:
@@ -395,14 +394,8 @@ class Record(APIModel):
         description = self.raw_description
 
         if self.custom_record_type == RecordTypes.ARCHON:
-            if (
-                settings.FEATURE_ENABLE_HELD_BY_DISCOVERY
-                and self.reference_number == TNA_ARCHON_CODE
-            ):
-                # HARDCODED: For TNA ARCHON record, when the feature is enabled,
-                # show the expected values for the field, as the API data is inaccurate
-                # This is to avoid user-facing impact while the API data issue is being resolved.
-                description = """<contacts><addressline1><![CDATA[Kew]]></addressline1><addresstown><![CDATA[Richmond]]></addresstown><postcode><![CDATA[TW9 4DU]]></postcode><addresscountry><![CDATA[England]]></addresscountry><telephone><![CDATA[]]></telephone><fax><![CDATA[]]></fax><email><![CDATA[]]></email><url><![CDATA[http://www.nationalarchives.gov.uk]]></url><mapURL><![CDATA[http://www.streetmap.co.uk/streetmap.dll?postcode2map?TW9+4DU]]></mapURL><correspaddr><![CDATA[]]></correspaddr><contactpeople></contactpeople></contacts>"""
+            if self.reference_number == TNA_ARCHON_CODE:
+                description = DESCRIPTION_XML_FRAGMENT
 
             # For ARCHON records, apply archon-specific transformation
             # regardless of series or schema
@@ -589,16 +582,9 @@ class Record(APIModel):
         Field appears in ARCHON records."""
         raw_description = self.get("placeDescription.raw", "")
 
-        if (
-            settings.FEATURE_ENABLE_HELD_BY_DISCOVERY
-            and self.reference_number == TNA_ARCHON_CODE
-        ):
-            # HARDCODED: For TNA ARCHON record, when the feature is enabled,
-            # show the expected values for the field, as the API data is inaccurate
-            # This is to avoid user-facing impact while the API data issue is being resolved.
-            raw_description = """<span class="accessconditions"><span class="openinghours">For opening times please consult the &lt;a href="https://www.nationalarchives.gov.uk/about/visit-us/opening-times/ " target="_blank"&gt;website&lt;/a&gt;</span><span class="holidays">See the &lt;a href="https://www.nationalarchives.gov.uk/about/visit-us/opening-times/ " target="_blank"&gt;website&lt;/a&gt;</span><span class="disabledaccess">Wheelchair access</span><span class="comments">If you would like to contact The National Archives please go the &lt;a href="http://www.nationalarchives.gov.uk/contact-us/" target="_blank"&gt;contact form&lt;/a&gt; page on the website and use the form provided
+        if self.reference_number == TNA_ARCHON_CODE:
+            raw_description = PLACE_DESCRIPTION_XML_FRAGMENT
 
-&lt;li&gt;Readers tickets are required for access to original records only. Proof of identity and current address are required to obtain reader tickets. For further details please consult the &lt;a href="https://www.nationalarchives.gov.uk/about/visit-us/researching-here/do-i-need-a-readers-ticket/" target=?_blank?&gt;website&lt;/a&gt;&lt;/li&gt;</span></span>"""
         if raw_description:
             if self.custom_record_type == RecordTypes.ARCHON:
                 return apply_archon_xsl(
