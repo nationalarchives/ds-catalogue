@@ -12,9 +12,6 @@ DEBUG = strtobool(os.getenv("DEBUG", "False"))
 SENTRY_SAMPLE_RATE = float(os.getenv("SENTRY_SAMPLE_RATE", "1.0"))
 
 if DEBUG:
-    # logging
-    LOGGING["root"]["level"] = "DEBUG"  # noqa: F405
-
     try:
         import debug_toolbar
 

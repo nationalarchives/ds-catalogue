@@ -11,6 +11,7 @@ INSTALLED_APPS = INSTALLED_APPS + ["test"]
 SECRET_KEY = "abc123"
 
 DEBUG = True
+LOGGING["root"]["level"] = "DEBUG"  # noqa: F405
 
 DATABASES = {
     "default": {
