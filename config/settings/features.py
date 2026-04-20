@@ -9,9 +9,8 @@ FEATURE_PHASE_BANNER: bool = strtobool(
 
 # TODO: Remove Temporary feature flag and related code
 # when the feature is disabled and API data issue is resolved.
-# True: activates link to Discovery Archon Page for non-TNA records,
-#       Catalogue Archon Page for TNA records with temporary API data
-# False: activates links to Catalogue Archon Page with API data
+# True: activates link to Discovery Archon Page for non-TNA records.
+# False: activates links to Catalogue Archon Page for non-TNA records.
 FEATURE_ENABLE_HELD_BY_DISCOVERY: bool = strtobool(
     os.getenv("FEATURE_ENABLE_HELD_BY_DISCOVERY", "True")
 )
