@@ -48,7 +48,6 @@ class RecordEnrichmentHelper:
         self.record = record
         self.related_limit = related_limit
 
-    # TODO: consider bringing distressing_content outside of fetch_parallel or fetch_sequential
     @log_enrichment_execution_time
     def fetch_all(self) -> dict[str, Any]:
         """
