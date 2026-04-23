@@ -641,15 +641,18 @@ class Record(APIModel):
 
         if self.custom_record_type == RecordTypes.ARCHON:
             if self.reference_number == TNA_ARCHON_CODE:
-                # landing page for Discovery
-                return f"{BASE_TNA_DISCOVERY_URL}"
+                # Discovery * search for Tna records
+                params = {
+                    "_q": "*",
+                    "_hb": "tna"
+                }
             else:
+                # For other records, link to Discovery search results filtered for the record's
+                # archon reference number
                 params = {
                     "_q": "*",
                     "_hb": "oth",
                     "_nrar": self.reference_number,
                 }
-                # For other records, link to Discovery search results filtered for the record's
-                # archon reference number
-                return f"{BASE_TNA_DISCOVERY_URL}/results/r?{urlencode(params)}"
+            return f"{BASE_TNA_DISCOVERY_URL}/results/r?{urlencode(params)}"
         return ""
