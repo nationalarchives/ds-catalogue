@@ -281,11 +281,21 @@ IMAGE_LIBRARY_URL = os.getenv(
     "IMAGE_LIBRARY_URL", "https://images.nationalarchives.gov.uk/"
 )
 
-# TODO: Switch to a more robust cache backend such as Redis in production
+REDIS_URL = os.getenv("REDIS_URL", default="redis://redis:6379")
+
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-        "LOCATION": "/home/app/django_cache",
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL,
+        "KEY_PREFIX": "ds_catalogue",
+        "TIMEOUT": 300,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PARSER_CLASS": "redis.connection.HiredisParser",  # if using hiredis
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": 50,
+            },
+        },
     }
 }
 

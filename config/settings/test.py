@@ -40,3 +40,9 @@ ENABLE_PARALLEL_API_CALLS = True
 MAX_SUBJECTS_PER_RECORD = 20
 
 FEATURE_ENABLE_HELD_BY_DISCOVERY: bool = False
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    }
+}

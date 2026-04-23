@@ -32,6 +32,10 @@ services:
       - WAGTAIL_API_TIMEOUT
       - DELIVERY_OPTIONS_API_TIMEOUT
       - MAX_SUBJECTS_PER_RECORD
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
     ports:
       - 65533:8080
     volumes:
@@ -39,6 +43,17 @@ services:
     healthcheck:
       start_period: 10s
       start_interval: 2s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      start_period: 5s
+      start_interval: 1s
+      timeout: 5s
+      retries: 3
 
   api-mocks:
     image: wiremock/wiremock:3.13.1

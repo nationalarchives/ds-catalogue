@@ -82,10 +82,22 @@ class TestFetchGlobalNotifications(TestCase):
         """Test that failed API responses are not cached."""
         mock_handler.side_effect = Exception("API Error")
 
+        fetch_landing_page_data()
+
+        self.assertIsNone(cache.get(LANDING_PAGE_CACHE_KEY))
+
+    @patch("app.main.api.wagtail_request_handler")
+    def test_second_call_uses_cache(self, mock_handler):
+        """Test that a second call does not hit the API."""
+        mock_handler.return_value = {
+            "global_alert": None,
+            "mourning_notice": None,
+        }
+
+        fetch_global_notifications()
         fetch_global_notifications()
 
-        cached = cache.get(GLOBAL_NOTIFICATIONS_CACHE_KEY)
-        self.assertIsNone(cached)
+        mock_handler.assert_called_once()
 
 
 class TestFetchGlobalNotificationsGetters(TestCase):
