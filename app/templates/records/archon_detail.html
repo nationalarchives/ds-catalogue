@@ -44,14 +44,16 @@
       </div>
     </div>
 
-    <div class="tna-column tna-column--width-1-2 tna-column--full-tiny tna-column--full-small tna-!--margin-top-m">
-      <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
-        <h2 class="tna-heading-l">Information about this archive</h2>
+    {% if record.place_description %}
+      <div class="tna-column tna-column--width-1-2 tna-column--full-tiny tna-column--full-small tna-!--margin-top-m">
+        <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
+          <h2 class="tna-heading-l">Information about this archive</h2>
 
-        {{ record.place_description | sanitise_record_field | safe }}
+          {{ record.place_description | sanitise_record_field | safe }}
 
+        </div>
       </div>
-    </div>
+    {% endif %}
   </div>
 
   <div class="tna-container">
