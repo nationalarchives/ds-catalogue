@@ -35,7 +35,9 @@
   {% endif %}
 
   <div class="tna-container">
-    {% set contact_class = "tna-column tna-column--full-tiny tna-column--full-small tna-column--width-1-2 tna-!--margin-top-m" %}
+    {% set contact_class = "tna-column tna-column--full-tiny tna-column--full-small tna-column--width-1-2 tna-!--margin-top-m" 
+          if record.place_description
+          else "tna-column tna-column--full tna-!--margin-top-l" %}
     <div class="{{ contact_class }}">
       <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
 
