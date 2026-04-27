@@ -5,9 +5,10 @@
 {% from 'components/button/macro.html' import tnaButton %}
 
 {%- set pageTitle = (record.title or record.summary_title or '[No title]') | striptags -%}
+{% set has_place_description = True if record.place_description else False %}
 {% set full_width_class = "tna-column tna-column--full tna-!--margin-top-l" %}
 {% set contact_class = "tna-column tna-column--full-tiny tna-column--full-small tna-column--width-1-2 tna-!--margin-top-m" 
-          if record.place_description
+          if has_place_description
           else full_width_class %}
 
 {% block stylesheets %}
@@ -48,7 +49,7 @@
       </div>
     </div>
 
-    {% if record.place_description %}
+    {% if has_place_description %}
       <div class="tna-column tna-column--width-1-2 tna-column--full-tiny tna-column--full-small tna-!--margin-top-m">
         <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
           <h2 class="tna-heading-l">Information about this archive</h2>
