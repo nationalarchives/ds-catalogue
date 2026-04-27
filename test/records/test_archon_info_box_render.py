@@ -10,6 +10,18 @@ class NonTnaArchonPageInfoBoxTests(TestCase):
     """Tests conditional rendering of info box on non-TNA Archon record pages based on
     presence of place description field in API response."""
 
+    def setUp(self):
+        super().setUp()
+        self.maxDiff = None
+        # these class values are used in `app/templates/records/archon_detail.html` template to control
+        # the width of the content and info box, and are used in the tests to confirm
+        # the correct classes are applied to the page
+        # Note: these class are managed in the template only and could be subject to change if the template is updated
+        self.contact_class = "tna-column tna-column--full-tiny tna-column--full-small tna-column--width-1-2 tna-!--margin-top-m"
+        self.full_width_class = (
+            "tna-column tna-column--full tna-!--margin-top-l"
+        )
+
     @responses.activate
     def test_info_box_render_with_place_description(self):
         """Tests that the info box renders when place description is present,
@@ -55,13 +67,11 @@ class NonTnaArchonPageInfoBoxTests(TestCase):
         # 1> check template `contact_class` value is used
         self.assertContains(
             response,
-            "tna-column tna-column--full-tiny tna-column--full-small tna-column--width-1-2 tna-!--margin-top-m",
+            self.contact_class,
             count=1,
         )
         # 2> number of times template `full_width_class` value is used on the page
-        self.assertContains(
-            response, "tna-column tna-column--full tna-!--margin-top-l", count=1
-        )
+        self.assertContains(response, self.full_width_class, count=1)
 
     @responses.activate
     def test_info_box_does_not_render_without_place_description(self):
@@ -103,9 +113,7 @@ class NonTnaArchonPageInfoBoxTests(TestCase):
         # 1> check template `contact_class` value is not used
         self.assertNotContains(
             response,
-            "tna-column tna-column--full-tiny tna-column--full-small tna-column--width-1-2 tna-!--margin-top-m",
+            self.contact_class,
         )
         # 2> number of times template `full_width_class` value is used on the page
-        self.assertContains(
-            response, "tna-column tna-column--full tna-!--margin-top-l", count=2
-        )
+        self.assertContains(response, self.full_width_class, count=2)
