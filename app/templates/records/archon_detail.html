@@ -9,7 +9,7 @@
 {% set contact_class = "tna-column tna-column--full-tiny tna-column--full-small tna-column--width-1-2 tna-!--margin-top-m" 
           if record.place_description
           else full_width_class %}
-    
+
 {% block stylesheets %}
 {{ super() }}
     <link rel="stylesheet" href="{{ static('record-details.css') }}?v={{ app_config.BUILD_VERSION }}" media="screen,print">
