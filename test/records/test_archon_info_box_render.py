@@ -21,6 +21,7 @@ class NonTnaArchonPageInfoBoxTests(TestCase):
         self.full_width_class = (
             "tna-column tna-column--full tna-!--margin-top-l"
         )
+        self.archon_info_text = "Information about this archive"
 
     @responses.activate
     def test_info_box_render_with_place_description(self):
@@ -60,7 +61,7 @@ class NonTnaArchonPageInfoBoxTests(TestCase):
 
         html = force_str(response.content)
         # Check info box content is rendered
-        self.assertIn("Information about this archive", html)
+        self.assertIn(self.archon_info_text, html)
         self.assertIn("Monday to Friday 9am to 5pm", html)
 
         # Check class values to confirm content takes half width of the page
@@ -107,7 +108,7 @@ class NonTnaArchonPageInfoBoxTests(TestCase):
 
         html = force_str(response.content)
         # Check info box content is not rendered
-        self.assertNotIn("Information about this archive", html)
+        self.assertNotIn(self.archon_info_text, html)
 
         # Check class values to confirm content takes full width of the page
         # 1> check template `contact_class` value is not used
