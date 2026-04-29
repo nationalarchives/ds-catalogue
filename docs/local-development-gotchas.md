@@ -2,7 +2,7 @@
 
 This page lists common local development issues and how do resolve them.
 
-For broader local development guidance used across services, see:
+For broader local development guidance used across services, see the internal TNA Atlassian page below (requires TNA Atlassian access):
 <https://national-archives.atlassian.net/wiki/spaces/TW/pages/775028742/Local+development>
 
 ## Catalogue Landing Page and Global Notifications
@@ -48,6 +48,12 @@ To test the catalogue landing page and global notifications locally:
 The app will fetch and cache the data from the configured Wagtail API endpoints.
 
 ### Clear Global Notifications cache on `ds-catalogue`
+
+```
+$ docker compose exec app poetry run python manage.py clear_global_notifications_cache
+```
+
+To clear the entire Django cache instead, use:
 
 ```
 $ docker compose exec app poetry run python manage.py clearcache
