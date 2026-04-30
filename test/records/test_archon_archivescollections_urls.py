@@ -94,7 +94,7 @@ class TnaArchonRecordCollectionUrlTests(SimpleTestCase):
 
         self.assertEqual(
             self.record.archon_catalogue_url,
-            "/catalogue/",
+            "/catalogue/search/",
         )
 
     def test_archon_discovery_url(
