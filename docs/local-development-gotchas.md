@@ -46,3 +46,11 @@ To test the catalogue landing page and global notifications locally:
    ```
 
 The app will fetch and cache the data from the configured Wagtail API endpoints.
+
+### Clears Django cache on `ds-catalogue`
+
+Clears all caches including Landing page, Global notifications caches
+
+```
+$ docker compose exec app poetry run python manage.py clearcache
+```
