@@ -282,19 +282,16 @@ IMAGE_LIBRARY_URL = os.getenv(
 )
 
 REDIS_URL = os.getenv("REDIS_URL", default="redis://redis:6379")
+CACHE_DEFAULT_TIMEOUT = int(os.getenv("CACHE_DEFAULT_TIMEOUT", "900"))
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": REDIS_URL,
         "KEY_PREFIX": "ds_catalogue",
-        "TIMEOUT": 300,
+        "TIMEOUT": CACHE_DEFAULT_TIMEOUT,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "PARSER_CLASS": "redis.connection.HiredisParser",  # if using hiredis
-            "CONNECTION_POOL_KWARGS": {
-                "max_connections": 50,
-            },
         },
     }
 }

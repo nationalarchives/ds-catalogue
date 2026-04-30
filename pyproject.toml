@@ -18,7 +18,7 @@ pyquery = "^2.0.1"
 sentry-sdk = "^2.20.0"
 lxml = "^6.0.2"
 django-redis = "^5.4"
-redis = {extras = ["hiredis"], version = "^5.0"}
+redis = "^5.0"
 
 [tool.poetry.group.dev]
 optional = true
