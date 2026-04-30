@@ -113,5 +113,5 @@ class TnaArchonRecordCollectionUrlTests(SimpleTestCase):
 
         self.assertEqual(
             self.record.archon_discovery_url,
-            "https://discovery.nationalarchives.gov.uk",
+            "https://discovery.nationalarchives.gov.uk/results/r?_q=%2A&_hb=tna",
         )
