@@ -51,13 +51,15 @@ class TestRecordEnrichmentHelper(TestCase):
         # Verify all methods were called
         mock_subjects.assert_called_once()
         mock_related_subjects.assert_called_once()
-        mock_distressing.assert_called_once()
+
+        # distressing_content is now fetched separately via fetch_distressing()
+        mock_distressing.assert_not_called()
 
         # Verify result structure
         self.assertIn("subjects_enrichment", result)
         self.assertIn("related_records", result)
         self.assertIn("delivery_options", result)
-        self.assertIn("distressing_content", result)
+        self.assertNotIn("distressing_content", result)
 
     @override_settings(
         ENABLE_PARALLEL_API_CALLS=True,
@@ -88,13 +90,15 @@ class TestRecordEnrichmentHelper(TestCase):
         # Verify all methods were called
         mock_subjects.assert_called_once()
         mock_related_subjects.assert_called_once()
-        mock_distressing.assert_called_once()
+
+        # distressing_content is now fetched separately via fetch_distressing()
+        mock_distressing.assert_not_called()
 
         # Verify result structure
         self.assertIn("subjects_enrichment", result)
         self.assertIn("related_records", result)
         self.assertIn("delivery_options", result)
-        self.assertIn("distressing_content", result)
+        self.assertNotIn("distressing_content", result)
 
     @patch("app.records.enrichment.get_subjects_enrichment")
     def test_fetch_subjects_success(self, mock_subjects: Mock) -> None:
@@ -197,7 +201,7 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_distressing.return_value = True
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_distressing()
+        result = helper.fetch_distressing()
 
         self.assertTrue(result)
 
@@ -209,7 +213,7 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_distressing.side_effect = Exception("API Error")
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_distressing()
+        result = helper.fetch_distressing()
 
         # Should return False on error
         self.assertFalse(result)
@@ -413,7 +417,6 @@ class TestRecordEnrichmentHelper(TestCase):
         ROSETTA_ENRICHMENT_API_TIMEOUT=15,
         DELIVERY_OPTIONS_API_TIMEOUT=20,
     )
-    @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.enrichment.get_subjects_enrichment")
     @patch("app.records.enrichment.get_tna_related_records_by_subjects")
     @patch("app.records.enrichment.logger")
@@ -422,7 +425,6 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_logger: Mock,
         mock_related: Mock,
         mock_subjects: Mock,
-        mock_distressing: Mock,
     ) -> None:
         """Test that parallel fetch handles partial failures gracefully"""
         # Subjects succeeds quickly
@@ -430,9 +432,6 @@ class TestRecordEnrichmentHelper(TestCase):
 
         # Related raises an exception (will be caught in _fetch_related)
         mock_related.side_effect = Exception("API Error")
-
-        # Distressing succeeds
-        mock_distressing.return_value = True
 
         helper = RecordEnrichmentHelper(self.test_record, related_limit=3)
         result = helper.fetch_all()
@@ -445,8 +444,8 @@ class TestRecordEnrichmentHelper(TestCase):
         # Related should be empty (failed, but caught in _fetch_related)
         self.assertEqual(result["related_records"], [])
 
-        # Distressing should succeed
-        self.assertTrue(result["distressing_content"])
+        # distressing_content is no longer part of fetch_all() result
+        self.assertNotIn("distressing_content", result)
 
         # Logger should have been called for the related records failure
         warning_calls = [

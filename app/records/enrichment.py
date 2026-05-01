@@ -58,18 +58,11 @@ class RecordEnrichmentHelper:
 
         Returns:
             Dictionary with keys: subjects_enrichment, related_records,
-            delivery_options, distressing_content
+            delivery_options
         """
-        enrichment_data = {}
-
         if settings.ENABLE_PARALLEL_API_CALLS:
-            enrichment_data = self._fetch_parallel()
-        else:
-            enrichment_data = self._fetch_sequential()
-
-        enrichment_data["distressing_content"] = self._fetch_distressing()
-
-        return enrichment_data
+            return self._fetch_parallel()
+        return self._fetch_sequential()
 
     def _submit_fetch_tasks(self, executor) -> dict:
         """Submit all fetch tasks to the executor and return futures map."""
@@ -302,7 +295,7 @@ class RecordEnrichmentHelper:
 
         return data
 
-    def _fetch_distressing(self) -> bool:
+    def fetch_distressing(self) -> bool:
         try:
             return has_distressing_content(self.record.reference_number)
         except Exception as e:
@@ -337,5 +330,4 @@ class RecordEnrichmentHelper:
             "subjects_enrichment": {},
             "related_records": [],
             "delivery_options": {},
-            "distressing_content": False,
         }
