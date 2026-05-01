@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, Optional
 from urllib.parse import urlencode
 
 import sentry_sdk
@@ -14,10 +14,10 @@ from app.lib.xslt_transformations import (
     has_series_xsl,
 )
 from app.records.constants import (
-    NON_TNA_LEVELS,
     SUBJECTS_LIMIT,
     TNA_HELD_BY_VALUES,
-    TNA_LEVELS,
+    NonTnaLevels,
+    TnaLevels,
 )
 from app.records.utils import (
     extract,
@@ -197,10 +197,12 @@ class Record(APIModel):
 
     @cached_property
     def level(self) -> str:
-        """Returns level name for tna, non tna level codes"""
+        level_id = str(self.level_code) if self.level_code is not None else ""
         if self.is_tna:
-            return TNA_LEVELS.get(str(self.level_code), "")
-        return NON_TNA_LEVELS.get(str(self.level_code), "")
+            member = TnaLevels.from_id(level_id)
+        else:
+            member = NonTnaLevels.from_id(level_id)
+        return member.label if member else ""
 
     @cached_property
     def level_code(self) -> int | None:
@@ -553,13 +555,13 @@ class Record(APIModel):
 
         return items
 
-    @cached_property
+    @property
     def hierarchy_series(self) -> Record | None:
-        """Returns series record from hierarchy if found, None otherwise"""
-        for item in self.hierarchy:
-            if item.level == "Series":
-                return item
-        return None
+        """Return the series-level record from this record's hierarchy, if present."""
+        return next(
+            (r for r in self.hierarchy if r.level == TnaLevels.SERIES.label),
+            None,
+        )
 
     @cached_property
     def subjects(self) -> list[str]:
