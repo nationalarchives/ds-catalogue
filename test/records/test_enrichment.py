@@ -1,5 +1,6 @@
 """Tests for RecordEnrichmentHelper"""
 
+import asyncio
 from concurrent.futures import Future, ThreadPoolExecutor
 from typing import Any
 from unittest.mock import Mock, patch
@@ -97,13 +98,13 @@ class TestRecordEnrichmentHelper(TestCase):
         self.assertIn("distressing_content", result)
 
     @patch("app.records.enrichment.get_subjects_enrichment")
-    def test_fetch_subjects_success(self, mock_subjects: Mock) -> None:
+    def testfetch_subjects_success(self, mock_subjects: Mock) -> None:
         """Test that subject fetching returns data correctly"""
         expected_data: dict[str, Any] = {"items": [{"title": "Test Article"}]}
         mock_subjects.return_value = expected_data
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_subjects()
+        result = helper.fetch_subjects()
 
         # get_subjects_enrichment handles its own errors, so we just verify success case
         self.assertEqual(result, expected_data)
@@ -111,7 +112,7 @@ class TestRecordEnrichmentHelper(TestCase):
     @override_settings(ROSETTA_ENRICHMENT_API_TIMEOUT=7)
     @patch("app.records.enrichment.get_tna_related_records_by_subjects")
     @patch("app.records.enrichment.get_related_records_by_series")
-    def test_fetch_related_backfills_from_series(
+    def testfetch_related_backfills_from_series(
         self, mock_series: Mock, mock_subjects: Mock
     ) -> None:
         """Test that related records backfill from series when needed"""
@@ -125,7 +126,7 @@ class TestRecordEnrichmentHelper(TestCase):
         ]
 
         helper = RecordEnrichmentHelper(self.test_record, related_limit=3)
-        result = helper._fetch_related()
+        result = helper.fetch_related()
 
         self.assertEqual(len(result), 3)
         mock_subjects.assert_called_once_with(
@@ -170,7 +171,7 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_get_group.return_value = mock_group
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_delivery_options()
+        result = helper.fetch_delivery_options()
 
         self.assertIn("delivery_option", result)
         self.assertEqual(result["delivery_option"], "OrderOriginal")
@@ -186,30 +187,30 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_api_handler.side_effect = Exception("API Error")
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_delivery_options()
+        result = helper.fetch_delivery_options()
 
         # Should return empty dict on error
         self.assertEqual(result, {})
 
     @patch("app.records.enrichment.has_distressing_content")
-    def test_fetch_distressing_success(self, mock_distressing: Mock) -> None:
+    def testfetch_distressing_success(self, mock_distressing: Mock) -> None:
         """Test successful distressing content check"""
         mock_distressing.return_value = True
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_distressing()
+        result = helper.fetch_distressing()
 
         self.assertTrue(result)
 
     @patch("app.records.enrichment.has_distressing_content")
-    def test_fetch_distressing_handles_errors(
+    def testfetch_distressing_handles_errors(
         self, mock_distressing: Mock
     ) -> None:
         """Test that distressing content errors are handled gracefully"""
         mock_distressing.side_effect = Exception("API Error")
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_distressing()
+        result = helper.fetch_distressing()
 
         # Should return False on error
         self.assertFalse(result)
@@ -249,7 +250,7 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_executor_class.return_value.__enter__.return_value = mock_executor
 
         # Track the fetch_subjects method by name instead of id
-        subjects_method_name = helper._fetch_subjects.__name__
+        subjects_method_name = helper.fetch_subjects.__name__
 
         # Make submit raise RuntimeError for subjects only
         def submit_side_effect(fn, *args, **kwargs):
@@ -282,8 +283,8 @@ class TestRecordEnrichmentHelper(TestCase):
         helper = RecordEnrichmentHelper(self.test_record)
 
         with (
-            patch.object(helper, "_fetch_subjects"),
-            patch.object(helper, "_fetch_related"),
+            patch.object(helper, "fetch_subjects"),
+            patch.object(helper, "fetch_related"),
             patch.object(
                 helper, "_should_include_delivery_options", return_value=False
             ),
@@ -428,7 +429,7 @@ class TestRecordEnrichmentHelper(TestCase):
         # Subjects succeeds quickly
         mock_subjects.return_value = {"items": [{"title": "Test"}]}
 
-        # Related raises an exception (will be caught in _fetch_related)
+        # Related raises an exception (will be caught in fetch_related)
         mock_related.side_effect = Exception("API Error")
 
         # Distressing succeeds
@@ -442,7 +443,7 @@ class TestRecordEnrichmentHelper(TestCase):
             result["subjects_enrichment"], {"items": [{"title": "Test"}]}
         )
 
-        # Related should be empty (failed, but caught in _fetch_related)
+        # Related should be empty (failed, but caught in fetch_related)
         self.assertEqual(result["related_records"], [])
 
         # Distressing should succeed
@@ -583,3 +584,50 @@ class TestRecordEnrichmentHelper(TestCase):
         call_kwargs = mock_subjects.call_args[1]
         self.assertIn("timeout", call_kwargs)
         self.assertEqual(call_kwargs["timeout"], 10)
+
+
+class TestCancelledError(TestCase):
+    """Tests for CancelledError propagation in RecordEnrichmentHelper"""
+
+    def setUp(self) -> None:
+        self.test_record = Mock(spec=Record)
+        self.test_record.id = "C123456"
+        self.test_record.subjects = ["Army", "Conflict"]
+        self.test_record.custom_record_type = ""
+        self.test_record.is_tna = True
+        self.test_record.level_code = 7
+        self.test_record.reference_number = "WO 95/1234"
+
+    def test_process_future_result_raises_on_cancelled_error(self) -> None:
+        """CancelledError from a future is re-raised, not swallowed like Exception."""
+        helper = RecordEnrichmentHelper(self.test_record)
+        results = helper._empty_results()
+
+        mock_future = Mock()
+        mock_future.result.side_effect = asyncio.CancelledError()
+
+        with self.assertRaises(asyncio.CancelledError):
+            helper._process_future_result(mock_future, "subjects", 5, results)
+
+        # Results must be untouched — no partial write before the raise
+        self.assertEqual(results["subjects_enrichment"], {})
+
+    @override_settings(
+        ENABLE_PARALLEL_API_CALLS=True,
+        WAGTAIL_API_TIMEOUT=10,
+        ROSETTA_ENRICHMENT_API_TIMEOUT=15,
+        DELIVERY_OPTIONS_API_TIMEOUT=20,
+    )
+    @patch("app.records.enrichment.get_tna_related_records_by_subjects")
+    @patch("app.records.enrichment.get_subjects_enrichment")
+    def test_fetch_parallel_propagates_cancelled_error(
+        self, mock_subjects: Mock, mock_related: Mock
+    ) -> None:
+        """CancelledError escapes _fetch_parallel rather than being caught and discarded."""
+        mock_subjects.side_effect = asyncio.CancelledError()
+        mock_related.return_value = []
+
+        helper = RecordEnrichmentHelper(self.test_record)
+
+        with self.assertRaises(asyncio.CancelledError):
+            helper._fetch_parallel()

@@ -2,6 +2,7 @@
 
 import logging
 import time
+from asyncio import CancelledError
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict
 
@@ -18,11 +19,7 @@ from app.deliveryoptions.delivery_options import (
 )
 from app.lib.constants import BASE_TNA_DISCOVERY_URL
 from app.records.api import get_subjects_enrichment
-from app.records.constants import (
-    API_TIMEOUTS,
-    THREADPOOL_MAX_WORKERS,
-    RecordTypes,
-)
+from app.records.constants import API_TIMEOUTS, THREADPOOL_MAX_WORKERS
 from app.records.models import Record
 from app.records.related import (
     get_related_records_by_series,
@@ -74,7 +71,7 @@ class RecordEnrichmentHelper:
 
         # Submit subjects fetch
         try:
-            futures_map[executor.submit(self._fetch_subjects)] = "subjects"
+            futures_map[executor.submit(self.fetch_subjects)] = "subjects"
         except RuntimeError:
             message = (
                 f"Failed to submit subjects task for record {self.record.id}"
@@ -83,7 +80,7 @@ class RecordEnrichmentHelper:
 
         # Submit related fetch
         try:
-            futures_map[executor.submit(self._fetch_related)] = "related"
+            futures_map[executor.submit(self.fetch_related)] = "related"
         except RuntimeError:
             message = (
                 f"Failed to submit related task for record {self.record.id}"
@@ -93,7 +90,7 @@ class RecordEnrichmentHelper:
         # Submit delivery options if applicable
         if self._should_include_delivery_options():
             try:
-                futures_map[executor.submit(self._fetch_delivery_options)] = (
+                futures_map[executor.submit(self.fetch_delivery_options)] = (
                     "delivery"
                 )
             except RuntimeError:
@@ -112,6 +109,11 @@ class RecordEnrichmentHelper:
                 results["related_records"] = result
             elif name == "delivery":
                 results["delivery_options"] = result
+        except CancelledError:
+            logger.warning(
+                f"ThreadPoolExecutor: Task '{name}' was cancelled for record {self.record.id}"
+            )
+            raise
         except Exception as e:
             message = f"ThreadPoolExecutor: Failed to fetch {name} for record {self.record.id}"
             logger.warning(message)
@@ -138,49 +140,58 @@ class RecordEnrichmentHelper:
         completion_order = []
         completion_times = {}
 
-        with ThreadPoolExecutor(max_workers=THREADPOOL_MAX_WORKERS) as executor:
-            futures_map = self._submit_fetch_tasks(executor)
-            start_time = time.time()
+        try:
+            with ThreadPoolExecutor(
+                max_workers=THREADPOOL_MAX_WORKERS
+            ) as executor:
+                futures_map = self._submit_fetch_tasks(executor)
+                start_time = time.time()
 
-            # Process futures as they complete
-            for future in as_completed(futures_map):
-                name = futures_map[future]
-                timeout = API_TIMEOUTS[name]
-                elapsed = time.time() - start_time
-                completion_order.append(name)
-                completion_times[name] = elapsed
+                # Process futures as they complete
+                for future in as_completed(futures_map):
+                    name = futures_map[future]
+                    timeout = API_TIMEOUTS[name]
+                    elapsed = time.time() - start_time
+                    completion_order.append(name)
+                    completion_times[name] = elapsed
 
-                self._process_future_result(future, name, timeout, results)
+                    self._process_future_result(future, name, timeout, results)
 
-            self._log_completion_timing(completion_order, completion_times)
+                self._log_completion_timing(completion_order, completion_times)
+
+        except CancelledError:
+            logger.warning(
+                f"Parallel enrichment fetch cancelled for record {self.record.id}"
+            )
+            raise
 
         # Fetch distressing content directly (not an API call, no need for threading)
-        results["distressing_content"] = self._fetch_distressing()
+        results["distressing_content"] = self.fetch_distressing()
 
         return results
 
     def _fetch_sequential(self) -> Dict[str, Any]:
         """Fetch enrichment data sequentially."""
         results = {
-            "subjects_enrichment": self._fetch_subjects(),
-            "related_records": self._fetch_related(),
+            "subjects_enrichment": self.fetch_subjects(),
+            "related_records": self.fetch_related(),
             "delivery_options": {},
-            "distressing_content": self._fetch_distressing(),
+            "distressing_content": self.fetch_distressing(),
         }
 
         if self._should_include_delivery_options():
-            results["delivery_options"] = self._fetch_delivery_options()
+            results["delivery_options"] = self.fetch_delivery_options()
 
         return results
 
-    def _fetch_subjects(self) -> dict:
+    def fetch_subjects(self) -> dict:
         return get_subjects_enrichment(
             self.record.subjects,
             limit=settings.MAX_SUBJECTS_PER_RECORD,
             timeout=settings.WAGTAIL_API_TIMEOUT,
         )
 
-    def _fetch_related(self) -> list:
+    def fetch_related(self) -> list:
         """
         Fetch related records using subject matching with series backfill.
 
@@ -209,7 +220,7 @@ class RecordEnrichmentHelper:
 
         return related
 
-    def _fetch_delivery_options(self) -> dict:
+    def fetch_delivery_options(self) -> dict:
         """
         Fetch delivery options and add temporary display context.
 
@@ -245,6 +256,11 @@ class RecordEnrichmentHelper:
 
         # TODO: is this the right place for a try/except
         # TODO: do we need to log to sentry
+        except CancelledError:
+            logger.warning(
+                f"Delivery options fetch cancelled for {self.record.id}"
+            )
+            raise
         except Exception as e:
             logger.warning(
                 f"Failed to fetch delivery options for {self.record.id}: {e}"
@@ -293,17 +309,22 @@ class RecordEnrichmentHelper:
             )
             return {}
 
-        data = {"delivery_option": delivery_option_name}
+        result = {"delivery_option": delivery_option_name}
 
         do_availability_group = get_availability_group(delivery_option_value)
         if do_availability_group is not None:
-            data["do_availability_group"] = do_availability_group.name
+            result["do_availability_group"] = do_availability_group.name
 
-        return data
+        return result
 
-    def _fetch_distressing(self) -> bool:
+    def fetch_distressing(self) -> bool:
         try:
             return has_distressing_content(self.record.reference_number)
+        except CancelledError:
+            logger.warning(
+                f"Distressing content check cancelled for {self.record.id}"
+            )
+            raise
         except Exception as e:
             logger.warning(
                 f"Failed to check distressing content for {self.record.id}: {e}"
@@ -311,10 +332,7 @@ class RecordEnrichmentHelper:
             return False
 
     def _should_include_delivery_options(self) -> bool:
-        if self.record.custom_record_type in [
-            RecordTypes.ARCHON,
-            RecordTypes.CREATORS,
-        ]:
+        if self.record.custom_record_type in ["ARCHON", "CREATORS"]:
             return False
 
         if (
