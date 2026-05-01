@@ -6,7 +6,11 @@ Using the app container should give you access to commands to update poetry whic
 
 e.g. `x.y.1` -> `x.y.2`
 
-1. Run `docker compose exec app poetry update` (Python)
+Run `docker compose exec app poetry update` (Python)
+
+alternatively
+
+Run `poetry update` on docker host
 
 ## Major or minor numbers
 
