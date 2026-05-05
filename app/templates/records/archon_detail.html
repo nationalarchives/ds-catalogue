@@ -5,6 +5,11 @@
 {% from 'components/button/macro.html' import tnaButton %}
 
 {%- set pageTitle = (record.title or record.summary_title or '[No title]') | striptags -%}
+{% set has_place_description = record.place_description %}
+{% set full_width_class = "tna-column tna-column--full tna-!--margin-top-l" %}
+{% set contact_class = "tna-column tna-column--full-tiny tna-column--full-small tna-column--width-1-2 tna-!--margin-top-m" 
+          if has_place_description
+          else full_width_class %}
 
 {% block stylesheets %}
 {{ super() }}
@@ -35,7 +40,7 @@
   {% endif %}
 
   <div class="tna-container">
-    <div class="tna-column tna-column--full-tiny tna-column--full-small tna-column--width-1-2 tna-!--margin-top-m">
+    <div class="{{ contact_class }}">
       <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
 
         <h2 class="tna-heading-l">Contact information</h2>
@@ -43,19 +48,22 @@
         {{ record.description | sanitise_record_field | safe }}
       </div>
     </div>
+    has_place_description ={{ has_place_description }}
 
-    <div class="tna-column tna-column--width-1-2 tna-column--full-tiny tna-column--full-small tna-!--margin-top-m">
-      <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
-        <h2 class="tna-heading-l">Information about this archive</h2>
+    {% if has_place_description %}
+      <div class="tna-column tna-column--width-1-2 tna-column--full-tiny tna-column--full-small tna-!--margin-top-m">
+        <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
+          <h2 class="tna-heading-l">Information about this archive</h2>
 
-        {{ record.place_description | sanitise_record_field | safe }}
+          {{ record.place_description | sanitise_record_field | safe }}
 
+        </div>
       </div>
-    </div>
+    {% endif %}
   </div>
 
   <div class="tna-container">
-    <div class="tna-column tna-column--full tna-!--margin-top-l">
+    <div class="{{ full_width_class }}">
       <h2 class="tna-heading-l">This archive’s collections</h2>
       <p>There are two ways to view all collections from <strong>{{ pageTitle }}</strong></p>
     </div>
