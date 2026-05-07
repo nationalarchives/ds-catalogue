@@ -39,9 +39,10 @@
 {{ global_alert_banners(request, global_alert, mourning_notice, 'm') }}
 <div class="tna-section tna-!--padding-top-{{ 's' if distressing_content else 'l' }}">
   <div class="tna-container">
+    {# TODO: May need to consider whether to have more bespoke wording #}
     {{ content_warning(
         distressing_content,
-        "This record may include content that reflects the trauma and distress experienced by those present during or affected by the event of the time"
+        "This record may include content that reflects the trauma and distress experienced by those present during or affected by the events of the time"
       ) }}
     <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny tna-!--padding-top-xs">
       <hgroup class="tna-hgroup-xl">
