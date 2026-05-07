@@ -204,6 +204,18 @@ class TestRecordEnrichmentHelper(TestCase):
         # Should return False on error
         self.assertFalse(result)
 
+    @patch("app.records.enrichment.has_distressing_content")
+    def test_fetch_distressing_returns_false_when_no_distressing_content(
+        self, mock_distressing: Mock
+    ) -> None:
+        """Test that False is returned when no distressing content exists"""
+        mock_distressing.return_value = False
+
+        helper = RecordEnrichmentHelper(self.test_record)
+        result = helper._fetch_distressing()
+
+        self.assertFalse(result)
+
     # Tests for new refactored methods
 
     @patch("app.records.enrichment.sentry_sdk")
