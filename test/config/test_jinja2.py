@@ -1,6 +1,6 @@
 from types import SimpleNamespace
 
-from config.jinja import (
+from config.jinja_filters import (
     dump_json,
     format_number,
     none_to_empty_string,
