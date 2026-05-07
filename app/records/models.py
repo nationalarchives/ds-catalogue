@@ -615,9 +615,9 @@ class Record(APIModel):
 
         if self.custom_record_type == RecordTypes.ARCHON:
             try:
+                url_name = "search:catalogue"
                 if self.reference_number == TNA_ARCHON_CODE:
-                    url_name = "main:catalogue"
-                    # landing page for the new catalogue
+                    # For TNA ARCHON records, link to the main catalogue search page without filters
                     return f"{reverse(url_name)}"
                 else:
                     params = {
@@ -626,7 +626,6 @@ class Record(APIModel):
                         # until we have specific aggs collection value
                         FieldsConstant.HELD_BY: self.clean_title_or_summary_title,
                     }
-                    url_name = "search:catalogue"
                     # For other records, link to search results filtered for the record's title
                     return f"{reverse(url_name)}?{urlencode(params)}"
             except NoReverseMatch:
