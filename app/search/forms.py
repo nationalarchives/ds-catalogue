@@ -7,7 +7,7 @@ from app.lib.fields import (
     ToDateField,
 )
 from app.lib.forms import BaseForm
-from app.records.constants import TNA_LEVELS
+from app.records.constants import TnaLevels
 
 from .buckets import CATALOGUE_BUCKETS, Aggregation
 from .collection_names import COLLECTION_CHOICES
@@ -121,7 +121,7 @@ class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
         return fields | {
             FieldsConstant.LEVEL: DynamicMultipleChoiceField(
                 label="Filter by levels",
-                choices=list((level, level) for level in TNA_LEVELS.values()),
+                choices=[(m.label, m.label) for m in TnaLevels],
                 validate_input=True,  # validate input with choices before querying the API
                 active_filter_label="Level",
                 more_filter_choices_text="See more levels",

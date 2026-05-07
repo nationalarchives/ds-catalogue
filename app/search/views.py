@@ -16,7 +16,7 @@ from app.lib.fields import (
 )
 from app.lib.pagination import pagination_object
 from app.main.api import fetch_global_notifications
-from app.records.constants import TNA_LEVELS
+from app.records.constants import TnaLevels
 from app.search.api import search_records
 from config.jinja import qs_remove_value, qs_replace_value, qs_toggle_value
 from django.core.exceptions import SuspiciousOperation
@@ -710,9 +710,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             ):
                 field = self.form.fields[field_name]
                 if field_name == FieldsConstant.LEVEL:
-                    choice_labels = {}
-                    for _, v in TNA_LEVELS.items():
-                        choice_labels.update({v: v})
+                    choice_labels = {m.label: m.label for m in TnaLevels}
                 else:
                     choice_labels = self.form.fields[
                         field_name
