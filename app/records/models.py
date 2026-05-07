@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional
+from typing import Any
 from urllib.parse import urlencode
 
 import sentry_sdk
@@ -197,12 +197,10 @@ class Record(APIModel):
 
     @cached_property
     def level(self) -> str:
-        level_id = str(self.level_code) if self.level_code is not None else ""
+        """Returns level name for tna, non tna level codes"""
         if self.is_tna:
-            member = TnaLevels.from_id(level_id)
-        else:
-            member = NonTnaLevels.from_id(level_id)
-        return member.label if member else ""
+            return TnaLevels.level_from_code(str(self.level_code or ""))
+        return NonTnaLevels.level_from_code(str(self.level_code or ""))
 
     @cached_property
     def level_code(self) -> int | None:
@@ -555,13 +553,13 @@ class Record(APIModel):
 
         return items
 
-    @property
+    @cached_property
     def hierarchy_series(self) -> Record | None:
         """Return the series-level record from this record's hierarchy, if present."""
-        return next(
-            (r for r in self.hierarchy if r.level == TnaLevels.SERIES.label),
-            None,
-        )
+        for record in self.hierarchy:
+            if record.level == TnaLevels.SERIES.label:
+                return record
+        return None
 
     @cached_property
     def subjects(self) -> list[str]:

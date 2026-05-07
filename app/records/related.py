@@ -7,8 +7,15 @@ from app.search.api import search_records
 
 logger = logging.getLogger(__name__)
 
+# Labels for tna levels between Series and Item inclusive
+tna_level_lower_bound = int(TnaLevels.SERIES.level_id)
+tna_level_upper_bound = int(TnaLevels.ITEM.level_id) + 1
+
 _LEVEL_FILTERS_SERIES_TO_ITEM = [
-    f"level:{m.label}" for m in TnaLevels if int(m.level_id) in range(3, 8)
+    f"level:{tna_level_member.label}"
+    for tna_level_member in TnaLevels
+    if int(tna_level_member.level_id)
+    in range(tna_level_lower_bound, tna_level_upper_bound)
 ]
 
 

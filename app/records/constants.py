@@ -3,8 +3,28 @@ from enum import Enum, StrEnum
 from django.conf import settings
 
 
+class _LevelLookupMixin:
+    @classmethod
+    def from_id(cls, level_id: str):
+        return next((m for m in cls if m.level_id == level_id), None)
+
+    @classmethod
+    def level_from_code(cls, level_id: str) -> str:
+        member = cls.from_id(level_id)
+        return member.label if member else ""
+
+
 # Some of these values are also used by Delivery Options
-class TnaLevels(Enum):
+# TODO: use integer values rather than strings for level_ids
+class TnaLevels(_LevelLookupMixin, Enum):
+    """
+    TNA Hierarchy levels, as defined in the API.
+    Each member's value is a tuple of:
+        (level_id: str, label: str)
+    level_id - level id in the API
+    label - the value that describes the level id for display and filter construction
+    """
+
     DEPARTMENT = ("1", "Department")
     DIVISION = ("2", "Division")
     SERIES = ("3", "Series")
@@ -17,12 +37,17 @@ class TnaLevels(Enum):
         self.level_id = level_id
         self.label = label
 
-    @classmethod
-    def from_id(cls, level_id: str) -> "TnaLevels | None":
-        return next((m for m in cls if m.level_id == level_id), None)
 
+# TODO: use integer values rather than strings for level_ids
+class NonTnaLevels(_LevelLookupMixin, Enum):
+    """
+    Non TNA Hierarchy levels, as defined in the API.
+    Each member's value is a tuple of:
+        (level_id: str, label: str)
+    level_id - level id in the API
+    label - the value that describes the level id for display
+    """
 
-class NonTnaLevels(Enum):
     FONDS = ("1", "Fonds")
     SUB_FONDS = ("2", "Sub-fonds")
     SUB_SUB_FONDS = ("3", "Sub-sub-fonds")
@@ -38,10 +63,6 @@ class NonTnaLevels(Enum):
     def __init__(self, level_id: str, label: str):
         self.level_id = level_id
         self.label = label
-
-    @classmethod
-    def from_id(cls, level_id: str) -> "NonTnaLevels | None":
-        return next((m for m in cls if m.level_id == level_id), None)
 
 
 SUBJECTS_LIMIT = 20
