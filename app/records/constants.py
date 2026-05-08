@@ -5,13 +5,13 @@ from django.conf import settings
 
 class _LevelLookupMixin:
     @classmethod
-    def from_id(cls, level_id: str):
-        return next((m for m in cls if m.level_id == level_id), None)
+    def from_id(cls, level_code: str):
+        return next((m for m in cls if m.level_code == level_code), None)
 
     @classmethod
-    def level_from_code(cls, level_id: str) -> str:
-        member = cls.from_id(level_id)
-        return member.label if member else ""
+    def level_from_code(cls, level_code: str) -> str:
+        member = cls.from_id(level_code)
+        return member.level if member else ""
 
 
 # Some of these values are also used by Delivery Options
@@ -20,9 +20,9 @@ class TnaLevels(_LevelLookupMixin, Enum):
     """
     TNA Hierarchy levels, as defined in the API.
     Each member's value is a tuple of:
-        (level_id: str, label: str)
-    level_id - level id in the API
-    label - the value that describes the level id for display and filter construction
+        (level_code: str, level: str)
+    level_code - level id in the API
+    level - the value that describes the level id for display and filter construction
     """
 
     DEPARTMENT = ("1", "Department")
@@ -33,9 +33,9 @@ class TnaLevels(_LevelLookupMixin, Enum):
     PIECE = ("6", "Piece")
     ITEM = ("7", "Item")
 
-    def __init__(self, level_id: str, label: str):
-        self.level_id = level_id
-        self.label = label
+    def __init__(self, level_code: str, level: str):
+        self.level_code = level_code
+        self.level = level
 
 
 # TODO: use integer values rather than strings for level_ids
@@ -43,9 +43,9 @@ class NonTnaLevels(_LevelLookupMixin, Enum):
     """
     Non TNA Hierarchy levels, as defined in the API.
     Each member's value is a tuple of:
-        (level_id: str, label: str)
-    level_id - level id in the API
-    label - the value that describes the level id for display
+        (level_code: str, level: str)
+    level_code - level id in the API
+    level - the value that describes the level id for display
     """
 
     FONDS = ("1", "Fonds")
@@ -60,9 +60,9 @@ class NonTnaLevels(_LevelLookupMixin, Enum):
     ITEM = ("10", "Item")
     SUB_ITEM = ("11", "Sub-item")
 
-    def __init__(self, level_id: str, label: str):
-        self.level_id = level_id
-        self.label = label
+    def __init__(self, level_code: str, level: str):
+        self.level_code = level_code
+        self.level = level
 
 
 SUBJECTS_LIMIT = 20

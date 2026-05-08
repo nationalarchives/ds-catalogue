@@ -710,7 +710,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             ):
                 field = self.form.fields[field_name]
                 if field_name == FieldsConstant.LEVEL:
-                    choice_labels = {m.label: m.label for m in TnaLevels}
+                    choice_labels = {m.level: m.level for m in TnaLevels}
                 else:
                     choice_labels = self.form.fields[
                         field_name

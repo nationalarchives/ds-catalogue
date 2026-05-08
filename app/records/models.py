@@ -557,7 +557,7 @@ class Record(APIModel):
     def hierarchy_series(self) -> Record | None:
         """Return the series-level record from this record's hierarchy, if present."""
         for record in self.hierarchy:
-            if record.level == TnaLevels.SERIES.label:
+            if record.level == TnaLevels.SERIES.level:
                 return record
         return None
 
