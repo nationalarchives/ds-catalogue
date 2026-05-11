@@ -4,6 +4,7 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from typing import Any
 from unittest.mock import Mock, patch
 
+from app.deliveryoptions.delivery_options import _get_dcs_prefix_variants
 from app.records.enrichment import RecordEnrichmentHelper
 from app.records.models import Record
 from django.test import TestCase, override_settings
@@ -187,7 +188,7 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_distressing.return_value = True
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_distressing()
+        result = helper.fetch_distressing()
 
         self.assertTrue(result)
 
@@ -199,7 +200,7 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_distressing.side_effect = Exception("API Error")
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_distressing()
+        result = helper.fetch_distressing()
 
         # Should return False on error
         self.assertFalse(result)
@@ -556,3 +557,21 @@ class TestRecordEnrichmentHelper(TestCase):
         call_kwargs = mock_subjects.call_args[1]
         self.assertIn("timeout", call_kwargs)
         self.assertEqual(call_kwargs["timeout"], 10)
+
+    @override_settings(DCS_PREFIXES=["WO 95"])
+    def test_fetch_distressing_uses_configured_dcs_prefixes(self) -> None:
+        """
+        Verify fetch_distressing exercises the real has_distressing_content
+        against DCS_PREFIXES, rather than relying on a mocked return value.
+
+        Exhaustive matching-rule coverage (slash variants, boundary cases,
+        prefix disambiguation, empty list) lives in
+        test/deliveryoptions/test_distressing_content.py.
+        """
+        _get_dcs_prefix_variants.cache_clear()
+        self.addCleanup(_get_dcs_prefix_variants.cache_clear)
+
+        self.test_record.reference_number = "WO 95/1234"
+        helper = RecordEnrichmentHelper(self.test_record)
+
+        self.assertTrue(helper.fetch_distressing())
