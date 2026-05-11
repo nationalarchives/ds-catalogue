@@ -6,6 +6,9 @@ Provides search functionality to query historical and public documents known as 
 
 For help setting up a development environment, see the project README.
 
+For broader local development guidance used across services, see the higher-level local development guide (requires TNA Atlassian access):
+<https://national-archives.atlassian.net/wiki/spaces/TW/pages/775028742/Local+development>
+
 ## Updating this documentation
 
 The navigation for this documentation is configured in `mkdocs.yml` at the project root. You can add new markdown files there to get them to appear in the navigation.
