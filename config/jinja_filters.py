@@ -126,7 +126,8 @@ def _consume_text(token, output, visible, max_length):
 
     remaining = max_length - visible
     if remaining <= 0:
-        return visible, False
+        # We had content to add but no room — that IS truncation.
+        return visible, True
 
     if len(text) <= remaining:
         output.append(text)
@@ -169,8 +170,6 @@ def truncate_preserve_mark_tags(value, max_length=250):
             visible, truncated = _consume_text(
                 token, output, visible, max_length
             )
-            if visible >= max_length:
-                truncated = True
 
     output.extend(["</mark>"] * open_marks)
     if truncated:
