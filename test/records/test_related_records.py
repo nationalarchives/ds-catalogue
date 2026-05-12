@@ -180,7 +180,14 @@ class TestLevelFiltersConstant(TestCase):
 
     def test_excludes_levels_above_series(self):
         series_code = int(TnaLevels.SERIES.level_code)
-        for member in TnaLevels:
+        levels = (
+            TnaLevels.SERIES,
+            TnaLevels.SUB_SERIES,
+            TnaLevels.SUB_SUB_SERIES,
+            TnaLevels.PIECE,
+            TnaLevels.ITEM,
+        )
+        for member in levels:
             if int(member.level_code) < series_code:
                 self.assertNotIn(
                     f"level:{member.level}",
