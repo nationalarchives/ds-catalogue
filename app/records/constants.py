@@ -38,7 +38,7 @@ class TnaLevels(_LevelLookupMixin, Enum):
         self.level = level
 
 
-# TODO: use integer values rather than strings for level_ids
+# TODO: use integer values rather than strings for level_code since api returns level.code as an integer.
 class NonTnaLevels(_LevelLookupMixin, Enum):
     """
     Non TNA Hierarchy levels, as defined in the API.
