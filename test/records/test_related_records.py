@@ -1,7 +1,9 @@
 from unittest.mock import Mock, patch
 
+from app.records.constants import TnaLevels
 from app.records.models import Record
 from app.records.related import (
+    _LEVEL_FILTERS_SERIES_TO_ITEM,
     get_related_records_by_series,
     get_tna_related_records_by_subjects,
 )
@@ -165,3 +167,35 @@ class TestRelatedRecordsBySeries(TestCase):
 
         # Should return empty list on error
         self.assertEqual(result, [])
+
+
+class TestLevelFiltersConstant(TestCase):
+    """Tests for the _LEVEL_FILTERS_SERIES_TO_ITEM module-level constant."""
+
+    def test_includes_item_boundary(self):
+        self.assertIn(
+            f"level:{TnaLevels.ITEM.level}",
+            _LEVEL_FILTERS_SERIES_TO_ITEM,
+        )
+
+    def test_excludes_levels_above_series(self):
+        series_code = int(TnaLevels.SERIES.level_code)
+        for member in TnaLevels:
+            if int(member.level_code) < series_code:
+                self.assertNotIn(
+                    f"level:{member.level}",
+                    _LEVEL_FILTERS_SERIES_TO_ITEM,
+                )
+
+    def test_matches_expected_levels(self):
+        # Hard-coded to catch silent shape changes in the enum
+        self.assertEqual(
+            _LEVEL_FILTERS_SERIES_TO_ITEM,
+            [
+                "level:Series",
+                "level:Sub-series",
+                "level:Sub-sub-series",
+                "level:Piece",
+                "level:Item",
+            ],
+        )

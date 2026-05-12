@@ -15,7 +15,7 @@ class _LevelLookupMixin:
 
 
 # Some of these values are also used by Delivery Options
-# TODO: use integer values rather than strings for level_ids
+# TODO: use integer values rather than strings for level_code since api returns level.code as an integer
 class TnaLevels(_LevelLookupMixin, Enum):
     """
     TNA Hierarchy levels, as defined in the API.
