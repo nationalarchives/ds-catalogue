@@ -3,7 +3,7 @@
 import logging
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Dict
+from typing import Any
 
 import sentry_sdk
 from app.deliveryoptions.api import delivery_options_request_handler
@@ -48,9 +48,8 @@ class RecordEnrichmentHelper:
         self.record = record
         self.related_limit = related_limit
 
-    # TODO: consider bringing distressing_content outside of fetch_parallel or fetch_sequential
     @log_enrichment_execution_time
-    def fetch_all(self) -> Dict[str, Any]:
+    def fetch_all(self) -> dict[str, Any]:
         """
         Fetch all enrichment data.
 
@@ -59,12 +58,11 @@ class RecordEnrichmentHelper:
 
         Returns:
             Dictionary with keys: subjects_enrichment, related_records,
-            delivery_options, distressing_content
+            delivery_options
         """
         if settings.ENABLE_PARALLEL_API_CALLS:
             return self._fetch_parallel()
-        else:
-            return self._fetch_sequential()
+        return self._fetch_sequential()
 
     def _submit_fetch_tasks(self, executor) -> dict:
         """Submit all fetch tasks to the executor and return futures map."""
@@ -132,7 +130,7 @@ class RecordEnrichmentHelper:
                 f"Record {self.record.id} completion order: [{timing_details}]"
             )
 
-    def _fetch_parallel(self) -> Dict[str, Any]:
+    def _fetch_parallel(self) -> dict[str, Any]:
         """Fetch enrichment data in parallel using thread pool."""
         results = self._empty_results()
         completion_order = []
@@ -154,18 +152,14 @@ class RecordEnrichmentHelper:
 
             self._log_completion_timing(completion_order, completion_times)
 
-        # Fetch distressing content directly (not an API call, no need for threading)
-        results["distressing_content"] = self._fetch_distressing()
-
         return results
 
-    def _fetch_sequential(self) -> Dict[str, Any]:
+    def _fetch_sequential(self) -> dict[str, Any]:
         """Fetch enrichment data sequentially."""
         results = {
             "subjects_enrichment": self._fetch_subjects(),
             "related_records": self._fetch_related(),
             "delivery_options": {},
-            "distressing_content": self._fetch_distressing(),
         }
 
         if self._should_include_delivery_options():
@@ -301,7 +295,7 @@ class RecordEnrichmentHelper:
 
         return data
 
-    def _fetch_distressing(self) -> bool:
+    def fetch_distressing(self) -> bool:
         try:
             return has_distressing_content(self.record.reference_number)
         except Exception as e:
@@ -331,10 +325,9 @@ class RecordEnrichmentHelper:
         return False
 
     @staticmethod
-    def _empty_results() -> Dict[str, Any]:
+    def _empty_results() -> dict[str, Any]:
         return {
             "subjects_enrichment": {},
             "related_records": [],
             "delivery_options": {},
-            "distressing_content": False,
         }
