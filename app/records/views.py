@@ -54,7 +54,7 @@ class RecordDetailView(RecordContextMixin, TemplateView):
         # Add enrichment to context
         record._subjects_enrichment = enrichment["subjects_enrichment"]
         context["related_records"] = enrichment["related_records"]
-        context["distressing_content"] = enrichment["distressing_content"]
+        context["distressing_content"] = enrichment_helper.fetch_distressing()
 
         if enrichment["delivery_options"]:
             context.update(enrichment["delivery_options"])
