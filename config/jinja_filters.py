@@ -8,7 +8,7 @@ module focused on the function bodies; environment wiring belongs there.
 import base64
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from urllib.parse import unquote
 
 from app.lib.constants import DATE_YMD_SEPARATOR
@@ -274,8 +274,10 @@ def sanitize_search_qs(encoded: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+# Z suffix means "UTC" in ISO 8601, but datetime.now() returns the local time of whatever machine the code runs on.
+#  So the timestamp claimed to be UTC when it wasn't. By using timezone.utc, this remedies the problem.
 def now_iso_8601():
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     now_date = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     return now_date
 

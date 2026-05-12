@@ -575,10 +575,10 @@ class Jinja2TestCase(SimpleTestCase):
 
     @patch("config.jinja_filters.datetime")
     def test_now_iso_8601_uses_current_time(self, mock_datetime):
-        """Verify the function calls datetime.now() and formats its output."""
         from datetime import datetime as real_datetime
+        from datetime import timezone
 
-        fixed = real_datetime(2025, 6, 15, 12, 30, 45)
+        fixed = real_datetime(2025, 6, 15, 12, 30, 45, tzinfo=timezone.utc)
         mock_datetime.now.return_value = fixed
 
         self.assertEqual(now_iso_8601(), "2025-06-15T12:30:45Z")
@@ -623,3 +623,41 @@ class Jinja2TestCase(SimpleTestCase):
         # Documents current behaviour: only None is converted; 0/False survive.
         self.assertEqual(none_to_empty_string(0), 0)
         self.assertEqual(none_to_empty_string(False), False)
+
+    def test_now_iso_8601_returns_utc_not_local_time(self):
+        """
+        TDD: prove that now_iso_8601 returns UTC, not local time.
+
+        The 'Z' suffix in the output means UTC. If the function uses a naive
+        datetime.now() and the server runs in a non-UTC timezone, the output
+        will claim to be UTC but actually be local time — silently wrong.
+
+        This test simulates a server in UTC+1 and asserts that calling the
+        function at 14:00 local (= 13:00 UTC) returns the UTC value.
+        """
+        from datetime import datetime as real_datetime
+        from datetime import timedelta, timezone
+
+        fake_tz = timezone(timedelta(hours=1))
+        # Same instant in time, expressed two ways:
+        local_now = real_datetime(2025, 7, 15, 14, 0, 0, tzinfo=fake_tz)
+        utc_equivalent = local_now.astimezone(timezone.utc)
+        # utc_equivalent is 2025-07-15 13:00:00+00:00
+
+        with patch("config.jinja_filters.datetime") as mock_datetime:
+            # datetime.now() with no args returns naive local time on a real
+            # server; we simulate that by stripping tzinfo from local_now.
+            # datetime.now(timezone.utc) returns the UTC-aware equivalent.
+            def fake_now(tz=None):
+                if tz is None:
+                    return local_now.replace(tzinfo=None)
+                return utc_equivalent
+
+            mock_datetime.now.side_effect = fake_now
+
+            result = now_iso_8601()
+
+        # If the function is correct (uses UTC), result is 09:00:00Z.
+        # If the function is buggy (uses naive local), result is 14:00:00Z
+        # — which is wrong, because the 'Z' claims UTC but the value is local.
+        self.assertEqual(result, "2025-07-15T13:00:00Z")
