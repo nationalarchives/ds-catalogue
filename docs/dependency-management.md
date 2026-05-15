@@ -6,16 +6,24 @@ Using the app container should give you access to commands to update poetry whic
 
 e.g. `x.y.1` -> `x.y.2`
 
-- Run `docker compose exec app poetry update` (Python)
-  - Alternatively, run `poetry update` on the docker host
+- If the app container is already running
+  - Run `docker compose exec app poetry update` (Python)
+- Alternatively, run `poetry update` on the docker host
+- Alternatively, start a temporary app container to run the update:
+  - Run `docker compose run --rm app poetry update`
+  - Run `docker compose up -d --build app`
 
 ## Major or minor numbers
 
 e.g. `x.1.z` -> `x.2.z` or `1.y.z` -> `2.y.z`
 
 - Update version numbers in `pyproject.toml` (Python)
-- Run `docker compose exec app poetry update` (Python)
-  - Alternatively, run `poetry update` on the docker host
+- If the app container is already running
+  - Run `docker compose exec app poetry update` (Python)
+- Alternatively, run `poetry update` on the docker host
+- Alternatively, start a temporary app container to run the update:
+  - Run `docker compose run --rm app poetry update`
+  - Run `docker compose up -d --build app`
 
 ## Adding a dependency
 
