@@ -96,9 +96,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
 
         # query with held_by param (should be ignored for tna group)
-        response = self.client.get(
-            "/catalogue/search/?group=tna&held_by=somearchive"
-        )
+        response = self.client.get("/catalogue/search/?group=tna&held_by=somearchive")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
             "https://rosetta.test/data/search?"
@@ -114,7 +112,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
 
         # Test subject filter for TNA group
         response = self.client.get(
-            "/catalogue/search/?group=tna" "&subject=Army" "&subject=Navy"
+            "/catalogue/search/?group=tna&subject=Army&subject=Navy"
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
@@ -181,9 +179,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
 
         # Test longCollection filter
-        response = self.client.get(
-            "/catalogue/search/?filter_list=longCollection"
-        )
+        response = self.client.get("/catalogue/search/?filter_list=longCollection")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
             "https://rosetta.test/data/search?"

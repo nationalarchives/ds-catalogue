@@ -18,9 +18,7 @@ class NonTnaArchonPageInfoBoxTests(TestCase):
         # the correct classes are applied to the page
         # Note: these class are managed in the template only and could be subject to change if the template is updated
         self.contact_class = "tna-column tna-column--full-tiny tna-column--full-small tna-column--width-1-2 tna-!--margin-top-m"
-        self.full_width_class = (
-            "tna-column tna-column--full tna-!--margin-top-l"
-        )
+        self.full_width_class = "tna-column tna-column--full tna-!--margin-top-l"
         self.archon_info_text = "Information about this archive"
 
     @responses.activate

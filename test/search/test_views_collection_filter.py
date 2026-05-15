@@ -1,10 +1,11 @@
 from http import HTTPStatus
 
 import responses
-from app.search.collection_names import COLLECTION_CHOICES
-from app.search.constants import FieldsConstant
 from django.conf import settings
 from django.test import TestCase
+
+from app.search.collection_names import COLLECTION_CHOICES
+from app.search.constants import FieldsConstant
 
 
 class CatalogueSearchViewCollectionFilterTests(TestCase):
@@ -70,9 +71,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
         self.assertTrue(set(input_collections).issubset(config_values))
 
         # + &collection=BT&collection=WO
-        response = self.client.get(
-            "/catalogue/search/?q=ufo" + collection_query
-        )
+        response = self.client.get("/catalogue/search/?q=ufo" + collection_query)
 
         context_data = response.context_data
         form = context_data.get("form")
@@ -187,9 +186,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
         self.assertNotIn(input_collection, config_values)
 
         # &collection=VALUE-DOES-NOT-MATCH-CONFIG
-        response = self.client.get(
-            "/catalogue/search/?collection=" + input_collection
-        )
+        response = self.client.get("/catalogue/search/?collection=" + input_collection)
 
         context_data = response.context_data
         form = context_data.get("form")

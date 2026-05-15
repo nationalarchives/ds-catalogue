@@ -1,9 +1,10 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
+from django.conf import settings
+
 from app.lib.api import JSONAPIClient
 from app.lib.exceptions import APIResourceNotFound
-from django.conf import settings
 
 
 class DeliveryOptionsApiClientTests(unittest.TestCase):
@@ -15,9 +16,7 @@ class DeliveryOptionsApiClientTests(unittest.TestCase):
         self.api_client.params.clear()
 
     # Mocking requests.get to test get method
-    @patch(
-        "app.lib.api.get"
-    )  # Patch the correct path where requests.get is used
+    @patch("app.lib.api.get")  # Patch the correct path where requests.get is used
     def test_get_results_success(self, mock_get):
         # Mock response setup
         mock_response = MagicMock()

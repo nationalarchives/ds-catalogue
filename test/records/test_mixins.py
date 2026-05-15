@@ -2,10 +2,11 @@
 
 from unittest.mock import Mock, patch
 
-from app.records.mixins import RecordContextMixin
-from app.records.models import Record
 from django.test import RequestFactory, TestCase
 from django.views.generic import TemplateView
+
+from app.records.mixins import RecordContextMixin
+from app.records.models import Record
 
 
 class TestRecordContextMixin(TestCase):
