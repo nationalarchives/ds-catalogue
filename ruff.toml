@@ -1,0 +1,13 @@
+# Extend the default Ruff configuration
+extend = "/home/app/ruff.toml"
+
+[lint]
+ignore = [
+    "B904",
+    "B006",
+    "B018",
+    "F403",
+    "F401",
+    "B007",
+    "B905",
+]
