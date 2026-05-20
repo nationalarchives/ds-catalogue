@@ -62,9 +62,7 @@ def xsl_transformation(source: str, schema_file: str) -> str:
     try:
         xslt = etree.parse(f"app/resources/xslt/{schema_file}")
     except Exception as e:
-        logger.error(
-            f"Unexpected error while loading XSLT file '{schema_file}': {e}"
-        )
+        logger.error(f"Unexpected error while loading XSLT file '{schema_file}': {e}")
         return source
     transform = etree.XSLT(xslt)
     result = transform(dom)
@@ -105,9 +103,7 @@ def apply_archon_xsl(source: str, schema_file: str) -> str:
     try:
         xslt = etree.parse(f"app/resources/xslt/{schema_file}")
     except Exception as e:
-        logger.error(
-            f"Unexpected error while loading XSLT file '{schema_file}': {e}"
-        )
+        logger.error(f"Unexpected error while loading XSLT file '{schema_file}': {e}")
         return source
     transform = etree.XSLT(xslt)
     result = transform(dom)

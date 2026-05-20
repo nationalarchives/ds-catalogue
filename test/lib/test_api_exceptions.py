@@ -1,6 +1,11 @@
 import unittest.mock as mock
 
 import responses
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.test import SimpleTestCase, override_settings
+from requests import Timeout, TooManyRedirects
+
 from app.lib.api import JSONAPIClient, rosetta_request_handler
 from app.lib.exceptions import (
     APIBadRequestError,
@@ -11,23 +16,16 @@ from app.lib.exceptions import (
     APIResourceNotFound,
     APITimeoutError,
 )
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
-from django.test import SimpleTestCase, override_settings
-from requests import Timeout, TooManyRedirects
 
 
 class TestRosettaRequestHandlerException(SimpleTestCase):
-
     @override_settings(
         ROSETTA_API_URL="",
     )
     @responses.activate
     def test_config_api_url_not_set(self):
 
-        with self.assertRaisesMessage(
-            ImproperlyConfigured, "ROSETTA_API_URL not set"
-        ):
+        with self.assertRaisesMessage(ImproperlyConfigured, "ROSETTA_API_URL not set"):
             _ = rosetta_request_handler(uri="somevalue", params={})
 
 
@@ -118,9 +116,7 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             status=404,  # 404:not found
         )
 
-        with self.assertRaisesMessage(
-            APIResourceNotFound, "Resource not found"
-        ):
+        with self.assertRaisesMessage(APIResourceNotFound, "Resource not found"):
             with self.assertLogs("app.lib.api", level="WARNING") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn("WARNING:app.lib.api:Resource not found", lc.output)
@@ -136,9 +132,7 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
         with self.assertRaisesMessage(APIRequestFailedError, "Request failed"):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
-        self.assertIn(
-            "ERROR:app.lib.api:JSON API responded with 204", lc.output
-        )
+        self.assertIn("ERROR:app.lib.api:JSON API responded with 204", lc.output)
 
     @responses.activate
     def test_request_failed_with_500(self):
@@ -151,9 +145,7 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
         with self.assertRaisesMessage(APIRequestFailedError, "Request failed"):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
-        self.assertIn(
-            "ERROR:app.lib.api:JSON API responded with 500", lc.output
-        )
+        self.assertIn("ERROR:app.lib.api:JSON API responded with 500", lc.output)
 
     @responses.activate
     def test_connection_error(self):
@@ -196,9 +188,7 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
         with self.assertRaisesMessage(APIRedirectError, "Too many redirects"):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
-        self.assertIn(
-            "ERROR:app.lib.api:JSON API had too many redirects", lc.output
-        )
+        self.assertIn("ERROR:app.lib.api:JSON API had too many redirects", lc.output)
 
     @responses.activate
     def test_unknown_json_api_exception(self):
@@ -208,9 +198,7 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             body=Exception("THIS IS AN UNKNOWN API EXCEPTION"),
         )
 
-        with self.assertRaisesMessage(
-            Exception, "THIS IS AN UNKNOWN API EXCEPTION"
-        ):
+        with self.assertRaisesMessage(Exception, "THIS IS AN UNKNOWN API EXCEPTION"):
             with self.assertLogs("app.lib.api", level="ERROR") as lc:
                 _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn(

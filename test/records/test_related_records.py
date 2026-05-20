@@ -1,11 +1,12 @@
 from unittest.mock import Mock, patch
 
+from django.test import TestCase
+
 from app.records.models import Record
 from app.records.related import (
     get_related_records_by_series,
     get_tna_related_records_by_subjects,
 )
-from django.test import TestCase
 
 
 class TestRelatedRecordsBySubjects(TestCase):
@@ -118,9 +119,7 @@ class TestRelatedRecordsBySeries(TestCase):
 
         # Mock many results
         mock_result = Mock()
-        mock_result.records = [
-            Mock(spec=Record, id=f"C{i}") for i in range(200, 210)
-        ]
+        mock_result.records = [Mock(spec=Record, id=f"C{i}") for i in range(200, 210)]
         mock_search.return_value = mock_result
 
         result = get_related_records_by_series(mock_record, limit=3)

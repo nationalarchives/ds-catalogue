@@ -1,10 +1,11 @@
 from http import HTTPStatus
 
 import responses
-from app.search.constants import FieldsConstant
 from django.conf import settings
 from django.test import TestCase
 from django.utils.encoding import force_str
+
+from app.search.constants import FieldsConstant
 
 
 class CatalogueSearchViewLevelFilterTests(TestCase):
@@ -60,9 +61,7 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
             "/catalogue/search/?q=ufo&level=Department&level=Division"
         )
         form = response.context_data.get("form")
-        level_field = response.context_data.get("form").fields[
-            FieldsConstant.LEVEL
-        ]
+        level_field = response.context_data.get("form").fields[FieldsConstant.LEVEL]
 
         self.assertEqual(form.is_valid(), True)
 
@@ -131,24 +130,16 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
         form = response.context_data.get("form")
         context_data = response.context_data
         level_field = context_data.get("form").fields[FieldsConstant.LEVEL]
-        collection_field = response.context_data.get("form").fields[
-            "collection"
-        ]
+        collection_field = response.context_data.get("form").fields["collection"]
 
         html = force_str(response.content)
 
         self.assertEqual(form.is_valid(), False)
 
         # test for presence of hidden inputs for invalid level params
-        self.assertIn(
-            """<input type="hidden" name="level" value="Item">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="level" value="Division">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="level" value="invalid">""", html
-        )
+        self.assertIn("""<input type="hidden" name="level" value="Item">""", html)
+        self.assertIn("""<input type="hidden" name="level" value="Division">""", html)
+        self.assertIn("""<input type="hidden" name="level" value="invalid">""", html)
 
         # returns None when errors present
         self.assertEqual(context_data.get("results"), None)

@@ -1,11 +1,12 @@
 import logging
 
+from django.http import HttpResponse
+from django.template import loader
+
 from app.main.api import (
     fetch_global_notifications,
     get_explore_the_collection,
 )
-from django.http import HttpResponse
-from django.template import loader
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +26,7 @@ def catalogue(request):
     context = {
         "latest_articles": explore.get("latest_articles", [])[:3],
         "top_pages": explore.get("top_pages", [])[:3],
-        "global_alert": (
-            notifications.get("global_alert") if notifications else None
-        ),
+        "global_alert": (notifications.get("global_alert") if notifications else None),
         "mourning_notice": (
             notifications.get("mourning_notice") if notifications else None
         ),

@@ -1,9 +1,10 @@
 from unittest.mock import patch
 
 import responses
-from app.deliveryoptions.constants import AvailabilityCondition
 from django.conf import settings
 from django.test import TestCase
+
+from app.deliveryoptions.constants import AvailabilityCondition
 
 
 class TestClosedRetainedAvailability(TestCase):
@@ -22,9 +23,7 @@ class TestClosedRetainedAvailability(TestCase):
             "title": "Test Closed Retained Record",
             "source": "CAT",
             "heldByCount": 1,
-            "level": {
-                "code": 3
-            },  # Sub-sub-fonds — in DELIVERY_OPTIONS_NON_TNA_LEVELS
+            "level": {"code": 3},  # Sub-sub-fonds — in DELIVERY_OPTIONS_NON_TNA_LEVELS
         }
         if held_by:
             details["heldBy"] = held_by

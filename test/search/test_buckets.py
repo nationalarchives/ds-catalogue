@@ -1,13 +1,13 @@
 import copy
 
+from django.test import TestCase
+
 from app.search.buckets import CATALOGUE_BUCKETS, Aggregation, BucketKeys
 from app.search.constants import FieldsConstant
 from app.search.models import APISearchResponse
-from django.test import TestCase
 
 
 class TestBuckets(TestCase):
-
     def setUp(self):
 
         self.api_results = {
@@ -111,7 +111,6 @@ class TestBuckets(TestCase):
 
 
 class TestEnumChoices(TestCase):
-
     def test_bucket_keys_enum_choices(self):
         expected_choices = [
             (BucketKeys.TNA.value, "Records at the National Archives"),
@@ -194,9 +193,7 @@ class TestEnumChoices(TestCase):
 
         for label, aggs_name, expected_value in test_data:
             with self.subTest(label):
-                field_name = Aggregation.get_field_name_for_long_aggs_name(
-                    aggs_name
-                )
+                field_name = Aggregation.get_field_name_for_long_aggs_name(aggs_name)
                 self.assertEqual(field_name, expected_value)
 
     def test_get_aggregation_enum_from_field_name(self):
@@ -231,9 +228,7 @@ class TestEnumChoices(TestCase):
 
         for label, field_name, expected_value in test_data:
             with self.subTest(label):
-                long_aggs = Aggregation.get_long_aggs_name_for_field_name(
-                    field_name
-                )
+                long_aggs = Aggregation.get_long_aggs_name_for_field_name(field_name)
                 self.assertEqual(long_aggs, expected_value)
 
     def test_get_aggregation_enum_from_field_name_for_none_returns(self):
@@ -281,11 +276,7 @@ class TestEnumChoices(TestCase):
             expected_log_message,
         ) in test_data:
             with self.subTest(label):
-                with self.assertLogs(
-                    "app.search.buckets", level="WARNING"
-                ) as log:
-                    value = Aggregation.get_long_aggs_name_for_field_name(
-                        field_name
-                    )
+                with self.assertLogs("app.search.buckets", level="WARNING") as log:
+                    value = Aggregation.get_long_aggs_name_for_field_name(field_name)
                     self.assertEqual(value, expected_value)
                     self.assertIn(expected_log_message, "".join(log.output))

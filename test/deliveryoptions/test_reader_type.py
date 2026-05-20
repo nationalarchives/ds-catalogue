@@ -1,14 +1,15 @@
 import logging
 from unittest.mock import Mock, patch
 
+from django.conf import settings
+from django.test import TestCase, override_settings
+
 from app.deliveryoptions.reader_type import (
     get_client_ip,
     is_ip_in_cidr,
     is_onsite,
     is_staff,
 )
-from django.conf import settings
-from django.test import TestCase, override_settings
 
 
 @override_settings(
@@ -46,36 +47,20 @@ class TestIPFunctions(TestCase):
         self.assertEqual(ip, None)
 
     def test_is_ip_in_cidr_staff_ip(self):
-        self.assertTrue(
-            is_ip_in_cidr("10.252.21.4", settings.STAFFIN_IP_ADDRESSES)
-        )
-        self.assertTrue(
-            is_ip_in_cidr("10.114.1.17", settings.STAFFIN_IP_ADDRESSES)
-        )
+        self.assertTrue(is_ip_in_cidr("10.252.21.4", settings.STAFFIN_IP_ADDRESSES))
+        self.assertTrue(is_ip_in_cidr("10.114.1.17", settings.STAFFIN_IP_ADDRESSES))
 
     def test_is_ip_in_cidr_onsite_ip(self):
-        self.assertTrue(
-            is_ip_in_cidr("167.98.93.94", settings.ONSITE_IP_ADDRESSES)
-        )
-        self.assertTrue(
-            is_ip_in_cidr("10.136.0.4", settings.ONSITE_IP_ADDRESSES)
-        )
+        self.assertTrue(is_ip_in_cidr("167.98.93.94", settings.ONSITE_IP_ADDRESSES))
+        self.assertTrue(is_ip_in_cidr("10.136.0.4", settings.ONSITE_IP_ADDRESSES))
 
     def test_is_ip_in_cidr_offsite_ip(self):
-        self.assertFalse(
-            is_ip_in_cidr("8.8.8.8", settings.STAFFIN_IP_ADDRESSES)
-        )
-        self.assertFalse(
-            is_ip_in_cidr("203.0.113.5", settings.ONSITE_IP_ADDRESSES)
-        )
+        self.assertFalse(is_ip_in_cidr("8.8.8.8", settings.STAFFIN_IP_ADDRESSES))
+        self.assertFalse(is_ip_in_cidr("203.0.113.5", settings.ONSITE_IP_ADDRESSES))
 
     def test_is_ip_in_cidr_edge_cases(self):
-        self.assertTrue(
-            is_ip_in_cidr("10.114.1.0", settings.STAFFIN_IP_ADDRESSES)
-        )
-        self.assertTrue(
-            is_ip_in_cidr("10.252.23.255", settings.STAFFIN_IP_ADDRESSES)
-        )
+        self.assertTrue(is_ip_in_cidr("10.114.1.0", settings.STAFFIN_IP_ADDRESSES))
+        self.assertTrue(is_ip_in_cidr("10.252.23.255", settings.STAFFIN_IP_ADDRESSES))
         self.assertFalse(
             is_ip_in_cidr("10.252.24.0", settings.STAFFIN_IP_ADDRESSES)
         )  # Out of range
@@ -87,9 +72,7 @@ class TestIPFunctions(TestCase):
             "invalid_ip",
             settings.STAFFIN_IP_ADDRESSES,
         )
-        self.assertRaises(
-            ValueError, is_ip_in_cidr, "", settings.STAFFIN_IP_ADDRESSES
-        )
+        self.assertRaises(ValueError, is_ip_in_cidr, "", settings.STAFFIN_IP_ADDRESSES)
         self.assertRaises(
             ValueError,
             is_ip_in_cidr,
