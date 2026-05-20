@@ -45,9 +45,7 @@ def delivery_options_request_handler(
 
         # Validate response structure
         if not data or not isinstance(data, list):
-            raise ValueError(
-                "Invalid API response format: expected a non-empty list"
-            )
+            raise ValueError("Invalid API response format: expected a non-empty list")
 
         # Ensure each item in the list has the required keys
         for item in data:

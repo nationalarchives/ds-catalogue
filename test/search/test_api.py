@@ -12,7 +12,6 @@ from app.search.models import APISearchResponse
 
 
 class SearchRecordsTests(SimpleTestCase):
-
     @responses.activate
     def test_search_records_response(self):
         responses.add(
@@ -156,9 +155,7 @@ class SearchRecordsTests(SimpleTestCase):
                 },
             )
         except Exception as e:
-            self.fail(
-                f"search_records raised an exception unexpectedly. {str(e)}"
-            )
+            self.fail(f"search_records raised an exception unexpectedly. {str(e)}")
         self.assertIsInstance(api_result, APISearchResponse)
         self.assertEqual(api_result.records, [])
         self.assertEqual(api_result.stats_total, 0)

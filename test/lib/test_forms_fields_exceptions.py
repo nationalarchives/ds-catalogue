@@ -8,13 +8,10 @@ from app.lib.forms import BaseForm
 
 
 class NewFieldWithBadValidateTest(TestCase):
-
     def get_form_with_new_field(self, data=None):
 
         class MyTestForm(BaseForm):
-
             class TestNewField(CharField):
-
                 def validate(self, value):
                     try:
                         datetime.strptime(value, "%Y-%m-%d")
@@ -44,13 +41,10 @@ class NewFieldWithBadValidateTest(TestCase):
 
 
 class NewFieldWithBadCleanTest(TestCase):
-
     def get_form_with_new_field(self, data=None):
 
         class MyTestForm(BaseForm):
-
             class TestNewField(BaseField):
-
                 def clean(self, value):
                     value = super().clean(value)
 
@@ -82,13 +76,10 @@ class NewFieldWithBadCleanTest(TestCase):
 
 
 class NewFieldWithBadBindTest(TestCase):
-
     def get_form_with_new_field(self, data=None):
 
         class MyTestForm(BaseForm):
-
             class TestNewField(BaseField):
-
                 def bind(self, name, value):
                     # A BAD Binding
                     value = value[1]

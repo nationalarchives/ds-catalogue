@@ -121,9 +121,7 @@ class SubjectsEnrichmentTests(TestCase):
         self.assertIn("Military operations", record.subjects)
 
     # Test 3: get_subjects_enrichment function success
-    @patch(
-        "app.records.api.wagtail_request_handler"
-    )  # CHANGED: from views to api
+    @patch("app.records.api.wagtail_request_handler")  # CHANGED: from views to api
     def test_get_subjects_enrichment_success(self, mock_wagtail_handler):
         """Test successful API call for subjects enrichment"""
         mock_wagtail_handler.return_value = self.mock_enrichment_response
@@ -133,9 +131,7 @@ class SubjectsEnrichmentTests(TestCase):
         self.assertIsInstance(result, dict)
         self.assertIn("items", result)
         self.assertEqual(len(result["items"]), 3)
-        self.assertEqual(
-            result["items"][0]["title"], "RAF Operations in World War II"
-        )
+        self.assertEqual(result["items"][0]["title"], "RAF Operations in World War II")
 
         # Check that handler was called with correct parameters
         mock_wagtail_handler.assert_called_once_with(
@@ -148,9 +144,7 @@ class SubjectsEnrichmentTests(TestCase):
         )
 
     # Test 4: get_subjects_enrichment function failure
-    @patch(
-        "app.records.api.wagtail_request_handler"
-    )  # CHANGED: from views to api
+    @patch("app.records.api.wagtail_request_handler")  # CHANGED: from views to api
     def test_get_subjects_enrichment_failure(self, mock_wagtail_handler):
         """Test that API failures are handled gracefully"""
         mock_wagtail_handler.side_effect = Exception("API Error")
@@ -178,9 +172,7 @@ class SubjectsEnrichmentTests(TestCase):
 
         # Test with enrichment data
         record._subjects_enrichment = self.mock_enrichment_response
-        self.assertEqual(
-            record.subjects_enrichment, self.mock_enrichment_response
-        )
+        self.assertEqual(record.subjects_enrichment, self.mock_enrichment_response)
 
     # Test 7: Record model - has_subjects_enrichment property
     def test_record_has_subjects_enrichment_property(self):
@@ -321,9 +313,7 @@ class SubjectsEnrichmentTests(TestCase):
 
     # Test 12: Record detail view integration
     @patch("app.records.api.rosetta_request_handler")
-    @patch(
-        "app.records.api.wagtail_request_handler"
-    )  # CHANGED: from views to api
+    @patch("app.records.api.wagtail_request_handler")  # CHANGED: from views to api
     def test_record_detail_view_includes_enrichment(
         self, mock_wagtail_handler, mock_rosetta
     ):
@@ -369,14 +359,10 @@ class SubjectsEnrichmentTests(TestCase):
         self.assertGreater(len(html), 0)
 
     # Test 13: Error handling - APIResourceNotFound
-    @patch(
-        "app.records.api.wagtail_request_handler"
-    )  # CHANGED: from views to api
+    @patch("app.records.api.wagtail_request_handler")  # CHANGED: from views to api
     def test_resource_not_found_handling(self, mock_wagtail_handler):
         """Test that APIResourceNotFound exceptions are handled gracefully"""
-        mock_wagtail_handler.side_effect = APIResourceNotFound(
-            "Resource not found"
-        )
+        mock_wagtail_handler.side_effect = APIResourceNotFound("Resource not found")
 
         result = get_subjects_enrichment(self.sample_record_data["subjects"])
 
@@ -384,9 +370,7 @@ class SubjectsEnrichmentTests(TestCase):
         self.assertEqual(result, {})
 
     # Test 14: Error handling - general exception
-    @patch(
-        "app.records.api.wagtail_request_handler"
-    )  # CHANGED: from views to api
+    @patch("app.records.api.wagtail_request_handler")  # CHANGED: from views to api
     def test_general_exception_handling(self, mock_wagtail_handler):
         """Test that general exceptions are handled gracefully"""
         mock_wagtail_handler.side_effect = Exception("Connection failed")
@@ -424,9 +408,7 @@ class SubjectsEnrichmentTests(TestCase):
         self.assertEqual(record.subjects_enrichment, {})
 
     # Test 16: Logging behavior
-    @patch(
-        "app.records.api.wagtail_request_handler"
-    )  # CHANGED: from views to api
+    @patch("app.records.api.wagtail_request_handler")  # CHANGED: from views to api
     @patch("app.records.api.logger")  # CHANGED: from views to api
     def test_logging_behavior(self, mock_logger, mock_wagtail_handler):
         """Test that appropriate logging occurs"""

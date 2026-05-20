@@ -19,9 +19,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         super().setUpClass()
 
     def test_response_C15836(self):
-        fixture_path = (
-            f"{settings.BASE_DIR}/test/records/fixtures/response_C15836.json"
-        )
+        fixture_path = f"{settings.BASE_DIR}/test/records/fixtures/response_C15836.json"
         with open(fixture_path, "r") as f:
             fixture_contents = json.loads(f.read())
 
@@ -33,9 +31,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
         self.assertEqual(self.record.custom_record_type, "CAT")
         self.assertEqual(self.record.reference_number, "DEFE 65")
         self.assertEqual(self.record.date_covering, "1959 - 1975")
-        self.assertEqual(
-            self.record.creator, ["Ministry of Defence, 1947-1947"]
-        )
+        self.assertEqual(self.record.creator, ["Ministry of Defence, 1947-1947"])
         self.assertEqual(self.record.dimensions, "")
         self.assertEqual(self.record.former_department_reference, "EWP, DI")
         self.assertEqual(self.record.former_pro_reference, "")
@@ -56,9 +52,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
             self.record.held_by_url,
             "/catalogue/id/A13530124/",
         )
-        self.assertEqual(
-            self.record.access_condition, "Subject to 30 year closure"
-        )
+        self.assertEqual(self.record.access_condition, "Subject to 30 year closure")
         self.assertEqual(self.record.closure_status, "")
         self.assertEqual(self.record.record_opening, "")
         self.assertEqual(self.record.accruals, "Series is accruing")
@@ -220,9 +214,7 @@ class CatalogueRecordResponseTests(SimpleTestCase):
             "/catalogue/id/A13530124/",
         )
         self.assertEqual(self.record.access_condition, "Open on Transfer")
-        self.assertEqual(
-            self.record.closure_status, "Open Document, Open Description"
-        )
+        self.assertEqual(self.record.closure_status, "Open Document, Open Description")
         self.assertEqual(self.record.record_opening, "17 July 2018")
         self.assertEqual(self.record.accruals, "")
         self.assertEqual(self.record.accumulation_dates, "")

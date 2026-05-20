@@ -61,9 +61,7 @@ class DeliveryOptionsIntegrationTestCase(unittest.TestCase):
         # Verify request was made with correct parameters
         mock_get.assert_called_once()
         called_args = mock_get.call_args
-        self.assertEqual(
-            called_args[0][0], "https://api.test.com/delivery-options/"
-        )
+        self.assertEqual(called_args[0][0], "https://api.test.com/delivery-options/")
         self.assertEqual(called_args[1]["params"], {"iaid": "C123456"})
 
     def test_delivery_options_integration(self):
@@ -104,9 +102,7 @@ class DeliveryOptionsIntegrationTestCase(unittest.TestCase):
 
         # Now patch the specific functions that are used in the code path
         with (
-            patch(
-                "app.deliveryoptions.api.settings"
-            ) as mock_settings,  # noqa: F841
+            patch("app.deliveryoptions.api.settings") as mock_settings,  # noqa: F841
             patch(
                 "app.deliveryoptions.delivery_options.get_reader_type",
                 return_value=Reader.OFFSITE,
@@ -117,7 +113,6 @@ class DeliveryOptionsIntegrationTestCase(unittest.TestCase):
             ),
             patch("app.deliveryoptions.api.JSONAPIClient") as mock_client_class,
         ):
-
             # Create a mock client instance that the class constructor will return
             mock_client_instance = MagicMock()
             mock_client_class.return_value = mock_client_instance
@@ -163,9 +158,7 @@ class DeliveryOptionsIntegrationTestCase(unittest.TestCase):
         with self.assertRaises(ImproperlyConfigured) as context:
             delivery_options_request_handler("C123456")
 
-        self.assertIn(
-            "DELIVERY_OPTIONS_API_URL not set", str(context.exception)
-        )
+        self.assertIn("DELIVERY_OPTIONS_API_URL not set", str(context.exception))
 
 
 class DeliveryOptionsAdditionalTests(unittest.TestCase):
@@ -229,6 +222,4 @@ class DeliveryOptionsAdditionalTests(unittest.TestCase):
             delivery_options_request_handler(self.record.id)
 
         # Check the error message
-        self.assertIn(
-            "DELIVERY_OPTIONS_API_URL not set", str(context.exception)
-        )
+        self.assertIn("DELIVERY_OPTIONS_API_URL not set", str(context.exception))

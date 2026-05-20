@@ -198,21 +198,13 @@ WAGTAIL_API_URL: str = os.getenv("WAGTAIL_API_URL", "")
 WAGTAIL_API_KEY: str = os.getenv("WAGTAIL_API_KEY", "")
 
 # API timeouts
-ROSETTA_ENRICHMENT_API_TIMEOUT: int = get_int_env(
-    "ROSETTA_ENRICHMENT_API_TIMEOUT", 5
-)
+ROSETTA_ENRICHMENT_API_TIMEOUT: int = get_int_env("ROSETTA_ENRICHMENT_API_TIMEOUT", 5)
 WAGTAIL_API_TIMEOUT: int = get_int_env("WAGTAIL_API_TIMEOUT", 5)
-DELIVERY_OPTIONS_API_TIMEOUT: int = get_int_env(
-    "DELIVERY_OPTIONS_API_TIMEOUT", 5
-)
+DELIVERY_OPTIONS_API_TIMEOUT: int = get_int_env("DELIVERY_OPTIONS_API_TIMEOUT", 5)
 
 # API behaviour
-ENABLE_PARALLEL_API_CALLS: bool = get_bool_env(
-    "ENABLE_PARALLEL_API_CALLS", False
-)
-ENRICHMENT_TIMING_ENABLED: bool = get_bool_env(
-    "ENRICHMENT_TIMING_ENABLED", False
-)
+ENABLE_PARALLEL_API_CALLS: bool = get_bool_env("ENABLE_PARALLEL_API_CALLS", False)
+ENRICHMENT_TIMING_ENABLED: bool = get_bool_env("ENRICHMENT_TIMING_ENABLED", False)
 
 # Maximum number of subject/article_tags returned from Wagtail
 MAX_SUBJECTS_PER_RECORD: int = get_int_env("MAX_SUBJECTS_PER_RECORD", 20)

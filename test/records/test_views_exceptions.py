@@ -9,7 +9,6 @@ from test.utils import prevent_request_warnings
 
 
 class TestRecordViewExceptions(TestCase):
-
     @prevent_request_warnings  # suppress test output: Not Found: /catalogue/id//
     def test_no_id_respond_with_404(self):
 
@@ -43,9 +42,7 @@ class TestRecordViewExceptions(TestCase):
         )
 
         with self.assertLogs("app.lib.api", level="ERROR") as log1:
-            with self.assertLogs(
-                "app.errors.middleware", level="ERROR"
-            ) as log2:
+            with self.assertLogs("app.errors.middleware", level="ERROR") as log2:
                 response = self.client.get("/catalogue/id/C123456/")
 
         self.assertIn(
@@ -73,9 +70,7 @@ class TestRecordViewExceptions(TestCase):
         )
 
         # DEBUG=True makes middleware re-raise exceptions, so assert APIError directly.
-        with self.assertRaisesMessage(
-            APIError, "THIS IS AN UNKNOWN API EXCEPTION"
-        ):
+        with self.assertRaisesMessage(APIError, "THIS IS AN UNKNOWN API EXCEPTION"):
             with self.assertLogs("app.lib.api", level="ERROR") as log1:
                 _ = self.client.get("/catalogue/id/C123456/")
 

@@ -49,9 +49,7 @@ class SeriesTransformationTests(SimpleTestCase):
                 "@admin": {"id": "C730"},
                 "level": {"code": 2},
                 "source": {"value": "CAT"},
-                "summary": {
-                    "title": "Records of the Royal Naval Volunteer Reserve"
-                },
+                "summary": {"title": "Records of the Royal Naval Volunteer Reserve"},
                 "count": 88250,
             },
             {
@@ -90,13 +88,9 @@ class SeriesTransformationTests(SimpleTestCase):
         self.assertEqual(self.record.hierarchy_series.id, "C1948")
         self.assertEqual(self.record.hierarchy_series.level, "Series")
         self.assertEqual(self.record.hierarchy_series.level_code, 3)
+        self.assertEqual(self.record.hierarchy_series.reference_number, "ADM 240")
         self.assertEqual(
-            self.record.hierarchy_series.reference_number, "ADM 240"
-        )
-        self.assertEqual(
-            SERIES_TRANSFORMATIONS.get(
-                self.record.hierarchy_series.reference_number
-            ),
+            SERIES_TRANSFORMATIONS.get(self.record.hierarchy_series.reference_number),
             "ADM_240.xsl",
         )
 
@@ -210,13 +204,9 @@ class SeriesTransformationTests(SimpleTestCase):
         self.assertEqual(self.record.hierarchy_series.id, "C1810")
         self.assertEqual(self.record.hierarchy_series.level, "Series")
         self.assertEqual(self.record.hierarchy_series.level_code, 3)
+        self.assertEqual(self.record.hierarchy_series.reference_number, "ADM 101")
         self.assertEqual(
-            self.record.hierarchy_series.reference_number, "ADM 101"
-        )
-        self.assertEqual(
-            SERIES_TRANSFORMATIONS.get(
-                self.record.hierarchy_series.reference_number
-            ),
+            SERIES_TRANSFORMATIONS.get(self.record.hierarchy_series.reference_number),
             None,
         )
 

@@ -194,14 +194,10 @@ class RecordModelTests(SimpleTestCase):
             {"value": "tna"},
         ]
         self.record._raw["@previous"] = {
-            "summary": {
-                "title": "Law Officers' Department: Patents for Inventions"
-            },
+            "summary": {"title": "Law Officers' Department: Patents for Inventions"},
         }
         self.record._raw["@next"] = {
-            "summary": {
-                "title": "Law Officers' Department: Law Officers' Opinions"
-            },
+            "summary": {"title": "Law Officers' Department: Law Officers' Opinions"},
         }
         self.record._raw["parent"] = {
             "summary": {
@@ -292,9 +288,7 @@ class RecordModelTests(SimpleTestCase):
         self.record = Record(self.template_details)
         # patch raw data
         self.record._raw["formerDepartmentReference"] = "African No. 355"
-        self.assertEqual(
-            self.record.former_department_reference, "African No. 355"
-        )
+        self.assertEqual(self.record.former_department_reference, "African No. 355")
 
     def test_former_pro_reference(self):
         self.record = Record(self.template_details)
@@ -306,9 +300,7 @@ class RecordModelTests(SimpleTestCase):
         self.record = Record(self.template_details)
         # patch raw data
         self.record._raw["language"] = "Chinese, English, Malay and Tamil"
-        self.assertEqual(
-            self.record.language, "Chinese, English, Malay and Tamil"
-        )
+        self.assertEqual(self.record.language, "Chinese, English, Malay and Tamil")
 
     def test_legal_status(self):
         self.record = Record(self.template_details)
@@ -393,9 +385,7 @@ class RecordModelTests(SimpleTestCase):
         self.record = Record(self.template_details)
         # patch raw data
         self.record._raw["physicalCondition"] = "In ink, on tracing linen"
-        self.assertEqual(
-            self.record.physical_condition, "In ink, on tracing linen"
-        )
+        self.assertEqual(self.record.physical_condition, "In ink, on tracing linen")
 
     def test_physical_description(self):
         self.record = Record(self.template_details)
@@ -473,17 +463,13 @@ class RecordModelTests(SimpleTestCase):
         self.record = Record(self.template_details)
         # patch raw data
         self.record._raw["accessCondition"] = "Subject to 30 year closure"
-        self.assertEqual(
-            self.record.access_condition, "Subject to 30 year closure"
-        )
+        self.assertEqual(self.record.access_condition, "Subject to 30 year closure")
 
     def test_closure_status(self):
         self.record = Record(self.template_details)
         # patch raw data
         self.record._raw["closureStatus"] = "Open Document, Open Description"
-        self.assertEqual(
-            self.record.closure_status, "Open Document, Open Description"
-        )
+        self.assertEqual(self.record.closure_status, "Open Document, Open Description")
 
     def test_record_opening(self):
         self.record = Record(self.template_details)
@@ -501,9 +487,7 @@ class RecordModelTests(SimpleTestCase):
         self.record = Record(self.template_details)
         # patch raw data
         self.record._raw["accumulationDates"] = "File series began in 1971"
-        self.assertEqual(
-            self.record.accumulation_dates, "File series began in 1971"
-        )
+        self.assertEqual(self.record.accumulation_dates, "File series began in 1971")
 
     def test_appraisal_information(self):
         self.record = Record(self.template_details)
@@ -577,9 +561,7 @@ class RecordModelTests(SimpleTestCase):
     def test_restrictions_on_use(self):
         self.record = Record(self.template_details)
         # patch raw data
-        self.record._raw["restrictionsOnUse"] = (
-            "3 working days notice to produce"
-        )
+        self.record._raw["restrictionsOnUse"] = "3 working days notice to produce"
         self.assertEqual(
             self.record.restrictions_on_use, "3 working days notice to produce"
         )
@@ -876,9 +858,7 @@ class RecordModelTests(SimpleTestCase):
                     }
                 ],
                 "level": {"code": 6},
-                "summary": {
-                    "title": "107079 - 107200 (Described at item level)."
-                },
+                "summary": {"title": "107079 - 107200 (Described at item level)."},
                 "count": 123,
             },
             {
@@ -1204,9 +1184,7 @@ class CleanTitleOrCleanSummaryTitleTests(SimpleTestCase):
 
         # patch raw data
         self.record._raw["cleanTitle"] = ""
-        self.record._raw["cleanSummaryTitle"] = (
-            "This is the clean summary title"
-        )
+        self.record._raw["cleanSummaryTitle"] = "This is the clean summary title"
         self.assertEqual(
             self.record.clean_title_or_summary_title,
             "This is the clean summary title",
@@ -1232,9 +1210,7 @@ class CleanTitleOrCleanSummaryTitleTests(SimpleTestCase):
         self.record._raw["cleanTitle"] = (
             "This is the clean title longer than summary title"
         )
-        self.record._raw["cleanSummaryTitle"] = (
-            "This is the clean summary title"
-        )
+        self.record._raw["cleanSummaryTitle"] = "This is the clean summary title"
         self.assertEqual(
             self.record.clean_title_or_summary_title,
             "This is the clean summary title",
@@ -1245,9 +1221,7 @@ class CleanTitleOrCleanSummaryTitleTests(SimpleTestCase):
 
         # patch raw data
         self.record._raw["cleanTitle"] = "This   is   the   clean   title"
-        self.record._raw["cleanSummaryTitle"] = (
-            "This is the clean summary title"
-        )
+        self.record._raw["cleanSummaryTitle"] = "This is the clean summary title"
         self.assertEqual(
             self.record.clean_title_or_summary_title,
             "This   is   the   clean   title",

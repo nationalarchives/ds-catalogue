@@ -6,7 +6,6 @@ from app.lib.api import rosetta_request_handler
 
 
 class TestJSONAPIClientGetRequest(SimpleTestCase):
-
     @responses.activate
     def test_response_with_ok_200(self):
 
@@ -18,7 +17,8 @@ class TestJSONAPIClientGetRequest(SimpleTestCase):
         )
 
         reponse_dict = rosetta_request_handler(
-            uri="get", params={"id": "C123456"}
+            uri="get",
+            params={"id": "C123456"},
         )
         self.assertDictEqual(
             reponse_dict,

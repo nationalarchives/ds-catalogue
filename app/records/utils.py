@@ -106,9 +106,7 @@ def log_enrichment_execution_time(func):
         result = func(self, *args, **kwargs)
         elapsed_time = time.time() - start_time
 
-        mode = (
-            "parallel" if settings.ENABLE_PARALLEL_API_CALLS else "sequential"
-        )
+        mode = "parallel" if settings.ENABLE_PARALLEL_API_CALLS else "sequential"
         api_timer_logger.info(
             f"Enrichment fetch for record {self.record.id} completed in "
             f"{elapsed_time:.3f}s (mode: {mode})"

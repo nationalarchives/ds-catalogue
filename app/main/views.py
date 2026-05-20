@@ -26,9 +26,7 @@ def catalogue(request):
     context = {
         "latest_articles": explore.get("latest_articles", [])[:3],
         "top_pages": explore.get("top_pages", [])[:3],
-        "global_alert": (
-            notifications.get("global_alert") if notifications else None
-        ),
+        "global_alert": (notifications.get("global_alert") if notifications else None),
         "mourning_notice": (
             notifications.get("mourning_notice") if notifications else None
         ),

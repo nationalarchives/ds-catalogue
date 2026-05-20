@@ -92,9 +92,7 @@ class APIMixin:
         # aggregations, check long filter applied first
         if self.is_filter_list_applied(form):
             # aggs for long filter
-            filter_list_value = form.fields.get(
-                FieldsConstant.FILTER_LIST
-            ).cleaned
+            filter_list_value = form.fields.get(FieldsConstant.FILTER_LIST).cleaned
             params.update({"aggs": filter_list_value})
         else:
             # aggs for current bucket
@@ -109,9 +107,7 @@ class APIMixin:
             if isinstance(form.fields[field_name], DynamicMultipleChoiceField):
                 filter_name = underscore_to_camelcase(field_name)
                 selected_values = form.fields[field_name].cleaned
-                selected_values = self.replace_input_data(
-                    field_name, selected_values
-                )
+                selected_values = self.replace_input_data(field_name, selected_values)
                 filter_aggregations.extend(
                     (f"{filter_name}:{value}" for value in selected_values)
                 )
@@ -147,9 +143,7 @@ class APIMixin:
             FieldsConstant.OPENING_DATE_TO: "openingToDate:(<={year}-{month}-{day})",
         }
         for field_name in form.fields:
-            if isinstance(
-                form.fields[field_name], (FromDateField, ToDateField)
-            ):
+            if isinstance(form.fields[field_name], (FromDateField, ToDateField)):
                 if cleaned_date := form.fields[field_name].cleaned:
                     year, month, day = (
                         cleaned_date.year,
@@ -184,22 +178,17 @@ class APIMixin:
         reflect data included in the API's `aggs` response."""
 
         for aggregation in api_result.aggregations:
-
             field_name = self._get_field_name_from_api_aggregation(aggregation)
 
             if field_name in form.fields:
-                if isinstance(
-                    form.fields[field_name], DynamicMultipleChoiceField
-                ):
+                if isinstance(form.fields[field_name], DynamicMultipleChoiceField):
                     choice_api_data = aggregation.get("entries", ())
                     self.replace_api_data(field_name, choice_api_data)
                     form.fields[field_name].update_choices(
                         choice_api_data, form.fields[field_name].value
                     )
 
-                    self._build_more_filter_options(
-                        form, field_name, aggregation
-                    )
+                    self._build_more_filter_options(form, field_name, aggregation)
 
     def _get_field_name_from_api_aggregation(self, aggregation: dict) -> str:
         """Get field name from aggregation name, considering long filters.
@@ -210,9 +199,7 @@ class APIMixin:
         """
 
         aggregation_name = aggregation.get("name")
-        field_name = Aggregation.get_field_name_for_long_aggs_name(
-            aggregation_name
-        )
+        field_name = Aggregation.get_field_name_for_long_aggs_name(aggregation_name)
         if not field_name:
             field_name = camelcase_to_underscore(aggregation_name)
         return field_name
@@ -243,32 +230,25 @@ class APIMixin:
 
         # determine if more filter choices are available
         more_filter_choices_available = bool(aggregation.get("other", 0))
-        form.fields[field_name].more_filter_choices_available = (
-            more_filter_choices_available
-        )
+        form.fields[
+            field_name
+        ].more_filter_choices_available = more_filter_choices_available
         if more_filter_choices_available:
             # adds filter_list=<Aggregation long_aggs value> to existing query string
 
-            long_aggs = Aggregation.get_long_aggs_name_for_field_name(
-                field_name
-            )
+            long_aggs = Aggregation.get_long_aggs_name_for_field_name(field_name)
 
-            form.fields[field_name].more_filter_choices_url = (
-                "?"
-                + qs_replace_value(
-                    existing_qs=self.request.GET,
-                    filter=FieldsConstant.FILTER_LIST,
-                    by=long_aggs,
-                )
+            form.fields[field_name].more_filter_choices_url = "?" + qs_replace_value(
+                existing_qs=self.request.GET,
+                filter=FieldsConstant.FILTER_LIST,
+                by=long_aggs,
             )
         else:
             # override when no more options available
             form.fields[field_name].more_filter_choices_text = ""
             form.fields[field_name].more_filter_choices_url = ""
 
-    def replace_api_data(
-        self, field_name, entries_data: list[dict[str, str | int]]
-    ):
+    def replace_api_data(self, field_name, entries_data: list[dict[str, str | int]]):
         """Update API data for representation purpose."""
 
         # TODO: #LEVEL this is a temporary update until API data switches to Department
@@ -375,9 +355,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             # ensure only single value is bound to fields
             if isinstance(field, (ChoiceField, CharField)):
                 if len(self.form_kwargs.get("data").getlist(field_name)) > 1:
-                    logger.info(
-                        f"Field {field_name} can only bind to single value"
-                    )
+                    logger.info(f"Field {field_name} can only bind to single value")
                     raise SuspiciousOperation(
                         f"Field {field_name} can only bind to single value"
                     )
@@ -391,14 +369,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
                     date_field_name = (
                         f"{field_name}{field.date_ymd_separator}{date_key}"
                     )
-                    if (
-                        len(
-                            self.form_kwargs.get("data").getlist(
-                                date_field_name
-                            )
-                        )
-                        > 1
-                    ):
+                    if len(self.form_kwargs.get("data").getlist(date_field_name)) > 1:
                         logger.info(
                             f"Field {date_field_name} can only bind to single value"
                         )
@@ -512,8 +483,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
         results_range = {
             "from": ((self.page - 1) * RESULTS_PER_PAGE) + 1,
-            "to": ((self.page - 1) * RESULTS_PER_PAGE)
-            + self.api_result.stats_results,
+            "to": ((self.page - 1) * RESULTS_PER_PAGE) + self.api_result.stats_results,
         }
 
         pagination = pagination_object(self.page, pages, self.request.GET)
@@ -522,7 +492,6 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
 
 class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
-
     # templates for the view
     templates = {
         "default": "search/catalogue.html",
@@ -629,15 +598,15 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
         filter_context = {}
         if self.is_filter_list_applied(self.form):
-            cancel_and_return_to_search = f"?{qs_remove_value(self.request.GET, FieldsConstant.FILTER_LIST)}"
+            cancel_and_return_to_search = (
+                f"?{qs_remove_value(self.request.GET, FieldsConstant.FILTER_LIST)}"
+            )
             filter_context["mfc_cancel_and_return_to_search_url"] = (
                 cancel_and_return_to_search
             )
 
             # get field name from filter_list value
-            filter_list_value = self.form.fields[
-                FieldsConstant.FILTER_LIST
-            ].cleaned
+            filter_list_value = self.form.fields[FieldsConstant.FILTER_LIST].cleaned
 
             field_name = Aggregation.get_field_name_for_long_aggs_name(
                 filter_list_value
@@ -679,15 +648,11 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
         self._build_dynamic_multiple_choice_field_filters(selected_filters)
 
-        if isinstance(
-            self.form, (CatalogueSearchTnaForm, CatalogueSearchNonTnaForm)
-        ):
+        if isinstance(self.form, (CatalogueSearchTnaForm, CatalogueSearchNonTnaForm)):
             self._build_date_filters(
                 existing_filters=selected_filters,
                 form_kwargs=self.form_kwargs,
-                from_field=self.form.fields.get(
-                    FieldsConstant.COVERING_DATE_FROM
-                ),
+                from_field=self.form.fields.get(FieldsConstant.COVERING_DATE_FROM),
                 to_field=self.form.fields.get(FieldsConstant.COVERING_DATE_TO),
             )
 
@@ -695,9 +660,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             self._build_date_filters(
                 existing_filters=selected_filters,
                 form_kwargs=self.form_kwargs,
-                from_field=self.form.fields.get(
-                    FieldsConstant.OPENING_DATE_FROM
-                ),
+                from_field=self.form.fields.get(FieldsConstant.OPENING_DATE_FROM),
                 to_field=self.form.fields.get(FieldsConstant.OPENING_DATE_TO),
             )
 
@@ -706,9 +669,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
     def _build_dynamic_multiple_choice_field_filters(self, existing_filters):
         """Appends selected filters for dynamic multiple choice fields."""
         for field_name in self.form.fields:
-            if isinstance(
-                self.form.fields[field_name], DynamicMultipleChoiceField
-            ):
+            if isinstance(self.form.fields[field_name], DynamicMultipleChoiceField):
                 field = self.form.fields[field_name]
                 if field_name == FieldsConstant.LEVEL:
                     choice_labels = {m.level: m.level for m in TnaLevels}
@@ -777,9 +738,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             filter_name = f"{field.name}-{date_key}"
             return_object = bool(year and month)  # False if last date part
             qs_value = qs_toggle_value(
-                existing_qs=form_kwargs.get(
-                    "data"
-                ),  # start from original query dict
+                existing_qs=form_kwargs.get("data"),  # start from original query dict
                 filter=filter_name,
                 by=year,
                 return_object=return_object,
@@ -883,17 +842,11 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         self.form.fields[FieldsConstant.COVERING_DATE_TO].is_visible = False
         if (
             has_results
-            or self.form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(
-                "year"
-            )
-            or self.form.fields[FieldsConstant.COVERING_DATE_TO].value.get(
-                "year"
-            )
+            or self.form.fields[FieldsConstant.COVERING_DATE_FROM].value.get("year")
+            or self.form.fields[FieldsConstant.COVERING_DATE_TO].value.get("year")
         ):
             # visible if api results or input values are set
-            self.form.fields[FieldsConstant.COVERING_DATE_FROM].is_visible = (
-                True
-            )
+            self.form.fields[FieldsConstant.COVERING_DATE_FROM].is_visible = True
             self.form.fields[FieldsConstant.COVERING_DATE_TO].is_visible = True
 
         # collection filter
@@ -919,12 +872,8 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         self.form.fields[FieldsConstant.OPENING_DATE_TO].is_visible = False
         if (
             has_results
-            or self.form.fields[FieldsConstant.OPENING_DATE_FROM].value.get(
-                "year"
-            )
-            or self.form.fields[FieldsConstant.OPENING_DATE_TO].value.get(
-                "year"
-            )
+            or self.form.fields[FieldsConstant.OPENING_DATE_FROM].value.get("year")
+            or self.form.fields[FieldsConstant.OPENING_DATE_TO].value.get("year")
         ):
             # visible if api results or input values are set
             self.form.fields[FieldsConstant.OPENING_DATE_FROM].is_visible = True
@@ -947,17 +896,11 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         self.form.fields[FieldsConstant.COVERING_DATE_TO].is_visible = False
         if (
             has_results
-            or self.form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(
-                "year"
-            )
-            or self.form.fields[FieldsConstant.COVERING_DATE_TO].value.get(
-                "year"
-            )
+            or self.form.fields[FieldsConstant.COVERING_DATE_FROM].value.get("year")
+            or self.form.fields[FieldsConstant.COVERING_DATE_TO].value.get("year")
         ):
             # visible if api results or input values are set
-            self.form.fields[FieldsConstant.COVERING_DATE_FROM].is_visible = (
-                True
-            )
+            self.form.fields[FieldsConstant.COVERING_DATE_FROM].is_visible = True
             self.form.fields[FieldsConstant.COVERING_DATE_TO].is_visible = True
 
         # held_by filter

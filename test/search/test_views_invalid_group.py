@@ -17,9 +17,7 @@ class CatalogueSearchViewInvalidViewTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         form = response.context_data.get("form")
-        group_field = response.context_data.get("form").fields[
-            FieldsConstant.GROUP
-        ]
+        group_field = response.context_data.get("form").fields[FieldsConstant.GROUP]
         html = force_str(response.content)
 
         self.assertIsInstance(form, CatalogueSearchBaseForm)
@@ -72,12 +70,8 @@ class CatalogueSearchViewInvalidViewTests(TestCase):
         self.assertFalse(hasattr(group_field, "is_visible"))
 
         # test for presence of hidden inputs for invalid group param
-        self.assertIn(
-            """<input type="hidden" name="display" value="list">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="group" value="INVALID">""", html
-        )
+        self.assertIn("""<input type="hidden" name="display" value="list">""", html)
+        self.assertIn("""<input type="hidden" name="group" value="INVALID">""", html)
 
         self.assertEqual(
             response.context_data.get("show_banner_for_filters_not_applied"),

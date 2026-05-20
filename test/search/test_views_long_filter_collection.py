@@ -121,9 +121,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         )
 
         # input long filter without other params
-        response = self.client.get(
-            "/catalogue/search/?filter_list=longCollection"
-        )
+        response = self.client.get("/catalogue/search/?filter_list=longCollection")
 
         context_data = response.context_data
         form = context_data.get("form")
@@ -169,14 +167,10 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         )
 
         # test hidden inputs to retain other filters in form
-        self.assertIn(
-            """<input type="hidden" name="group" value="tna">""", html
-        )
+        self.assertIn("""<input type="hidden" name="group" value="tna">""", html)
         self.assertNotIn("""<input type="hidden" name="q" """, html)
         self.assertNotIn("""<input type="hidden" name="sort" """, html)
-        self.assertIn(
-            """<input type="hidden" name="display" value="list">""", html
-        )
+        self.assertIn("""<input type="hidden" name="display" value="list">""", html)
         self.assertNotIn("""<input type="hidden" name="online" """, html)
 
     @responses.activate
@@ -281,25 +275,13 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         )
 
         # test hidden inputs to retain other filters in form
-        self.assertIn(
-            """<input type="hidden" name="group" value="tna">""", html
-        )
+        self.assertIn("""<input type="hidden" name="group" value="tna">""", html)
         self.assertIn("""<input type="hidden" name="q" value="ufo">""", html)
-        self.assertIn(
-            """<input type="hidden" name="sort" value="title:asc">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="display" value="list">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="online" value="true">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="level" value="Item">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="level" value="Piece">""", html
-        )
+        self.assertIn("""<input type="hidden" name="sort" value="title:asc">""", html)
+        self.assertIn("""<input type="hidden" name="display" value="list">""", html)
+        self.assertIn("""<input type="hidden" name="online" value="true">""", html)
+        self.assertIn("""<input type="hidden" name="level" value="Item">""", html)
+        self.assertIn("""<input type="hidden" name="level" value="Piece">""", html)
         self.assertIn(
             """<input type="hidden" name="covering_date_from-year" value="1940">""",
             html,

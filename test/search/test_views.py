@@ -91,9 +91,7 @@ class CatalogueSearchViewDefaultTests(TestCase):
         collection_field = form.fields[FieldsConstant.COLLECTION]
         closure_field = form.fields[FieldsConstant.CLOSURE]
         subject_field = form.fields[FieldsConstant.SUBJECT]
-        covering_date_from_field = form.fields[
-            FieldsConstant.COVERING_DATE_FROM
-        ]
+        covering_date_from_field = form.fields[FieldsConstant.COVERING_DATE_FROM]
         covering_date_to_field = form.fields[FieldsConstant.COVERING_DATE_TO]
         online_field = form.fields[FieldsConstant.ONLINE]
         opening_date_from_field = form.fields[FieldsConstant.OPENING_DATE_FROM]

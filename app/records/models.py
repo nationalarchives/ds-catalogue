@@ -152,10 +152,12 @@ class Record(APIModel):
         clean_value = ""
         clean_title_length = len(self.clean_title)
         clean_summary_title_length = len(self.clean_summary_title)
+        # fmt: off
         if (
             clean_title_length > 0
             and clean_title_length <= clean_summary_title_length
         ):
+            # fmt: on
             clean_value = self.clean_title
         else:
             clean_value = self.clean_summary_title
@@ -366,9 +368,7 @@ class Record(APIModel):
         return tuple(
             dict(
                 description=item.get("description", ""),
-                links=list(
-                    format_link(val, inc_msg) for val in item.get("links", ())
-                ),
+                links=list(format_link(val, inc_msg) for val in item.get("links", ())),
             )
             for item in self.get("relatedMaterials", ())
         )
@@ -430,9 +430,7 @@ class Record(APIModel):
         return tuple(
             dict(
                 description=item.get("description", ""),
-                links=list(
-                    format_link(val, inc_msg) for val in item.get("links", ())
-                ),
+                links=list(format_link(val, inc_msg) for val in item.get("links", ())),
             )
             for item in self.get("separatedMaterials", ())
         )
@@ -472,9 +470,7 @@ class Record(APIModel):
             logger.error(message)
             sentry_sdk.capture_message(message, level="error")
             # add context for debugging in Sentry
-            sentry_sdk.set_context(
-                "missing_info", {"hierarchy_record_id": {self.id}}
-            )
+            sentry_sdk.set_context("missing_info", {"hierarchy_record_id": {self.id}})
             return MISSING_COUNT_TEXT
         return format_number(count)
 
@@ -588,9 +584,7 @@ class Record(APIModel):
 
         if raw_description:
             if self.custom_record_type == RecordTypes.ARCHON:
-                return apply_archon_xsl(
-                    raw_description, "ArchonPlaceDescription.xsl"
-                )
+                return apply_archon_xsl(raw_description, "ArchonPlaceDescription.xsl")
         return ""
 
     @cached_property
@@ -602,9 +596,7 @@ class Record(APIModel):
             if self.reference_number != TNA_ARCHON_CODE:
                 # Only apply for NonTNA ARCHON records, to hide presentation
                 # of the field as per Wireframes for TNA ARCHON records
-                return apply_archon_xsl(
-                    self.raw_description, "ArchonWebsite.xsl"
-                )
+                return apply_archon_xsl(self.raw_description, "ArchonWebsite.xsl")
         return ""
 
     @cached_property

@@ -371,17 +371,13 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
             status=HTTPStatus.OK,
         )
 
-        response = self.client.get(
-            "/catalogue/search/?subject=Army&subject=Navy"
-        )
+        response = self.client.get("/catalogue/search/?subject=Army&subject=Navy")
         context_data = response.context_data
         subject_field = context_data.get("form").fields[FieldsConstant.SUBJECT]
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
-        filter_labels = [
-            f["label"] for f in context_data.get("selected_filters")
-        ]
+        filter_labels = [f["label"] for f in context_data.get("selected_filters")]
         self.assertIn("Subject: Army", filter_labels)
         self.assertIn("Subject: Navy", filter_labels)
 

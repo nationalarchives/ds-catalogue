@@ -259,9 +259,7 @@ class TestFetchLandingPageData(TestCase):
         )
 
     @patch("app.main.api.wagtail_request_handler")
-    def test_does_not_overwrite_existing_notifications_cache(
-        self, mock_handler
-    ):
+    def test_does_not_overwrite_existing_notifications_cache(self, mock_handler):
         """Test that an already-warm notifications cache is not overwritten."""
         existing_notifications = {
             "global_alert": {"title": "Already cached alert"},

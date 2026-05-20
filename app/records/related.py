@@ -17,6 +17,7 @@ _LEVEL_FILTERS_SERIES_TO_ITEM = [
     if int(tna_level_member.level_code)
     in range(tna_level_lower_bound, tna_level_upper_bound)
 ]
+# fmt: on
 
 
 def get_tna_related_records_by_subjects(
@@ -184,9 +185,7 @@ def _search_by_subject_matches(
     # TODO: When filter logical AND is implemented, this function will provide even more closely related records
 
     # Try searching with all subjects first
-    record_matches = _search_with_all_subjects(
-        current_record, fetch_limit, timeout
-    )
+    record_matches = _search_with_all_subjects(current_record, fetch_limit, timeout)
 
     # If not enough results, search individual subjects
     if len(record_matches) < fetch_limit:
@@ -237,8 +236,7 @@ def get_related_records_by_series(
     try:
         api_result = search_records(
             query=series_ref,
-            results_per_page=limit
-            * 2,  # Get extra to filter out current record
+            results_per_page=limit * 2,  # Get extra to filter out current record
             page=1,
             sort="",
             params=params,

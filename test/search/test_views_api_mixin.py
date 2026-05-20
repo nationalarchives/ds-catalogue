@@ -4,7 +4,6 @@ from app.search.views import APIMixin
 
 
 class APIMixinReplaceMethodsTests(TestCase):
-
     def setUp(self):
         self.apimixin = APIMixin()
 

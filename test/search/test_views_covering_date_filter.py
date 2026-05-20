@@ -61,12 +61,8 @@ class CoveringDateFilterTests(TestCase):
 
         form = self.response.context_data.get("form")
         valid_status = form.is_valid()
-        covering_date_from_field = form.fields.get(
-            FieldsConstant.COVERING_DATE_FROM
-        )
-        covering_date_to_field = form.fields.get(
-            FieldsConstant.COVERING_DATE_TO
-        )
+        covering_date_from_field = form.fields.get(FieldsConstant.COVERING_DATE_FROM)
+        covering_date_to_field = form.fields.get(FieldsConstant.COVERING_DATE_TO)
 
         self.assertIsInstance(form, CatalogueSearchTnaForm)
         self.assertEqual(valid_status, True)
@@ -97,9 +93,7 @@ class CoveringDateFilterTests(TestCase):
         self.assertEqual(covering_date_to_field.id, "id_covering_date_to")
         self.assertEqual(covering_date_to_field.name, "covering_date_to")
         self.assertEqual(covering_date_to_field.label, "To")
-        self.assertEqual(
-            covering_date_to_field.active_filter_label, "Record date to"
-        )
+        self.assertEqual(covering_date_to_field.active_filter_label, "Record date to")
         self.assertEqual(covering_date_to_field.progressive, True)
         self.assertEqual(
             covering_date_to_field.value,
@@ -125,9 +119,7 @@ class CoveringDateFilterTests(TestCase):
             ],
         )
 
-        self.assertEqual(
-            self.response.context_data.get("filters_visible"), True
-        )
+        self.assertEqual(self.response.context_data.get("filters_visible"), True)
         self.assertTrue(covering_date_from_field.is_visible)
         self.assertTrue(covering_date_to_field.is_visible)
 
@@ -137,12 +129,8 @@ class CoveringDateFilterTests(TestCase):
         self.assertFalse(form.fields.get(FieldsConstant.LEVEL).is_visible)
         self.assertFalse(form.fields.get(FieldsConstant.SUBJECT).is_visible)
         self.assertFalse(form.fields.get(FieldsConstant.CLOSURE).is_visible)
-        self.assertTrue(
-            form.fields.get(FieldsConstant.OPENING_DATE_FROM).is_visible
-        )
-        self.assertTrue(
-            form.fields.get(FieldsConstant.OPENING_DATE_TO).is_visible
-        )
+        self.assertTrue(form.fields.get(FieldsConstant.OPENING_DATE_FROM).is_visible)
+        self.assertTrue(form.fields.get(FieldsConstant.OPENING_DATE_TO).is_visible)
 
     @responses.activate
     def test_search_with_year_date_part(self):
@@ -179,19 +167,13 @@ class CoveringDateFilterTests(TestCase):
         )
 
         self.response = self.client.get(
-            "/catalogue/search/?"
-            "covering_date_from-year=1999"
-            "&covering_date_to-year=2000"
+            "/catalogue/search/?covering_date_from-year=1999&covering_date_to-year=2000"
         )
 
         form = self.response.context_data.get("form")
         _ = form.is_valid()
-        covering_date_from_field = form.fields.get(
-            FieldsConstant.COVERING_DATE_FROM
-        )
-        covering_date_to_field = form.fields.get(
-            FieldsConstant.COVERING_DATE_TO
-        )
+        covering_date_from_field = form.fields.get(FieldsConstant.COVERING_DATE_FROM)
+        covering_date_to_field = form.fields.get(FieldsConstant.COVERING_DATE_TO)
 
         self.assertEqual(
             covering_date_from_field.value,
@@ -225,9 +207,7 @@ class CoveringDateFilterTests(TestCase):
             ],
         )
 
-        self.assertEqual(
-            self.response.context_data.get("filters_visible"), True
-        )
+        self.assertEqual(self.response.context_data.get("filters_visible"), True)
         self.assertTrue(covering_date_from_field.is_visible)
         self.assertTrue(covering_date_to_field.is_visible)
 
@@ -245,18 +225,12 @@ class CoveringDateFilterErrorTests(TestCase):
         Form with error does make api call."""
 
         self.response = self.client.get(
-            "/catalogue/search/?"
-            "covering_date_from-year=2000"
-            "&covering_date_to-year=1999"
+            "/catalogue/search/?covering_date_from-year=2000&covering_date_to-year=1999"
         )
 
         form = self.response.context_data.get("form")
-        covering_date_from_field = form.fields.get(
-            FieldsConstant.COVERING_DATE_FROM
-        )
-        covering_date_to_field = form.fields.get(
-            FieldsConstant.COVERING_DATE_TO
-        )
+        covering_date_from_field = form.fields.get(FieldsConstant.COVERING_DATE_FROM)
+        covering_date_to_field = form.fields.get(FieldsConstant.COVERING_DATE_TO)
 
         # results
         self.assertEqual(self.response.context_data.get("results"), None)
@@ -292,9 +266,7 @@ class CoveringDateFilterErrorTests(TestCase):
         self.assertEqual(covering_date_from_field._cleaned, date(2000, 1, 1))
         self.assertEqual(
             covering_date_from_field.error,
-            {
-                "text": "This date must be earlier than or equal to the 'to' date."
-            },
+            {"text": "This date must be earlier than or equal to the 'to' date."},
         )
 
         # covering_date_to
@@ -317,9 +289,7 @@ class CoveringDateFilterErrorTests(TestCase):
             ],
         )
 
-        self.assertEqual(
-            self.response.context_data.get("filters_visible"), True
-        )
+        self.assertEqual(self.response.context_data.get("filters_visible"), True)
         self.assertTrue(covering_date_from_field.is_visible)
         self.assertTrue(covering_date_to_field.is_visible)
 
@@ -329,12 +299,8 @@ class CoveringDateFilterErrorTests(TestCase):
         self.assertFalse(form.fields.get(FieldsConstant.LEVEL).is_visible)
         self.assertFalse(form.fields.get(FieldsConstant.SUBJECT).is_visible)
         self.assertFalse(form.fields.get(FieldsConstant.CLOSURE).is_visible)
-        self.assertFalse(
-            form.fields.get(FieldsConstant.OPENING_DATE_FROM).is_visible
-        )
-        self.assertFalse(
-            form.fields.get(FieldsConstant.OPENING_DATE_TO).is_visible
-        )
+        self.assertFalse(form.fields.get(FieldsConstant.OPENING_DATE_FROM).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.OPENING_DATE_TO).is_visible)
 
     @responses.activate
     def test_search_with_invalid_date_parts(self):
@@ -342,18 +308,12 @@ class CoveringDateFilterErrorTests(TestCase):
         Form with error does make api call."""
 
         self.response = self.client.get(
-            "/catalogue/search/?"
-            "covering_date_from-year=ABC"
-            "&covering_date_to-year=PQR"
+            "/catalogue/search/?covering_date_from-year=ABC&covering_date_to-year=PQR"
         )
 
         form = self.response.context_data.get("form")
-        covering_date_from_field = form.fields.get(
-            FieldsConstant.COVERING_DATE_FROM
-        )
-        covering_date_to_field = form.fields.get(
-            FieldsConstant.COVERING_DATE_TO
-        )
+        covering_date_from_field = form.fields.get(FieldsConstant.COVERING_DATE_FROM)
+        covering_date_to_field = form.fields.get(FieldsConstant.COVERING_DATE_TO)
 
         # results
         self.assertEqual(self.response.context_data.get("results"), None)
@@ -394,8 +354,6 @@ class CoveringDateFilterErrorTests(TestCase):
             [],
         )
 
-        self.assertEqual(
-            self.response.context_data.get("filters_visible"), True
-        )
+        self.assertEqual(self.response.context_data.get("filters_visible"), True)
         self.assertTrue(covering_date_from_field.is_visible)
         self.assertTrue(covering_date_to_field.is_visible)

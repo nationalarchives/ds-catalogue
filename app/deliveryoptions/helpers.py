@@ -46,7 +46,7 @@ def get_dept(reference_number: str, key_type: str) -> Optional[str]:
         The value for the specified key_type from the matching department or None if not found
     """
     # Create a cache key based on the parameters
-    cache_key = f"dept_{reference_number.replace(" ", "")}_{key_type}"
+    cache_key = f"dept_{reference_number.replace(' ', '')}_{key_type}"
 
     # Try to get the result from the cache
     cached_result = cache.get(cache_key)
@@ -487,9 +487,7 @@ def get_paid_search_url(record: Record) -> str:
 
     TODO: URL will undoubtedly change with Etna
     """
-    return (
-        f"{BASE_TNA_HOME_URL}/paidsearch/foirequest/{record.id}?type=foirequest"
-    )
+    return f"{BASE_TNA_HOME_URL}/paidsearch/foirequest/{record.id}?type=foirequest"
 
 
 def get_price() -> str:

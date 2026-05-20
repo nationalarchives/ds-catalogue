@@ -15,9 +15,7 @@ class TestUtils(SimpleTestCase):
 
         for input_str, expected_output in test_cases.items():
             with self.subTest(input_str=input_str):
-                self.assertEqual(
-                    camelcase_to_underscore(input_str), expected_output
-                )
+                self.assertEqual(camelcase_to_underscore(input_str), expected_output)
 
     def test_underscore_to_camelcase(self):
         test_cases = {
@@ -30,6 +28,4 @@ class TestUtils(SimpleTestCase):
 
         for input_str, expected_output in test_cases.items():
             with self.subTest(input_str=input_str):
-                self.assertEqual(
-                    underscore_to_camelcase(input_str), expected_output
-                )
+                self.assertEqual(underscore_to_camelcase(input_str), expected_output)

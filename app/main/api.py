@@ -79,7 +79,8 @@ def fetch_landing_page_data() -> dict | None:
 
             data = {
                 "explore_the_collection": response.get(
-                    "explore_the_collection", {}
+                    "explore_the_collection",
+                    {},
                 ),
             }
             cache.set(

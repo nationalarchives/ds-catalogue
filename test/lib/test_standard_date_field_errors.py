@@ -72,9 +72,7 @@ class BaseFormWithStandardDateRequiredErrorTest(TestCase):
         )
 
         # join_date_from field
-        self.assertEqual(
-            self.date_from.value, {"year": "", "month": "", "day": ""}
-        )
+        self.assertEqual(self.date_from.value, {"year": "", "month": "", "day": ""})
         self.assertEqual(self.date_from.cleaned, None)
         self.assertEqual(
             self.date_from.error,
@@ -82,9 +80,7 @@ class BaseFormWithStandardDateRequiredErrorTest(TestCase):
         )
 
         # join_date_to field
-        self.assertEqual(
-            self.date_to.value, {"year": "", "month": "", "day": ""}
-        )
+        self.assertEqual(self.date_to.value, {"year": "", "month": "", "day": ""})
         self.assertEqual(self.date_to.cleaned, None)
         self.assertEqual(
             self.date_to.error,
@@ -200,6 +196,7 @@ class BaseFormWithStandardDateErrorTest(TestCase):
         # form attributes
         self.assertEqual(valid_status, False)
         self.assertEqual(self.form.errors, {})
+        # fmt: off
         self.assertEqual(
             self.form.non_field_errors,
             [
@@ -208,6 +205,7 @@ class BaseFormWithStandardDateErrorTest(TestCase):
                 }
             ],
         )
+        # fmt: on
 
         # join_date_from field
         self.assertEqual(
@@ -426,6 +424,4 @@ class BaseFormWithStandardDateErrorTest(TestCase):
                 # expected
                 self.assertEqual(self.date_from.value, expected_value)
                 self.assertEqual(self.date_from.cleaned, None)
-                self.assertEqual(
-                    self.date_from.error.get("text"), expected_error
-                )
+                self.assertEqual(self.date_from.error.get("text"), expected_error)

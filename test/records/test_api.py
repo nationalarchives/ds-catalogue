@@ -66,9 +66,7 @@ class TestRecordDetailsById(SimpleTestCase):
             status=200,
         )
 
-        with self.assertRaisesMessage(
-            RecordNotFound, "id C198022 does not exist"
-        ):
+        with self.assertRaisesMessage(RecordNotFound, "id C198022 does not exist"):
             _ = record_details_by_id(id="C198022")
 
 
@@ -84,9 +82,7 @@ class TestWagtailAPIIntegration(SimpleTestCase):
 
         # This would normally call the actual function, but we're mocking it
         # to test the pattern
-        result = mock_handler(
-            "/article_tags/", {"tags": "aviation", "limit": 10}
-        )
+        result = mock_handler("/article_tags/", {"tags": "aviation", "limit": 10})
 
         self.assertEqual(result, mock_response)
         mock_handler.assert_called_once_with(
@@ -117,9 +113,7 @@ class TestWagtailAPIIntegration(SimpleTestCase):
     def test_wagtail_request_handler_missing_url(self):
         """Test wagtail_request_handler when WAGTAIL_API_URL is not set"""
 
-        with self.assertRaisesMessage(
-            ImproperlyConfigured, "WAGTAIL_API_URL not set"
-        ):
+        with self.assertRaisesMessage(ImproperlyConfigured, "WAGTAIL_API_URL not set"):
             wagtail_request_handler("/article_tags/", {})
 
     @override_settings(WAGTAIL_API_URL="https://test-api.example.com")

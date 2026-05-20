@@ -125,16 +125,10 @@ class CatalogueSearchViewQueryParamTests(TestCase):
 
         # other fields visibility
         self.assertFalse(form.fields[FieldsConstant.ONLINE].is_visible)
-        self.assertFalse(
-            form.fields[FieldsConstant.COVERING_DATE_FROM].is_visible
-        )
-        self.assertFalse(
-            form.fields[FieldsConstant.COVERING_DATE_TO].is_visible
-        )
+        self.assertFalse(form.fields[FieldsConstant.COVERING_DATE_FROM].is_visible)
+        self.assertFalse(form.fields[FieldsConstant.COVERING_DATE_TO].is_visible)
         self.assertFalse(form.fields[FieldsConstant.SUBJECT].is_visible)
-        self.assertFalse(
-            form.fields[FieldsConstant.OPENING_DATE_FROM].is_visible
-        )
+        self.assertFalse(form.fields[FieldsConstant.OPENING_DATE_FROM].is_visible)
         self.assertFalse(form.fields[FieldsConstant.OPENING_DATE_TO].is_visible)
         self.assertFalse(form.fields[FieldsConstant.CLOSURE].is_visible)
 

@@ -8,7 +8,6 @@ from app.deliveryoptions.constants import AvailabilityCondition
 
 
 class TestAnalyticsDataInRecordDetailsView(TestCase):
-
     @responses.activate
     @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.enrichment.get_availability_group")
@@ -42,9 +41,7 @@ class TestAnalyticsDataInRecordDetailsView(TestCase):
                                 "@hierarchy": [
                                     {
                                         "@admin": {"id": "C57"},
-                                        "identifier": [
-                                            {"reference_number": "CO"}
-                                        ],
+                                        "identifier": [{"reference_number": "CO"}],
                                         "level": {"code": 1},
                                         "source": {"value": "CAT"},
                                         "summary": {
@@ -63,9 +60,7 @@ class TestAnalyticsDataInRecordDetailsView(TestCase):
                                     },
                                     {
                                         "@admin": {"id": "C4357"},
-                                        "identifier": [
-                                            {"reference_number": "CO 166"}
-                                        ],
+                                        "identifier": [{"reference_number": "CO 166"}],
                                         "level": {"code": 3},
                                         "source": {"value": "CAT"},
                                         "summary": {
@@ -89,9 +84,7 @@ class TestAnalyticsDataInRecordDetailsView(TestCase):
                                         ],
                                         "level": {"code": 6},
                                         "source": {"value": "CAT"},
-                                        "summary": {
-                                            "title": "Military and Naval"
-                                        },
+                                        "summary": {"title": "Military and Naval"},
                                         "count": 69,
                                     },
                                 ],

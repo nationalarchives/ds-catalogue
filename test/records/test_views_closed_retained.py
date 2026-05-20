@@ -23,9 +23,7 @@ class TestClosedRetainedAvailability(TestCase):
             "title": "Test Closed Retained Record",
             "source": "CAT",
             "heldByCount": 1,
-            "level": {
-                "code": 3
-            },  # Sub-sub-fonds — in DELIVERY_OPTIONS_NON_TNA_LEVELS
+            "level": {"code": 3},  # Sub-sub-fonds — in DELIVERY_OPTIONS_NON_TNA_LEVELS
         }
         if held_by:
             details["heldBy"] = held_by

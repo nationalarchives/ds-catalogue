@@ -10,7 +10,6 @@ from test.utils import prevent_request_warnings
 
 
 class TestCatalogueSearchViewExceptions(TestCase):
-
     def setUp(self):
         self.factory = RequestFactory()
 
@@ -105,9 +104,7 @@ class TestCatalogueSearchViewExceptions(TestCase):
                     )
 
                     # check response code and content
-                    self.assertEqual(
-                        response.status_code, HTTPStatus.BAD_REQUEST
-                    )
+                    self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
                     self.assertIn(
                         "Page not found",
                         response.content.decode("utf-8"),

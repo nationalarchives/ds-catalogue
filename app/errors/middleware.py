@@ -34,9 +34,7 @@ class CustomExceptionMiddleware:
         if settings.DEBUG:
             raise  # re-raise error
 
-        if isinstance(
-            exception, (APIResourceNotFound, RecordNotFound, NoResultsFound)
-        ):
+        if isinstance(exception, (APIResourceNotFound, RecordNotFound, NoResultsFound)):
             return page_not_found_error_view(request=request)
 
         if isinstance(exception, SuspiciousOperation):

@@ -8,7 +8,6 @@ from app.records.models import APIResponse, Record
 
 
 class APISearchResponse(APIResponse):
-
     @cached_property
     def records(self) -> list[Record]:
         records = []

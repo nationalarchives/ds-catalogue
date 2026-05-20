@@ -90,9 +90,7 @@ class CatalogueSearchCommonForm(CatalogueSearchBaseForm):
             # add error at field and form level
 
             # add field error to first date field
-            field_message = (
-                "This date must be earlier than or equal to the 'to' date."
-            )
+            field_message = "This date must be earlier than or equal to the 'to' date."
 
             # add cross field error message (not derived from field)
             cross_field_message = (
@@ -113,7 +111,6 @@ class CatalogueSearchCommonForm(CatalogueSearchBaseForm):
 
 
 class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
-
     def add_fields(self):
 
         fields = super().add_fields()
@@ -190,28 +187,30 @@ class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
 
 
 class CatalogueSearchNonTnaForm(CatalogueSearchCommonForm):
-
     def add_fields(self):
 
         fields = super().add_fields()
 
-        return fields | {
-            FieldsConstant.COVERING_DATE_FROM: FromDateField(
-                label="From",
-                active_filter_label="Record date from",
-                progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
-            ),
-            FieldsConstant.COVERING_DATE_TO: ToDateField(
-                label="To",
-                active_filter_label="Record date to",
-                progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
-            ),
-            FieldsConstant.HELD_BY: DynamicMultipleChoiceField(
-                label="Held by",
-                choices=[],  # no initial choices as they are set dynamically
-                active_filter_label="Held by",
-                more_filter_choices_text="See more held by",
-            ),
-        }
+        return (
+            fields
+            | {
+                FieldsConstant.COVERING_DATE_FROM: FromDateField(
+                    label="From",
+                    active_filter_label="Record date from",
+                    progressive=True,  # interfaces with FE component for progressive date entry
+                    date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
+                ),
+                FieldsConstant.COVERING_DATE_TO: ToDateField(
+                    label="To",
+                    active_filter_label="Record date to",
+                    progressive=True,  # interfaces with FE component for progressive date entry
+                    date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
+                ),
+                FieldsConstant.HELD_BY: DynamicMultipleChoiceField(
+                    label="Held by",
+                    choices=[],  # no initial choices as they are set dynamically
+                    active_filter_label="Held by",
+                    more_filter_choices_text="See more held by",
+                ),
+            }
+        )

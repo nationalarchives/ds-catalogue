@@ -12,7 +12,6 @@ from app.lib.forms import BaseForm
 
 
 class BaseFormWithCharFieldTest(TestCase):
-
     def get_form_with_char_field(self, data=None, required=False):
 
         class MyTestForm(BaseForm):
@@ -42,9 +41,7 @@ class BaseFormWithCharFieldTest(TestCase):
         form = self.get_form_with_char_field(data, required=True)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, False)
-        self.assertEqual(
-            form.errors, {"char_field": {"text": "Value is required."}}
-        )
+        self.assertEqual(form.errors, {"char_field": {"text": "Value is required."}})
         self.assertEqual(form.fields["char_field"].value, "")
         self.assertEqual(form.fields["char_field"].cleaned, None)
         self.assertEqual(
@@ -95,7 +92,6 @@ class BaseFormWithCharFieldTest(TestCase):
 
 
 class BaseFormWithChoiceFieldTest(TestCase):
-
     def get_form_with_choice_field(self, data=None, required=False):
 
         class MyTestForm(BaseForm):
@@ -125,9 +121,7 @@ class BaseFormWithChoiceFieldTest(TestCase):
         form = self.get_form_with_choice_field(data, required=True)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, False)
-        self.assertEqual(
-            form.errors, {"choice_field": {"text": "Value is required."}}
-        )
+        self.assertEqual(form.errors, {"choice_field": {"text": "Value is required."}})
         self.assertEqual(form.fields["choice_field"].value, "")
         self.assertEqual(form.fields["choice_field"].cleaned, None)
         self.assertEqual(
@@ -250,20 +244,15 @@ class BaseFormWithChoiceFieldTest(TestCase):
 
 
 class NewFieldWithRaiseValidationTest(TestCase):
-
     def get_form_with_new_field(self, data=None):
 
         class MyTestForm(BaseForm):
-
             class TestNewField(CharField):
-
                 def validate(self, value):
                     try:
                         datetime.strptime(value, "%Y-%m-%d")
                     except ValueError:
-                        raise ValidationError(
-                            "Value is not in format YYYY-MM-DD"
-                        )
+                        raise ValidationError("Value is not in format YYYY-MM-DD")
                     super().validate(value)
 
             def add_fields(self):
@@ -290,13 +279,10 @@ class NewFieldWithRaiseValidationTest(TestCase):
                 {"text": "Value is not in format YYYY-MM-DD"},
             )
         except Exception as e:
-            self.fail(
-                f"form.is_valid() raised an exception unexpectedly. {str(e)}"
-            )
+            self.fail(f"form.is_valid() raised an exception unexpectedly. {str(e)}")
 
 
 class BaseFormWithCrossValidationTest(TestCase):
-
     def get_form(self, data=None):
 
         class MyTestForm(BaseForm):

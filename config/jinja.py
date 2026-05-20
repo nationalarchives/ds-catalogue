@@ -213,9 +213,7 @@ def qs_append_value(
     return rtn_qs if return_object else rtn_qs.urlencode()
 
 
-def qs_remove_value(
-    existing_qs: QueryDict, filter: str, return_object: bool = False
-):
+def qs_remove_value(existing_qs: QueryDict, filter: str, return_object: bool = False):
     # Don't change the currently rendering existing query string!
     rtn_qs = existing_qs.copy()
     if filter in rtn_qs:
@@ -258,9 +256,7 @@ def truncate_preserve_mark_tags(value, max_length=250):  # noqa: C901
     tokens = mark_tag_re.split(value)
 
     output = []  # Will be used to accumulate output parts
-    visible = (
-        0  # Will be used to count visible (non-tag) characters emitted so far
-    )
+    visible = 0  # Will be used to count visible (non-tag) characters emitted so far
     truncated = False  # Flag once we hit the limit.
     stack = []  # Tracks open <mark> tags for correct closing order.
 

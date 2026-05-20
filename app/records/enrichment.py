@@ -75,26 +75,20 @@ class RecordEnrichmentHelper:
         try:
             futures_map[executor.submit(self._fetch_subjects)] = "subjects"
         except RuntimeError:
-            message = (
-                f"Failed to submit subjects task for record {self.record.id}"
-            )
+            message = f"Failed to submit subjects task for record {self.record.id}"
             logger.error(message)
 
         # Submit related fetch
         try:
             futures_map[executor.submit(self._fetch_related)] = "related"
         except RuntimeError:
-            message = (
-                f"Failed to submit related task for record {self.record.id}"
-            )
+            message = f"Failed to submit related task for record {self.record.id}"
             logger.error(message)
 
         # Submit delivery options if applicable
         if self._should_include_delivery_options():
             try:
-                futures_map[executor.submit(self._fetch_delivery_options)] = (
-                    "delivery"
-                )
+                futures_map[executor.submit(self._fetch_delivery_options)] = "delivery"
             except RuntimeError:
                 message = f"Failed to submit delivery task for record {self.record.id}"
                 logger.error(message)
@@ -124,8 +118,7 @@ class RecordEnrichmentHelper:
         """Log completion timing if enabled."""
         if settings.ENRICHMENT_TIMING_ENABLED and completion_order:
             timing_details = ", ".join(
-                f"{name}: {completion_times[name]:.3f}s"
-                for name in completion_order
+                f"{name}: {completion_times[name]:.3f}s" for name in completion_order
             )
             api_timer_logger.info(
                 f"Record {self.record.id} completion order: [{timing_details}]"
@@ -312,10 +305,7 @@ class RecordEnrichmentHelper:
         ]:
             return False
 
-        if (
-            self.record.is_tna
-            and self.record.level_code in DELIVERY_OPTIONS_TNA_LEVELS
-        ):
+        if self.record.is_tna and self.record.level_code in DELIVERY_OPTIONS_TNA_LEVELS:
             return True
         elif (
             not self.record.is_tna

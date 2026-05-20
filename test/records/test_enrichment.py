@@ -120,12 +120,8 @@ class TestRecordEnrichmentHelper(TestCase):
         result = helper._fetch_related()
 
         self.assertEqual(len(result), 3)
-        mock_subjects.assert_called_once_with(
-            self.test_record, limit=3, timeout=7
-        )
-        mock_series.assert_called_once_with(
-            self.test_record, limit=2, timeout=7
-        )
+        mock_subjects.assert_called_once_with(self.test_record, limit=3, timeout=7)
+        mock_series.assert_called_once_with(self.test_record, limit=2, timeout=7)
 
     def test_should_include_delivery_for_archon(self) -> None:
         """Test that ARCHON records should not include delivery options"""
@@ -171,9 +167,7 @@ class TestRecordEnrichmentHelper(TestCase):
         self.assertIn("tna_discovery_link", result)
 
     @patch("app.records.enrichment.delivery_options_request_handler")
-    def test_fetch_delivery_handles_errors(
-        self, mock_api_handler: Mock
-    ) -> None:
+    def test_fetch_delivery_handles_errors(self, mock_api_handler: Mock) -> None:
         """Test that delivery options errors are handled gracefully"""
         mock_api_handler.side_effect = Exception("API Error")
 
@@ -194,9 +188,7 @@ class TestRecordEnrichmentHelper(TestCase):
         self.assertTrue(result)
 
     @patch("app.records.enrichment.has_distressing_content")
-    def test_fetch_distressing_handles_errors(
-        self, mock_distressing: Mock
-    ) -> None:
+    def test_fetch_distressing_handles_errors(self, mock_distressing: Mock) -> None:
         """Test that distressing content errors are handled gracefully"""
         mock_distressing.side_effect = Exception("API Error")
 
@@ -280,7 +272,6 @@ class TestRecordEnrichmentHelper(TestCase):
                 helper, "_should_include_delivery_options", return_value=False
             ),
         ):
-
             with ThreadPoolExecutor(max_workers=3) as executor:
                 futures_map = helper._submit_fetch_tasks(executor)
 
@@ -304,9 +295,7 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_sentry.capture_exception.assert_not_called()
 
     @patch("app.records.enrichment.sentry_sdk")
-    def test_process_future_result_handles_timeout(
-        self, mock_sentry: Mock
-    ) -> None:
+    def test_process_future_result_handles_timeout(self, mock_sentry: Mock) -> None:
         """Test that timeout exceptions are handled and logged to Sentry"""
         from concurrent.futures import TimeoutError
 
@@ -425,18 +414,14 @@ class TestRecordEnrichmentHelper(TestCase):
         result = helper.fetch_all()
 
         # Should have subjects data
-        self.assertEqual(
-            result["subjects_enrichment"], {"items": [{"title": "Test"}]}
-        )
+        self.assertEqual(result["subjects_enrichment"], {"items": [{"title": "Test"}]})
 
         # Related should be empty (failed, but caught in _fetch_related)
         self.assertEqual(result["related_records"], [])
 
         # Logger should have been called for the related records failure
         warning_calls = [
-            c
-            for c in mock_logger.warning.call_args_list
-            if "related" in str(c).lower()
+            c for c in mock_logger.warning.call_args_list if "related" in str(c).lower()
         ]
         self.assertGreater(len(warning_calls), 0)
 
@@ -500,9 +485,7 @@ class TestRecordEnrichmentHelper(TestCase):
             timeouts_used = set()
             for call_args in calls:
                 if len(call_args[0]) >= 3:
-                    timeouts_used.add(
-                        call_args[0][2]
-                    )  # timeout is 3rd argument
+                    timeouts_used.add(call_args[0][2])  # timeout is 3rd argument
 
             # Should have used the custom timeouts (5, 10)
             self.assertTrue(5 in timeouts_used or 10 in timeouts_used)
