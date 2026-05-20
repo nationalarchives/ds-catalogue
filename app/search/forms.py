@@ -115,65 +115,68 @@ class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
 
         fields = super().add_fields()
 
-        return fields | {
-            FieldsConstant.LEVEL: DynamicMultipleChoiceField(
-                label="Filter by levels",
-                choices=[(m.level, m.level) for m in TnaLevels],
-                validate_input=True,  # validate input with choices before querying the API
-                active_filter_label="Level",
-                more_filter_choices_text="See more levels",
-            ),
-            FieldsConstant.COLLECTION: DynamicMultipleChoiceField(
-                label="Collections",
-                choices=COLLECTION_CHOICES,
-                validate_input=False,  # do not validate input COLLECTION_CHOICES fixed or dynamic
-                active_filter_label="Collection",
-                more_filter_choices_text="See more collections",
-            ),
-            FieldsConstant.SUBJECT: DynamicMultipleChoiceField(
-                label="Subjects",
-                choices=[],  # no initial choices as they are set dynamically
-                active_filter_label="Subject",
-                more_filter_choices_text="See more subjects",
-            ),
-            FieldsConstant.ONLINE: ChoiceField(
-                choices=[
-                    ("", "All records"),
-                    ("true", "Available online only"),
-                ],
-                required=False,
-                active_filter_label="Online only",
-            ),
-            FieldsConstant.CLOSURE: DynamicMultipleChoiceField(
-                label="Closure status",
-                choices=[],  # no initial choices as they are set dynamically
-                active_filter_label="Closure status",
-            ),
-            FieldsConstant.COVERING_DATE_FROM: FromDateField(
-                label="From",
-                active_filter_label="Record date from",
-                progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
-            ),
-            FieldsConstant.COVERING_DATE_TO: ToDateField(
-                label="To",
-                active_filter_label="Record date to",
-                progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
-            ),
-            FieldsConstant.OPENING_DATE_FROM: FromDateField(
-                label="From",
-                active_filter_label="Opening date from",
-                progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
-            ),
-            FieldsConstant.OPENING_DATE_TO: ToDateField(
-                label="To",
-                active_filter_label="Opening date to",
-                progressive=True,  # interfaces with FE component for progressive date entry
-                date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
-            ),
-        }
+        return (
+            fields
+            | {
+                FieldsConstant.LEVEL: DynamicMultipleChoiceField(
+                    label="Filter by levels",
+                    choices=[(m.level, m.level) for m in TnaLevels],
+                    validate_input=True,  # validate input with choices before querying the API
+                    active_filter_label="Level",
+                    more_filter_choices_text="See more levels",
+                ),
+                FieldsConstant.COLLECTION: DynamicMultipleChoiceField(
+                    label="Collections",
+                    choices=COLLECTION_CHOICES,
+                    validate_input=False,  # do not validate input COLLECTION_CHOICES fixed or dynamic
+                    active_filter_label="Collection",
+                    more_filter_choices_text="See more collections",
+                ),
+                FieldsConstant.SUBJECT: DynamicMultipleChoiceField(
+                    label="Subjects",
+                    choices=[],  # no initial choices as they are set dynamically
+                    active_filter_label="Subject",
+                    more_filter_choices_text="See more subjects",
+                ),
+                FieldsConstant.ONLINE: ChoiceField(
+                    choices=[
+                        ("", "All records"),
+                        ("true", "Available online only"),
+                    ],
+                    required=False,
+                    active_filter_label="Online only",
+                ),
+                FieldsConstant.CLOSURE: DynamicMultipleChoiceField(
+                    label="Closure status",
+                    choices=[],  # no initial choices as they are set dynamically
+                    active_filter_label="Closure status",
+                ),
+                FieldsConstant.COVERING_DATE_FROM: FromDateField(
+                    label="From",
+                    active_filter_label="Record date from",
+                    progressive=True,  # interfaces with FE component for progressive date entry
+                    date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
+                ),
+                FieldsConstant.COVERING_DATE_TO: ToDateField(
+                    label="To",
+                    active_filter_label="Record date to",
+                    progressive=True,  # interfaces with FE component for progressive date entry
+                    date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
+                ),
+                FieldsConstant.OPENING_DATE_FROM: FromDateField(
+                    label="From",
+                    active_filter_label="Opening date from",
+                    progressive=True,  # interfaces with FE component for progressive date entry
+                    date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
+                ),
+                FieldsConstant.OPENING_DATE_TO: ToDateField(
+                    label="To",
+                    active_filter_label="Opening date to",
+                    progressive=True,  # interfaces with FE component for progressive date entry
+                    date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
+                ),
+            }
+        )
 
     def cross_validate(self) -> list[str]:
         error_messages = super().cross_validate()

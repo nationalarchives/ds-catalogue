@@ -200,9 +200,7 @@ class TestSearchIndividualSubjects(TestCase):
         mock_record.id = "C123"
         mock_record.subjects = ["Army"]
 
-        _search_individual_subjects(
-            mock_record, fetch_limit=3, record_matches={}
-        )
+        _search_individual_subjects(mock_record, fetch_limit=3, record_matches={})
 
         params = mock_search.call_args.kwargs["params"]
         level_filters = {f for f in params["filter"] if f.startswith("level:")}

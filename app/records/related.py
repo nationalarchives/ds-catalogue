@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 tna_level_lower_bound = int(TnaLevels.SERIES.level_code)
 tna_level_upper_bound = int(TnaLevels.ITEM.level_code) + 1
 
+# fmt: off
 _LEVEL_FILTERS_SERIES_TO_ITEM = [
     f"level:{tna_level_member.level}"
     for tna_level_member in TnaLevels
