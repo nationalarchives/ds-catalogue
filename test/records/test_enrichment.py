@@ -4,9 +4,11 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from typing import Any
 from unittest.mock import Mock, patch
 
+from django.test import TestCase, override_settings
+
+from app.deliveryoptions.delivery_options import _get_dcs_prefix_variants
 from app.records.enrichment import RecordEnrichmentHelper
 from app.records.models import Record
-from django.test import TestCase, override_settings
 
 
 class TestRecordEnrichmentHelper(TestCase):
@@ -28,7 +30,6 @@ class TestRecordEnrichmentHelper(TestCase):
         ROSETTA_ENRICHMENT_API_TIMEOUT=15,
         DELIVERY_OPTIONS_API_TIMEOUT=20,
     )
-    @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.enrichment.get_related_records_by_series")
     @patch("app.records.enrichment.get_tna_related_records_by_subjects")
     @patch("app.records.enrichment.get_subjects_enrichment")
@@ -37,13 +38,11 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_subjects: Mock,
         mock_related_subjects: Mock,
         mock_related_series: Mock,
-        mock_distressing: Mock,
     ) -> None:
         """Test sequential fetching when feature flag is off"""
         mock_subjects.return_value = {"items": []}
         mock_related_subjects.return_value = []
         mock_related_series.return_value = []
-        mock_distressing.return_value = False
 
         helper = RecordEnrichmentHelper(self.test_record, related_limit=3)
         result = helper.fetch_all()
@@ -51,13 +50,11 @@ class TestRecordEnrichmentHelper(TestCase):
         # Verify all methods were called
         mock_subjects.assert_called_once()
         mock_related_subjects.assert_called_once()
-        mock_distressing.assert_called_once()
 
         # Verify result structure
         self.assertIn("subjects_enrichment", result)
         self.assertIn("related_records", result)
         self.assertIn("delivery_options", result)
-        self.assertIn("distressing_content", result)
 
     @override_settings(
         ENABLE_PARALLEL_API_CALLS=True,
@@ -65,7 +62,6 @@ class TestRecordEnrichmentHelper(TestCase):
         ROSETTA_ENRICHMENT_API_TIMEOUT=15,
         DELIVERY_OPTIONS_API_TIMEOUT=20,
     )
-    @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.enrichment.get_related_records_by_series")
     @patch("app.records.enrichment.get_tna_related_records_by_subjects")
     @patch("app.records.enrichment.get_subjects_enrichment")
@@ -74,13 +70,11 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_subjects: Mock,
         mock_related_subjects: Mock,
         mock_related_series: Mock,
-        mock_distressing: Mock,
     ) -> None:
         """Test parallel fetching when feature flag is on"""
         mock_subjects.return_value = {"items": []}
         mock_related_subjects.return_value = []
         mock_related_series.return_value = []
-        mock_distressing.return_value = False
 
         helper = RecordEnrichmentHelper(self.test_record, related_limit=3)
         result = helper.fetch_all()
@@ -88,13 +82,11 @@ class TestRecordEnrichmentHelper(TestCase):
         # Verify all methods were called
         mock_subjects.assert_called_once()
         mock_related_subjects.assert_called_once()
-        mock_distressing.assert_called_once()
 
         # Verify result structure
         self.assertIn("subjects_enrichment", result)
         self.assertIn("related_records", result)
         self.assertIn("delivery_options", result)
-        self.assertIn("distressing_content", result)
 
     @patch("app.records.enrichment.get_subjects_enrichment")
     def test_fetch_subjects_success(self, mock_subjects: Mock) -> None:
@@ -128,12 +120,8 @@ class TestRecordEnrichmentHelper(TestCase):
         result = helper._fetch_related()
 
         self.assertEqual(len(result), 3)
-        mock_subjects.assert_called_once_with(
-            self.test_record, limit=3, timeout=7
-        )
-        mock_series.assert_called_once_with(
-            self.test_record, limit=2, timeout=7
-        )
+        mock_subjects.assert_called_once_with(self.test_record, limit=3, timeout=7)
+        mock_series.assert_called_once_with(self.test_record, limit=2, timeout=7)
 
     def test_should_include_delivery_for_archon(self) -> None:
         """Test that ARCHON records should not include delivery options"""
@@ -179,9 +167,7 @@ class TestRecordEnrichmentHelper(TestCase):
         self.assertIn("tna_discovery_link", result)
 
     @patch("app.records.enrichment.delivery_options_request_handler")
-    def test_fetch_delivery_handles_errors(
-        self, mock_api_handler: Mock
-    ) -> None:
+    def test_fetch_delivery_handles_errors(self, mock_api_handler: Mock) -> None:
         """Test that delivery options errors are handled gracefully"""
         mock_api_handler.side_effect = Exception("API Error")
 
@@ -197,19 +183,17 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_distressing.return_value = True
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_distressing()
+        result = helper.fetch_distressing()
 
         self.assertTrue(result)
 
     @patch("app.records.enrichment.has_distressing_content")
-    def test_fetch_distressing_handles_errors(
-        self, mock_distressing: Mock
-    ) -> None:
+    def test_fetch_distressing_handles_errors(self, mock_distressing: Mock) -> None:
         """Test that distressing content errors are handled gracefully"""
         mock_distressing.side_effect = Exception("API Error")
 
         helper = RecordEnrichmentHelper(self.test_record)
-        result = helper._fetch_distressing()
+        result = helper.fetch_distressing()
 
         # Should return False on error
         self.assertFalse(result)
@@ -288,7 +272,6 @@ class TestRecordEnrichmentHelper(TestCase):
                 helper, "_should_include_delivery_options", return_value=False
             ),
         ):
-
             with ThreadPoolExecutor(max_workers=3) as executor:
                 futures_map = helper._submit_fetch_tasks(executor)
 
@@ -312,9 +295,7 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_sentry.capture_exception.assert_not_called()
 
     @patch("app.records.enrichment.sentry_sdk")
-    def test_process_future_result_handles_timeout(
-        self, mock_sentry: Mock
-    ) -> None:
+    def test_process_future_result_handles_timeout(self, mock_sentry: Mock) -> None:
         """Test that timeout exceptions are handled and logged to Sentry"""
         from concurrent.futures import TimeoutError
 
@@ -413,7 +394,6 @@ class TestRecordEnrichmentHelper(TestCase):
         ROSETTA_ENRICHMENT_API_TIMEOUT=15,
         DELIVERY_OPTIONS_API_TIMEOUT=20,
     )
-    @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.enrichment.get_subjects_enrichment")
     @patch("app.records.enrichment.get_tna_related_records_by_subjects")
     @patch("app.records.enrichment.logger")
@@ -422,7 +402,6 @@ class TestRecordEnrichmentHelper(TestCase):
         mock_logger: Mock,
         mock_related: Mock,
         mock_subjects: Mock,
-        mock_distressing: Mock,
     ) -> None:
         """Test that parallel fetch handles partial failures gracefully"""
         # Subjects succeeds quickly
@@ -431,28 +410,18 @@ class TestRecordEnrichmentHelper(TestCase):
         # Related raises an exception (will be caught in _fetch_related)
         mock_related.side_effect = Exception("API Error")
 
-        # Distressing succeeds
-        mock_distressing.return_value = True
-
         helper = RecordEnrichmentHelper(self.test_record, related_limit=3)
         result = helper.fetch_all()
 
         # Should have subjects data
-        self.assertEqual(
-            result["subjects_enrichment"], {"items": [{"title": "Test"}]}
-        )
+        self.assertEqual(result["subjects_enrichment"], {"items": [{"title": "Test"}]})
 
         # Related should be empty (failed, but caught in _fetch_related)
         self.assertEqual(result["related_records"], [])
 
-        # Distressing should succeed
-        self.assertTrue(result["distressing_content"])
-
         # Logger should have been called for the related records failure
         warning_calls = [
-            c
-            for c in mock_logger.warning.call_args_list
-            if "related" in str(c).lower()
+            c for c in mock_logger.warning.call_args_list if "related" in str(c).lower()
         ]
         self.assertGreater(len(warning_calls), 0)
 
@@ -493,19 +462,16 @@ class TestRecordEnrichmentHelper(TestCase):
         "app.records.enrichment.API_TIMEOUTS",
         {"subjects": 5, "related": 10, "delivery": 15},
     )
-    @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.enrichment.get_subjects_enrichment")
     @patch("app.records.enrichment.get_tna_related_records_by_subjects")
     def test_fetch_parallel_uses_individual_timeouts(
         self,
         mock_related: Mock,
         mock_subjects: Mock,
-        mock_distressing: Mock,
     ) -> None:
         """Test that individual API timeouts are used correctly"""
         mock_subjects.return_value = {"items": []}
         mock_related.return_value = []
-        mock_distressing.return_value = False
 
         helper = RecordEnrichmentHelper(self.test_record, related_limit=3)
 
@@ -519,9 +485,7 @@ class TestRecordEnrichmentHelper(TestCase):
             timeouts_used = set()
             for call_args in calls:
                 if len(call_args[0]) >= 3:
-                    timeouts_used.add(
-                        call_args[0][2]
-                    )  # timeout is 3rd argument
+                    timeouts_used.add(call_args[0][2])  # timeout is 3rd argument
 
             # Should have used the custom timeouts (5, 10)
             self.assertTrue(5 in timeouts_used or 10 in timeouts_used)
@@ -532,19 +496,16 @@ class TestRecordEnrichmentHelper(TestCase):
         ROSETTA_ENRICHMENT_API_TIMEOUT=15,
         DELIVERY_OPTIONS_API_TIMEOUT=20,
     )
-    @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.enrichment.get_subjects_enrichment")
     @patch("app.records.enrichment.get_tna_related_records_by_subjects")
     def test_fetch_parallel_with_timeout_parameters_passed_to_apis(
         self,
         mock_related: Mock,
         mock_subjects: Mock,
-        mock_distressing: Mock,
     ) -> None:
         """Test that timeout parameters are passed through to API calls"""
         mock_subjects.return_value = {"items": []}
         mock_related.return_value = []
-        mock_distressing.return_value = False
 
         helper = RecordEnrichmentHelper(self.test_record)
         helper.fetch_all()
@@ -561,19 +522,16 @@ class TestRecordEnrichmentHelper(TestCase):
         ROSETTA_ENRICHMENT_API_TIMEOUT=15,
         DELIVERY_OPTIONS_API_TIMEOUT=20,
     )
-    @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.enrichment.get_subjects_enrichment")
     @patch("app.records.enrichment.get_tna_related_records_by_subjects")
     def test_fetch_sequential_passes_timeouts(
         self,
         mock_related: Mock,
         mock_subjects: Mock,
-        mock_distressing: Mock,
     ) -> None:
         """Test that sequential fetch also passes timeout parameters"""
         mock_subjects.return_value = {"items": []}
         mock_related.return_value = []
-        mock_distressing.return_value = False
 
         helper = RecordEnrichmentHelper(self.test_record)
         helper.fetch_all()
@@ -583,3 +541,21 @@ class TestRecordEnrichmentHelper(TestCase):
         call_kwargs = mock_subjects.call_args[1]
         self.assertIn("timeout", call_kwargs)
         self.assertEqual(call_kwargs["timeout"], 10)
+
+    @override_settings(DCS_PREFIXES=["WO 95"])
+    def test_fetch_distressing_uses_configured_dcs_prefixes(self) -> None:
+        """
+        Verify fetch_distressing exercises the real has_distressing_content
+        against DCS_PREFIXES, rather than relying on a mocked return value.
+
+        Exhaustive matching-rule coverage (slash variants, boundary cases,
+        prefix disambiguation, empty list) lives in
+        test/deliveryoptions/test_distressing_content.py.
+        """
+        _get_dcs_prefix_variants.cache_clear()
+        self.addCleanup(_get_dcs_prefix_variants.cache_clear)
+
+        self.test_record.reference_number = "WO 95/1234"
+        helper = RecordEnrichmentHelper(self.test_record)
+
+        self.assertTrue(helper.fetch_distressing())

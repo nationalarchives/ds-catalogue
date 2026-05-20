@@ -1,7 +1,8 @@
+from django.test import SimpleTestCase
+
 from app.records.constants import TNA_ARCHON_CODE, RecordTypes
 from app.records.models import Record
 from config.jinja import sanitise_record_field
-from django.test import SimpleTestCase
 
 
 class NonTnaArchonRecordTransformationTests(SimpleTestCase):
@@ -162,9 +163,7 @@ class TnaArchonRecordTransformationTests(SimpleTestCase):
 
         # website url should not be extracted for TNA ARCHON records, so empty string
         # field is sanitised in the template
-        self.assertEqual(
-            sanitise_record_field(self.record.archon_website), """"""
-        )
+        self.assertEqual(sanitise_record_field(self.record.archon_website), """""")
 
     def test_place_description(
         self,

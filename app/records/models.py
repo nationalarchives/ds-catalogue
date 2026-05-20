@@ -5,6 +5,11 @@ from typing import Any
 from urllib.parse import urlencode
 
 import sentry_sdk
+from django.conf import settings
+from django.urls import NoReverseMatch, reverse
+from django.utils.functional import cached_property
+from lxml import etree
+
 from app.lib.constants import BASE_TNA_DISCOVERY_URL
 from app.lib.exceptions import MissingAPIAttributeError
 from app.lib.xslt_transformations import (
@@ -26,10 +31,6 @@ from app.records.utils import (
 from app.search.buckets import BucketKeys
 from app.search.constants import FieldsConstant
 from config.jinja import format_number
-from django.conf import settings
-from django.urls import NoReverseMatch, reverse
-from django.utils.functional import cached_property
-from lxml import etree
 
 from .constants import MISSING_COUNT_TEXT, TNA_ARCHON_CODE, RecordTypes
 from .tna_archon_constants import (
@@ -151,10 +152,12 @@ class Record(APIModel):
         clean_value = ""
         clean_title_length = len(self.clean_title)
         clean_summary_title_length = len(self.clean_summary_title)
+        # fmt: off
         if (
             clean_title_length > 0
             and clean_title_length <= clean_summary_title_length
         ):
+            # fmt: on
             clean_value = self.clean_title
         else:
             clean_value = self.clean_summary_title
@@ -365,9 +368,7 @@ class Record(APIModel):
         return tuple(
             dict(
                 description=item.get("description", ""),
-                links=list(
-                    format_link(val, inc_msg) for val in item.get("links", ())
-                ),
+                links=list(format_link(val, inc_msg) for val in item.get("links", ())),
             )
             for item in self.get("relatedMaterials", ())
         )
@@ -429,9 +430,7 @@ class Record(APIModel):
         return tuple(
             dict(
                 description=item.get("description", ""),
-                links=list(
-                    format_link(val, inc_msg) for val in item.get("links", ())
-                ),
+                links=list(format_link(val, inc_msg) for val in item.get("links", ())),
             )
             for item in self.get("separatedMaterials", ())
         )
@@ -471,9 +470,7 @@ class Record(APIModel):
             logger.error(message)
             sentry_sdk.capture_message(message, level="error")
             # add context for debugging in Sentry
-            sentry_sdk.set_context(
-                "missing_info", {"hierarchy_record_id": {self.id}}
-            )
+            sentry_sdk.set_context("missing_info", {"hierarchy_record_id": {self.id}})
             return MISSING_COUNT_TEXT
         return format_number(count)
 
@@ -587,9 +584,7 @@ class Record(APIModel):
 
         if raw_description:
             if self.custom_record_type == RecordTypes.ARCHON:
-                return apply_archon_xsl(
-                    raw_description, "ArchonPlaceDescription.xsl"
-                )
+                return apply_archon_xsl(raw_description, "ArchonPlaceDescription.xsl")
         return ""
 
     @cached_property
@@ -601,9 +596,7 @@ class Record(APIModel):
             if self.reference_number != TNA_ARCHON_CODE:
                 # Only apply for NonTNA ARCHON records, to hide presentation
                 # of the field as per Wireframes for TNA ARCHON records
-                return apply_archon_xsl(
-                    self.raw_description, "ArchonWebsite.xsl"
-                )
+                return apply_archon_xsl(self.raw_description, "ArchonWebsite.xsl")
         return ""
 
     @cached_property
@@ -613,9 +606,9 @@ class Record(APIModel):
 
         if self.custom_record_type == RecordTypes.ARCHON:
             try:
+                url_name = "search:catalogue"
                 if self.reference_number == TNA_ARCHON_CODE:
-                    url_name = "main:catalogue"
-                    # landing page for the new catalogue
+                    # For TNA ARCHON records, link to the main catalogue search page without filters
                     return f"{reverse(url_name)}"
                 else:
                     params = {
@@ -624,7 +617,6 @@ class Record(APIModel):
                         # until we have specific aggs collection value
                         FieldsConstant.HELD_BY: self.clean_title_or_summary_title,
                     }
-                    url_name = "search:catalogue"
                     # For other records, link to search results filtered for the record's title
                     return f"{reverse(url_name)}?{urlencode(params)}"
             except NoReverseMatch:
@@ -641,15 +633,15 @@ class Record(APIModel):
 
         if self.custom_record_type == RecordTypes.ARCHON:
             if self.reference_number == TNA_ARCHON_CODE:
-                # landing page for Discovery
-                return f"{BASE_TNA_DISCOVERY_URL}"
+                # Discovery * search for Tna records
+                params = {"_q": "*", "_hb": "tna"}
             else:
+                # For other records, link to Discovery search results filtered for the record's
+                # archon reference number
                 params = {
                     "_q": "*",
                     "_hb": "oth",
                     "_nrar": self.reference_number,
                 }
-                # For other records, link to Discovery search results filtered for the record's
-                # archon reference number
-                return f"{BASE_TNA_DISCOVERY_URL}/results/r?{urlencode(params)}"
+            return f"{BASE_TNA_DISCOVERY_URL}/results/r?{urlencode(params)}"
         return ""

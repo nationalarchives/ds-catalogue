@@ -85,9 +85,7 @@ class CatalogueSearchViewAnalyticsNonTnaTests(TestCase):
         self.assertIn(
             """<meta name="tna_root:search_total" content="26008838">""", html
         )
-        self.assertIn(
-            """<meta name="tna_root:search_filters" content="0">""", html
-        )
+        self.assertIn("""<meta name="tna_root:search_filters" content="0">""", html)
 
         self.assertEqual(
             context_data.get("analytics_data"),
@@ -175,15 +173,11 @@ class CatalogueSearchViewAnalyticsNonTnaTests(TestCase):
             """<meta name="tna_root:search_type" content="Records at other UK archives">""",
             html,
         )
-        self.assertIn(
-            """<meta name="tna_root:search_term" content="ufo">""", html
-        )
+        self.assertIn("""<meta name="tna_root:search_term" content="ufo">""", html)
         self.assertIn(
             """<meta name="tna_root:search_total" content="26008838">""", html
         )
-        self.assertIn(
-            """<meta name="tna_root:search_filters" content="4">""", html
-        )
+        self.assertIn("""<meta name="tna_root:search_filters" content="4">""", html)
 
         self.assertEqual(
             context_data.get("analytics_data"),
@@ -256,15 +250,9 @@ class CatalogueSearchViewAnalyticsNonTnaTests(TestCase):
             """<meta name="tna_root:search_type" content="Records at other UK archives">""",
             html,
         )
-        self.assertIn(
-            """<meta name="tna_root:search_term" content="qwert">""", html
-        )
-        self.assertIn(
-            """<meta name="tna_root:search_total" content="0">""", html
-        )
-        self.assertIn(
-            """<meta name="tna_root:search_filters" content="0">""", html
-        )
+        self.assertIn("""<meta name="tna_root:search_term" content="qwert">""", html)
+        self.assertIn("""<meta name="tna_root:search_total" content="0">""", html)
+        self.assertIn("""<meta name="tna_root:search_filters" content="0">""", html)
 
         self.assertEqual(
             context_data.get("analytics_data"),

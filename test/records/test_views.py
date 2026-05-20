@@ -1,14 +1,14 @@
 from unittest.mock import Mock, patch
 
 import responses
-from app.deliveryoptions.constants import AvailabilityCondition
-from app.records.models import Record
 from django.conf import settings
 from django.test import RequestFactory, TestCase
 
+from app.deliveryoptions.constants import AvailabilityCondition
+from app.records.models import Record
+
 
 class TestRecordView(TestCase):
-
     @responses.activate
     def test_record_detail_view_for_catalogue_record(self):
 
@@ -122,9 +122,7 @@ class TestSubjectLinks(TestCase):
         self.assertContains(
             response, 'href="/catalogue/search/?subject=Europe%20and%20Russia"'
         )
-        self.assertContains(
-            response, 'href="/catalogue/search/?subject=Conflict"'
-        )
+        self.assertContains(response, 'href="/catalogue/search/?subject=Conflict"')
 
     @responses.activate
     def test_subject_links_are_url_encoded(self):
@@ -278,9 +276,7 @@ class DoAvailabilityGroupTestCase(TestCase):
         self.assertIn("delivery_option", context)
         self.assertEqual(context["delivery_option"], "DigitizedDiscovery")
         self.assertIn("do_availability_group", context)
-        self.assertEqual(
-            context["do_availability_group"], "AVAILABLE_ONLINE_TNA_ONLY"
-        )
+        self.assertEqual(context["do_availability_group"], "AVAILABLE_ONLINE_TNA_ONLY")
 
     @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.enrichment.get_availability_group")

@@ -1,5 +1,8 @@
 from types import SimpleNamespace
 
+from django.http import QueryDict
+from django.test import TestCase
+
 from config.jinja import (
     dump_json,
     format_number,
@@ -15,8 +18,6 @@ from config.jinja import (
     slugify,
     truncate_preserve_mark_tags,
 )
-from django.http import QueryDict
-from django.test import TestCase
 
 
 class Jinja2TestCase(TestCase):
@@ -92,12 +93,8 @@ class Jinja2TestCase(TestCase):
         TEST_QS = QueryDict("", mutable=True)
         TEST_QS.update({"a": "1", "b": "1"})
         TEST_QS.update({"b": "2"})
-        self.assertEqual(
-            "a=1&b=1&b=2&b=3", qs_toggle_value(TEST_QS.copy(), "b", "3")
-        )
-        self.assertEqual(
-            "a=1&b=1&b=2&c=3", qs_toggle_value(TEST_QS.copy(), "c", "3")
-        )
+        self.assertEqual("a=1&b=1&b=2&b=3", qs_toggle_value(TEST_QS.copy(), "b", "3"))
+        self.assertEqual("a=1&b=1&b=2&c=3", qs_toggle_value(TEST_QS.copy(), "c", "3"))
         self.assertEqual("b=1&b=2", qs_toggle_value(TEST_QS.copy(), "a", "1"))
         self.assertEqual("a=1", qs_toggle_value(QueryDict(""), "a", "1"))
         self.assertEqual("a=", qs_toggle_value(QueryDict(""), "a", ""))
@@ -106,50 +103,26 @@ class Jinja2TestCase(TestCase):
         TEST_QS = QueryDict("", mutable=True)
         TEST_QS.update({"a": "1", "b": "1"})
         TEST_QS.update({"b": "2"})
-        self.assertEqual(
-            "a=1&b=1&b=2", qs_replace_value(TEST_QS.copy(), "a", "1")
-        )
-        self.assertEqual(
-            "a=2&b=1&b=2", qs_replace_value(TEST_QS.copy(), "a", "2")
-        )
+        self.assertEqual("a=1&b=1&b=2", qs_replace_value(TEST_QS.copy(), "a", "1"))
+        self.assertEqual("a=2&b=1&b=2", qs_replace_value(TEST_QS.copy(), "a", "2"))
         self.assertEqual("a=1&b=1", qs_replace_value(TEST_QS.copy(), "b", "1"))
         self.assertEqual("a=1&b=3", qs_replace_value(TEST_QS.copy(), "b", "3"))
-        self.assertEqual(
-            "a=1&b=1&b=2&c=3", qs_replace_value(TEST_QS.copy(), "c", "3")
-        )
-        self.assertEqual(
-            "a=&b=1&b=2", qs_replace_value(TEST_QS.copy(), "a", "")
-        )
+        self.assertEqual("a=1&b=1&b=2&c=3", qs_replace_value(TEST_QS.copy(), "c", "3"))
+        self.assertEqual("a=&b=1&b=2", qs_replace_value(TEST_QS.copy(), "a", ""))
         self.assertEqual("a=1&b=", qs_replace_value(TEST_QS.copy(), "b", ""))
-        self.assertEqual(
-            "a=1&b=1&b=2&c=", qs_replace_value(TEST_QS.copy(), "c", "")
-        )
+        self.assertEqual("a=1&b=1&b=2&c=", qs_replace_value(TEST_QS.copy(), "c", ""))
 
     def test_qs_append_value(self):
         TEST_QS = QueryDict("", mutable=True)
         TEST_QS.update({"a": "1", "b": "1"})
         TEST_QS.update({"b": "2"})
-        self.assertEqual(
-            "a=1&b=1&b=2", qs_append_value(TEST_QS.copy(), "a", "1")
-        )
-        self.assertEqual(
-            "a=1&a=2&b=1&b=2", qs_append_value(TEST_QS.copy(), "a", "2")
-        )
-        self.assertEqual(
-            "a=1&b=1&b=2&c=3", qs_append_value(TEST_QS.copy(), "c", "3")
-        )
-        self.assertEqual(
-            "a=1&b=1&b=2", qs_append_value(TEST_QS.copy(), "", "1")
-        )
-        self.assertEqual(
-            "a=1&a=&b=1&b=2", qs_append_value(TEST_QS.copy(), "a", "")
-        )
-        self.assertEqual(
-            "a=1&b=1&b=2&b=", qs_append_value(TEST_QS.copy(), "b", "")
-        )
-        self.assertEqual(
-            "a=1&b=1&b=2&c=", qs_append_value(TEST_QS.copy(), "c", "")
-        )
+        self.assertEqual("a=1&b=1&b=2", qs_append_value(TEST_QS.copy(), "a", "1"))
+        self.assertEqual("a=1&a=2&b=1&b=2", qs_append_value(TEST_QS.copy(), "a", "2"))
+        self.assertEqual("a=1&b=1&b=2&c=3", qs_append_value(TEST_QS.copy(), "c", "3"))
+        self.assertEqual("a=1&b=1&b=2", qs_append_value(TEST_QS.copy(), "", "1"))
+        self.assertEqual("a=1&a=&b=1&b=2", qs_append_value(TEST_QS.copy(), "a", ""))
+        self.assertEqual("a=1&b=1&b=2&b=", qs_append_value(TEST_QS.copy(), "b", ""))
+        self.assertEqual("a=1&b=1&b=2&c=", qs_append_value(TEST_QS.copy(), "c", ""))
 
     def test_qs_remove_value(self):
         TEST_QS = QueryDict("", mutable=True)
@@ -284,9 +257,7 @@ class Jinja2TestCase(TestCase):
         for value, is_tna, expected in cases:
             with self.subTest(value=value, is_tna=is_tna):
                 record = SimpleNamespace(is_tna=is_tna)
-                self.assertEqual(
-                    override_tna_record_count(value, record), expected
-                )
+                self.assertEqual(override_tna_record_count(value, record), expected)
 
     def test_none_to_empty_string(self):
 

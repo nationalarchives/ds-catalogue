@@ -1,10 +1,11 @@
 import logging
 from typing import Any, Dict, List, Optional
 
-from app.lib.api import JSONAPIClient
-from app.lib.exceptions import APIResourceNotFound
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+
+from app.lib.api import JSONAPIClient
+from app.lib.exceptions import APIResourceNotFound
 
 logger = logging.getLogger(__name__)
 
@@ -44,9 +45,7 @@ def delivery_options_request_handler(
 
         # Validate response structure
         if not data or not isinstance(data, list):
-            raise ValueError(
-                "Invalid API response format: expected a non-empty list"
-            )
+            raise ValueError("Invalid API response format: expected a non-empty list")
 
         # Ensure each item in the list has the required keys
         for item in data:

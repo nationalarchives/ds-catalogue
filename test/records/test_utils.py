@@ -1,11 +1,12 @@
 from datetime import date
 
+from django.test import SimpleTestCase
+
 from app.records.utils import (
     change_discovery_record_details_links,
     extract,
     format_link,
 )
-from django.test import SimpleTestCase
 
 TODAY = date.today()
 

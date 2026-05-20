@@ -38,7 +38,11 @@ class BaseField:
     """
 
     def __init__(
-        self, label=None, required=False, hint="", active_filter_label=None
+        self,
+        label=None,
+        required=False,
+        hint="",
+        active_filter_label=None,
     ):
         self.id = None  # set on bind
         self.label = label
@@ -115,7 +119,6 @@ class BaseField:
 
 
 class CharField(BaseField):
-
     def bind(self, name, value: list | str) -> None:
         """Binds a empty string or last value from input."""
 
@@ -131,7 +134,6 @@ class CharField(BaseField):
 
 
 class ChoiceField(BaseField):
-
     def __init__(self, choices: list[tuple[str, str]], **kwargs):
         """choices: format [(field value, display value),]."""
 
@@ -176,7 +178,6 @@ class ChoiceField(BaseField):
 
 
 class DynamicMultipleChoiceField(BaseField):
-
     def __init__(self, choices: list[tuple[str, str]], **kwargs):
         """
         choices: data format - [(field value, display value),]
@@ -324,9 +325,7 @@ class DynamicMultipleChoiceField(BaseField):
         choices = []
         choice_vals_with_hits = set()
         for item in choice_api_data:
-            choices.append(
-                (item["value"], self.choice_label_from_api_data(item))
-            )
+            choices.append((item["value"], self.choice_label_from_api_data(item)))
             choice_vals_with_hits.add(item["value"])
 
         for missing_value in [
@@ -405,9 +404,7 @@ class MultiPartDateField(BaseField):
         value = super().clean(value)
 
         # after validation, convert to date object
-        year, month, day = (
-            value.get(date_key, "") for date_key in self.date_keys
-        )
+        year, month, day = (value.get(date_key, "") for date_key in self.date_keys)
         if year and month and day:
             # return for either progressive or full date
             return date(int(year), int(month), int(day))
@@ -474,9 +471,7 @@ class MultiPartDateField(BaseField):
         if year:
             year_int = self._validate_int(key, value)
             if not (1 <= year_int <= 9999):
-                raise ValidationError(
-                    f"{key.capitalize()} must be between 1 and 9999."
-                )
+                raise ValidationError(f"{key.capitalize()} must be between 1 and 9999.")
         return year_int
 
     def _validate_month_only(self, key, value) -> int | None:
@@ -487,9 +482,7 @@ class MultiPartDateField(BaseField):
         if month:
             month_int = self._validate_int(key, value)
             if not (1 <= month_int <= 12):
-                raise ValidationError(
-                    f"{key.capitalize()} must be between 1 and 12."
-                )
+                raise ValidationError(f"{key.capitalize()} must be between 1 and 12.")
         return month_int
 
     def _validate_day_only(self, key, value) -> int | None:
@@ -500,9 +493,7 @@ class MultiPartDateField(BaseField):
         if day:
             day_int = self._validate_int(key, value)
             if not (1 <= day_int <= 31):
-                raise ValidationError(
-                    f"{key.capitalize()} must be between 1 and 31."
-                )
+                raise ValidationError(f"{key.capitalize()} must be between 1 and 31.")
         return day_int
 
     def _validate_full_date(self, year: int, month: int, day: int):
@@ -523,7 +514,6 @@ class MultiPartDateField(BaseField):
 
 
 class BaseProgressiveDateField(MultiPartDateField):
-
     def clean(self, value: dict | date | None) -> date | None:
 
         # clean and validate partial input from super method

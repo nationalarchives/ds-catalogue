@@ -1,6 +1,7 @@
+from django.test import SimpleTestCase
+
 from app.records.constants import TNA_ARCHON_CODE, RecordTypes
 from app.records.models import Record
-from django.test import SimpleTestCase
 
 
 class NonTnaArchonRecordCollectionUrlTests(SimpleTestCase):
@@ -94,7 +95,7 @@ class TnaArchonRecordCollectionUrlTests(SimpleTestCase):
 
         self.assertEqual(
             self.record.archon_catalogue_url,
-            "/catalogue/",
+            "/catalogue/search/",
         )
 
     def test_archon_discovery_url(
@@ -113,5 +114,5 @@ class TnaArchonRecordCollectionUrlTests(SimpleTestCase):
 
         self.assertEqual(
             self.record.archon_discovery_url,
-            "https://discovery.nationalarchives.gov.uk",
+            "https://discovery.nationalarchives.gov.uk/results/r?_q=%2A&_hb=tna",
         )
