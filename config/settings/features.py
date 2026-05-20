@@ -2,9 +2,7 @@ import os
 
 from config.util import strtobool
 
-FEATURE_PHASE_BANNER: bool = strtobool(
-    os.getenv("FEATURE_PHASE_BANNER", "True")
-)
+FEATURE_PHASE_BANNER: bool = strtobool(os.getenv("FEATURE_PHASE_BANNER", "True"))
 
 
 # TODO: Remove Temporary feature flag and related code

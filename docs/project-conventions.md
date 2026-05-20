@@ -6,24 +6,17 @@ At TNA we follow a set of conventions for our projects to ensure consistency and
 
 This project uses a few tools to improve the consistency and quality of Python code:
 
-- [`Black`](https://black.readthedocs.io/en/stable/): An opinionated Python formatter that takes care of code formatting (so we don't have to think about it).
-- [`isort`](https://pycqa.github.io/isort/): Ensures that import statements are ordered in a consistant way accross the project.
-- [`flake8`](https://flake8.pycqa.org/en/stable/): Catches things like unused parameters, unused imports and other non-formatting related things.
-
-The easiest way to ensure the code you're contributing adheres to these standards is to find and install plugins for your code editor of choice, that will check and transparently reformat your code whenever you save changes. Standard configuration files are included in the root of the repository, which _should_ be picked up and respected by such plugins.
-
-Another option is to run the `format` command from your console to apply `isort` and `Black` formatting to Python code:
+- [`Ruff`](https://docs.astral.sh/ruff/): An extremely fast Python linter and code formatter, written in Rust.
 
 ```console
-docker compose exec dev format
+docker compose exec app format
 ```
-
-`flake8` will just flag things in the terminal, it will not update any code for you like `isort` or `Black`.
 
 This will be checked by CI on every commit, so it's a good idea to run this locally before pushing your changes.
 
 Useful links
 
+- <https://github.com/nationalarchives/docker/tree/main/docker/tna-python-dev#ruff>
 - <https://nationalarchives.github.io/engineering-handbook/technology/backend/python/>
 
 ## Git/Github conventions

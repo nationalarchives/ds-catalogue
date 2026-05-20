@@ -11,7 +11,6 @@ mkdocs.yml
 node_modules
 .babelrc.json
 .eslintrc.js
-.flake8
 .gitignore
 .prettierignore
 stylelint.config.mjs

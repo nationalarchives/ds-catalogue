@@ -2,9 +2,7 @@ from enum import StrEnum
 
 RESULTS_PER_PAGE = 20  # max records to show per page
 PAGE_LIMIT = 500  # max page number that can be queried
-FILTER_DATATYPE_RECORD = (
-    "datatype:record"  # filter for records in search results
-)
+FILTER_DATATYPE_RECORD = "datatype:record"  # filter for records in search results
 
 
 class Sort(StrEnum):
@@ -22,7 +20,6 @@ DATE_DISPLAY_FORMAT = "%d-%m-%Y"
 
 
 class FieldsConstant:
-
     Q = "q"
     SORT = "sort"
     LEVEL = "level"

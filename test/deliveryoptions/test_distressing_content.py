@@ -1,8 +1,9 @@
+from django.test import SimpleTestCase, override_settings
+
 from app.deliveryoptions.delivery_options import (
     _get_dcs_prefix_variants,
     has_distressing_content,
 )
-from django.test import SimpleTestCase, override_settings
 
 
 class TestDistressingContentMatch(SimpleTestCase):

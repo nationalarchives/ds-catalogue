@@ -2,9 +2,10 @@ import logging
 from ipaddress import ip_address, ip_network
 from typing import List, Optional
 
-from app.deliveryoptions.constants import Reader
 from django.conf import settings
 from django.http import HttpRequest
+
+from app.deliveryoptions.constants import Reader
 
 logger = logging.getLogger(__name__)
 
@@ -135,11 +136,13 @@ def get_client_ip(request: HttpRequest) -> Optional[str]:
             return validate_ip(ip)
 
     # If all IPs in the chain are trusted, use the leftmost one
+    # fmt: off
     return (
         validate_ip(forwarded_ips[0])
         if forwarded_ips
         else validate_ip(remote_addr)
     )
+    # fmt: on
 
 
 def validate_ip(ip_str: str) -> Optional[str]:

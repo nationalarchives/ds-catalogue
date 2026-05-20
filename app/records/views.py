@@ -2,11 +2,12 @@
 
 import logging
 
+from django.views.generic import TemplateView
+
 from app.main.api import fetch_global_notifications
 from app.records.enrichment import RecordEnrichmentHelper
 from app.records.labels import FIELD_LABELS
 from app.records.mixins import RecordContextMixin
-from django.views.generic import TemplateView
 
 from .constants import RecordTypes
 
@@ -84,13 +85,9 @@ class RecordDetailView(RecordContextMixin, TemplateView):
                     class_name + "[TNA catalogue digitised record description]"
                 )
             else:
-                data["page_type"] = (
-                    class_name + "[TNA catalogue record description]"
-                )
+                data["page_type"] = class_name + "[TNA catalogue record description]"
         else:
-            data["page_type"] = (
-                class_name + "[Other archive record description]"
-            )
+            data["page_type"] = class_name + "[Other archive record description]"
 
         data["reader_type"] = ""
         data["user_type"] = ""
@@ -125,9 +122,7 @@ class RecordDetailView(RecordContextMixin, TemplateView):
             data["catalogue_reference"] = record.reference_number
 
         data["catalogue_datasource"] = record.source
-        data["delivery_option_category"] = context.get(
-            "do_availability_group", ""
-        )
+        data["delivery_option_category"] = context.get("do_availability_group", "")
         data["delivery_option"] = context.get("delivery_option", "")
 
         context["analytics_data"] = data

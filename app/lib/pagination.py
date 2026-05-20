@@ -6,9 +6,7 @@ def pagination_list(current_page, total_pages, boundaries=1, around=1):
     assert total_pages >= 0, "total_pages is less than zero"
     assert boundaries >= 0, " boundaries is less than zero"
     assert around >= 0, "around is less than zero"
-    assert (
-        current_page <= total_pages
-    ), "current_page is bigger than total_pages"
+    assert current_page <= total_pages, "current_page is bigger than total_pages"
 
     start_initial_chunk = 1
     end_initial_chunk = min(boundaries, total_pages) + 1
@@ -24,6 +22,7 @@ def pagination_list(current_page, total_pages, boundaries=1, around=1):
     middle_chunk_numbers = list(range(start_middle_chunk, end_middle_chunk))
     final_chunk_numbers = list(range(start_final_chunk, end_final_chunk))
 
+    # fmt: off
     prev_linker = (
         end_initial_chunk
         if end_initial_chunk == 2 and current_page - (around + 1) == 2
@@ -34,6 +33,7 @@ def pagination_list(current_page, total_pages, boundaries=1, around=1):
             else ""
         )
     )
+    # fmt: on
     next_linker = (
         end_middle_chunk
         if end_middle_chunk == (total_pages - 1)
@@ -41,7 +41,9 @@ def pagination_list(current_page, total_pages, boundaries=1, around=1):
         else (
             "..."
             if end_middle_chunk < start_final_chunk
-            else "" if boundaries + 1 <= end_middle_chunk else ""
+            else ""
+            if boundaries + 1 <= end_middle_chunk
+            else ""
         )
     )
 
@@ -56,9 +58,7 @@ def pagination_list(current_page, total_pages, boundaries=1, around=1):
     return [item for item in pagination_items if item]
 
 
-def pagination_object(
-    current_page, total_pages, current_args, boundaries=1, around=1
-):
+def pagination_object(current_page, total_pages, current_args, boundaries=1, around=1):
     if total_pages == 0:
         return {}
     current_page_int = int(current_page)
@@ -73,26 +73,28 @@ def pagination_object(
                 "current": item == current_page_int,
             }
         )
-        for item in pagination_list(
-            current_page_int, total_pages, boundaries, around
-        )
+        for item in pagination_list(current_page_int, total_pages, boundaries, around)
     ]
     if current_page_int > 1:
         pagination_object["previous"] = {
-            "href": f"?{qs_replace_value(
-                current_args,
-                'page',
-                current_page_int - 1,
-            )}",
+            "href": f"?{
+                qs_replace_value(
+                    current_args,
+                    'page',
+                    current_page_int - 1,
+                )
+            }",
             "title": "Previous page of results",
         }
     if current_page_int < total_pages:
         pagination_object["next"] = {
-            "href": f"?{qs_replace_value(
-                current_args,
-                'page',
-                current_page_int + 1,
-            )}",
+            "href": f"?{
+                qs_replace_value(
+                    current_args,
+                    'page',
+                    current_page_int + 1,
+                )
+            }",
             "title": "Next page of results",
         }
     return pagination_object

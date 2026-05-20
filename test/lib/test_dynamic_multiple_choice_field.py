@@ -1,11 +1,11 @@
-from app.lib.fields import DynamicMultipleChoiceField
-from app.lib.forms import BaseForm
 from django.http import QueryDict
 from django.test import TestCase
 
+from app.lib.fields import DynamicMultipleChoiceField
+from app.lib.forms import BaseForm
+
 
 class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
-
     def create_form_with_dynamic_multiple_choice_field(
         self, data=None
     ) -> tuple[BaseForm, DynamicMultipleChoiceField]:
@@ -61,14 +61,10 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
     def test_form_with_dynamic_multiple_choice_field_error_with_no_params(self):
 
         data = QueryDict("")  # no params
-        form, dmc_field = self.create_form_with_dynamic_multiple_choice_field(
-            data
-        )
+        form, dmc_field = self.create_form_with_dynamic_multiple_choice_field(data)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, False)
-        self.assertEqual(
-            form.errors, {"dmc_field": {"text": "Value is required."}}
-        )
+        self.assertEqual(form.errors, {"dmc_field": {"text": "Value is required."}})
         self.assertEqual(dmc_field.value, [])
         self.assertEqual(dmc_field.cleaned, None)
         # as this is not a view test, before items called, choices not updated
@@ -84,9 +80,7 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
     ):
 
         data = QueryDict("dmc_field=london")
-        form, dmc_field = self.create_form_with_dynamic_multiple_choice_field(
-            data
-        )
+        form, dmc_field = self.create_form_with_dynamic_multiple_choice_field(data)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, True)
         self.assertEqual(form.errors, {})
@@ -118,9 +112,7 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
     ):
 
         data = QueryDict("dmc_field=london&dmc_field=leeds")
-        form, dmc_field = self.create_form_with_dynamic_multiple_choice_field(
-            data
-        )
+        form, dmc_field = self.create_form_with_dynamic_multiple_choice_field(data)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, True)
         self.assertEqual(form.errors, {})
@@ -161,9 +153,7 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
 
         # partial match: some levels valid, others invalid
         data = QueryDict("dmc_field=london&dmc_field=manchester")
-        form, dmc_field = self.create_form_with_dynamic_multiple_choice_field(
-            data
-        )
+        form, dmc_field = self.create_form_with_dynamic_multiple_choice_field(data)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, False)
         self.assertEqual(
@@ -196,7 +186,6 @@ class BaseFormWithDMCFieldValidateInputTrueTest(TestCase):
 
 
 class BaseFormWithDMCFieldValidateInputFalseTest(TestCase):
-
     def create_form_with_dynamic_multiple_choice_field(
         self, data=None
     ) -> tuple[BaseForm, DynamicMultipleChoiceField]:
@@ -255,9 +244,7 @@ class BaseFormWithDMCFieldValidateInputFalseTest(TestCase):
     def test_form_with_dynamic_multiple_choice_field_with_no_params(self):
 
         data = QueryDict("")  # no params
-        form, dmc_field = self.create_form_with_dynamic_multiple_choice_field(
-            data
-        )
+        form, dmc_field = self.create_form_with_dynamic_multiple_choice_field(data)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, True)
         self.assertEqual(dmc_field.value, [])
@@ -286,9 +273,7 @@ class BaseFormWithDMCFieldValidateInputFalseTest(TestCase):
     ):
 
         data = QueryDict("dmc_field=london&dmc_field=leeds")
-        form, dmc_field = self.create_form_with_dynamic_multiple_choice_field(
-            data
-        )
+        form, dmc_field = self.create_form_with_dynamic_multiple_choice_field(data)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, True)
         self.assertEqual(form.errors, {})
@@ -326,9 +311,7 @@ class BaseFormWithDMCFieldValidateInputFalseTest(TestCase):
     ):
 
         data = QueryDict("dmc_field=london&dmc_field=leeds")
-        form, dmc_field = self.create_form_with_dynamic_multiple_choice_field(
-            data
-        )
+        form, dmc_field = self.create_form_with_dynamic_multiple_choice_field(data)
         valid_status = form.is_valid()
         self.assertEqual(valid_status, True)
         self.assertEqual(form.errors, {})
