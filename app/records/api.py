@@ -1,5 +1,9 @@
 import logging
 
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.utils.text import slugify
+
 from app.lib.api import JSONAPIClient, rosetta_request_handler
 from app.lib.exceptions import (
     APIResourceNotFound,
@@ -8,15 +12,14 @@ from app.lib.exceptions import (
     RecordNotFound,
 )
 from app.records.models import APIResponse, Record
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
-from django.utils.text import slugify
 
 logger = logging.getLogger(__name__)
 
 
 def record_details_by_id(
-    id: str, params: dict | None = None, timeout=None
+    id: str,
+    params: dict | None = None,
+    timeout=None,
 ) -> Record:
     """
     Fetches a record by its ID from the Rosetta API.
@@ -121,14 +124,14 @@ def get_subjects_enrichment(
     try:
         params = {"tags": subjects_param, "limit": limit}
         results = wagtail_request_handler(
-            "/article_tags/", params, timeout=timeout
+            "/article_tags/",
+            params,
+            timeout=timeout,
         )
         return results
     except APIResourceNotFound:
         logger.warning(f"No subjects enrichment found for {subjects_param}")
         return {}
     except Exception as e:
-        logger.warning(
-            f"Failed to fetch subjects enrichment for {subjects_param}: {e}"
-        )
+        logger.warning(f"Failed to fetch subjects enrichment for {subjects_param}: {e}")
         return {}

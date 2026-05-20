@@ -1,5 +1,8 @@
 from unittest.mock import patch
 
+from django.core.cache import cache
+from django.test import TestCase
+
 from app.main.api import (
     fetch_global_notifications,
     fetch_landing_page_data,
@@ -10,8 +13,6 @@ from app.main.constants import (
     LANDING_PAGE_CACHE_KEY,
     WAGTAIL_API_CACHE_TIMEOUT,
 )
-from django.core.cache import cache
-from django.test import TestCase
 
 
 class TestFetchGlobalNotifications(TestCase):
@@ -270,9 +271,7 @@ class TestFetchLandingPageData(TestCase):
         )
 
     @patch("app.main.api.wagtail_request_handler")
-    def test_does_not_overwrite_existing_notifications_cache(
-        self, mock_handler
-    ):
+    def test_does_not_overwrite_existing_notifications_cache(self, mock_handler):
         """Test that an already-warm notifications cache is not overwritten."""
         existing_notifications = {
             "global_alert": {"title": "Already cached alert"},

@@ -1,9 +1,10 @@
 from http import HTTPStatus
 
 import responses
-from app.search.constants import FieldsConstant
 from django.conf import settings
 from django.test import TestCase
+
+from app.search.constants import FieldsConstant
 
 
 class CatalogueSearchViewOnlineFilterTests(TestCase):
@@ -56,9 +57,7 @@ class CatalogueSearchViewOnlineFilterTests(TestCase):
 
         response = self.client.get("/catalogue/search/?online=true")
         form = response.context_data.get("form")
-        online_field = response.context_data.get("form").fields[
-            FieldsConstant.ONLINE
-        ]
+        online_field = response.context_data.get("form").fields[FieldsConstant.ONLINE]
 
         self.assertTrue(form.is_valid())
 
@@ -90,9 +89,7 @@ class CatalogueSearchViewOnlineFilterTests(TestCase):
 
         response = self.client.get("/catalogue/search/?online=INVALID")
         form = response.context_data.get("form")
-        online_field = response.context_data.get("form").fields[
-            FieldsConstant.ONLINE
-        ]
+        online_field = response.context_data.get("form").fields[FieldsConstant.ONLINE]
 
         self.assertFalse(form.is_valid())
 
@@ -111,22 +108,14 @@ class CatalogueSearchViewOnlineFilterTests(TestCase):
         self.assertFalse(online_field.is_visible)
 
         # other fields visibility
-        self.assertFalse(
-            form.fields.get(FieldsConstant.COVERING_DATE_FROM).is_visible
-        )
-        self.assertFalse(
-            form.fields.get(FieldsConstant.COVERING_DATE_TO).is_visible
-        )
+        self.assertFalse(form.fields.get(FieldsConstant.COVERING_DATE_FROM).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.COVERING_DATE_TO).is_visible)
         self.assertFalse(form.fields.get(FieldsConstant.COLLECTION).is_visible)
         self.assertFalse(form.fields.get(FieldsConstant.LEVEL).is_visible)
         self.assertFalse(form.fields.get(FieldsConstant.SUBJECT).is_visible)
         self.assertFalse(form.fields.get(FieldsConstant.CLOSURE).is_visible)
-        self.assertFalse(
-            form.fields.get(FieldsConstant.OPENING_DATE_FROM).is_visible
-        )
-        self.assertFalse(
-            form.fields.get(FieldsConstant.OPENING_DATE_TO).is_visible
-        )
+        self.assertFalse(form.fields.get(FieldsConstant.OPENING_DATE_FROM).is_visible)
+        self.assertFalse(form.fields.get(FieldsConstant.OPENING_DATE_TO).is_visible)
 
         self.assertEqual(
             response.context_data.get("show_banner_for_filters_not_applied"),

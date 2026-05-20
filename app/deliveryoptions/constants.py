@@ -41,9 +41,7 @@ class AvailabilityCondition(IntEnum):
     ClosedFOIReview = 12  # Closed, but can be reviewed via FOI request
     AccessUnderReview = 13  # Access is currently under review
     ClosedRetainedDeptKnown = 14  # Closed and retained by a known department
-    ClosedRetainedDeptUnKnown = (
-        15  # Closed and retained by an unknown department
-    )
+    ClosedRetainedDeptUnKnown = 15  # Closed and retained by an unknown department
     PaidSearch = 16  # Available through paid search
     Offsite = 17  # Record is stored offsite
     Surrogate = 18  # Surrogate version is available

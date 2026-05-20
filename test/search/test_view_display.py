@@ -1,11 +1,12 @@
 from http import HTTPStatus
 
 import responses
-from app.search.constants import Display, FieldsConstant
-from app.search.forms import CatalogueSearchCommonForm
 from django.conf import settings
 from django.test import TestCase
 from django.utils.encoding import force_str
+
+from app.search.constants import Display, FieldsConstant
+from app.search.forms import CatalogueSearchCommonForm
 
 
 class CatalogueSearchViewDisplayTests(TestCase):
@@ -57,9 +58,7 @@ class CatalogueSearchViewDisplayTests(TestCase):
 
         response = self.client.get("/catalogue/search/?")
         form = response.context_data.get("form")
-        display_field = response.context_data.get("form").fields[
-            FieldsConstant.DISPLAY
-        ]
+        display_field = response.context_data.get("form").fields[FieldsConstant.DISPLAY]
 
         self.assertTrue(form.is_valid())
 
@@ -115,9 +114,7 @@ class CatalogueSearchViewDisplayTests(TestCase):
 
         response = self.client.get("/catalogue/search/?display=grid")
         form = response.context_data.get("form")
-        display_field = response.context_data.get("form").fields[
-            FieldsConstant.DISPLAY
-        ]
+        display_field = response.context_data.get("form").fields[FieldsConstant.DISPLAY]
 
         self.assertTrue(form.is_valid())
 
@@ -135,9 +132,7 @@ class CatalogueSearchViewDisplayTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         form = response.context_data.get("form")
-        display_field = response.context_data.get("form").fields[
-            FieldsConstant.DISPLAY
-        ]
+        display_field = response.context_data.get("form").fields[FieldsConstant.DISPLAY]
         html = force_str(response.content)
 
         self.assertIsInstance(form, CatalogueSearchCommonForm)
@@ -179,9 +174,5 @@ class CatalogueSearchViewDisplayTests(TestCase):
         self.assertFalse(response.context_data.get("filters_visible"))
 
         # test for presence of hidden inputs for invalid display param
-        self.assertIn(
-            """<input type="hidden" name="display" value="INVALID">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="group" value="tna">""", html
-        )
+        self.assertIn("""<input type="hidden" name="display" value="INVALID">""", html)
+        self.assertIn("""<input type="hidden" name="group" value="tna">""", html)

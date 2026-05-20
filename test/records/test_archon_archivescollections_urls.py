@@ -1,6 +1,7 @@
+from django.test import SimpleTestCase
+
 from app.records.constants import TNA_ARCHON_CODE, RecordTypes
 from app.records.models import Record
-from django.test import SimpleTestCase
 
 
 class NonTnaArchonRecordCollectionUrlTests(SimpleTestCase):

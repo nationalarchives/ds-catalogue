@@ -21,9 +21,7 @@ def page_not_found_error_view(
         )
     except TemplateDoesNotExist as e:
         logger.error(f"Template missing: {e}")
-        return HttpResponseServerError(
-            "Internal Server Error: Template not found."
-        )
+        return HttpResponseServerError("Internal Server Error: Template not found.")
     response.status_code = status_code
     return response
 
@@ -37,8 +35,6 @@ def server_error_view(
         )
     except TemplateDoesNotExist as e:
         logger.error(f"Template missing: {e}")
-        return HttpResponseServerError(
-            "Internal Server Error: Template not found."
-        )
+        return HttpResponseServerError("Internal Server Error: Template not found.")
     response.status_code = status_code
     return response

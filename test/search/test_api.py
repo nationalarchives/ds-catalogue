@@ -1,4 +1,7 @@
 import responses
+from django.conf import settings
+from django.test import SimpleTestCase
+
 from app.lib.exceptions import (
     MissingAPIAttributeError,
     NoResultsFound,
@@ -6,12 +9,9 @@ from app.lib.exceptions import (
 from app.records.models import Record
 from app.search.api import search_records
 from app.search.models import APISearchResponse
-from django.conf import settings
-from django.test import SimpleTestCase
 
 
 class SearchRecordsTests(SimpleTestCase):
-
     @responses.activate
     def test_search_records_response(self):
         responses.add(
@@ -155,9 +155,7 @@ class SearchRecordsTests(SimpleTestCase):
                 },
             )
         except Exception as e:
-            self.fail(
-                f"search_records raised an exception unexpectedly. {str(e)}"
-            )
+            self.fail(f"search_records raised an exception unexpectedly. {str(e)}")
         self.assertIsInstance(api_result, APISearchResponse)
         self.assertEqual(api_result.records, [])
         self.assertEqual(api_result.stats_total, 0)
