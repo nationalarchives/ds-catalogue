@@ -1,10 +1,11 @@
 from http import HTTPStatus
 
 import responses
-from app.search.constants import FieldsConstant
-from app.search.forms import CatalogueSearchTnaForm
 from django.conf import settings
 from django.test import TestCase
+
+from app.search.constants import FieldsConstant
+from app.search.forms import CatalogueSearchTnaForm
 
 
 class CatalogueSearchViewSortParamTests(TestCase):
@@ -77,9 +78,7 @@ class CatalogueSearchViewSortParamTests(TestCase):
 
         response = self.client.get("/catalogue/search/?sort=INVALID")
         form = response.context_data.get("form")
-        sort_field = response.context_data.get("form").fields[
-            FieldsConstant.SORT
-        ]
+        sort_field = response.context_data.get("form").fields[FieldsConstant.SORT]
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIsInstance(form, CatalogueSearchTnaForm)
@@ -112,9 +111,7 @@ class CatalogueSearchViewSortParamTests(TestCase):
     def test_filters_visible_with_invalid_sort_and_display(self):
         """Tests filters_visible is False when both sort and display params are invalid."""
 
-        response = self.client.get(
-            "/catalogue/search/?sort=INVALID&display=INVALID"
-        )
+        response = self.client.get("/catalogue/search/?sort=INVALID&display=INVALID")
         form = response.context_data.get("form")
 
         self.assertEqual(response.status_code, HTTPStatus.OK)

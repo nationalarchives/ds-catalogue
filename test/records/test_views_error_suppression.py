@@ -62,9 +62,7 @@ class TestRecordViewForSuppressedErrorsLogged(TestCase):
                                 "@hierarchy": [
                                     {
                                         "@admin": {"id": "C236"},
-                                        "identifier": [
-                                            {"reference_numbers": "PROB"}
-                                        ],
+                                        "identifier": [{"reference_numbers": "PROB"}],
                                         "level": {"code": 1},
                                     },
                                 ],

@@ -1,7 +1,8 @@
 import logging
 
-from app.records.api import wagtail_request_handler
 from django.core.cache import cache
+
+from app.records.api import wagtail_request_handler
 
 from .constants import (
     GLOBAL_NOTIFICATIONS_CACHE_KEY,
@@ -78,7 +79,8 @@ def fetch_landing_page_data() -> dict | None:
 
             data = {
                 "explore_the_collection": response.get(
-                    "explore_the_collection", {}
+                    "explore_the_collection",
+                    {},
                 ),
             }
             cache.set(

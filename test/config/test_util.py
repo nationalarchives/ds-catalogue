@@ -3,8 +3,9 @@
 import os
 from unittest.mock import patch
 
-from config.util import get_bool_env, get_int_env
 from django.test import TestCase
+
+from config.util import get_bool_env, get_int_env
 
 
 class TestGetIntEnv(TestCase):
