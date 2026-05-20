@@ -2,9 +2,10 @@ import logging
 from ipaddress import ip_address, ip_network
 from typing import List, Optional
 
-from app.deliveryoptions.constants import Reader
 from django.conf import settings
 from django.http import HttpRequest
+
+from app.deliveryoptions.constants import Reader
 
 logger = logging.getLogger(__name__)
 

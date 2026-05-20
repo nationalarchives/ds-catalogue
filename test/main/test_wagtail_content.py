@@ -1,5 +1,8 @@
 from unittest.mock import patch
 
+from django.core.cache import cache
+from django.test import TestCase
+
 from app.main.api import (
     fetch_global_notifications,
     fetch_landing_page_data,
@@ -10,8 +13,6 @@ from app.main.constants import (
     LANDING_PAGE_CACHE_KEY,
     WAGTAIL_API_CACHE_TIMEOUT,
 )
-from django.core.cache import cache
-from django.test import TestCase
 
 
 class TestFetchGlobalNotifications(TestCase):

@@ -1,7 +1,8 @@
+from django.test import SimpleTestCase
+
 from app.lib.xslt_transformations import SERIES_TRANSFORMATIONS
 from app.records.models import Record
 from config.jinja import sanitise_record_field
-from django.test import SimpleTestCase
 
 
 class SeriesTransformationTests(SimpleTestCase):

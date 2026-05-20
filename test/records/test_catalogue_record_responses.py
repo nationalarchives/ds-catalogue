@@ -1,9 +1,10 @@
 import json
 from copy import deepcopy
 
-from app.records.models import APIResponse, Record
 from django.conf import settings
 from django.test import SimpleTestCase
+
+from app.records.models import APIResponse, Record
 
 
 class CatalogueRecordResponseTests(SimpleTestCase):

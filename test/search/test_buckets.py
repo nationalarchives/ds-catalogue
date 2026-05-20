@@ -1,9 +1,10 @@
 import copy
 
+from django.test import TestCase
+
 from app.search.buckets import CATALOGUE_BUCKETS, Aggregation, BucketKeys
 from app.search.constants import FieldsConstant
 from app.search.models import APISearchResponse
-from django.test import TestCase
 
 
 class TestBuckets(TestCase):

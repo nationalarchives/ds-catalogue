@@ -1,6 +1,11 @@
 import unittest.mock as mock
 
 import responses
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.test import SimpleTestCase, override_settings
+from requests import Timeout, TooManyRedirects
+
 from app.lib.api import JSONAPIClient, rosetta_request_handler
 from app.lib.exceptions import (
     APIBadRequestError,
@@ -11,10 +16,6 @@ from app.lib.exceptions import (
     APIResourceNotFound,
     APITimeoutError,
 )
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
-from django.test import SimpleTestCase, override_settings
-from requests import Timeout, TooManyRedirects
 
 
 class TestRosettaRequestHandlerException(SimpleTestCase):

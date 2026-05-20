@@ -1,9 +1,10 @@
 from http import HTTPStatus
 
-from app.search.constants import FieldsConstant
-from app.search.forms import CatalogueSearchBaseForm
 from django.test import TestCase
 from django.utils.encoding import force_str
+
+from app.search.constants import FieldsConstant
+from app.search.forms import CatalogueSearchBaseForm
 
 
 class CatalogueSearchViewInvalidViewTests(TestCase):

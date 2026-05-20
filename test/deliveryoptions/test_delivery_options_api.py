@@ -1,9 +1,10 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
+from django.conf import settings
+
 from app.lib.api import JSONAPIClient
 from app.lib.exceptions import APIResourceNotFound
-from django.conf import settings
 
 
 class DeliveryOptionsApiClientTests(unittest.TestCase):

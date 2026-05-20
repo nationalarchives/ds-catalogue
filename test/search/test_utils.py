@@ -1,5 +1,6 @@
-from app.search.utils import camelcase_to_underscore, underscore_to_camelcase
 from django.test import SimpleTestCase
+
+from app.search.utils import camelcase_to_underscore, underscore_to_camelcase
 
 
 class TestUtils(SimpleTestCase):

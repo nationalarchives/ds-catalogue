@@ -1,7 +1,8 @@
 import logging
 
-from app.records.api import wagtail_request_handler
 from django.core.cache import cache
+
+from app.records.api import wagtail_request_handler
 
 from .constants import (
     GLOBAL_NOTIFICATIONS_CACHE_KEY,

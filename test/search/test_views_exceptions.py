@@ -1,11 +1,12 @@
 from http import HTTPStatus
-from test.utils import prevent_request_warnings
+
+from django.core.exceptions import SuspiciousOperation
+from django.test import RequestFactory, TestCase, override_settings
 
 from app.lib.fields import DATE_YMD_SEPARATOR, DateKeys
 from app.search.constants import FieldsConstant
 from app.search.views import CatalogueSearchView
-from django.core.exceptions import SuspiciousOperation
-from django.test import RequestFactory, TestCase, override_settings
+from test.utils import prevent_request_warnings
 
 
 class TestCatalogueSearchViewExceptions(TestCase):

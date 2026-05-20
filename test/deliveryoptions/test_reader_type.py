@@ -1,14 +1,15 @@
 import logging
 from unittest.mock import Mock, patch
 
+from django.conf import settings
+from django.test import TestCase, override_settings
+
 from app.deliveryoptions.reader_type import (
     get_client_ip,
     is_ip_in_cidr,
     is_onsite,
     is_staff,
 )
-from django.conf import settings
-from django.test import TestCase, override_settings
 
 
 @override_settings(

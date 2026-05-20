@@ -2,13 +2,14 @@ import logging
 from http import HTTPStatus
 
 import sentry_sdk
+from django.conf import settings
+from django.core.exceptions import SuspiciousOperation
+
 from app.lib.exceptions import (
     APIResourceNotFound,
     NoResultsFound,
     RecordNotFound,
 )
-from django.conf import settings
-from django.core.exceptions import SuspiciousOperation
 
 from .views import page_not_found_error_view, server_error_view
 

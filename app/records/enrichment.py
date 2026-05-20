@@ -6,6 +6,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
 
 import sentry_sdk
+from django.conf import settings
+
 from app.deliveryoptions.api import delivery_options_request_handler
 from app.deliveryoptions.constants import (
     DELIVERY_OPTIONS_NON_TNA_LEVELS,
@@ -29,7 +31,6 @@ from app.records.related import (
     get_tna_related_records_by_subjects,
 )
 from app.records.utils import log_enrichment_execution_time
-from django.conf import settings
 
 # Dedicated logger for API timing information; effective level/handlers come from logging configuration
 api_timer_logger = logging.getLogger(settings.API_TIMING_LOGGER_NAME)

@@ -1,14 +1,15 @@
 from http import HTTPStatus
 
 import responses
+from django.conf import settings
+from django.test import TestCase
+
 from app.records.models import Record
 from app.search.buckets import BucketKeys
 from app.search.forms import (
     CatalogueSearchTnaForm,
     FieldsConstant,
 )
-from django.conf import settings
-from django.test import TestCase
 
 
 class CatalogueSearchViewDefaultTests(TestCase):

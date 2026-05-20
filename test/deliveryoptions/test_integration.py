@@ -1,11 +1,12 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
+from django.core.exceptions import ImproperlyConfigured
+
 from app.deliveryoptions.api import delivery_options_request_handler
 from app.deliveryoptions.constants import AvailabilityCondition, Reader
 from app.deliveryoptions.delivery_options import construct_delivery_options
 from app.records.models import Record
-from django.core.exceptions import ImproperlyConfigured
 
 
 class DeliveryOptionsIntegrationTestCase(unittest.TestCase):

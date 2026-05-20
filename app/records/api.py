@@ -1,5 +1,9 @@
 import logging
 
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.utils.text import slugify
+
 from app.lib.api import JSONAPIClient, rosetta_request_handler
 from app.lib.exceptions import (
     APIResourceNotFound,
@@ -8,9 +12,6 @@ from app.lib.exceptions import (
     RecordNotFound,
 )
 from app.records.models import APIResponse, Record
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
-from django.utils.text import slugify
 
 logger = logging.getLogger(__name__)
 

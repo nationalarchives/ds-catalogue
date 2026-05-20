@@ -1,10 +1,11 @@
 from unittest.mock import Mock, patch
 
 import responses
-from app.deliveryoptions.constants import AvailabilityCondition
-from app.records.models import Record
 from django.conf import settings
 from django.test import RequestFactory, TestCase
+
+from app.deliveryoptions.constants import AvailabilityCondition
+from app.records.models import Record
 
 
 class TestRecordView(TestCase):

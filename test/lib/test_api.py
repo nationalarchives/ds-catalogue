@@ -1,7 +1,8 @@
 import responses
-from app.lib.api import rosetta_request_handler
 from django.conf import settings
 from django.test import SimpleTestCase
+
+from app.lib.api import rosetta_request_handler
 
 
 class TestJSONAPIClientGetRequest(SimpleTestCase):

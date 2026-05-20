@@ -15,6 +15,9 @@ import re
 from functools import lru_cache
 from typing import Any, Dict, List, Optional, Union
 
+from django.conf import settings
+from django.http import HttpRequest
+
 from app.deliveryoptions.constants import (
     AVAILABILITY_CONDITION_STATE_TO_GROUP,
     DELIVERY_OPTIONS_CONFIG,
@@ -25,8 +28,6 @@ from app.deliveryoptions.constants import (
 from app.deliveryoptions.helpers import get_dept
 from app.deliveryoptions.reader_type import get_reader_type
 from app.records.models import Record
-from django.conf import settings
-from django.http import HttpRequest
 
 logger = logging.getLogger(__name__)
 

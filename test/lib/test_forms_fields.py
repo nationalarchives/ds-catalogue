@@ -1,13 +1,14 @@
 from datetime import datetime
 
+from django.http import QueryDict
+from django.test import TestCase
+
 from app.lib.fields import (
     CharField,
     ChoiceField,
     ValidationError,
 )
 from app.lib.forms import BaseForm
-from django.http import QueryDict
-from django.test import TestCase
 
 
 class BaseFormWithCharFieldTest(TestCase):

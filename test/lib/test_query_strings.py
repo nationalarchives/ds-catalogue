@@ -1,5 +1,7 @@
 import unittest
 
+from django.http import QueryDict
+
 from config.jinja import (
     qs_append_value,
     qs_is_value_active,
@@ -7,7 +9,6 @@ from config.jinja import (
     qs_replace_value,
     qs_toggle_value,
 )
-from django.http import QueryDict
 
 
 class ContentParserTestCase(unittest.TestCase):

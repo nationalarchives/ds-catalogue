@@ -1,5 +1,8 @@
 from types import SimpleNamespace
 
+from django.http import QueryDict
+from django.test import TestCase
+
 from config.jinja import (
     dump_json,
     format_number,
@@ -15,8 +18,6 @@ from config.jinja import (
     slugify,
     truncate_preserve_mark_tags,
 )
-from django.http import QueryDict
-from django.test import TestCase
 
 
 class Jinja2TestCase(TestCase):

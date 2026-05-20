@@ -1,11 +1,12 @@
 from http import HTTPStatus
 
 import responses
-from app.search.constants import Display, FieldsConstant
-from app.search.forms import CatalogueSearchCommonForm
 from django.conf import settings
 from django.test import TestCase
 from django.utils.encoding import force_str
+
+from app.search.constants import Display, FieldsConstant
+from app.search.forms import CatalogueSearchCommonForm
 
 
 class CatalogueSearchViewDisplayTests(TestCase):

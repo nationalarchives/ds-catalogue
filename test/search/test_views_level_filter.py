@@ -1,10 +1,11 @@
 from http import HTTPStatus
 
 import responses
-from app.search.constants import FieldsConstant
 from django.conf import settings
 from django.test import TestCase
 from django.utils.encoding import force_str
+
+from app.search.constants import FieldsConstant
 
 
 class CatalogueSearchViewLevelFilterTests(TestCase):

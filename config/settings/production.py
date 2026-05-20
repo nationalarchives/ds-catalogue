@@ -2,9 +2,10 @@ import json
 import os
 from sysconfig import get_path
 
-from config.util import get_bool_env, get_int_env, strtobool
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.csp import CSP
+
+from config.util import get_bool_env, get_int_env, strtobool
 
 from .features import *
 

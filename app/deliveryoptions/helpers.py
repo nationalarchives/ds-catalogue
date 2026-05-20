@@ -17,11 +17,12 @@ generic function will automatically handle it.
 import re
 from typing import List, Optional
 
+from django.conf import settings
+from django.core.cache import cache
+
 from app.deliveryoptions.departments import DEPARTMENT_DETAILS
 from app.lib.constants import BASE_TNA_DISCOVERY_URL
 from app.records.models import Record
-from django.conf import settings
-from django.core.cache import cache
 
 BASE_TNA_HOME_URL = "https://www.nationalarchives.gov.uk"
 

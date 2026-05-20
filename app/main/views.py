@@ -1,11 +1,12 @@
 import logging
 
+from django.http import HttpResponse
+from django.template import loader
+
 from app.main.api import (
     fetch_global_notifications,
     get_explore_the_collection,
 )
-from django.http import HttpResponse
-from django.template import loader
 
 logger = logging.getLogger(__name__)
 

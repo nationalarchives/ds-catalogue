@@ -1,5 +1,6 @@
-from app.search.views import APIMixin
 from django.test import TestCase
+
+from app.search.views import APIMixin
 
 
 class APIMixinReplaceMethodsTests(TestCase):

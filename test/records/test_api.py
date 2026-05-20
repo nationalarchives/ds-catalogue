@@ -1,13 +1,14 @@
 from unittest.mock import patch
 
 import responses
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.test import SimpleTestCase, override_settings
+
 from app.lib.api import JSONAPIClient
 from app.lib.exceptions import MissingAPIAttributeError, RecordNotFound
 from app.records.api import record_details_by_id, wagtail_request_handler
 from app.records.models import Record
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
-from django.test import SimpleTestCase, override_settings
 
 
 class TestRecordDetailsById(SimpleTestCase):

@@ -3,6 +3,10 @@ import logging
 import math
 from typing import Any
 
+from django.core.exceptions import SuspiciousOperation
+from django.http import HttpRequest, HttpResponse, QueryDict
+from django.views.generic import TemplateView
+
 from app.errors import views as errors_view
 from app.lib.constants import DATE_YMD_SEPARATOR
 from app.lib.exceptions import NoResultsFound
@@ -19,9 +23,6 @@ from app.main.api import fetch_global_notifications
 from app.records.constants import TnaLevels
 from app.search.api import search_records
 from config.jinja import qs_remove_value, qs_replace_value, qs_toggle_value
-from django.core.exceptions import SuspiciousOperation
-from django.http import HttpRequest, HttpResponse, QueryDict
-from django.views.generic import TemplateView
 
 from .buckets import (
     CATALOGUE_BUCKETS,

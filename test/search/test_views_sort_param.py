@@ -1,10 +1,11 @@
 from http import HTTPStatus
 
 import responses
-from app.search.constants import FieldsConstant
-from app.search.forms import CatalogueSearchTnaForm
 from django.conf import settings
 from django.test import TestCase
+
+from app.search.constants import FieldsConstant
+from app.search.forms import CatalogueSearchTnaForm
 
 
 class CatalogueSearchViewSortParamTests(TestCase):

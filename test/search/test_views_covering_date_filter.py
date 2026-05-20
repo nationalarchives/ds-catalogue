@@ -2,9 +2,10 @@ from datetime import date
 from http import HTTPStatus
 
 import responses
-from app.search.forms import CatalogueSearchTnaForm, FieldsConstant
 from django.conf import settings
 from django.test import TestCase
+
+from app.search.forms import CatalogueSearchTnaForm, FieldsConstant
 
 
 class CoveringDateFilterTests(TestCase):

@@ -4,16 +4,17 @@ import re
 from datetime import datetime
 from urllib.parse import unquote
 
-from app.lib.constants import DATE_YMD_SEPARATOR
-from app.lib.fields import DateKeys
-from app.lib.xslt_transformations import apply_generic_xsl
-from app.records.utils import change_discovery_record_details_links
-from app.search.constants import FieldsConstant
 from django.conf import settings
 from django.http import QueryDict
 from django.templatetags.static import static
 from django.urls import reverse
 from jinja2 import Environment
+
+from app.lib.constants import DATE_YMD_SEPARATOR
+from app.lib.fields import DateKeys
+from app.lib.xslt_transformations import apply_generic_xsl
+from app.records.utils import change_discovery_record_details_links
+from app.search.constants import FieldsConstant
 
 
 def slugify(s):

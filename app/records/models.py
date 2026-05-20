@@ -5,6 +5,11 @@ from typing import Any
 from urllib.parse import urlencode
 
 import sentry_sdk
+from django.conf import settings
+from django.urls import NoReverseMatch, reverse
+from django.utils.functional import cached_property
+from lxml import etree
+
 from app.lib.constants import BASE_TNA_DISCOVERY_URL
 from app.lib.exceptions import MissingAPIAttributeError
 from app.lib.xslt_transformations import (
@@ -26,10 +31,6 @@ from app.records.utils import (
 from app.search.buckets import BucketKeys
 from app.search.constants import FieldsConstant
 from config.jinja import format_number
-from django.conf import settings
-from django.urls import NoReverseMatch, reverse
-from django.utils.functional import cached_property
-from lxml import etree
 
 from .constants import MISSING_COUNT_TEXT, TNA_ARCHON_CODE, RecordTypes
 from .tna_archon_constants import (

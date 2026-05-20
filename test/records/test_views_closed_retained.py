@@ -1,9 +1,10 @@
 from unittest.mock import patch
 
 import responses
-from app.deliveryoptions.constants import AvailabilityCondition
 from django.conf import settings
 from django.test import TestCase
+
+from app.deliveryoptions.constants import AvailabilityCondition
 
 
 class TestClosedRetainedAvailability(TestCase):

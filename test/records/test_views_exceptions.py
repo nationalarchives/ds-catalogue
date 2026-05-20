@@ -1,10 +1,11 @@
 from http import HTTPStatus
-from test.utils import prevent_request_warnings
 
 import responses
-from app.lib.api import APIError
 from django.conf import settings
 from django.test import TestCase, override_settings
+
+from app.lib.api import APIError
+from test.utils import prevent_request_warnings
 
 
 class TestRecordViewExceptions(TestCase):

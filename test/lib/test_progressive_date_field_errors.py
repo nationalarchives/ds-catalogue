@@ -1,9 +1,10 @@
 from datetime import date
 
-from app.lib.fields import FromDateField, ToDateField
-from app.lib.forms import BaseForm
 from django.http import QueryDict
 from django.test import TestCase
+
+from app.lib.fields import FromDateField, ToDateField
+from app.lib.forms import BaseForm
 
 
 class BaseFormWithProgressiveDateRequiredErrorTest(TestCase):

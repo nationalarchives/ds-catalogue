@@ -3,6 +3,9 @@ import json
 from copy import deepcopy
 from unittest.mock import Mock, patch
 
+from django.conf import settings
+from django.test import RequestFactory, TestCase
+
 from app.deliveryoptions.constants import (
     DELIVERY_OPTIONS_CONFIG,
     AvailabilityGroup,
@@ -21,8 +24,6 @@ from app.deliveryoptions.helpers import (
 )
 from app.records.models import APIResponse
 from app.records.views import RecordDetailView
-from django.conf import settings
-from django.test import RequestFactory, TestCase
 
 
 class TestDeliveryOptionTags(TestCase):

@@ -1,13 +1,14 @@
 import unittest
 from unittest.mock import MagicMock, mock_open, patch
 
+from django.http import HttpRequest
+
 from app.deliveryoptions.constants import AvailabilityCondition, Reader
 from app.deliveryoptions.delivery_options import (
     construct_delivery_options,
     read_delivery_options,
 )
 from app.records.models import Record
-from django.http import HttpRequest
 
 
 class DeliveryOptionsTestCase(unittest.TestCase):

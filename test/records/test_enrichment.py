@@ -4,10 +4,11 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from typing import Any
 from unittest.mock import Mock, patch
 
+from django.test import TestCase, override_settings
+
 from app.deliveryoptions.delivery_options import _get_dcs_prefix_variants
 from app.records.enrichment import RecordEnrichmentHelper
 from app.records.models import Record
-from django.test import TestCase, override_settings
 
 
 class TestRecordEnrichmentHelper(TestCase):
