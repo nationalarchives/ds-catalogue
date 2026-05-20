@@ -15,7 +15,11 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Get tag from deleted branch
         id: version-tag
-        run: echo "VERSION=$(echo "${{ github.event.ref }}" | sed -e 's,/,-,g')" >> "$GITHUB_OUTPUT"
+        env:
+          GITHUB_REF_NAME: ${{ github.event.ref }}
+        run: |
+          VERSION=$(echo "$GITHUB_REF_NAME" | sed -e 's,/,-,g')
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
       - name: Debug
         run: echo "Clean up Docker image ${{ vars.DOCKER_IMAGE_NAME }}:${{ steps.version-tag.outputs.VERSION }}"
       - name: Delete image
