@@ -19,10 +19,10 @@ from app.lib.xslt_transformations import (
     has_series_xsl,
 )
 from app.records.constants import (
-    NON_TNA_LEVELS,
     SUBJECTS_LIMIT,
     TNA_HELD_BY_VALUES,
-    TNA_LEVELS,
+    NonTnaLevels,
+    TnaLevels,
 )
 from app.records.utils import (
     extract,
@@ -202,8 +202,8 @@ class Record(APIModel):
     def level(self) -> str:
         """Returns level name for tna, non tna level codes"""
         if self.is_tna:
-            return TNA_LEVELS.get(str(self.level_code), "")
-        return NON_TNA_LEVELS.get(str(self.level_code), "")
+            return TnaLevels.level_from_code(str(self.level_code or ""))
+        return NonTnaLevels.level_from_code(str(self.level_code or ""))
 
     @cached_property
     def level_code(self) -> int | None:
@@ -552,10 +552,10 @@ class Record(APIModel):
 
     @cached_property
     def hierarchy_series(self) -> Record | None:
-        """Returns series record from hierarchy if found, None otherwise"""
-        for item in self.hierarchy:
-            if item.level == "Series":
-                return item
+        """Return the series-level record from this record's hierarchy, if present."""
+        for record in self.hierarchy:
+            if record.level == TnaLevels.SERIES.level:
+                return record
         return None
 
     @cached_property
