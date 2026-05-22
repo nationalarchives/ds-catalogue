@@ -61,13 +61,6 @@
     </div>
   </xsl:template>
 
-  <!-- <xsl:template match="span[contains(@class, 'appointment')]">
-    <p>
-      <strong>Appointment: </strong>
-      <xsl:value-of select="."/>
-    </p>
-  </xsl:template> -->
-
   <xsl:template name="normalize-comment-markup">
     <xsl:param name="text"/>
 
