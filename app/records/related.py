@@ -1,15 +1,22 @@
 import logging
 import random
 
-from app.records.constants import RELATED_RECORDS_FETCH_LIMIT, TNA_LEVELS
+from app.records.constants import RELATED_RECORDS_FETCH_LIMIT, TnaLevels
 from app.records.models import Record
 from app.search.api import search_records
 
 logger = logging.getLogger(__name__)
 
+# Labels for tna levels between Series and Item inclusive
+tna_level_lower_bound = int(TnaLevels.SERIES.level_code)
+tna_level_upper_bound = int(TnaLevels.ITEM.level_code) + 1
+
 # fmt: off
 _LEVEL_FILTERS_SERIES_TO_ITEM = [
-    f"level:{TNA_LEVELS[str(i)]}" for i in range(3, 8)
+    f"level:{tna_level_member.level}"
+    for tna_level_member in TnaLevels
+    if int(tna_level_member.level_code)
+    in range(tna_level_lower_bound, tna_level_upper_bound)
 ]
 # fmt: on
 
