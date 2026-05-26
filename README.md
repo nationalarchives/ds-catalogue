@@ -85,22 +85,24 @@ See [Sentry's official guide](https://docs.sentry.io/platforms/python/guides/dja
 
 **Note**: Only sensitive values need to go in the `.env` file.
 
-| Variable                           | Purpose                                                                      |
-| ---------------------------------- | ---------------------------------------------------------------------------- |
-| `SECRET_KEY`                       | For cryptographic signing, ensuring the integrity of sessions, CSRF tokens,  |
-|                                    | and other security-related data.                                             |
-| `ROSETTA_API_URL`                  | The base API URL for Rosetta, including the `/rosetta/data` path             |
-| `WAGTAIL_API_URL`                  | The base API URL for Wagtail                                                 |
-| `DELIVERY_OPTIONS_API_URL`         | The base API URL for Delivery options                                        |
-| `WAGTAIL_API_TIMEOUT`              | Maximum timeout of Wagtail api (seconds)                                     |
-| `DELIVERY_OPTIONS_API_TIMEOUT`     | Maximum timeout of Delivery Options api (seconds)                            |
-| `ROSETTA_ENRICHMENT_API_TIMEOUT`   | Maximum timeout of Rosetta api (only for data enrichment)                    |
-| `DCS_PREFIXES`                     | Comma separated list of document prefixes for distressing content            |
-| `STAFFIN_IP_ADDRESSES`             | Comma separated list of CIDR format IP addresses identifying staff access    |
-| `ONSITE_IP_ADDRESSES`              | Comma separated list of CIDR format IP addresses identifying onsite access   |
-| `MAX_SUBJECTS_PER_RECORD`          | Maximum number of subjects displayed on details screen                       |
-| `ENABLE_PARALLEL_API_CALLS`        | True = use parallel code for detail page api calls, False for sequential     |
-| `ENRICHMENT_TIMING_ENABLED`        | True = show api call timings in log (works for both sequential and parallel) |
-| `FEATURE_ENABLE_HELD_BY_DISCOVERY` | True=activates held by link to Discovery, otherwise to Catalogue Archon page |
+| Variable                           | Purpose                                                                        |
+| ---------------------------------- | ------------------------------------------------------------------------------ |
+| `SECRET_KEY`                       | For cryptographic signing, ensuring the integrity of sessions, CSRF tokens,    |
+|                                    | and other security-related data.                                               |
+| `ROSETTA_API_URL`                  | The base API URL for Rosetta, including the `/rosetta/data` path               |
+| `WAGTAIL_API_URL`                  | The base API URL for Wagtail                                                   |
+| `DELIVERY_OPTIONS_API_URL`         | The base API URL for Delivery options                                          |
+| `WAGTAIL_API_TIMEOUT`              | Maximum timeout of Wagtail api (seconds)                                       |
+| `DELIVERY_OPTIONS_API_TIMEOUT`     | Maximum timeout of Delivery Options api (seconds)                              |
+| `ROSETTA_ENRICHMENT_API_TIMEOUT`   | Maximum timeout of Rosetta api (only for data enrichment)                      |
+| `DCS_PREFIXES`                     | Comma separated list of document prefixes for distressing content              |
+| `STAFFIN_IP_ADDRESSES`             | Comma separated list of CIDR format IP addresses identifying staff access      |
+| `ONSITE_IP_ADDRESSES`              | Comma separated list of CIDR format IP addresses identifying onsite access     |
+| `MAX_SUBJECTS_PER_RECORD`          | Maximum number of subjects displayed on details screen                         |
+| `ENABLE_PARALLEL_API_CALLS`        | True = use parallel code for detail page api calls, False for sequential       |
+| `ENRICHMENT_TIMING_ENABLED`        | True = show api call timings in log (works for both sequential and parallel)   |
+| `FEATURE_ENABLE_HELD_BY_DISCOVERY` | True=activates held by link to Discovery, otherwise to Catalogue Archon page   |
+| `REDIS_URL`                        | Connection URL for the Redis cache backend                                     |
+| `REDIS_CACHE_DEFAULT_TIMEOUT`      | Default expiry (secs) for cached entries when no per-key timeout is specified. |
 
 TODO: Find where the IP_ADDRESSES are documented and link to document here

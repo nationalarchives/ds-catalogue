@@ -274,15 +274,15 @@ IMAGE_LIBRARY_URL = os.getenv(
     "IMAGE_LIBRARY_URL", "https://images.nationalarchives.gov.uk/"
 )
 
-REDIS_URL = os.getenv("REDIS_URL", default="redis://redis:6379")
-CACHE_DEFAULT_TIMEOUT = int(os.getenv("CACHE_DEFAULT_TIMEOUT", "900"))
+REDIS_URL = os.getenv("REDIS_URL")
+REDIS_CACHE_DEFAULT_TIMEOUT = int(os.getenv("REDIS_CACHE_DEFAULT_TIMEOUT", "900"))
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": REDIS_URL,
         "KEY_PREFIX": "ds_catalogue",
-        "TIMEOUT": CACHE_DEFAULT_TIMEOUT,
+        "TIMEOUT": REDIS_CACHE_DEFAULT_TIMEOUT,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
