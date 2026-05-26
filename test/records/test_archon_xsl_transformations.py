@@ -83,6 +83,7 @@ class NonTnaArchonRecordTransformationTests(SimpleTestCase):
         self.record._raw["id"] = "A13531985"
         self.record._raw["referenceNumber"] = "188"
         self.record._raw["source"] = "ARCHON"
+        #
         self.record._raw["placeDescription"] = {
             "raw": """<span class=\"wrapper\"><span class=\"accessconditions\"><span class=\"openinghours\">Monday 10.15-12.30, Tuesday 10.15-3, Wednesday 10.15-12.30 by appointment</span><span class=\"holidays\">Bank holidays; Christmas/New Year</span><span class=\"disabledaccess\">Wheelchair access</span><span class=\"comments\">&lt;b&gt;Two hour appointment slots must by booked in advance.  See &lt;a href=\"https://www.shakespeare.org.uk/visit/plan-your-visit/reading-room/\" target=\"_blank\"&gt;website&lt;/a&gt; for details&lt;/b&gt;\n&lt;li&gt;Readers will need to provide a letter of recommendation to see certain items - please &lt;a href=\"mailto:collections@shakespeare.org.uk\"&gt;email&lt;/a&gt; for further details&lt;/li&gt;\n&lt;li&gt;Reprographics: Staff can copy certain items for a small fee; self-service photograph permits (certain items only) - £5 per day&lt;/li&gt;</span><span class=\"idrequired\">Proof of identity required</span><span class=\"ticket\">Readers ticket required</span></span></span>"""
         }
