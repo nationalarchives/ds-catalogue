@@ -93,7 +93,7 @@ class NonTnaArchonRecordTransformationTests(SimpleTestCase):
         # field is sanitised in the template
         self.assertEqual(
             sanitise_record_field(self.record.place_description),
-            """<p><strong>Open: </strong>Monday 10.15-12.30, Tuesday 10.15-3, Wednesday 10.15-12.30 by appointment</p><p><strong>Closed: </strong>Bank holidays; Christmas/New Year</p><ul class="tna-ul">
+            """<p><strong>Open: </strong>Monday 10.15-12.30, Tuesday 10.15-3, Wednesday 10.15-12.30 by appointment</p><p><strong>Closed: </strong>Bank holidays; Christmas/New Year</p><strong>Facilities: </strong><ul class="tna-ul">
 <li>Wheelchair access</li>
 <li>Proof of identity required</li>
 <li>Readers ticket required</li>
@@ -189,7 +189,7 @@ class TnaArchonRecordTransformationTests(SimpleTestCase):
     For opening times please consult the <a href="https://www.nationalarchives.gov.uk/about/visit-us/opening-times/" target="_blank">website</a>
   </p><p><strong>Closed: </strong>
     See the <a href="https://www.nationalarchives.gov.uk/about/visit-us/opening-times/" target="_blank">website</a>
-  </p><ul class="tna-ul"><li>
+  </p><strong>Facilities: </strong><ul class="tna-ul"><li>
     Wheelchair access
   </li></ul><div>
     If you would like to contact The National Archives please go to the 
