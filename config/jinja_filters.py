@@ -11,11 +11,12 @@ import re
 from datetime import datetime, timezone
 from urllib.parse import unquote
 
+from django.http import QueryDict
+
 from app.lib.constants import DATE_YMD_SEPARATOR
 from app.lib.fields import DateKeys
 from app.records.utils import change_discovery_record_details_links
 from app.search.constants import FieldsConstant
-from django.http import QueryDict
 
 # ---------------------------------------------------------------------------
 # Text and HTML
@@ -167,9 +168,7 @@ def truncate_preserve_mark_tags(value, max_length=250):
                 token, output, open_marks, visible, max_length
             )
         else:
-            visible, truncated = _consume_text(
-                token, output, visible, max_length
-            )
+            visible, truncated = _consume_text(token, output, visible, max_length)
 
     output.extend(["</mark>"] * open_marks)
     if truncated:
@@ -357,9 +356,7 @@ def qs_append_value(
     return rtn_qs if return_object else rtn_qs.urlencode()
 
 
-def qs_remove_value(
-    existing_qs: QueryDict, filter: str, return_object: bool = False
-):
+def qs_remove_value(existing_qs: QueryDict, filter: str, return_object: bool = False):
     # Don't change the currently rendering existing query string!
     rtn_qs = existing_qs.copy()
     if filter in rtn_qs:

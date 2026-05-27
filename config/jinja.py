@@ -7,7 +7,16 @@ this module only handles environment construction and registration.
 
 import json
 
+from django.conf import settings
+from django.templatetags.static import static
+from django.urls import reverse
+from jinja2 import Environment
+
+from app.lib.constants import DATE_YMD_SEPARATOR
+from app.lib.fields import DateKeys
 from app.lib.xslt_transformations import apply_generic_xsl
+from app.records.utils import change_discovery_record_details_links
+from app.search.constants import FieldsConstant
 from config.jinja_filters import (
     base64_decode,
     base64_encode,
@@ -30,16 +39,6 @@ from config.jinja_filters import (
     tna_html,
     truncate_preserve_mark_tags,
 )
-from django.conf import settings
-from django.templatetags.static import static
-from django.urls import reverse
-from jinja2 import Environment
-
-from app.lib.constants import DATE_YMD_SEPARATOR
-from app.lib.fields import DateKeys
-from app.lib.xslt_transformations import apply_generic_xsl
-from app.records.utils import change_discovery_record_details_links
-from app.search.constants import FieldsConstant
 
 
 def _read_tna_frontend_version() -> str:

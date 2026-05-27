@@ -1,6 +1,9 @@
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from django.http import QueryDict
+from django.test import SimpleTestCase
+
 from config.jinja_filters import (
     base64_decode,
     base64_encode,
@@ -23,8 +26,6 @@ from config.jinja_filters import (
     tna_html,
     truncate_preserve_mark_tags,
 )
-from django.http import QueryDict
-from django.test import SimpleTestCase
 
 
 class Jinja2TestCase(SimpleTestCase):
@@ -137,9 +138,7 @@ class Jinja2TestCase(SimpleTestCase):
         self.assertEqual(tna_html(source), source)
 
     def test_tna_html_internal_link_discovery_no_rel_added(self):
-        source = (
-            '<a href="https://discovery.nationalarchives.gov.uk/x">link</a>'
-        )
+        source = '<a href="https://discovery.nationalarchives.gov.uk/x">link</a>'
         self.assertEqual(tna_html(source), source)
 
     def test_tna_html_internal_link_webarchive_no_rel_added(self):
@@ -158,9 +157,7 @@ class Jinja2TestCase(SimpleTestCase):
         internal-link detection, so http:// versions of TNA URLs get the
         external rel attribute. Change this test if the behaviour changes.
         """
-        result = tna_html(
-            '<a href="http://www.nationalarchives.gov.uk/foo">link</a>'
-        )
+        result = tna_html('<a href="http://www.nationalarchives.gov.uk/foo">link</a>')
         self.assertIn('rel="noreferrer nofollow noopener"', result)
 
     def test_tna_html_unrecognised_internal_subdomain_treated_as_external(
@@ -202,12 +199,8 @@ class Jinja2TestCase(SimpleTestCase):
         test_qs = QueryDict("", mutable=True)
         test_qs.update({"a": "1", "b": "1"})
         test_qs.update({"b": "2"})
-        self.assertEqual(
-            "a=1&b=1&b=2&b=3", qs_toggle_value(test_qs.copy(), "b", "3")
-        )
-        self.assertEqual(
-            "a=1&b=1&b=2&c=3", qs_toggle_value(test_qs.copy(), "c", "3")
-        )
+        self.assertEqual("a=1&b=1&b=2&b=3", qs_toggle_value(test_qs.copy(), "b", "3"))
+        self.assertEqual("a=1&b=1&b=2&c=3", qs_toggle_value(test_qs.copy(), "c", "3"))
         self.assertEqual("b=1&b=2", qs_toggle_value(test_qs.copy(), "a", "1"))
         self.assertEqual("a=1", qs_toggle_value(QueryDict(""), "a", "1"))
         self.assertEqual("a=", qs_toggle_value(QueryDict(""), "a", ""))
@@ -220,24 +213,14 @@ class Jinja2TestCase(SimpleTestCase):
         test_qs = QueryDict("", mutable=True)
         test_qs.update({"a": "1", "b": "1"})
         test_qs.update({"b": "2"})
-        self.assertEqual(
-            "a=1&b=1&b=2", qs_replace_value(test_qs.copy(), "a", "1")
-        )
-        self.assertEqual(
-            "a=2&b=1&b=2", qs_replace_value(test_qs.copy(), "a", "2")
-        )
+        self.assertEqual("a=1&b=1&b=2", qs_replace_value(test_qs.copy(), "a", "1"))
+        self.assertEqual("a=2&b=1&b=2", qs_replace_value(test_qs.copy(), "a", "2"))
         self.assertEqual("a=1&b=1", qs_replace_value(test_qs.copy(), "b", "1"))
         self.assertEqual("a=1&b=3", qs_replace_value(test_qs.copy(), "b", "3"))
-        self.assertEqual(
-            "a=1&b=1&b=2&c=3", qs_replace_value(test_qs.copy(), "c", "3")
-        )
-        self.assertEqual(
-            "a=&b=1&b=2", qs_replace_value(test_qs.copy(), "a", "")
-        )
+        self.assertEqual("a=1&b=1&b=2&c=3", qs_replace_value(test_qs.copy(), "c", "3"))
+        self.assertEqual("a=&b=1&b=2", qs_replace_value(test_qs.copy(), "a", ""))
         self.assertEqual("a=1&b=", qs_replace_value(test_qs.copy(), "b", ""))
-        self.assertEqual(
-            "a=1&b=1&b=2&c=", qs_replace_value(test_qs.copy(), "c", "")
-        )
+        self.assertEqual("a=1&b=1&b=2&c=", qs_replace_value(test_qs.copy(), "c", ""))
 
     # -----------------------------------------------------------------------
     # qs_append_value
@@ -247,27 +230,13 @@ class Jinja2TestCase(SimpleTestCase):
         test_qs = QueryDict("", mutable=True)
         test_qs.update({"a": "1", "b": "1"})
         test_qs.update({"b": "2"})
-        self.assertEqual(
-            "a=1&b=1&b=2", qs_append_value(test_qs.copy(), "a", "1")
-        )
-        self.assertEqual(
-            "a=1&a=2&b=1&b=2", qs_append_value(test_qs.copy(), "a", "2")
-        )
-        self.assertEqual(
-            "a=1&b=1&b=2&c=3", qs_append_value(test_qs.copy(), "c", "3")
-        )
-        self.assertEqual(
-            "a=1&b=1&b=2", qs_append_value(test_qs.copy(), "", "1")
-        )
-        self.assertEqual(
-            "a=1&a=&b=1&b=2", qs_append_value(test_qs.copy(), "a", "")
-        )
-        self.assertEqual(
-            "a=1&b=1&b=2&b=", qs_append_value(test_qs.copy(), "b", "")
-        )
-        self.assertEqual(
-            "a=1&b=1&b=2&c=", qs_append_value(test_qs.copy(), "c", "")
-        )
+        self.assertEqual("a=1&b=1&b=2", qs_append_value(test_qs.copy(), "a", "1"))
+        self.assertEqual("a=1&a=2&b=1&b=2", qs_append_value(test_qs.copy(), "a", "2"))
+        self.assertEqual("a=1&b=1&b=2&c=3", qs_append_value(test_qs.copy(), "c", "3"))
+        self.assertEqual("a=1&b=1&b=2", qs_append_value(test_qs.copy(), "", "1"))
+        self.assertEqual("a=1&a=&b=1&b=2", qs_append_value(test_qs.copy(), "a", ""))
+        self.assertEqual("a=1&b=1&b=2&b=", qs_append_value(test_qs.copy(), "b", ""))
+        self.assertEqual("a=1&b=1&b=2&c=", qs_append_value(test_qs.copy(), "c", ""))
 
     # -----------------------------------------------------------------------
     # qs_remove_value
