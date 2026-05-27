@@ -1,15 +1,24 @@
 import logging
 import random
 
-from app.records.constants import RELATED_RECORDS_FETCH_LIMIT, TNA_LEVELS
+from app.records.constants import RELATED_RECORDS_FETCH_LIMIT, TnaLevels
 from app.records.models import Record
 from app.search.api import search_records
 
 logger = logging.getLogger(__name__)
 
+# Labels for tna levels between Series and Item inclusive
+tna_level_lower_bound = int(TnaLevels.SERIES.level_code)
+tna_level_upper_bound = int(TnaLevels.ITEM.level_code) + 1
+
+# fmt: off
 _LEVEL_FILTERS_SERIES_TO_ITEM = [
-    f"level:{TNA_LEVELS[str(i)]}" for i in range(3, 8)
+    f"level:{tna_level_member.level}"
+    for tna_level_member in TnaLevels
+    if int(tna_level_member.level_code)
+    in range(tna_level_lower_bound, tna_level_upper_bound)
 ]
+# fmt: on
 
 
 def get_tna_related_records_by_subjects(
@@ -177,9 +186,7 @@ def _search_by_subject_matches(
     # TODO: When filter logical AND is implemented, this function will provide even more closely related records
 
     # Try searching with all subjects first
-    record_matches = _search_with_all_subjects(
-        current_record, fetch_limit, timeout
-    )
+    record_matches = _search_with_all_subjects(current_record, fetch_limit, timeout)
 
     # If not enough results, search individual subjects
     if len(record_matches) < fetch_limit:
@@ -230,8 +237,7 @@ def get_related_records_by_series(
     try:
         api_result = search_records(
             query=series_ref,
-            results_per_page=limit
-            * 2,  # Get extra to filter out current record
+            results_per_page=limit * 2,  # Get extra to filter out current record
             page=1,
             sort="",
             params=params,

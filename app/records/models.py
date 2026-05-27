@@ -5,6 +5,11 @@ from typing import Any
 from urllib.parse import urlencode
 
 import sentry_sdk
+from django.conf import settings
+from django.urls import NoReverseMatch, reverse
+from django.utils.functional import cached_property
+from lxml import etree
+
 from app.lib.constants import BASE_TNA_DISCOVERY_URL
 from app.lib.exceptions import MissingAPIAttributeError
 from app.lib.xslt_transformations import (
@@ -14,10 +19,10 @@ from app.lib.xslt_transformations import (
     has_series_xsl,
 )
 from app.records.constants import (
-    NON_TNA_LEVELS,
     SUBJECTS_LIMIT,
     TNA_HELD_BY_VALUES,
-    TNA_LEVELS,
+    NonTnaLevels,
+    TnaLevels,
 )
 from app.records.utils import (
     extract,
@@ -26,10 +31,6 @@ from app.records.utils import (
 from app.search.buckets import BucketKeys
 from app.search.constants import FieldsConstant
 from config.jinja import format_number
-from django.conf import settings
-from django.urls import NoReverseMatch, reverse
-from django.utils.functional import cached_property
-from lxml import etree
 
 from .constants import MISSING_COUNT_TEXT, TNA_ARCHON_CODE, RecordTypes
 from .tna_archon_constants import (
@@ -151,10 +152,12 @@ class Record(APIModel):
         clean_value = ""
         clean_title_length = len(self.clean_title)
         clean_summary_title_length = len(self.clean_summary_title)
+        # fmt: off
         if (
             clean_title_length > 0
             and clean_title_length <= clean_summary_title_length
         ):
+            # fmt: on
             clean_value = self.clean_title
         else:
             clean_value = self.clean_summary_title
@@ -199,8 +202,8 @@ class Record(APIModel):
     def level(self) -> str:
         """Returns level name for tna, non tna level codes"""
         if self.is_tna:
-            return TNA_LEVELS.get(str(self.level_code), "")
-        return NON_TNA_LEVELS.get(str(self.level_code), "")
+            return TnaLevels.level_from_code(str(self.level_code or ""))
+        return NonTnaLevels.level_from_code(str(self.level_code or ""))
 
     @cached_property
     def level_code(self) -> int | None:
@@ -365,9 +368,7 @@ class Record(APIModel):
         return tuple(
             dict(
                 description=item.get("description", ""),
-                links=list(
-                    format_link(val, inc_msg) for val in item.get("links", ())
-                ),
+                links=list(format_link(val, inc_msg) for val in item.get("links", ())),
             )
             for item in self.get("relatedMaterials", ())
         )
@@ -429,9 +430,7 @@ class Record(APIModel):
         return tuple(
             dict(
                 description=item.get("description", ""),
-                links=list(
-                    format_link(val, inc_msg) for val in item.get("links", ())
-                ),
+                links=list(format_link(val, inc_msg) for val in item.get("links", ())),
             )
             for item in self.get("separatedMaterials", ())
         )
@@ -471,9 +470,7 @@ class Record(APIModel):
             logger.error(message)
             sentry_sdk.capture_message(message, level="error")
             # add context for debugging in Sentry
-            sentry_sdk.set_context(
-                "missing_info", {"hierarchy_record_id": {self.id}}
-            )
+            sentry_sdk.set_context("missing_info", {"hierarchy_record_id": {self.id}})
             return MISSING_COUNT_TEXT
         return format_number(count)
 
@@ -555,10 +552,10 @@ class Record(APIModel):
 
     @cached_property
     def hierarchy_series(self) -> Record | None:
-        """Returns series record from hierarchy if found, None otherwise"""
-        for item in self.hierarchy:
-            if item.level == "Series":
-                return item
+        """Return the series-level record from this record's hierarchy, if present."""
+        for record in self.hierarchy:
+            if record.level == TnaLevels.SERIES.level:
+                return record
         return None
 
     @cached_property
@@ -587,9 +584,7 @@ class Record(APIModel):
 
         if raw_description:
             if self.custom_record_type == RecordTypes.ARCHON:
-                return apply_archon_xsl(
-                    raw_description, "ArchonPlaceDescription.xsl"
-                )
+                return apply_archon_xsl(raw_description, "ArchonPlaceDescription.xsl")
         return ""
 
     @cached_property
@@ -601,9 +596,7 @@ class Record(APIModel):
             if self.reference_number != TNA_ARCHON_CODE:
                 # Only apply for NonTNA ARCHON records, to hide presentation
                 # of the field as per Wireframes for TNA ARCHON records
-                return apply_archon_xsl(
-                    self.raw_description, "ArchonWebsite.xsl"
-                )
+                return apply_archon_xsl(self.raw_description, "ArchonWebsite.xsl")
         return ""
 
     @cached_property

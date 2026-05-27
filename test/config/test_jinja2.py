@@ -606,9 +606,7 @@ class Jinja2TestCase(SimpleTestCase):
         for value, is_tna, expected in cases:
             with self.subTest(value=value, is_tna=is_tna):
                 record = SimpleNamespace(is_tna=is_tna)
-                self.assertEqual(
-                    override_tna_record_count(value, record), expected
-                )
+                self.assertEqual(override_tna_record_count(value, record), expected)
 
     # -----------------------------------------------------------------------
     # none_to_empty_string

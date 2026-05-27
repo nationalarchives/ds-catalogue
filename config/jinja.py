@@ -35,6 +35,12 @@ from django.templatetags.static import static
 from django.urls import reverse
 from jinja2 import Environment
 
+from app.lib.constants import DATE_YMD_SEPARATOR
+from app.lib.fields import DateKeys
+from app.lib.xslt_transformations import apply_generic_xsl
+from app.records.utils import change_discovery_record_details_links
+from app.search.constants import FieldsConstant
+
 
 def _read_tna_frontend_version() -> str:
     """Read the TNA frontend package version, returning '' on any failure."""
