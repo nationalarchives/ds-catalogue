@@ -59,6 +59,7 @@ def _read_tna_frontend_version() -> str:
 
 
 def environment(**options):
+    options["autoescape"] = True
     env = Environment(**options)
 
     env.globals.update(
