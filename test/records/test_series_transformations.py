@@ -28,8 +28,7 @@ class SeriesTransformationTests(SimpleTestCase):
             {"value": "tna"},
         ]
         self.record._raw["description"] = {
-            "value": '<span class="scopecontent"><p>Name: <span class="persname"><span altrender="forenames" class="emph">Lewis Martin </span><span altrender="surname" class="emph">Wibmer</span></span>. </p><p>Rank: <span altrender="rank" class="emph">Commander</span>. </p><p>Date of Seniority: 07 March 1904. </p><p>Date of Birth: [not given]. </p><p>Place of Birth: [not given]. </p></span>',
-            "raw": '<scopecontent>\r\n\t<p>Name: <persname><emph altrender="forenames">Lewis Martin </emph>\r\n\t\t\t<emph altrender="surname">Wibmer</emph></persname>. </p>\r\n\t<p>Rank: <emph altrender="rank">Commander</emph>. </p>\r\n\t<p>Date of Seniority: 07 March 1904. </p>\r\n\t<p>Date of Birth: [not given]. </p>\r\n\t<p>Place of Birth: [not given]. </p>\r\n</scopecontent>',
+            "value": '<scopecontent>\r\n\t<p>Name: <persname><emph altrender="forenames">Lewis Martin </emph>\r\n\t\t\t<emph altrender="surname">Wibmer</emph></persname>. </p>\r\n\t<p>Rank: <emph altrender="rank">Commander</emph>. </p>\r\n\t<p>Date of Seniority: 07 March 1904. </p>\r\n\t<p>Date of Birth: [not given]. </p>\r\n\t<p>Place of Birth: [not given]. </p>\r\n</scopecontent>',
         }
 
         self.record._raw["@hierarchy"] = [
@@ -144,8 +143,7 @@ class SeriesTransformationTests(SimpleTestCase):
             {"value": "tna"},
         ]
         self.record._raw["description"] = {
-            "value": '<span class="scopecontent"><p>MIRANDA, Surgeon H Slade: wounded of naval brigade in New Zealand: notes on Fiji.</p><p>For description purposes, ADM 101/240 has been split into two parts (1A and 1B), as follows: </p><p>Wounded of the Naval Brigade treated on board HMS Miranda, 29 April-31 Dec 1864: <a class="extref" href="C11529959">ADM 101/240/1A</a>. </p><p>HMS Miranda, 1 January -31 December 1864: <a class="extref" href="C11529960">ADM 101/240/1B</a>. </p><p>NOTE: The two parts are produced as a single document using this catalogue reference (ADM 101/240).</p></span>',
-            "raw": "<scopecontent><p>MIRANDA, Surgeon H Slade: wounded of naval brigade in New Zealand: notes on Fiji.</p> <p>For description purposes, ADM 101/240 has been split into two parts (1A and 1B), as follows: </p> <p>Wounded of the Naval Brigade treated on board HMS Miranda, 29 April-31 Dec 1864: <extref href=&#34http://discovery.nationalarchives.gov.uk/SearchUI/details?Uri=C11529959&#34>ADM 101/240/1A</extref>. </p> <p>HMS Miranda, 1 January -31 December 1864: <extref href=&#34http://discovery.nationalarchives.gov.uk/SearchUI/details?Uri=C11529960&#34>ADM 101/240/1B</extref>. </p> <p>NOTE: The two parts are produced as a single document using this catalogue reference (ADM 101/240).</p></scopecontent>",
+            "value": "<scopecontent><p>MIRANDA, Surgeon H Slade: wounded of naval brigade in New Zealand: notes on Fiji.</p> <p>For description purposes, ADM 101/240 has been split into two parts (1A and 1B), as follows: </p> <p>Wounded of the Naval Brigade treated on board HMS Miranda, 29 April-31 Dec 1864: <extref href=&#34http://discovery.nationalarchives.gov.uk/SearchUI/details?Uri=C11529959&#34>ADM 101/240/1A</extref>. </p> <p>HMS Miranda, 1 January -31 December 1864: <extref href=&#34http://discovery.nationalarchives.gov.uk/SearchUI/details?Uri=C11529960&#34>ADM 101/240/1B</extref>. </p> <p>NOTE: The two parts are produced as a single document using this catalogue reference (ADM 101/240).</p></scopecontent>",
         }
         self.record._raw["@hierarchy"] = [
             {
