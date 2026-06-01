@@ -381,11 +381,6 @@ class Record(APIModel):
         return self.get("cleanDescription", "")
 
     @cached_property
-    def no_html_description(self) -> str:
-        """Returns the api value of the attr if found, empty str otherwise."""
-        return self.get("description.noHtml", "")
-
-    @cached_property
     def description(self) -> str:
         """Returns the transformed api value of the attr if found, empty str otherwise.
         Applies series-specific, schema-based, archon-based XSLT transformation as needed.

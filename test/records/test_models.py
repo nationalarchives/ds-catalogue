@@ -61,7 +61,6 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.related_materials, ())
         self.assertEqual(self.record.description, "")
         self.assertEqual(self.record.clean_description, "")
-        self.assertEqual(self.record.no_html_description, "")
         self.assertEqual(self.record.separated_materials, ())
         self.assertEqual(self.record.unpublished_finding_aids, [])
         self.assertEqual(self.record.hierarchy, ())
@@ -670,34 +669,6 @@ class RecordModelTests(SimpleTestCase):
                 """ Also see the Royal Botanic Gardens, Kew """
                 """<a href="https://www2.calmview.co.uk/kew/calmview/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1" """
                 """title="Opens in a new tab" target="_blank">online catalogue</a>"""
-            ),
-        )
-
-    def test_no_html_description(self):
-        self.record = Record(self.template_details)
-        # patch raw data
-        self.record._raw["description"] = {
-            "value": "",
-            "noHtml": (
-                """These records are the service records of individuals serving """
-                """in the Home Guard in the Second World War. The records are the """
-                """Form of Enrolment - Army Form W3066 - and contain personal """
-                """information and other service information such as length of """
-                """service in the Home Guard and discharge details for each individual. """
-                """This is a digital-only accession. Durham Home Guard 1939-1945 records """
-                """are available to search and download."""
-            ),
-        }
-        self.assertEqual(
-            self.record.no_html_description,
-            (
-                """These records are the service records of individuals serving """
-                """in the Home Guard in the Second World War. The records are the """
-                """Form of Enrolment - Army Form W3066 - and contain personal """
-                """information and other service information such as length of """
-                """service in the Home Guard and discharge details for each individual. """
-                """This is a digital-only accession. Durham Home Guard 1939-1945 records """
-                """are available to search and download."""
             ),
         )
 
