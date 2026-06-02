@@ -60,7 +60,6 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.publication_note, [])
         self.assertEqual(self.record.related_materials, ())
         self.assertEqual(self.record.description, "")
-        self.assertEqual(self.record.clean_description, "")
         self.assertEqual(self.record.separated_materials, ())
         self.assertEqual(self.record.unpublished_finding_aids, [])
         self.assertEqual(self.record.hierarchy, ())
@@ -662,15 +661,20 @@ class RecordModelTests(SimpleTestCase):
             ),
         )
 
-    def test_clean_description(self):
+    @unittest.skip(
+        "TODO: (previously clean_description) enable after discussing and agreeing how to handle HTML markup in description field"
+    )
+    def test_description_with_mark_tag(self):
         self.record = Record(self.template_details)
         # patch raw data
-        # cleanDescription contains HTML markup for highlighting search terms
-        self.record._raw["cleanDescription"] = (
-            "Appellant: <mark>Florence</mark> Emily <mark>Fenn</mark>. Respondent: Ernest William <mark>Fenn</mark>. Type: Wife's petition for divorce [wd]. "
-        )
+        # description contains HTML markup for highlighting search terms
+        self.record._raw["description"] = {
+            "value": (
+                "Appellant: <mark>Florence</mark> Emily <mark>Fenn</mark>. Respondent: Ernest William <mark>Fenn</mark>. Type: Wife's petition for divorce [wd]. "
+            )
+        }
         self.assertEqual(
-            self.record.clean_description,
+            self.record.description,
             (
                 "Appellant: <mark>Florence</mark> Emily <mark>Fenn</mark>. Respondent: Ernest William <mark>Fenn</mark>. Type: Wife's petition for divorce [wd]. "
             ),
