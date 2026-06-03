@@ -1,6 +1,7 @@
 @use "@nationalarchives/frontend/nationalarchives/tools/colour";
 @use "@nationalarchives/frontend/nationalarchives/tools/borders";
 @use "@nationalarchives/frontend/nationalarchives/tools/spacing";
+@use "@nationalarchives/frontend/nationalarchives/tools/media";
 
 .choose-section {
   background-color: #dde5d5;
@@ -56,5 +57,17 @@
         @include colour.accent;
       }
     }
+  }
+}
+
+.subject-picker-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: spacing.space(1);
+  list-style: none;
+  font-weight: bold;
+
+  @include media.on-larger-than-mobile {
+    justify-content: space-between;
   }
 }
