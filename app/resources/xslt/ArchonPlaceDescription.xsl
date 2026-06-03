@@ -11,13 +11,18 @@
     <xsl:apply-templates select="*[contains(@class, 'holidays')][normalize-space()]"/>
 
     <xsl:if test="
+      *[contains(@class, 'appointment')][normalize-space()] or
       *[contains(@class, 'disabledaccess')][normalize-space()] or
+      *[contains(@class, 'researchservice')][normalize-space()] or
       *[contains(@class, 'idrequired')][normalize-space()] or
       *[contains(@class, 'ticket')][normalize-space()]
     ">
+      <strong>Facilities: </strong>
       <ul class="tna-ul">
         <xsl:apply-templates select="
+          *[contains(@class, 'appointment')][normalize-space()] |
           *[contains(@class, 'disabledaccess')][normalize-space()] |
+          *[contains(@class, 'researchservice')][normalize-space()] |
           *[contains(@class, 'idrequired')][normalize-space()] |
           *[contains(@class, 'ticket')][normalize-space()]
         " mode="li"/>
@@ -25,7 +30,6 @@
     </xsl:if>
 
     <xsl:apply-templates select="*[contains(@class, 'comments')][normalize-space()]"/>
-    <xsl:apply-templates select="*[contains(@class, 'appointment')][normalize-space()]"/>
   </xsl:template>
 
   <xsl:template match="span[contains(@class, 'openinghours')]">
@@ -42,7 +46,7 @@
     </p>
   </xsl:template>
 
-  <xsl:template match="span[contains(@class, 'disabledaccess')] | span[contains(@class, 'idrequired')] | span[contains(@class, 'ticket')]" mode="li">
+  <xsl:template match="span[contains(@class, 'appointment')] | span[contains(@class, 'disabledaccess')] | span[contains(@class, 'researchservice')] | span[contains(@class, 'idrequired')] | span[contains(@class, 'ticket')]" mode="li">
     <li><xsl:value-of select="."/></li>
   </xsl:template>
 
@@ -55,13 +59,6 @@
     <div>
       <xsl:value-of select="string($cleaned)" disable-output-escaping="yes"/>
     </div>
-  </xsl:template>
-
-  <xsl:template match="span[contains(@class, 'appointment')]">
-    <p>
-      <strong>Appointment: </strong>
-      <xsl:value-of select="."/>
-    </p>
   </xsl:template>
 
   <xsl:template name="normalize-comment-markup">
