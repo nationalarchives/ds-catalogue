@@ -23,9 +23,9 @@ Useful links
 
 Configuration
 
-- The project uses the department-wide Ruff configuration as a base.
+- The project uses the department-wide Ruff configuration as a base. No additional installation is needed for development. It is included in the dev docker image.
 - Project-level configuration may extend this base where necessary.
-- Configuration is defined in ruff.toml
+- Configuration is defined in ruff.toml that extends the base configuration.
 
 Guidelines
 
