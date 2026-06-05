@@ -847,6 +847,18 @@ jinja2 = ">=3"
 wtforms = ["flask-wtf[email]"]
 
 [[package]]
+name = "tna-ruff-config"
+version = "0.1.1"
+description = "The National Archives global Ruff config"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "tna_ruff_config-0.1.1-py3-none-any.whl", hash = "sha256:02446c0e58b5a91f592d2b21eedbdc4ef2e45af1aff7e3a4b12c27311b861ce1"},
+    {file = "tna_ruff_config-0.1.1.tar.gz", hash = "sha256:06b5a8379768d76e13db67f42a3ab1f9dad17cbc4f2de872b25556ce37663c79"},
+]
+
+[[package]]
 name = "tzdata"
 version = "2026.2"
 description = "Provider of IANA time zone data"
@@ -895,4 +907,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "4df582f0b5f3cbd5138d89ee01aa08a01967b751e2444e5a12ffe9b9ee4eabeb"
+content-hash = "9c7ed67cee5bb233bf555528e8d74771a1b5a8bde5b3e3a8165bce3afa9677d7"
