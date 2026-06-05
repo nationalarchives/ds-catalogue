@@ -107,4 +107,4 @@ class SubjectPicker {
   }
 }
 
-const tabs = new SubjectPicker(document.querySelector('.subject-picker'));
+const tabs = new SubjectPicker();
