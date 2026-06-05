@@ -57,26 +57,31 @@ class SubjectPicker {
    */
   setupKeyboardNavigation() {
     const clamp = (index, max) => Math.max(0, Math.min(max, index));
-    const step = (delta) => (index, max) => clamp(index + delta, max);
 
-    const keyActions = {
-      ArrowRight: step(1),
-      ArrowDown: step(1),
-      ArrowLeft: step(-1),
-      ArrowUp: step(-1),
-      Home: () => 0,
-      End: (_, max) => max,
+    const getNextIndex = (key, index, max) => {
+      switch (key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          return clamp(index + 1, max);
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          return clamp(index - 1, max);
+        case 'Home':
+          return 0;
+        case 'End':
+          return max;
+        default:
+          return null;
+      }
     };
 
     this.tabsContainer.addEventListener('keydown', (event) => {
-      const getNextIndex = keyActions[event.key];
-      if (!getNextIndex) return;
+      const maxIndex = this.tabsItems.length - 1;
+      const nextIndex = getNextIndex(event.key, this.selectedTabIndex, maxIndex);
+
+      if (nextIndex === null) return;
 
       event.preventDefault();
-
-      const maxIndex = this.tabsItems.length - 1;
-      const nextIndex = getNextIndex(this.selectedTabIndex, maxIndex);
-
       if (nextIndex === this.selectedTabIndex) return;
 
       this.selectedTabIndex = nextIndex;
