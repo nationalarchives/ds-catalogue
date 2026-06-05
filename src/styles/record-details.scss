@@ -74,6 +74,7 @@
 
     &:first-child {
       padding-bottom: spacing.space(2);
+
       border-bottom: 1px solid var(--font-base);
     }
 
@@ -88,8 +89,9 @@
 
       &:first-child {
         padding: 0 spacing.space(2) 0 spacing.space(5);
-        border-bottom: none;
+
         border-right: 1px solid var(--font-base);
+        border-bottom: none;
       }
 
       &:last-child {
@@ -111,9 +113,9 @@
     margin-bottom: spacing.space(1);
 
     &__caption {
-      caption-side: top;
-
       padding: 0 0 spacing.space(0.5);
+
+      caption-side: top;
     }
   }
 
@@ -180,9 +182,8 @@
 }
 
 .square {
-  aspect-ratio: 1;
-
   max-inline-size: spacing.space(9);
+  aspect-ratio: 1;
 
   padding: spacing.space(0.75);
 
@@ -192,9 +193,9 @@
 
   box-sizing: border-box;
 
-  @include borders.rounded-border;
-
   text-align: center;
+
+  @include borders.rounded-border;
 }
 
 .copy-url {
@@ -288,8 +289,8 @@
 }
 
 .bar-divider {
-  border-bottom: solid 1px rgb(38 38 42 / 25%);
-
   width: 96%;
   margin-left: 15px;
+
+  border-bottom: solid 1px rgb(38 38 42 / 25%);
 }
