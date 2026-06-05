@@ -22,15 +22,18 @@ Useful links
 - <https://nationalarchives.github.io/engineering-handbook/technology/backend/python/>
 
 Configuration
+
 - The project uses the department-wide Ruff configuration as a base.
 - Project-level configuration may extend this base where necessary.
 - Configuration is defined in ruff.toml
 
 Guidelines
+
 - Always run formatting locally before pushing changes.
 - CI will enforce formatting and linting on every commit
 
 Important Notes:
+
 - Do not use inline overrides such as # fmt: off/on or # noqa unless explicitly agreed by the team. Consistency is prioritised over individual formatting preferences.
 - If a rule significantly impacts readability or developer experience, raise it for team discussion rather than bypassing it locally.
 - Existing rule ignores (if any) are considered temporary and should be reduced over time.
