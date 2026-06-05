@@ -25,11 +25,9 @@ e.g. `x.1.z` -> `x.2.z` or `1.y.z` -> `2.y.z`
   - Run `docker compose run --rm app poetry update`
   - Run `docker compose up -d --build app`
 
-## Adding a runtime dependency
+## Adding a dependency
 
 Use the following to automatically use the latest version (e.g. [pendulum](https://pypi.org/project/pendulum/)):
-
-Example:
 
 ```sh
 docker compose exec app poetry add DateTime
@@ -50,22 +48,8 @@ docker compose exec dev poetry add --group <group-name> <package-name>
 
 See the [Poetry docs](https://python-poetry.org/docs/cli/#add) for more options.
 
-
-## Adding a dev dependency
-
-Development dependencies are used for tooling such as testing, linting, and formatting. They are not included in the production environment.
-
-Example:
-
-```sh
-docker compose run --rm app poetry add --group dev tna-ruff-config
-```
-
 ### Removing a dependency
-
-Example:
 
 ```sh
 docker compose exec app poetry remove DateTime
-docker compose exec app poetry remove --group dev tna-ruff-config
 ```
