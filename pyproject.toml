@@ -24,6 +24,7 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 requests-mock = "^1.12.1"
 pytest-django = "^4.11.1"
+tna-ruff-config = "^0.1.1"
 
 [build-system]
 requires = ["poetry-core"]
