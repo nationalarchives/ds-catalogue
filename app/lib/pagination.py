@@ -22,18 +22,15 @@ def pagination_list(current_page, total_pages, boundaries=1, around=1):
     middle_chunk_numbers = list(range(start_middle_chunk, end_middle_chunk))
     final_chunk_numbers = list(range(start_final_chunk, end_final_chunk))
 
-    # fmt: off
     prev_linker = (
         end_initial_chunk
         if end_initial_chunk == 2 and current_page - (around + 1) == 2
         else (
             "..."
-            if end_initial_chunk < start_middle_chunk
-            and len(middle_chunk_numbers) > 0
+            if end_initial_chunk < start_middle_chunk and len(middle_chunk_numbers) > 0
             else ""
         )
     )
-    # fmt: on
     next_linker = (
         end_middle_chunk
         if end_middle_chunk == (total_pages - 1)

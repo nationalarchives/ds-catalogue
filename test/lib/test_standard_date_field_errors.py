@@ -196,16 +196,10 @@ class BaseFormWithStandardDateErrorTest(TestCase):
         # form attributes
         self.assertEqual(valid_status, False)
         self.assertEqual(self.form.errors, {})
-        # fmt: off
         self.assertEqual(
             self.form.non_field_errors,
-            [
-                {
-                    "text": "Low value [2000-01-01] must be <= High value[1999-12-31]."
-                }
-            ],
+            [{"text": "Low value [2000-01-01] must be <= High value[1999-12-31]."}],
         )
-        # fmt: on
 
         # join_date_from field
         self.assertEqual(
