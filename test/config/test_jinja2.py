@@ -20,23 +20,22 @@ from config.jinja_filters import (
     qs_replace_value,
     qs_toggle_value,
     remove_string_case_insensitive,
-    sanitise_record_field,
-    sanitize_search_qs,
-    slugify,
+    normalise_record_field,
+    sanitise_search_qs,
     tna_html,
     truncate_preserve_mark_tags,
 )
+from tna_utilities.string import slugify
 
-
-class Jinja2TestCase(SimpleTestCase):
+class JinjaFiltersTestCase(SimpleTestCase):
     # -----------------------------------------------------------------------
-    # sanitise_record_field
+    # normalise_record_field
     # -----------------------------------------------------------------------
 
     def test_sanitise_record_field_collapses_whitespace_between_p_tags(self):
         source = """  <p>Test</p> <p>Test</p>     <p>Test</p> """
         self.assertEqual(
-            sanitise_record_field(source),
+            normalise_record_field(source),
             "<p>Test</p><p>Test</p><p>Test</p>",
         )
 
@@ -468,14 +467,14 @@ class Jinja2TestCase(SimpleTestCase):
         self.assertEqual(base64_decode("aGVsbG8"), "hello")
 
     # -----------------------------------------------------------------------
-    # sanitize_search_qs
+    # sanitise_search_qs
     # -----------------------------------------------------------------------
 
     def test_sanitize_search_qs_allowed_keys_survive(self):
         """Common allowlisted keys round-trip through the sanitiser."""
         original_qs = "q=test&group=tna&sort=relevance"
         encoded = base64_encode(original_qs)
-        result = sanitize_search_qs(encoded)
+        result = sanitise_search_qs(encoded)
 
         # Parse both sides for order-independent comparison.
         result_qs = QueryDict(result)
@@ -487,7 +486,7 @@ class Jinja2TestCase(SimpleTestCase):
         """Keys not in the allowlist are silently dropped."""
         original_qs = "q=test&evil=injection&__internal=secret"
         encoded = base64_encode(original_qs)
-        result = sanitize_search_qs(encoded)
+        result = sanitise_search_qs(encoded)
 
         result_qs = QueryDict(result)
         self.assertEqual(result_qs.get("q"), "test")
@@ -498,33 +497,33 @@ class Jinja2TestCase(SimpleTestCase):
         """Empty values for allowed keys are dropped."""
         original_qs = "q=test&sort="
         encoded = base64_encode(original_qs)
-        result = sanitize_search_qs(encoded)
+        result = sanitise_search_qs(encoded)
 
         result_qs = QueryDict(result)
         self.assertEqual(result_qs.get("q"), "test")
         self.assertIsNone(result_qs.get("sort"))
 
     def test_sanitize_search_qs_invalid_base64_returns_empty(self):
-        self.assertEqual(sanitize_search_qs("!!!not-base64!!!"), "")
+        self.assertEqual(sanitise_search_qs("!!!not-base64!!!"), "")
 
     def test_sanitize_search_qs_empty_input_returns_empty(self):
-        self.assertEqual(sanitize_search_qs(""), "")
+        self.assertEqual(sanitise_search_qs(""), "")
 
     def test_sanitize_search_qs_empty_decoded_returns_empty(self):
         """Valid base64 decoding to an empty string returns empty."""
-        self.assertEqual(sanitize_search_qs(base64_encode("")), "")
+        self.assertEqual(sanitise_search_qs(base64_encode("")), "")
 
     def test_sanitize_search_qs_page_param_preserved(self):
         """The 'page' key is explicitly in the allowlist."""
         encoded = base64_encode("q=test&page=3")
-        result = sanitize_search_qs(encoded)
+        result = sanitise_search_qs(encoded)
         result_qs = QueryDict(result)
         self.assertEqual(result_qs.get("page"), "3")
 
     def test_sanitize_search_qs_multi_value_keys_preserved(self):
         """Allowed keys with multiple values keep all of them."""
         encoded = base64_encode("level=Item&level=Series")
-        result = sanitize_search_qs(encoded)
+        result = sanitise_search_qs(encoded)
         result_qs = QueryDict(result)
         self.assertEqual(sorted(result_qs.getlist("level")), ["Item", "Series"])
 

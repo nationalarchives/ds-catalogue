@@ -33,13 +33,12 @@ from config.jinja_filters import (
     qs_replace_value,
     qs_toggle_value,
     remove_string_case_insensitive,
-    sanitise_record_field,
-    sanitize_search_qs,
-    slugify,
+    normalise_record_field,
+    sanitise_search_qs,
     tna_html,
     truncate_preserve_mark_tags,
 )
-
+from tna_utilities.string import slugify
 
 def _read_tna_frontend_version() -> str:
     """Read the TNA frontend package version, returning '' on any failure."""
@@ -90,8 +89,8 @@ def environment(**options):
             "format_number": format_number,
             "base64_encode": base64_encode,
             "base64_decode": base64_decode,
-            "sanitize_search_qs": sanitize_search_qs,
-            "sanitise_record_field": sanitise_record_field,
+            "sanitise_search_qs": sanitise_search_qs,
+            "normalise_record_field": normalise_record_field,
             "apply_generic_xsl": apply_generic_xsl,
             "parse_json": parse_json,
             "tna_html": tna_html,

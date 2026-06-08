@@ -5,7 +5,7 @@ Tests for subjects enrichment functionality
 from unittest.mock import patch
 
 from django.test import TestCase, override_settings
-from django.utils.text import slugify
+from tna_utilities.string import slugify
 from jinja2 import BaseLoader, Environment
 
 from app.lib.exceptions import APIResourceNotFound

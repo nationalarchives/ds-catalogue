@@ -4,7 +4,7 @@ from unittest.mock import patch
 from django.test import SimpleTestCase, override_settings
 
 from app.records.models import Record
-from config.jinja import sanitise_record_field
+from config.jinja import normalise_record_field
 
 
 class RecordModelTests(SimpleTestCase):
@@ -659,7 +659,7 @@ class RecordModelTests(SimpleTestCase):
                 """online catalogue</extref>"""
             ),
         }
-        sanitised = sanitise_record_field(self.record.description)
+        sanitised = normalise_record_field(self.record.description)
         self.assertEqual(
             sanitised,
             (
