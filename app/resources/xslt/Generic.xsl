@@ -13,7 +13,7 @@
     <xsl:value-of select="text()"/>
   </xsl:template>
   <xsl:template match="scopecontent">
-    <xsl:apply-templates/>
+    <xsl:apply-templates select="*"/>
   </xsl:template>
   <xsl:template match="bioghist">
     <xsl:apply-templates/>

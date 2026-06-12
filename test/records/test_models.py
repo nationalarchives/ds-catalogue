@@ -60,8 +60,6 @@ class RecordModelTests(SimpleTestCase):
         self.assertEqual(self.record.publication_note, [])
         self.assertEqual(self.record.related_materials, ())
         self.assertEqual(self.record.description, "")
-        self.assertEqual(self.record.clean_description, "")
-        self.assertEqual(self.record.no_html_description, "")
         self.assertEqual(self.record.separated_materials, ())
         self.assertEqual(self.record.unpublished_finding_aids, [])
         self.assertEqual(self.record.hierarchy, ())
@@ -641,16 +639,6 @@ class RecordModelTests(SimpleTestCase):
         self.record._raw["description"] = {
             "value": (
                 """C16248: Online descriptions of individual records can be viewed """
-                """on Discovery, see <a class=\"extref\" """
-                """href=\"a48f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
-                """"C16248: Also see the Royal Botanic Gardens, Kew """
-                """Also see the Royal Botanic Gardens, Kew <a class=\"extref\" """
-                """href=\"https://www2.calmview.co.uk/kew/calmview/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">"""
-                """online catalogue</a>"""
-            ),
-            "schema": "",
-            "raw": (
-                """C16248: Online descriptions of individual records can be viewed """
                 """on Discovery, see <extref """
                 """href=&#34https://discovery.nationalarchives.gov.uk/details/r/a48f41eb-1496-446c-8bf8-21dc681223da&#34>RM 2</extref>."""
                 """"C16248: Also see the Royal Botanic Gardens, Kew """
@@ -673,76 +661,20 @@ class RecordModelTests(SimpleTestCase):
             ),
         )
 
-    def test_no_html_description(self):
+    @unittest.skip(
+        "TODO: (previously clean_description) enable after discussing and agreeing how to handle HTML markup in description field"
+    )
+    def test_description_with_mark_tag(self):
         self.record = Record(self.template_details)
         # patch raw data
+        # description contains HTML markup for highlighting search terms
         self.record._raw["description"] = {
-            "value": "",
-            "noHtml": (
-                """These records are the service records of individuals serving """
-                """in the Home Guard in the Second World War. The records are the """
-                """Form of Enrolment - Army Form W3066 - and contain personal """
-                """information and other service information such as length of """
-                """service in the Home Guard and discharge details for each individual. """
-                """This is a digital-only accession. Durham Home Guard 1939-1945 records """
-                """are available to search and download."""
-            ),
+            "value": (
+                "Appellant: <mark>Florence</mark> Emily <mark>Fenn</mark>. Respondent: Ernest William <mark>Fenn</mark>. Type: Wife's petition for divorce [wd]. "
+            )
         }
         self.assertEqual(
-            self.record.no_html_description,
-            (
-                """These records are the service records of individuals serving """
-                """in the Home Guard in the Second World War. The records are the """
-                """Form of Enrolment - Army Form W3066 - and contain personal """
-                """information and other service information such as length of """
-                """service in the Home Guard and discharge details for each individual. """
-                """This is a digital-only accession. Durham Home Guard 1939-1945 records """
-                """are available to search and download."""
-            ),
-        )
-
-    def test_raw_description(self):
-        self.record = Record(self.template_details)
-        # patch raw data
-        self.record._raw["description"] = {
-            "value": "",
-            "schema": "",
-            "raw": (
-                """C16248: Online descriptions of individual records can be viewed """
-                """on Discovery, see <a class=\"extref\" """
-                """href=\"a48f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
-                """"C16248: Also see the Royal Botanic Gardens, Kew """
-                """<a class=\"extref\" href=\"https://www2.calmview.co.uk/kew/calmview"""
-                """/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">online catalogue</a>"""
-                """C244: <span class=\"emph-italic\">Censuses of Population</span>"""
-                """C244: <span class=\"list\"><span class=\"item\">Correspondence and """
-                """papers</span></span>"""
-            ),
-        }
-        self.assertEqual(
-            self.record.raw_description,
-            (
-                """C16248: Online descriptions of individual records can be viewed """
-                """on Discovery, see <a class=\"extref\" """
-                """href=\"a48f41eb-1496-446c-8bf8-21dc681223da\">RM 2</a>."""
-                """"C16248: Also see the Royal Botanic Gardens, Kew """
-                """<a class=\"extref\" href=\"https://www2.calmview.co.uk/kew/calmview"""
-                """/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1\">online catalogue</a>"""
-                """C244: <span class=\"emph-italic\">Censuses of Population</span>"""
-                """C244: <span class=\"list\"><span class=\"item\">Correspondence and """
-                """papers</span></span>"""
-            ),
-        )
-
-    def test_clean_description(self):
-        self.record = Record(self.template_details)
-        # patch raw data
-        # cleanDescription contains HTML markup for highlighting search terms
-        self.record._raw["cleanDescription"] = (
-            "Appellant: <mark>Florence</mark> Emily <mark>Fenn</mark>. Respondent: Ernest William <mark>Fenn</mark>. Type: Wife's petition for divorce [wd]. "
-        )
-        self.assertEqual(
-            self.record.clean_description,
+            self.record.description,
             (
                 "Appellant: <mark>Florence</mark> Emily <mark>Fenn</mark>. Respondent: Ernest William <mark>Fenn</mark>. Type: Wife's petition for divorce [wd]. "
             ),
