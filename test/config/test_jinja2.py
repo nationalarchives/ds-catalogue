@@ -247,6 +247,52 @@ class Jinja2TestCase(TestCase):
             "a" * 250 + "…",
         )
 
+    def test_truncate_preserve_mark_tags_various(self):
+        test_data = [
+            (
+                "scopecontent_tag_and_text",
+                "Scope and Content",
+                "<scopecontent>Scope and Content</scopecontent>",
+            ),
+            (
+                "scopecontent_tag_head_tag",
+                "Scope and Content",
+                "<scopecontent><head>Scope and Content</head></scopecontent>",
+            ),
+            (
+                "item_tag",
+                "Item",
+                "<item>Item</item>",
+            ),
+            (
+                "html_bits",
+                " \r\n\t",
+                " \r\n\t",
+            ),
+            (
+                "extref_tag",
+                "Websites Division",
+                "<extref href=&#34http://discovery.nationalarchives.gov.uk/SearchUI/Details?uri=C1226&#34>Websites Division</extref>",
+            ),
+            (
+                "replace_text",
+                " p1 p2 ",
+                "<?xm-replace_text {p}?> <p>p1</p> <p>p2</p> ",
+            ),
+            (
+                "no_tags",
+                " Test1 Test2 ",
+                " Test1 Test2 ",
+            ),
+        ]
+
+        for label, expected, source in test_data:
+            with self.subTest(label):
+                self.assertEqual(
+                    expected,
+                    truncate_preserve_mark_tags(source, 250),
+                )
+
     def test_override_tna_record_count_parametrized(self):
         cases = [
             ("12345678", True, "Over 27 million"),
