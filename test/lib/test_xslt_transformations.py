@@ -223,42 +223,42 @@ class XsltTransformationsTestCase(unittest.TestCase):
         test_data = [
             # format: (label,
             #          expected_apply_schema_output,
-            #          expected_truncate_preserve_mark_tags_output,
-            #          expected_rendered_striptags_output,
+            #          expected_search_results,
+            #          expected_whats_this_about,
             #          source)
             (
                 "with_head_tag",
                 "",
-                "",
-                "",
-                "<scopecontent><head>Scope and Content</head>",
+                "<p></p>",
+                "<p></p>",
+                "<scopecontent><head>Scope and Content</head></scopecontent>",
             ),
             (
                 "without_head_tag_text_only",
                 "",
-                "",
-                "",
+                "<p></p>",
+                "<p></p>",
                 "<scopecontent>Data that is not within p-tag IS NOT returned</scopecontent>",
             ),
             (
                 "multiple_p_removes_spaces_between_p_tags",
                 "<p>data1</p><p>data2</p>",
-                "data1data2",
-                "data1data2",
+                "<p>data1data2</p>",
+                "<p>data1data2</p>",
                 "<scopecontent><head>Scope and Content</head> <p>data1</p> <p>data2</p>Data that is not within p-tag IS NOT returned</scopecontent>",
             ),
             (
-                "special_chars",
+                "whitespace_chars_are_removed",
                 "",
-                "",
-                "",
+                "<p></p>",
+                "<p></p>",
                 "<scopecontent> \r\n\t</scopecontent>",
             ),
             (
                 "extref_tag",  # C16411
                 """<a href="http://discovery.nationalarchives.gov.uk/SearchUI/Details?uri=C1226" title="Opens in a new tab" target="_blank">Websites Division</a>""",
-                """Websites Division""",
-                """Websites Division""",
+                """<p>Websites Division</p>""",
+                """<p>Websites Division</p>""",
                 "<scopecontent><extref href=&#34http://discovery.nationalarchives.gov.uk/SearchUI/Details?uri=C1226&#34>Websites Division</extref></scopecontent>",
             ),
             (
@@ -267,21 +267,22 @@ class XsltTransformationsTestCase(unittest.TestCase):
 <li>ListItem1</li>
 <li>(Details of exhibition references are given at piece level scope and content)</li>
 </ul></p>""",
-                """
+                """<p>
 ListItem1
 (Details of exhibition references are given at piece level scope and content)
-""",
-                """ListItem1 (Details of exhibition references...""",
+</p>""",
+                """<p>ListItem1 (Details of exhibition references...</p>""",
                 "<scopecontent><p><list><item>ListItem1</item><item>(Details of exhibition references are given at piece level scope and content)</item></p></scopecontent>",
             ),
         ]
 
         env = Environment()
+        env.filters["truncate_preserve_mark_tags"] = truncate_preserve_mark_tags
         for (
             label,
             expected_apply_schema_output,
-            expected_truncate_preserve_mark_tags_output,
-            expected_rendered_striptags_output,
+            expected_search_results,
+            expected_whats_this_about,
             source,
         ) in test_data:
             with self.subTest(label=label):
@@ -293,54 +294,89 @@ ListItem1
 
                 # used with app/templates/search/macros/search_results.html
                 # truncate_preserve_mark_tags is used with search results
-                truncate_preserve_mark_tags_output = truncate_preserve_mark_tags(
-                    apply_schema_xsl_value
+                template = env.from_string(
+                    "<p>{{ description | truncate_preserve_mark_tags() | safe }}</p>"
                 )
+                rendered_output = template.render(description=apply_schema_xsl_value)
                 self.assertEqual(
-                    expected_truncate_preserve_mark_tags_output,
-                    truncate_preserve_mark_tags_output,
+                    expected_search_results,
+                    rendered_output,
                 )
 
                 # use with app/templates/records/macros/whats_this_about_sub_sub_series_or_above.html
                 template = env.from_string(
-                    "{{ apply_schema_xsl_value | striptags | truncate(50) }}"
+                    "<p>{{ apply_schema_xsl_value | striptags | truncate(50) }}</p>"
                 )
                 rendered_output = template.render(
                     apply_schema_xsl_value=apply_schema_xsl_value
                 )
                 self.assertEqual(
-                    expected_rendered_striptags_output,
+                    expected_whats_this_about,
                     rendered_output,
                 )
 
     def test_generic_without_scopecontent_tag_various_cases(self):
         schema = "Generic"
         test_data = [
+            # format: (label,
+            #          expected_apply_schema_output,
+            #          expected_search_results,
+            #          expected_whats_this_about,
+            #          source)
             (
                 "text_without_p_tags_is_returned",
                 "Data that is not within p-tag IS returned",
+                "<p>Data that is not within p-tag IS returned</p>",
+                "<p>Data that is not within p-tag IS returned</p>",
                 "Data that is not within p-tag IS returned",
             ),
             (
                 "multiple_p_preserves_spaces_between_p_tags",
                 "<p>data1</p> <p>data2</p>",
+                "<p>data1 data2</p>",
+                "<p>data1 data2</p>",
                 "<p>data1</p> <p>data2</p>",
             ),
         ]
 
-        for label, expected, source in test_data:
+        env = Environment()
+        env.filters["truncate_preserve_mark_tags"] = truncate_preserve_mark_tags
+        for (
+            label,
+            expected_apply_schema_output,
+            expected_search_results,
+            expected_whats_this_about,
+            source,
+        ) in test_data:
             with self.subTest(label=label):
+                apply_schema_xsl_value = apply_schema_xsl(source, schema)
                 self.assertEqual(
-                    expected,
-                    apply_schema_xsl(source, schema),
+                    expected_apply_schema_output,
+                    apply_schema_xsl_value,
                 )
 
-        # tests sanitising of text when scopecontent tag is not present
-        # where it removes spaces between p-tags
-        self.assertEqual(
-            "<p>data1</p><p>data2</p>",
-            sanitise_record_field(apply_schema_xsl(source, schema)),
-        )
+                # used with app/templates/search/macros/search_results.html
+                # truncate_preserve_mark_tags is used with search results
+                template = env.from_string(
+                    "<p>{{ description | truncate_preserve_mark_tags() | safe }}</p>"
+                )
+                rendered_output = template.render(description=apply_schema_xsl_value)
+                self.assertEqual(
+                    expected_search_results,
+                    rendered_output,
+                )
+
+                # use with app/templates/records/macros/whats_this_about_sub_sub_series_or_above.html
+                template = env.from_string(
+                    "<p>{{ apply_schema_xsl_value | striptags | truncate(50) }}</p>"
+                )
+                rendered_output = template.render(
+                    apply_schema_xsl_value=apply_schema_xsl_value
+                )
+                self.assertEqual(
+                    expected_whats_this_about,
+                    rendered_output,
+                )
 
     def test_LootedArt(self):
         # C13373873
