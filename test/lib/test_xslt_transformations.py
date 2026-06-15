@@ -7,10 +7,7 @@ from app.lib.xslt_transformations import (
     apply_series_xsl,
     xsl_transformation,
 )
-from config.jinja import (
-    sanitise_record_field,
-    truncate_preserve_mark_tags,
-)
+from config.jinja import truncate_preserve_mark_tags
 
 
 class XsltTransformationsTestCase(unittest.TestCase):
@@ -225,7 +222,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
             #          expected_apply_schema_output,
             #          expected_search_results,
             #          expected_whats_this_about,
-            #          source)
+            #          description_value)
             (
                 "with_head_tag",
                 "",
@@ -283,10 +280,10 @@ ListItem1
             expected_apply_schema_output,
             expected_search_results,
             expected_whats_this_about,
-            source,
+            description_value,
         ) in test_data:
             with self.subTest(label=label):
-                apply_schema_xsl_value = apply_schema_xsl(source, schema)
+                apply_schema_xsl_value = apply_schema_xsl(description_value, schema)
                 self.assertEqual(
                     expected_apply_schema_output,
                     apply_schema_xsl_value,
@@ -322,7 +319,7 @@ ListItem1
             #          expected_apply_schema_output,
             #          expected_search_results,
             #          expected_whats_this_about,
-            #          source)
+            #          description_value)
             (
                 "text_without_p_tags_is_returned",
                 "Data that is not within p-tag IS returned",
@@ -346,10 +343,10 @@ ListItem1
             expected_apply_schema_output,
             expected_search_results,
             expected_whats_this_about,
-            source,
+            description_value,
         ) in test_data:
             with self.subTest(label=label):
-                apply_schema_xsl_value = apply_schema_xsl(source, schema)
+                apply_schema_xsl_value = apply_schema_xsl(description_value, schema)
                 self.assertEqual(
                     expected_apply_schema_output,
                     apply_schema_xsl_value,
