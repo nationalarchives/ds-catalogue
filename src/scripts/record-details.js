@@ -1,4 +1,5 @@
 import { Cookies } from "@nationalarchives/frontend/nationalarchives/all.mjs";
+
 import { Accordion } from "./etna-accordion.mjs";
 
 class toggleDetailsListDescriptions {
@@ -13,6 +14,7 @@ class toggleDetailsListDescriptions {
       ".record-details__description",
     );
 
+    // eslint-disable-next-line no-magic-numbers
     if (this.detailsListItems.length === 0) {
       return;
     }
@@ -69,6 +71,7 @@ const cookies = new Cookies();
 const checkbox = document.getElementById("field-descriptions");
 const detailsList = document.getElementById("record-details-list");
 if (checkbox && detailsList) {
+  // eslint-disable-next-line new-cap, no-new
   new toggleDetailsListDescriptions(checkbox, detailsList, cookies);
 }
 
@@ -104,6 +107,7 @@ if (
 const $accordions = document.querySelectorAll('[data-module="etna-accordion"]');
 
 $accordions.forEach(($accordion) => {
+  // eslint-disable-next-line no-new
   new Accordion($accordion);
 });
 
@@ -123,12 +127,16 @@ document.addEventListener("DOMContentLoaded", () => {
       // event.preventDefault();
 
       // 4. push to the dataLayer
+      // eslint-disable-next-line logical-assignment-operators
       window.dataLayer = window.dataLayer || [];
 
       window.dataLayer.push({
         event: "select_promotion",
+        // eslint-disable-next-line camelcase
         promotion_name: "Ordering and viewing options",
+        // eslint-disable-next-line camelcase
         creative_name: "Ordering and viewing options:link",
+        // eslint-disable-next-line camelcase
         creative_slot: "Full description and record details",
       });
     });
