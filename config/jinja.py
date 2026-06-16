@@ -17,7 +17,7 @@ from app.lib.fields import DateKeys
 from app.lib.xslt_transformations import apply_generic_xsl
 from app.records.utils import change_discovery_record_details_links
 from app.search.constants import FieldsConstant
-from config.jinja_filters import (
+from config.utils.jinja_filters import (
     base64_decode,
     base64_encode,
     dump_json,

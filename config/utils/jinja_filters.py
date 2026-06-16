@@ -13,7 +13,7 @@ via `app.records`.
 from config.utils.date import now_iso_8601, now_iso_8601_date
 from config.utils.encoding import base64_decode, base64_encode
 from config.utils.json_utils import dump_json, parse_json
-from config.utils.markup_truncation import truncate_preserve_mark_tags
+from config.utils.markup import truncate_preserve_mark_tags
 from config.utils.number import format_number
 from config.utils.query_string import (
     qs_append_value,
