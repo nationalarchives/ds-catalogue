@@ -172,6 +172,28 @@ class Jinja2TestCase(TestCase):
             "ffo",
         )
 
+    def test_remove_string_case_insensitive_scope_and_content_without_leading_space(
+        self,
+    ):
+        # Ensure only full matches removed.
+        self.assertEqual(
+            remove_string_case_insensitive(
+                "(Details of exhibition references are given at piece level scope and content)",
+                "scope and content",
+            ),
+            "(Details of exhibition references are given at piece level )",
+        )
+
+    def test_remove_string_case_insensitive_scope_and_content_with_leading_space(self):
+        # Ensure only full matches removed.
+        self.assertEqual(
+            remove_string_case_insensitive(
+                "(Details of exhibition references are given at piece level scope and content)",
+                " scope and content",
+            ),
+            "(Details of exhibition references are given at piece level)",
+        )
+
     def test_truncate_preserve_mark_tags_no_truncation(self):
         self.assertEqual(
             truncate_preserve_mark_tags("Hello world", 50),

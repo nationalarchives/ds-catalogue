@@ -4,7 +4,7 @@ from jinja2 import Environment
 
 from app.lib.xslt_transformations import apply_schema_xsl
 from app.records.models import Record
-from config.jinja import truncate_preserve_mark_tags
+from config.jinja import remove_string_case_insensitive, truncate_preserve_mark_tags
 
 
 class RecordDescriptionTestCase(unittest.TestCase):
@@ -63,7 +63,7 @@ class RecordDescriptionTestCase(unittest.TestCase):
 </ul></p>""",
                 """<p>
 ListItem1
-(Details of exhibition references are given at piece level scope and content)
+(Details of exhibition references are given at piece level )
 </p>""",
                 """<p>ListItem1 (Details of exhibition references...</p>""",
             ),
@@ -71,6 +71,7 @@ ListItem1
 
         env = Environment()
         env.filters["truncate_preserve_mark_tags"] = truncate_preserve_mark_tags
+        env.filters["remove_string_case_insensitive"] = remove_string_case_insensitive
         for (
             label,
             description_value,
@@ -96,7 +97,7 @@ ListItem1
                 # used with app/templates/search/macros/search_results.html
                 # truncate_preserve_mark_tags is used with search results
                 template = env.from_string(
-                    "<p>{{ description | truncate_preserve_mark_tags() | safe }}</p>"
+                    "<p>{{ description | truncate_preserve_mark_tags() | remove_string_case_insensitive('scope and content') | safe }}</p>"
                 )
                 rendered_output = template.render(description=record.description)
                 self.assertEqual(
@@ -107,11 +108,9 @@ ListItem1
                 # test the jinja2 template rendering
                 # use with app/templates/records/macros/whats_this_about_sub_sub_series_or_above.html
                 template = env.from_string(
-                    "<p>{{ apply_schema_xsl_value | striptags | truncate(50) }}</p>"
+                    "<p>{{ description | striptags | remove_string_case_insensitive('scope and content') | truncate(50) }}</p>"
                 )
-                rendered_output = template.render(
-                    apply_schema_xsl_value=apply_schema_xsl_value
-                )
+                rendered_output = template.render(description=record.description)
                 self.assertEqual(
                     expected_whats_this_about,
                     rendered_output,
