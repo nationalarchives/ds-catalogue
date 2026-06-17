@@ -41,7 +41,7 @@ class RecordDescriptionTestCase(unittest.TestCase):
                 "<p>data1data2</p>",
             ),
             (
-                "whitespace_chars_are_removed",
+                "whitespace_chars_are_removed",  # C11835316
                 "<scopecontent> \r\n\t</scopecontent>",
                 "",
                 "<p></p>",
@@ -66,6 +66,13 @@ ListItem1
 (Details of exhibition references are given at piece level )
 </p>""",
                 """<p>ListItem1 (Details of exhibition references...</p>""",
+            ),
+            (
+                "ref_tag",  # C11969
+                '<scopecontent><p>(in <ref href=&#34PRO-d4-c30s23-p4">PRO 30/23/4</ref>)</p></scopecontent>',
+                """<p>(in <a href="/catalogue/search/?q=PRO%2030/23/4" title="Opens in a new tab">PRO 30/23/4</a>)</p>""",
+                """<p>(in PRO 30/23/4)</p>""",
+                """<p>(in PRO 30/23/4)</p>""",
             ),
         ]
 
@@ -93,7 +100,7 @@ ListItem1
                     record.description,
                 )
 
-                # test the jinja2 template rendering
+                # test the jinja2 template rendering for search results
                 # used with app/templates/search/macros/search_results.html
                 # truncate_preserve_mark_tags is used with search results
                 template = env.from_string(
@@ -105,7 +112,7 @@ ListItem1
                     rendered_output,
                 )
 
-                # test the jinja2 template rendering
+                # test the jinja2 template rendering for whats this about
                 # use with app/templates/records/macros/whats_this_about_sub_sub_series_or_above.html
                 template = env.from_string(
                     "<p>{{ description | striptags | remove_string_case_insensitive('scope and content') | truncate(50) }}</p>"
@@ -142,6 +149,96 @@ ListItem1
 
         env = Environment()
         env.filters["truncate_preserve_mark_tags"] = truncate_preserve_mark_tags
+        env.filters["remove_string_case_insensitive"] = remove_string_case_insensitive
+        for (
+            label,
+            description_value,
+            expected_apply_schema_output,
+            expected_search_results,
+            expected_whats_this_about,
+        ) in test_data:
+            with self.subTest(label=label):
+                # test the apply_schema_xsl function
+                apply_schema_xsl_value = apply_schema_xsl(description_value, schema)
+                self.assertEqual(
+                    expected_apply_schema_output,
+                    apply_schema_xsl_value,
+                )
+                # test Record description property
+                record = Record({"description": {"value": description_value}})
+                self.assertEqual(
+                    expected_apply_schema_output,
+                    record.description,
+                )
+
+                # test the jinja2 template rendering for search results
+                # used with app/templates/search/macros/search_results.html
+                # truncate_preserve_mark_tags is used with search results
+                template = env.from_string(
+                    "<p>{{ description | truncate_preserve_mark_tags() | remove_string_case_insensitive('scope and content') | safe }}</p>"
+                )
+                rendered_output = template.render(description=record.description)
+                self.assertEqual(
+                    expected_search_results,
+                    rendered_output,
+                )
+
+                # test the jinja2 template rendering for whats this about
+                # use with app/templates/records/macros/whats_this_about_sub_sub_series_or_above.html
+                template = env.from_string(
+                    "<p>{{ description | striptags | remove_string_case_insensitive('scope and content') | truncate(50) }}</p>"
+                )
+                rendered_output = template.render(description=record.description)
+                self.assertEqual(
+                    expected_whats_this_about,
+                    rendered_output,
+                )
+
+    def test_description_non_generic_schema_various_cases(self):
+        schema = "CabinetPapers"
+        test_data = [
+            # format:  label,
+            #          description_value,
+            #          expected_apply_schema_output,
+            #          expected_search_results,
+            #          expected_whats_this_about,
+            (
+                "CabinetPapers",
+                '<emph altrender="doctype">CP</emph><emph altrender="type">Memorandum</emph><emph altrender="formerreference">WP (R) (41) 19</emph><emph altrender="title">Economic Warfare. Report for February, 1941.</emph><emph altrender="author">Hugh Dalton</emph>',
+                """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
+<dt>Record type</dt>
+<dd>Memorandum</dd>
+<dt>Former reference</dt>
+<dd>WP (R) (41) 19</dd>
+<dt>Title</dt>
+<dd>Economic Warfare. Report for February, 1941.</dd>
+<dt>Author</dt>
+<dd>Hugh Dalton</dd>
+</dl>""",
+                """<p>
+Record type
+Memorandum
+Former reference
+WP (R) (41) 19
+Title
+Economic Warfare. Report for February, 1941.
+Author
+Hugh Dalton
+</p>""",
+                """<p>Record type Memorandum Former reference WP (R)...</p>""",
+            ),
+            # (
+            #     "multiple_p_preserves_spaces_between_p_tags",
+            #     "<p>data1</p> <p>data2</p>",
+            #     "<p>data1</p> <p>data2</p>",
+            #     "<p>data1 data2</p>",
+            #     "<p>data1 data2</p>",
+            # ),
+        ]
+
+        env = Environment()
+        env.filters["truncate_preserve_mark_tags"] = truncate_preserve_mark_tags
+        env.filters["remove_string_case_insensitive"] = remove_string_case_insensitive
         for (
             label,
             description_value,
@@ -158,17 +255,24 @@ ListItem1
                 )
 
                 # test Record description property
-                record = Record({"description": {"value": description_value}})
+                record = Record(
+                    {
+                        "description": {
+                            "schema": f'<colltype id="{schema}">,</colltype>',
+                            "value": description_value,
+                        }
+                    }
+                )
                 self.assertEqual(
                     expected_apply_schema_output,
                     record.description,
                 )
 
-                # test the jinja2 template rendering
+                # test the jinja2 template rendering for search results
                 # used with app/templates/search/macros/search_results.html
                 # truncate_preserve_mark_tags is used with search results
                 template = env.from_string(
-                    "<p>{{ description | truncate_preserve_mark_tags() | safe }}</p>"
+                    "<p>{{ description | truncate_preserve_mark_tags() | remove_string_case_insensitive('scope and content') | safe }}</p>"
                 )
                 rendered_output = template.render(description=record.description)
                 self.assertEqual(
@@ -176,14 +280,12 @@ ListItem1
                     rendered_output,
                 )
 
-                # test the jinja2 template rendering
+                # test the jinja2 template rendering for whats this about
                 # use with app/templates/records/macros/whats_this_about_sub_sub_series_or_above.html
                 template = env.from_string(
-                    "<p>{{ apply_schema_xsl_value | striptags | truncate(50) }}</p>"
+                    "<p>{{ description | striptags | remove_string_case_insensitive('scope and content') | truncate(50) }}</p>"
                 )
-                rendered_output = template.render(
-                    apply_schema_xsl_value=apply_schema_xsl_value
-                )
+                rendered_output = template.render(description=record.description)
                 self.assertEqual(
                     expected_whats_this_about,
                     rendered_output,
