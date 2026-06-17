@@ -1,7 +1,5 @@
 import unittest
 
-from jinja2 import Environment
-
 from app.lib.xslt_transformations import (
     apply_schema_xsl,
     apply_series_xsl,
