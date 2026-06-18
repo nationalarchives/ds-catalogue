@@ -14,11 +14,11 @@ class RecordDescriptionTestCase(unittest.TestCase):
 
         schema = "Generic"
         test_data = [
-            # format:  label,
-            #          description_value,
-            #          expected_apply_schema_output,
-            #          expected_search_results,
-            #          expected_whats_this_about,
+            # format: label,
+            #         description_value,
+            #         expected_apply_schema_output,
+            #         expected_search_results,
+            #         expected_whats_this_about,
             (
                 "with_head_tag",
                 "<scopecontent><head>Scope and Content</head></scopecontent>",
