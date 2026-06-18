@@ -18,4 +18,4 @@ Where possible, provide guidance to help your reviewer
 - Ensured that PR includes only commits relevant to the ticket
 - Waited for all CI jobs to pass before requesting a review
 - Added/updated tests and documentation where relevant
-- Ensure the merge is unblocked (e.g., all commits have verified signatures).
+- Ensure the merge is unblocked (e.g., all commits have verified signatures)
