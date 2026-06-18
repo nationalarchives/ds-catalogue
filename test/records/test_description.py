@@ -126,11 +126,11 @@ ListItem1
     def test_description_generic_schema_without_scopecontent_tag_various_cases(self):
         schema = "Generic"
         test_data = [
-            # format:  label,
-            #          description_value,
-            #          expected_apply_schema_output,
-            #          expected_search_results,
-            #          expected_whats_this_about,
+            # format: label,
+            #         description_value,
+            #         expected_apply_schema_output,
+            #         expected_search_results,
+            #         expected_whats_this_about,
             (
                 "text_without_p_tags_is_returned",
                 "Data that is not within p-tag IS returned",
