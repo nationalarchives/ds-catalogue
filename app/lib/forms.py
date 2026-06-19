@@ -94,13 +94,9 @@ class BaseForm:
     ) -> dict[str, dict[str, str]]:
         """Returns field errors."""
 
-        # fmt: off
         errors = {
-            field.name: field.error
-            for field in self.fields.values()
-            if field.error
+            field.name: field.error for field in self.fields.values() if field.error
         }
-        # fmt: on
         return errors
 
     @property

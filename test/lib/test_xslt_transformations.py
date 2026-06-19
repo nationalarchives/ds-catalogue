@@ -777,11 +777,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
         source = '<emph altrender="doctype">G</emph>Joint meeting of the Army-Navy Communication Intelligence Board and Army-Navy Communication Intelligence Co-ordinating Committee, 29 October 1945'
         schema = "SCHEMA_THAT_DOES_NOT_EXIST"
 
-        # fmt: off
-        with self.assertLogs(
-            "app.lib.xslt_transformations", level="ERROR"
-        ) as lc:
-        # fmt: on
+        with self.assertLogs("app.lib.xslt_transformations", level="ERROR") as lc:
             return_value = xsl_transformation(source, schema)
             self.assertEqual(source, return_value)
 
