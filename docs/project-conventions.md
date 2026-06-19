@@ -21,6 +21,11 @@ Useful links
 
 ## Git/Github conventions
 
+### Signed Commits
+
+    Ensure commits are signed before pushing to GitHub
+    See 4. Security <https://nationalarchives.github.io/engineering-handbook/third-party/github/>
+
 ### Branching
 
 - Changes are developed in feature branches and submitted as pull requests via Github
