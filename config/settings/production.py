@@ -274,11 +274,18 @@ IMAGE_LIBRARY_URL = os.getenv(
     "IMAGE_LIBRARY_URL", "https://images.nationalarchives.gov.uk/"
 )
 
-# TODO: Switch to a more robust cache backend such as Redis in production
+REDIS_URL = os.getenv("REDIS_URL")
+REDIS_CACHE_DEFAULT_TIMEOUT = int(os.getenv("REDIS_CACHE_DEFAULT_TIMEOUT", "900"))
+
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-        "LOCATION": "/home/app/django_cache",
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL,
+        "KEY_PREFIX": "ds_catalogue",
+        "TIMEOUT": REDIS_CACHE_DEFAULT_TIMEOUT,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     }
 }
 
