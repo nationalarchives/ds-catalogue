@@ -14,7 +14,7 @@
           </div>
           <div
             class="tna-column tna-column--flex-1 tna-column--full-small tna-column--full-tiny tna-column--align-centre tna-!--margin-top-xs">
-            <p>{{ record.no_html_description | truncate(PREFERRED_DESCRIPTION_LENGTH) }}</p>
+            <p>{{ record.description | striptags | truncate(PREFERRED_DESCRIPTION_LENGTH) }}</p>
           </div>
         </div>
       </div>
