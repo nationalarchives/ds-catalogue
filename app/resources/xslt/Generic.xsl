@@ -15,6 +15,11 @@
   <xsl:template match="scopecontent">
     <xsl:apply-templates/>
   </xsl:template>
+  <xsl:template match="mark">
+    <mark>
+      <xsl:apply-templates/>
+    </mark>
+  </xsl:template>
   <xsl:template match="bioghist">
     <xsl:apply-templates/>
   </xsl:template>
