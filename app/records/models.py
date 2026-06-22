@@ -391,8 +391,11 @@ class Record(APIModel):
         Applies series-specific, schema-based, archon-based XSLT transformation as needed.
         """
 
-        # Use raw_description as the base description
-        description = self.raw_description
+        # description.value is the raw description from the API, which may contain HTML markup.
+        description = self.get("description.value", "")
+
+        if not description:
+            return ""
 
         if self.custom_record_type == RecordTypes.ARCHON:
             if self.reference_number == TNA_ARCHON_CODE:
@@ -409,11 +412,6 @@ class Record(APIModel):
 
         # Fallback to schema-based transformation
         return apply_schema_xsl(description, self.description_schema)
-
-    @cached_property
-    def raw_description(self) -> str:
-        """Returns the api value of the attr if found, empty str otherwise."""
-        return self.get("description.raw", "")
 
     @cached_property
     def description_schema(self) -> str:
@@ -596,7 +594,10 @@ class Record(APIModel):
             if self.reference_number != TNA_ARCHON_CODE:
                 # Only apply for NonTNA ARCHON records, to hide presentation
                 # of the field as per Wireframes for TNA ARCHON records
-                return apply_archon_xsl(self.raw_description, "ArchonWebsite.xsl")
+                return apply_archon_xsl(
+                    self.get("description.value", ""),
+                    "ArchonWebsite.xsl",
+                )
         return ""
 
     @cached_property
