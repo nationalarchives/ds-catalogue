@@ -25,12 +25,12 @@ Configuration
 
 - The project uses the department-wide Ruff configuration as a base. No additional installation is needed for development. It is included in the dev docker image.
 - Project-level configuration may extend this base where necessary.
-- Configuration is defined in ruff.toml that extends the base configuration.
+- Configuration is defined in `ruff.toml`, which extends the base configuration.
 
 Guidelines
 
 - Always run formatting locally before pushing changes.
-- CI will enforce formatting and linting on every commit
+- CI will enforce formatting and linting on every commit.
 
 Important Notes:
 
