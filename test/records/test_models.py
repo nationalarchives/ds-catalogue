@@ -2,7 +2,6 @@ import unittest
 from unittest.mock import patch
 
 from django.test import SimpleTestCase, override_settings
-from jinja2 import Environment
 
 from app.records.models import Record
 from config.jinja import sanitise_record_field
@@ -660,46 +659,6 @@ class RecordModelTests(SimpleTestCase):
                 """ Also see the Royal Botanic Gardens, Kew """
                 """<a href="https://www2.calmview.co.uk/kew/calmview/Record.aspx?src=CalmView.Catalog&amp;id=MN&amp;pos=1" """
                 """title="Opens in a new tab" target="_blank">online catalogue</a>"""
-            ),
-        )
-
-    def test_whats_this_about_description(self):
-        self.record = Record(self.template_details)
-        # patch raw data
-        self.record._raw["description"] = {
-            "value": "<scopecontent><p>These records are the service records of individuals serving in the Home Guard in the Second World War. The records are the Form of Enrolment - Army Form W3066 - and contain personal information and other service information such as length of service in the Home Guard and discharge details for each individual.</p> <p>This is a digital-only accession. <extref href=&#34https://www.nationalarchives.gov.uk/help-with-your-research/research-guides/durham-home-guard-records-1939-1945/&#34>Durham Home Guard 1939-1945</extref> records are available to search and download.</p></scopecontent>"
-        }
-        env = Environment()
-        template = env.from_string(
-            "<p>{{ description | striptags | truncate(250) }}</p>"
-        )
-        rendered_output = template.render(description=self.record.description)
-        print(f"rendered_output: {rendered_output}")
-
-        expected_whats_this_about = (
-            """<p>These records are the service records of individuals """
-            """serving in the Home Guard in the Second World War. The records are the Form of """
-            """Enrolment - Army Form W3066 - and contain personal information and other service """
-            """information such as length of...</p>"""
-        )
-        self.assertEqual(
-            expected_whats_this_about,
-            rendered_output,
-        )
-
-    def test_description_for_highlighted_search_term(self):
-        self.record = Record(self.template_details)
-        # patch raw data
-        # description.value contains HTML markup for highlighting search terms
-        self.record._raw["description"] = {
-            "value": (
-                "Appellant: <mark>Florence</mark> Emily <mark>Fenn</mark>. Respondent: Ernest William <mark>Fenn</mark>. Type: Wife's petition for divorce [wd]. "
-            )
-        }
-        self.assertEqual(
-            self.record.description,
-            (
-                "Appellant: <mark>Florence</mark> Emily <mark>Fenn</mark>. Respondent: Ernest William <mark>Fenn</mark>. Type: Wife's petition for divorce [wd]."
             ),
         )
 

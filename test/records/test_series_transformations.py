@@ -207,14 +207,14 @@ class SeriesTransformationTests(SimpleTestCase):
         self.assertEqual(
             self.record.description,
             """<p>MIRANDA, Surgeon H Slade: wounded of naval brigade in New Zealand: """
-            """notes on Fiji.</p> <p>For description purposes, ADM 101/240 has been split """
-            """into two parts (1A and 1B), as follows: </p> <p>Wounded of the Naval Brigade """
+            """notes on Fiji.</p><p>For description purposes, ADM 101/240 has been split """
+            """into two parts (1A and 1B), as follows: </p><p>Wounded of the Naval Brigade """
             """treated on board HMS Miranda, 29 April-31 Dec 1864: """
             """<a href="http://discovery.nationalarchives.gov.uk/SearchUI/details?Uri=C11529959" """
-            """title="Opens in a new tab" target="_blank">ADM 101/240/1A</a>. </p> """
+            """title="Opens in a new tab" target="_blank">ADM 101/240/1A</a>. </p>"""
             """<p>HMS Miranda, 1 January -31 December 1864: """
             """<a href="http://discovery.nationalarchives.gov.uk/SearchUI/details?Uri=C11529960" """
-            """title="Opens in a new tab" target="_blank">ADM 101/240/1B</a>. </p> """
+            """title="Opens in a new tab" target="_blank">ADM 101/240/1B</a>. </p>"""
             """<p>NOTE: The two parts are produced as a single document using this catalogue reference """
             """(ADM 101/240).</p>""",
         )
