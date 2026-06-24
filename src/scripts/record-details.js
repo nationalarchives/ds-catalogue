@@ -1,6 +1,7 @@
 import { Cookies } from "@nationalarchives/frontend/nationalarchives/all.mjs";
 
 import { Accordion } from "./etna-accordion.mjs";
+import { initProgressiveLoading } from "./progressive-loading.mjs";
 
 // Set js_enabled cookie so server knows JS is available on subsequent requests
 document.cookie =
@@ -121,11 +122,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (discoveryLinkButton) {
     discoveryLinkButton.addEventListener("click", () => {
-      // Prevent the default action (though a button has no default action here,
-      // this is good practice for links/forms)
-      // event.preventDefault();
-
-      // 4. push to the dataLayer
       // eslint-disable-next-line logical-assignment-operators
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
@@ -141,220 +137,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// ============================================================================
-// PROGRESSIVE LOADING FOR RECORD DETAIL PAGES
-// ============================================================================
-
-// Load configuration from the page
-function loadProgressiveConfig() {
-  const configElement = document.getElementById("progressive-loading-config");
-  if (!configElement) {return null;}
-
-  try {
-    return JSON.parse(configElement.textContent);
-  } catch (e) {
-    console.error("Progressive loading: Failed to parse config:", e);
-    return null;
-  }
+// Kick off progressive loading for record detail pages
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initProgressiveLoading);
+} else {
+  initProgressiveLoading();
 }
-
-// Load subjects enrichment (Wagtail related content)
-async function loadSubjectsEnrichment(config) {
-  const container = document.getElementById("related-content-container");
-  if (!container) {return;}
-
-  try {
-    const response = await fetch(config.endpoints.subjects);
-    const data = await response.json();
-
-    if (data.success && data.has_content) {
-      container.outerHTML = data.html;
-    } else {
-      container.remove();
-    }
-  } catch (error) {
-    console.error(
-      "Progressive loading: Failed to load subjects enrichment:",
-      error,
-    );
-    container.remove();
-  }
-}
-
-// Load related records
-async function loadRelatedRecords(config) {
-  const container = document.getElementById("related-records-container");
-  if (!container) {return;}
-
-  try {
-    const response = await fetch(config.endpoints.related);
-    const data = await response.json();
-
-    if (data.success && data.has_content) {
-      container.outerHTML = data.html;
-    } else {
-      container.remove();
-    }
-  } catch (error) {
-    console.error(
-      "Progressive loading: Failed to load related records:",
-      error,
-    );
-    container.remove();
-  }
-}
-
-// Load delivery options (updates multiple sections)
-async function loadDeliveryOptions(config) {
-  try {
-    const response = await fetch(config.endpoints.delivery);
-    const data = await response.json();
-
-    if (
-      data.success &&
-      data.has_content &&
-      data.analytics?.delivery_option_category
-    ) {
-      // Update "Available online" section
-      updateProgressiveSection(
-        "available-online-container",
-        data.sections.available_online,
-      );
-
-      // Update "Available in person" section
-      updateProgressiveSection(
-        "available-in-person-container",
-        data.sections.available_in_person,
-      );
-
-      // Add "How to order" to accordion if available
-      if (data.sections.how_to_order) {
-        addDeliveryAccordionItem(
-          data.sections.how_to_order_title,
-          data.sections.how_to_order,
-        );
-      }
-
-      // Update analytics metadata
-      if (data.analytics) {
-        updateProgressiveAnalytics(data.analytics);
-      }
-    } else {
-      // No valid delivery data - show error message
-      hideDeliveryPlaceholders(true);
-    }
-  } catch (error) {
-    console.error(
-      "Progressive loading: Failed to load delivery options:",
-      error,
-    );
-    hideDeliveryPlaceholders(true);
-  }
-}
-
-// Update a section by replacing its container
-function updateProgressiveSection(containerId, html) {
-  const container = document.getElementById(containerId);
-  if (!container) {return;}
-  container.outerHTML = html;
-}
-
-// Add delivery options accordion item
-function addDeliveryAccordionItem(title, bodyHtml) {
-  const accordion = document.querySelector(
-    "#record-extended-details .etna-accordion",
-  );
-  if (!accordion) {return;}
-
-  const item = document.createElement("div");
-  item.className = "etna-accordion__item";
-  item.setAttribute("data-isopen", "false");
-
-  const itemIndex = 1;
-
-  item.innerHTML = `
-    <h3 class="etna-accordion__heading" id="record-extended-details-progressive-heading-${itemIndex}">
-      ${title}
-    </h3>
-    <div class="etna-accordion__body" id="record-extended-details-progressive-content-${itemIndex}">
-      ${bodyHtml}
-    </div>
-  `;
-
-  accordion.insertBefore(item, accordion.firstChild);
-
-  // Reinitialize accordion
-  new Accordion(accordion);
-}
-
-// Update analytics meta tags
-function updateProgressiveAnalytics(analytics) {
-  const metaTags = {
-    delivery_option_category: analytics.delivery_option_category,
-    delivery_option: analytics.delivery_option,
-  };
-
-  Object.entries(metaTags).forEach(([key, value]) => {
-    const meta = document.querySelector(`meta[name="tna_root:${key}"]`);
-    if (meta) {
-      meta.setAttribute("content", value);
-    }
-  });
-}
-
-// Hide delivery option placeholders and optionally show error message
-function hideDeliveryPlaceholders(showError = false) {
-  const onlineContainer = document.getElementById("available-online-container");
-  const inPersonContainer = document.getElementById(
-    "available-in-person-container",
-  );
-  const accordionPlaceholder = document.getElementById(
-    "delivery-options-accordion-placeholder",
-  );
-
-  if (showError && onlineContainer) {
-    // Replace both containers with the error message
-    const errorHtml = `
-      <div class="tna-column tna-column--width-2-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
-        <div class="tna-aside tna-aside--tight tna-background-contrast full-height-aside">
-          <h2 class="tna-heading-m">Access information is unavailable</h2>
-          <p>Sorry, information for accessing this record is currently unavailable online. Please try again later.</p>
-        </div>
-      </div>
-    `;
-    onlineContainer.outerHTML = errorHtml;
-    if (inPersonContainer) {inPersonContainer.remove();}
-  } else {
-    if (onlineContainer) {onlineContainer.remove();}
-    if (inPersonContainer) {inPersonContainer.remove();}
-  }
-
-  if (accordionPlaceholder) {accordionPlaceholder.remove();}
-}
-
-// Run progressive loading when DOM is ready
-(function () {
-  function init() {
-    const config = loadProgressiveConfig();
-    if (!config) {
-      // Not a record detail page with progressive loading config
-      return;
-    }
-
-    // Load all sections in parallel
-    loadSubjectsEnrichment(config);
-    loadRelatedRecords(config);
-
-    if (config.shouldLoadDelivery) {
-      loadDeliveryOptions(config);
-    } else {
-      hideDeliveryPlaceholders();
-    }
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
-})();
