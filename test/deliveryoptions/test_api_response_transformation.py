@@ -1,13 +1,14 @@
 import unittest
 from unittest.mock import MagicMock, mock_open, patch
 
+from django.http import HttpRequest
+
 from app.deliveryoptions.constants import AvailabilityCondition, Reader
 from app.deliveryoptions.delivery_options import (
     construct_delivery_options,
     read_delivery_options,
 )
 from app.records.models import Record
-from django.http import HttpRequest
 
 
 class DeliveryOptionsTestCase(unittest.TestCase):
@@ -24,9 +25,7 @@ class DeliveryOptionsTestCase(unittest.TestCase):
 
         # Create mock request
         self.request = MagicMock(spec=HttpRequest)
-        self.request.META = {
-            "REMOTE_ADDR": "10.136.1.1"
-        }  # This is in the ONSITE range
+        self.request.META = {"REMOTE_ADDR": "10.136.1.1"}  # This is in the ONSITE range
 
         # Create sample record
         self.record = MagicMock(spec=Record)
@@ -197,9 +196,7 @@ class DeliveryOptionsTestCase(unittest.TestCase):
                 "app.deliveryoptions.delivery_options.read_delivery_options"
             ) as mock_read_options:
                 # Setup mocks
-                mock_read_options.return_value = (
-                    self.mock_delivery_options_config
-                )
+                mock_read_options.return_value = self.mock_delivery_options_config
                 mock_reader_type.return_value = Reader.OFFSITE
 
                 # Call the function under test
@@ -233,9 +230,7 @@ class DeliveryOptionsTestCase(unittest.TestCase):
                 "app.deliveryoptions.delivery_options.read_delivery_options"
             ) as mock_read_options:
                 # Setup mocks
-                mock_read_options.return_value = (
-                    self.mock_delivery_options_config
-                )
+                mock_read_options.return_value = self.mock_delivery_options_config
                 mock_reader_type.return_value = Reader.OFFSITE
 
                 # Call the function under test
@@ -253,9 +248,7 @@ class DeliveryOptionsTestCase(unittest.TestCase):
                 self.assertIn("do_orderbuttons", result)
                 self.assertIn("do_basketlimit", result)
                 self.assertIn("Order this record", result["do_heading"])
-                self.assertIn(
-                    "The National Archives, Kew", result["do_description"]
-                )
+                self.assertIn("The National Archives, Kew", result["do_description"])
 
                 # Verify the orderbuttons have been properly processed
                 buttons = result["do_orderbuttons"]
@@ -272,9 +265,7 @@ class DeliveryOptionsTestCase(unittest.TestCase):
                 "app.deliveryoptions.delivery_options.read_delivery_options"
             ) as mock_read_options:
                 # Setup mocks
-                mock_read_options.return_value = (
-                    self.mock_delivery_options_config
-                )
+                mock_read_options.return_value = self.mock_delivery_options_config
                 mock_reader_type.return_value = Reader.ONSITEPUBLIC
 
                 # Call the function under test
@@ -313,9 +304,7 @@ class DeliveryOptionsTestCase(unittest.TestCase):
                 "app.deliveryoptions.delivery_options.read_delivery_options"
             ) as mock_read_options:
                 # Setup mocks
-                mock_read_options.return_value = (
-                    self.mock_delivery_options_config
-                )
+                mock_read_options.return_value = self.mock_delivery_options_config
                 mock_reader_type.return_value = Reader.OFFSITE
 
                 # Call the function under test
@@ -343,13 +332,9 @@ class DeliveryOptionsTestCase(unittest.TestCase):
                 buttons = result["do_orderbuttons"]
                 self.assertEqual(len(buttons), 1)
                 self.assertEqual(buttons[0]["text"], "Submit FOI request")
-                self.assertIn(
-                    "foirequest?reference=TEST 123/456", buttons[0]["href"]
-                )
+                self.assertIn("foirequest?reference=TEST 123/456", buttons[0]["href"])
 
-    @patch(
-        "builtins.open", new_callable=mock_open, read_data='{"test": "data"}'
-    )
+    @patch("builtins.open", new_callable=mock_open, read_data='{"test": "data"}')
     def test_read_delivery_options_caching(self, mock_file):
         """Test that the read_delivery_options function caches file content."""
         # Call the function twice with the same file path
@@ -371,9 +356,7 @@ class DeliveryOptionsTestCase(unittest.TestCase):
             with patch(
                 "app.deliveryoptions.delivery_options.read_delivery_options"
             ) as mock_read_options:
-                mock_read_options.return_value = (
-                    self.mock_delivery_options_config
-                )
+                mock_read_options.return_value = self.mock_delivery_options_config
                 mock_reader_type.return_value = Reader.OFFSITE
 
                 # Create a sample API result with multiple entries
@@ -394,9 +377,7 @@ class DeliveryOptionsTestCase(unittest.TestCase):
                         multiple_results, self.record, self.request
                     )
 
-                self.assertIn(
-                    "Expected one record only", str(context.exception)
-                )
+                self.assertIn("Expected one record only", str(context.exception))
 
     def test_delivery_options_context_structure(self):
         """Test the structure of delivery options context for different combinations."""
@@ -480,9 +461,7 @@ class DeliveryOptionsTestCase(unittest.TestCase):
                         )
 
                         # Assertions
-                        self.assertEqual(
-                            result["reader_type"], case["reader_type"]
-                        )
+                        self.assertEqual(result["reader_type"], case["reader_type"])
 
                         # Verify the context dictionary has the expected keys
                         for key in case["expected_keys"]:

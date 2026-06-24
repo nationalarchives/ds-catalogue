@@ -15,6 +15,9 @@ import re
 from functools import lru_cache
 from typing import Any, Dict, List, Optional, Union
 
+from django.conf import settings
+from django.http import HttpRequest
+
 from app.deliveryoptions.constants import (
     AVAILABILITY_CONDITION_STATE_TO_GROUP,
     DELIVERY_OPTIONS_CONFIG,
@@ -25,8 +28,6 @@ from app.deliveryoptions.constants import (
 from app.deliveryoptions.helpers import get_dept
 from app.deliveryoptions.reader_type import get_reader_type
 from app.records.models import Record
-from django.conf import settings
-from django.http import HttpRequest
 
 logger = logging.getLogger(__name__)
 
@@ -200,13 +201,9 @@ def html_builder(
             if not dcs and item["name"] == "descriptionDCS":
                 pass
             else:
-                html += html_replacer(
-                    item["value"], record_data, api_surrogate_data
-                )
+                html += html_replacer(item["value"], record_data, api_surrogate_data)
     else:
-        html = html_replacer(
-            delivery_option_data, record_data, api_surrogate_data
-        )
+        html = html_replacer(delivery_option_data, record_data, api_surrogate_data)
 
     return html
 
@@ -288,9 +285,7 @@ def generic_builder(
         dcs_flag = True
 
     # Handle order buttons specifically
-    if builder_type == "orderbuttons" and isinstance(
-        delivery_option_data, list
-    ):
+    if builder_type == "orderbuttons" and isinstance(delivery_option_data, list):
         return process_order_buttons(
             delivery_option_data, record_data, api_surrogate_data
         )

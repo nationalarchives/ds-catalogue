@@ -1,10 +1,11 @@
 from unittest.mock import Mock, patch
 
 import responses
-from app.deliveryoptions.constants import AvailabilityCondition
-from app.records.models import Record
 from django.conf import settings
 from django.test import RequestFactory, TestCase
+
+from app.deliveryoptions.constants import AvailabilityCondition
+from app.records.models import Record
 
 
 def _make_record(details: dict) -> Record:
@@ -13,7 +14,6 @@ def _make_record(details: dict) -> Record:
 
 
 class TestRecordView(TestCase):
-
     def setUp(self):
         """Clear cache before each test."""
         from django.core.cache import cache
@@ -99,9 +99,7 @@ class TestSubjectLinks(TestCase):
     @patch("app.records.mixins.record_details_by_id")
     def test_subject_lozenges_are_clickable_links(self, mock_record_details):
         """Test that subjects are rendered as clickable links to search"""
-        mock_record_details.return_value = _make_record(
-            self.sample_record_details
-        )
+        mock_record_details.return_value = _make_record(self.sample_record_details)
 
         response = self.client.get("/catalogue/id/C999999/")
 
@@ -110,9 +108,7 @@ class TestSubjectLinks(TestCase):
         self.assertContains(
             response, 'href="/catalogue/search/?subject=Europe%20and%20Russia"'
         )
-        self.assertContains(
-            response, 'href="/catalogue/search/?subject=Conflict"'
-        )
+        self.assertContains(response, 'href="/catalogue/search/?subject=Conflict"')
 
     @patch("app.records.mixins.record_details_by_id")
     def test_subject_links_are_url_encoded(self, mock_record_details):
@@ -142,9 +138,7 @@ class TestSubjectLinks(TestCase):
     @patch("app.records.mixins.record_details_by_id")
     def test_subject_links_have_correct_css_class(self, mock_record_details):
         """Test that subject links maintain the correct CSS class"""
-        mock_record_details.return_value = _make_record(
-            self.sample_record_details
-        )
+        mock_record_details.return_value = _make_record(self.sample_record_details)
 
         response = self.client.get("/catalogue/id/C999999/")
 
@@ -174,9 +168,7 @@ class TestSubjectLinks(TestCase):
     @patch("app.records.mixins.record_details_by_id")
     def test_subject_links_are_not_placeholders(self, mock_record_details):
         """Test that subject links are real URLs, not placeholder # links"""
-        mock_record_details.return_value = _make_record(
-            self.sample_record_details
-        )
+        mock_record_details.return_value = _make_record(self.sample_record_details)
 
         response = self.client.get("/catalogue/id/C999999/")
         html = response.content.decode()
@@ -226,9 +218,7 @@ class DoAvailabilityGroupTestCase(TestCase):
         self.assertIn("delivery_option", context)
         self.assertEqual(context["delivery_option"], "DigitizedDiscovery")
         self.assertIn("do_availability_group", context)
-        self.assertEqual(
-            context["do_availability_group"], "AVAILABLE_ONLINE_TNA_ONLY"
-        )
+        self.assertEqual(context["do_availability_group"], "AVAILABLE_ONLINE_TNA_ONLY")
 
     @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.enrichment.get_availability_group")
@@ -360,9 +350,7 @@ class TestNonTNARecordAvailability(TestCase):
         )
 
     @patch("app.records.mixins.record_details_by_id")
-    def test_non_tna_record_without_held_by_url_no_link(
-        self, mock_record_details
-    ):
+    def test_non_tna_record_without_held_by_url_no_link(self, mock_record_details):
         """Test that non-TNA records without held_by_url don't show 'How to view it' link."""
         mock_record_details.return_value = _make_record(
             {

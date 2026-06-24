@@ -12,7 +12,7 @@ Before contributing code, please familiarise yourself with the [Project conventi
 ## Submitting a pull request (PR)
 
 1. Push your branch to the remote.
-2. Head to <https://github.com/nationalarchives/ds-search/pulls> and create a pull request from your branch.
+2. Head to <https://github.com/nationalarchives/ds-catalogue/pulls> and create a pull request from your branch.
    - For the PR Title:
      - For ticketed features or ticketed bugs, use the naming convention: `FIND-XXX: Short description`
      - For housekeeping tasks or other unticketed work, use the convention: `CHORE: Short description`

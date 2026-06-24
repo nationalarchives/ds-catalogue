@@ -2,9 +2,10 @@ import json
 import os
 from sysconfig import get_path
 
-from config.util import get_bool_env, get_int_env, strtobool
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.csp import CSP
+
+from config.util import get_bool_env, get_int_env, strtobool
 
 from .features import *
 
@@ -197,21 +198,13 @@ WAGTAIL_API_URL: str = os.getenv("WAGTAIL_API_URL", "")
 WAGTAIL_API_KEY: str = os.getenv("WAGTAIL_API_KEY", "")
 
 # API timeouts
-ROSETTA_ENRICHMENT_API_TIMEOUT: int = get_int_env(
-    "ROSETTA_ENRICHMENT_API_TIMEOUT", 5
-)
+ROSETTA_ENRICHMENT_API_TIMEOUT: int = get_int_env("ROSETTA_ENRICHMENT_API_TIMEOUT", 5)
 WAGTAIL_API_TIMEOUT: int = get_int_env("WAGTAIL_API_TIMEOUT", 5)
-DELIVERY_OPTIONS_API_TIMEOUT: int = get_int_env(
-    "DELIVERY_OPTIONS_API_TIMEOUT", 5
-)
+DELIVERY_OPTIONS_API_TIMEOUT: int = get_int_env("DELIVERY_OPTIONS_API_TIMEOUT", 5)
 
 # API behaviour
-ENABLE_PARALLEL_API_CALLS: bool = get_bool_env(
-    "ENABLE_PARALLEL_API_CALLS", False
-)
-ENRICHMENT_TIMING_ENABLED: bool = get_bool_env(
-    "ENRICHMENT_TIMING_ENABLED", False
-)
+ENABLE_PARALLEL_API_CALLS: bool = get_bool_env("ENABLE_PARALLEL_API_CALLS", False)
+ENRICHMENT_TIMING_ENABLED: bool = get_bool_env("ENRICHMENT_TIMING_ENABLED", False)
 
 # Maximum number of subject/article_tags returned from Wagtail
 MAX_SUBJECTS_PER_RECORD: int = get_int_env("MAX_SUBJECTS_PER_RECORD", 20)
@@ -236,6 +229,13 @@ CLIENT_VERIFY_CERTIFICATES = strtobool(
     os.getenv("ROSETTA_CLIENT_VERIFY_CERTIFICATES", "True")
 )
 
+# Logger name for API timing information.
+# To avoid importing from app constants, define here and reference other places via settings.
+API_TIMING_LOGGER_NAME = "performance.api_timings"
+
+# INFO shows enrichment API timings, WARNING to hide them as they can be noisy and
+# are not critical information for normal operation.
+_API_TIMING_LOG_LEVEL = "INFO" if ENRICHMENT_TIMING_ENABLED else "WARNING"
 
 # logging
 LOGGING = {
@@ -246,9 +246,17 @@ LOGGING = {
             "class": "logging.StreamHandler",
         },
     },
+    "loggers": {
+        # Dedicated logger for API timing information, configured to log INFO level messages to console
+        API_TIMING_LOGGER_NAME: {
+            "handlers": ["console"],
+            "level": _API_TIMING_LOG_LEVEL,
+            "propagate": False,  # prevents noise leaking
+        },
+    },
     "root": {
         "handlers": ["console"],
-        "level": "WARNING",
+        "level": os.environ.get("LOG_LEVEL", "warning").upper(),
     },
 }
 

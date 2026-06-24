@@ -17,14 +17,10 @@ class TestMachineReadableDetailsRouteResolution(TestCase):
 
     def test_resolves_uuid(self):
         # Some IDs are UUIDs. Tested ID is a real example
-        resolver = resolve(
-            "/catalogue/id/43f766a9-e968-4b82-93dc-8cf11a841d41/"
-        )
+        resolver = resolve("/catalogue/id/43f766a9-e968-4b82-93dc-8cf11a841d41/")
 
         self.assertEqual(resolver.view_name, "records:details")
-        self.assertEqual(
-            resolver.kwargs["id"], "43f766a9-e968-4b82-93dc-8cf11a841d41"
-        )
+        self.assertEqual(resolver.kwargs["id"], "43f766a9-e968-4b82-93dc-8cf11a841d41")
 
 
 class TestMachineReadableDetailsURL(TestCase):
@@ -39,6 +35,4 @@ class TestMachineReadableDetailsURL(TestCase):
             kwargs={"id": "43f766a9-e968-4b82-93dc-8cf11a841d41"},
         )
 
-        self.assertEqual(
-            url, "/catalogue/id/43f766a9-e968-4b82-93dc-8cf11a841d41/"
-        )
+        self.assertEqual(url, "/catalogue/id/43f766a9-e968-4b82-93dc-8cf11a841d41/")

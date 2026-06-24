@@ -3,9 +3,11 @@ import json
 from copy import deepcopy
 from unittest.mock import Mock, patch
 
+from django.conf import settings
+from django.test import RequestFactory, TestCase
+
 from app.deliveryoptions.constants import (
     DELIVERY_OPTIONS_CONFIG,
-    AvailabilityCondition,
     AvailabilityGroup,
     delivery_option_tags,
 )
@@ -14,7 +16,6 @@ from app.deliveryoptions.delivery_options import (
     surrogate_link_builder,
 )
 from app.deliveryoptions.helpers import (
-    BASE_TNA_HOME_URL,
     get_access_condition_text,
     get_added_to_basket_text,
     get_advance_order_information,
@@ -23,8 +24,6 @@ from app.deliveryoptions.helpers import (
 )
 from app.records.models import APIResponse
 from app.records.views import RecordDetailView
-from django.conf import settings
-from django.test import RequestFactory, TestCase
 
 
 class TestDeliveryOptionTags(TestCase):
@@ -74,7 +73,9 @@ class TestDeliveryOptionTags(TestCase):
 
 class TestDeliveryOptionSubstitution(TestCase):
     def setUp(self):
-        fixture_path = f"{settings.BASE_DIR}/test/deliveryoptions/fixtures/response_C18281.json"
+        fixture_path = (
+            f"{settings.BASE_DIR}/test/deliveryoptions/fixtures/response_C18281.json"
+        )
         with open(fixture_path, "r") as f:
             fixture_contents = json.loads(f.read())
 
@@ -159,9 +160,7 @@ class TestDeliveryOptionSubstitution(TestCase):
                 self.assertEqual(result, expected_value)
 
     def test_get_dept_existing(self):
-        self.assertEqual(
-            get_dept("ADM 1234", "deptname"), "Ministry of Defence"
-        )
+        self.assertEqual(get_dept("ADM 1234", "deptname"), "Ministry of Defence")
         self.assertEqual(
             get_dept("CO 5678", "depturl"),
             "http://www.fco.gov.uk/en/publications-and-documents/freedom-of-information/",
@@ -187,9 +186,7 @@ class TestDeliveryOptionSubstitution(TestCase):
             settings.ADVANCED_DOCUMENT_ORDER_EMAIL,
         )
 
-    @patch(
-        "app.deliveryoptions.helpers.BASE_TNA_HOME_URL", "https://example.com"
-    )
+    @patch("app.deliveryoptions.helpers.BASE_TNA_HOME_URL", "https://example.com")
     def test_get_advance_order_information(self):
         self.assertEqual(
             get_advance_order_information(),
@@ -278,9 +275,7 @@ class TestDeliveryOptionsContext(TestCase):
 
     @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.enrichment.get_availability_group")
-    def test_invalid_availability_condition(
-        self, mock_get_group, mock_api_handler
-    ):
+    def test_invalid_availability_condition(self, mock_get_group, mock_api_handler):
         """Test handling when options value is not a valid AvailabilityCondition enum value."""
         from app.records.enrichment import RecordEnrichmentHelper
 
@@ -298,9 +293,7 @@ class TestDeliveryOptionsContext(TestCase):
 
     @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.enrichment.get_availability_group")
-    def test_multiple_availability_conditions(
-        self, mock_get_group, mock_api_handler
-    ):
+    def test_multiple_availability_conditions(self, mock_get_group, mock_api_handler):
         """Test different availability conditions map to correct groups."""
         from app.records.enrichment import RecordEnrichmentHelper
 

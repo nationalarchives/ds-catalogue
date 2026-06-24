@@ -1,4 +1,5 @@
 import { Cookies } from "@nationalarchives/frontend/nationalarchives/all.mjs";
+
 import { Accordion } from "./etna-accordion.mjs";
 
 // Set js_enabled cookie so server knows JS is available on subsequent requests
@@ -17,6 +18,7 @@ class toggleDetailsListDescriptions {
       ".record-details__description",
     );
 
+    // eslint-disable-next-line no-magic-numbers
     if (this.detailsListItems.length === 0) {
       return;
     }
@@ -73,6 +75,7 @@ const cookies = new Cookies();
 const checkbox = document.getElementById("field-descriptions");
 const detailsList = document.getElementById("record-details-list");
 if (checkbox && detailsList) {
+  // eslint-disable-next-line new-cap, no-new
   new toggleDetailsListDescriptions(checkbox, detailsList, cookies);
 }
 
@@ -108,6 +111,7 @@ if (
 const $accordions = document.querySelectorAll('[data-module="etna-accordion"]');
 
 $accordions.forEach(($accordion) => {
+  // eslint-disable-next-line no-new
   new Accordion($accordion);
 });
 
@@ -117,11 +121,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (discoveryLinkButton) {
     discoveryLinkButton.addEventListener("click", () => {
+      // Prevent the default action (though a button has no default action here,
+      // this is good practice for links/forms)
+      // event.preventDefault();
+
+      // 4. push to the dataLayer
+      // eslint-disable-next-line logical-assignment-operators
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         event: "select_promotion",
+        // eslint-disable-next-line camelcase
         promotion_name: "Ordering and viewing options",
+        // eslint-disable-next-line camelcase
         creative_name: "Ordering and viewing options:link",
+        // eslint-disable-next-line camelcase
         creative_slot: "Full description and record details",
       });
     });
@@ -135,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Load configuration from the page
 function loadProgressiveConfig() {
   const configElement = document.getElementById("progressive-loading-config");
-  if (!configElement) return null;
+  if (!configElement) {return null;}
 
   try {
     return JSON.parse(configElement.textContent);
@@ -148,7 +161,7 @@ function loadProgressiveConfig() {
 // Load subjects enrichment (Wagtail related content)
 async function loadSubjectsEnrichment(config) {
   const container = document.getElementById("related-content-container");
-  if (!container) return;
+  if (!container) {return;}
 
   try {
     const response = await fetch(config.endpoints.subjects);
@@ -171,7 +184,7 @@ async function loadSubjectsEnrichment(config) {
 // Load related records
 async function loadRelatedRecords(config) {
   const container = document.getElementById("related-records-container");
-  if (!container) return;
+  if (!container) {return;}
 
   try {
     const response = await fetch(config.endpoints.related);
@@ -242,7 +255,7 @@ async function loadDeliveryOptions(config) {
 // Update a section by replacing its container
 function updateProgressiveSection(containerId, html) {
   const container = document.getElementById(containerId);
-  if (!container) return;
+  if (!container) {return;}
   container.outerHTML = html;
 }
 
@@ -251,7 +264,7 @@ function addDeliveryAccordionItem(title, bodyHtml) {
   const accordion = document.querySelector(
     "#record-extended-details .etna-accordion",
   );
-  if (!accordion) return;
+  if (!accordion) {return;}
 
   const item = document.createElement("div");
   item.className = "etna-accordion__item";
@@ -310,13 +323,13 @@ function hideDeliveryPlaceholders(showError = false) {
       </div>
     `;
     onlineContainer.outerHTML = errorHtml;
-    if (inPersonContainer) inPersonContainer.remove();
+    if (inPersonContainer) {inPersonContainer.remove();}
   } else {
-    if (onlineContainer) onlineContainer.remove();
-    if (inPersonContainer) inPersonContainer.remove();
+    if (onlineContainer) {onlineContainer.remove();}
+    if (inPersonContainer) {inPersonContainer.remove();}
   }
 
-  if (accordionPlaceholder) accordionPlaceholder.remove();
+  if (accordionPlaceholder) {accordionPlaceholder.remove();}
 }
 
 // Run progressive loading when DOM is ready

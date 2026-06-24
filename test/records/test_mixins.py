@@ -2,11 +2,12 @@
 
 from unittest.mock import Mock, patch
 
-from app.records.mixins import RecordContextMixin
-from app.records.models import Record
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase
 from django.views.generic import TemplateView
+
+from app.records.mixins import RecordContextMixin
+from app.records.models import Record
 
 
 class TestRecordContextMixin(TestCase):
@@ -84,9 +85,7 @@ class TestRecordContextMixin(TestCase):
 
     @patch("app.records.mixins.cache")
     @patch("app.records.mixins.record_details_by_id")
-    def test_get_context_data_adds_record(
-        self, mock_record_details, mock_cache
-    ):
+    def test_get_context_data_adds_record(self, mock_record_details, mock_cache):
         """Test that get_context_data adds record to context"""
         mock_record = Mock(spec=Record)
         mock_record_details.return_value = mock_record

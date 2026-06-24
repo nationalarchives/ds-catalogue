@@ -1,8 +1,9 @@
 import logging
 
+from django.core.cache import cache
+
 from app.records.api import record_details_by_id
 from app.records.models import Record
-from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 

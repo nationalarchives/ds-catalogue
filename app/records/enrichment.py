@@ -3,9 +3,11 @@
 import logging
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Dict
+from typing import Any
 
 import sentry_sdk
+from django.conf import settings
+
 from app.deliveryoptions.api import delivery_options_request_handler
 from app.deliveryoptions.constants import (
     DELIVERY_OPTIONS_NON_TNA_LEVELS,
@@ -29,8 +31,10 @@ from app.records.related import (
     get_tna_related_records_by_subjects,
 )
 from app.records.utils import log_enrichment_execution_time
-from django.conf import settings
 
+# Dedicated logger for API timing information; effective level/handlers come from logging configuration
+api_timer_logger = logging.getLogger(settings.API_TIMING_LOGGER_NAME)
+# Regular logger for errors and other messages
 logger = logging.getLogger(__name__)
 
 
@@ -45,9 +49,8 @@ class RecordEnrichmentHelper:
         self.record = record
         self.related_limit = related_limit
 
-    # TODO: consider bringing distressing_content outside of fetch_parallel or fetch_sequential
     @log_enrichment_execution_time
-    def fetch_all(self) -> Dict[str, Any]:
+    def fetch_all(self) -> dict[str, Any]:
         """
         Fetch all enrichment data.
 
@@ -56,12 +59,11 @@ class RecordEnrichmentHelper:
 
         Returns:
             Dictionary with keys: subjects_enrichment, related_records,
-            delivery_options, distressing_content
+            delivery_options
         """
         if settings.ENABLE_PARALLEL_API_CALLS:
             return self._fetch_parallel()
-        else:
-            return self._fetch_sequential()
+        return self._fetch_sequential()
 
     def _submit_fetch_tasks(self, executor) -> dict:
         """Submit all fetch tasks to the executor and return futures map."""
@@ -73,26 +75,20 @@ class RecordEnrichmentHelper:
         try:
             futures_map[executor.submit(self.fetch_subjects)] = "subjects"
         except RuntimeError:
-            message = (
-                f"Failed to submit subjects task for record {self.record.id}"
-            )
+            message = f"Failed to submit subjects task for record {self.record.id}"
             logger.error(message)
 
         # Submit related fetch
         try:
             futures_map[executor.submit(self.fetch_related)] = "related"
         except RuntimeError:
-            message = (
-                f"Failed to submit related task for record {self.record.id}"
-            )
+            message = f"Failed to submit related task for record {self.record.id}"
             logger.error(message)
 
         # Submit delivery options if applicable
         if self._should_include_delivery_options():
             try:
-                futures_map[executor.submit(self.fetch_delivery_options)] = (
-                    "delivery"
-                )
+                futures_map[executor.submit(self.fetch_delivery_options)] = "delivery"
             except RuntimeError:
                 message = f"Failed to submit delivery task for record {self.record.id}"
                 logger.error(message)
@@ -122,14 +118,13 @@ class RecordEnrichmentHelper:
         """Log completion timing if enabled."""
         if settings.ENRICHMENT_TIMING_ENABLED and completion_order:
             timing_details = ", ".join(
-                f"{name}: {completion_times[name]:.3f}s"
-                for name in completion_order
+                f"{name}: {completion_times[name]:.3f}s" for name in completion_order
             )
-            logger.warning(
+            api_timer_logger.info(
                 f"Record {self.record.id} completion order: [{timing_details}]"
             )
 
-    def _fetch_parallel(self) -> Dict[str, Any]:
+    def _fetch_parallel(self) -> dict[str, Any]:
         """Fetch enrichment data in parallel using thread pool."""
         results = self._empty_results()
         completion_order = []
@@ -156,7 +151,7 @@ class RecordEnrichmentHelper:
 
         return results
 
-    def _fetch_sequential(self) -> Dict[str, Any]:
+    def _fetch_sequential(self) -> dict[str, Any]:
         """Fetch enrichment data sequentially."""
         results = {
             "subjects_enrichment": self.fetch_subjects(),
@@ -314,10 +309,7 @@ class RecordEnrichmentHelper:
         ]:
             return False
 
-        if (
-            self.record.is_tna
-            and self.record.level_code in DELIVERY_OPTIONS_TNA_LEVELS
-        ):
+        if self.record.is_tna and self.record.level_code in DELIVERY_OPTIONS_TNA_LEVELS:
             return True
         elif (
             not self.record.is_tna
@@ -328,10 +320,9 @@ class RecordEnrichmentHelper:
         return False
 
     @staticmethod
-    def _empty_results() -> Dict[str, Any]:
+    def _empty_results() -> dict[str, Any]:
         return {
             "subjects_enrichment": {},
             "related_records": [],
             "delivery_options": {},
-            "distressing_content": False,
         }

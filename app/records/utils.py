@@ -8,6 +8,9 @@ from django.conf import settings
 from django.urls import NoReverseMatch, reverse
 from pyquery import PyQuery as pq
 
+# Dedicated logger for API timing information; effective level/handlers come from logging configuration
+api_timer_logger = logging.getLogger(settings.API_TIMING_LOGGER_NAME)
+# Regular logger for errors and other messages
 logger = logging.getLogger(__name__)
 
 
@@ -103,10 +106,8 @@ def log_enrichment_execution_time(func):
         result = func(self, *args, **kwargs)
         elapsed_time = time.time() - start_time
 
-        mode = (
-            "parallel" if settings.ENABLE_PARALLEL_API_CALLS else "sequential"
-        )
-        logger.warning(
+        mode = "parallel" if settings.ENABLE_PARALLEL_API_CALLS else "sequential"
+        api_timer_logger.info(
             f"Enrichment fetch for record {self.record.id} completed in "
             f"{elapsed_time:.3f}s (mode: {mode})"
         )

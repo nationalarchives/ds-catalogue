@@ -1,11 +1,15 @@
 from unittest.mock import Mock, patch
 
+from django.test import TestCase
+
+from app.records.constants import TnaLevels
 from app.records.models import Record
 from app.records.related import (
+    _LEVEL_FILTERS_SERIES_TO_ITEM,
+    _search_individual_subjects,
     get_related_records_by_series,
     get_tna_related_records_by_subjects,
 )
-from django.test import TestCase
 
 
 class TestRelatedRecordsBySubjects(TestCase):
@@ -118,9 +122,7 @@ class TestRelatedRecordsBySeries(TestCase):
 
         # Mock many results
         mock_result = Mock()
-        mock_result.records = [
-            Mock(spec=Record, id=f"C{i}") for i in range(200, 210)
-        ]
+        mock_result.records = [Mock(spec=Record, id=f"C{i}") for i in range(200, 210)]
         mock_search.return_value = mock_result
 
         result = get_related_records_by_series(mock_record, limit=3)
@@ -165,3 +167,54 @@ class TestRelatedRecordsBySeries(TestCase):
 
         # Should return empty list on error
         self.assertEqual(result, [])
+
+
+class TestLevelFiltersConstant(TestCase):
+    """Tests for the _LEVEL_FILTERS_SERIES_TO_ITEM module-level constant."""
+
+    def test_matches_expected_levels(self):
+        # Test that _LEVEL_FILTERS_SERIES_TO_ITEM contains correct level filters.
+        self.assertEqual(
+            _LEVEL_FILTERS_SERIES_TO_ITEM,
+            [
+                "level:Series",
+                "level:Sub-series",
+                "level:Sub-sub-series",
+                "level:Piece",
+                "level:Item",
+            ],
+        )
+
+
+class TestSearchIndividualSubjects(TestCase):
+    """Tests for the _search_individual_subjects helper."""
+
+    @patch("app.records.related.search_records")
+    def test_individual_subjects_search_applies_series_to_item_levels(
+        self, mock_search
+    ):
+        """Test that _search_individual_subjects scopes queries to Series-Item levels."""
+        mock_search.return_value = Mock(records=[])
+
+        mock_record = Mock(spec=Record)
+        mock_record.id = "C123"
+        mock_record.subjects = ["Army"]
+
+        _search_individual_subjects(mock_record, fetch_limit=3, record_matches={})
+
+        params = mock_search.call_args.kwargs["params"]
+        level_filters = {f for f in params["filter"] if f.startswith("level:")}
+
+        expected = {
+            f"level:{m.level}"
+            for m in (
+                TnaLevels.SERIES,
+                TnaLevels.SUB_SERIES,
+                TnaLevels.SUB_SUB_SERIES,
+                TnaLevels.PIECE,
+                TnaLevels.ITEM,
+            )
+        }
+        self.assertEqual(level_filters, expected)
+        self.assertNotIn(f"level:{TnaLevels.DEPARTMENT.level}", level_filters)
+        self.assertNotIn(f"level:{TnaLevels.DIVISION.level}", level_filters)

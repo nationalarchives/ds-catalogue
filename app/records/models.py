@@ -5,6 +5,11 @@ from typing import Any
 from urllib.parse import urlencode
 
 import sentry_sdk
+from django.conf import settings
+from django.urls import NoReverseMatch, reverse
+from django.utils.functional import cached_property
+from lxml import etree
+
 from app.lib.constants import BASE_TNA_DISCOVERY_URL
 from app.lib.exceptions import MissingAPIAttributeError
 from app.lib.xslt_transformations import (
@@ -14,10 +19,10 @@ from app.lib.xslt_transformations import (
     has_series_xsl,
 )
 from app.records.constants import (
-    NON_TNA_LEVELS,
     SUBJECTS_LIMIT,
     TNA_HELD_BY_VALUES,
-    TNA_LEVELS,
+    NonTnaLevels,
+    TnaLevels,
 )
 from app.records.utils import (
     extract,
@@ -26,12 +31,12 @@ from app.records.utils import (
 from app.search.buckets import BucketKeys
 from app.search.constants import FieldsConstant
 from config.jinja import format_number
-from django.conf import settings
-from django.urls import NoReverseMatch, reverse
-from django.utils.functional import cached_property
-from lxml import etree
 
 from .constants import MISSING_COUNT_TEXT, TNA_ARCHON_CODE, RecordTypes
+from .tna_archon_constants import (
+    DESCRIPTION_XML_FRAGMENT,
+    PLACE_DESCRIPTION_XML_FRAGMENT,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -147,10 +152,12 @@ class Record(APIModel):
         clean_value = ""
         clean_title_length = len(self.clean_title)
         clean_summary_title_length = len(self.clean_summary_title)
+        # fmt: off
         if (
             clean_title_length > 0
             and clean_title_length <= clean_summary_title_length
         ):
+            # fmt: on
             clean_value = self.clean_title
         else:
             clean_value = self.clean_summary_title
@@ -195,8 +202,8 @@ class Record(APIModel):
     def level(self) -> str:
         """Returns level name for tna, non tna level codes"""
         if self.is_tna:
-            return TNA_LEVELS.get(str(self.level_code), "")
-        return NON_TNA_LEVELS.get(str(self.level_code), "")
+            return TnaLevels.level_from_code(str(self.level_code or ""))
+        return NonTnaLevels.level_from_code(str(self.level_code or ""))
 
     @cached_property
     def level_code(self) -> int | None:
@@ -246,8 +253,11 @@ class Record(APIModel):
     @cached_property
     def held_by_url(self) -> str:
         """Returns url path if the id is found, empty str otherwise."""
-        if not settings.FEATURE_ENABLE_RECORD_DETAILS_HELD_BY:
-            return f"https://discovery.nationalarchives.gov.uk/details/a/{self.held_by_id}"
+
+        if settings.FEATURE_ENABLE_HELD_BY_DISCOVERY:
+            # For non-TNA held-by records, use the Discovery URL instead of the internal catalogue details URL.
+            if not self.is_held_by_tna:
+                return f"{BASE_TNA_DISCOVERY_URL}/details/a/{self.held_by_id}"
         if self.held_by_id:
             try:
                 return reverse(
@@ -358,9 +368,7 @@ class Record(APIModel):
         return tuple(
             dict(
                 description=item.get("description", ""),
-                links=list(
-                    format_link(val, inc_msg) for val in item.get("links", ())
-                ),
+                links=list(format_link(val, inc_msg) for val in item.get("links", ())),
             )
             for item in self.get("relatedMaterials", ())
         )
@@ -387,6 +395,9 @@ class Record(APIModel):
         description = self.raw_description
 
         if self.custom_record_type == RecordTypes.ARCHON:
+            if self.reference_number == TNA_ARCHON_CODE:
+                description = DESCRIPTION_XML_FRAGMENT
+
             # For ARCHON records, apply archon-specific transformation
             # regardless of series or schema
             return apply_archon_xsl(description, "ArchonDescription.xsl")
@@ -419,9 +430,7 @@ class Record(APIModel):
         return tuple(
             dict(
                 description=item.get("description", ""),
-                links=list(
-                    format_link(val, inc_msg) for val in item.get("links", ())
-                ),
+                links=list(format_link(val, inc_msg) for val in item.get("links", ())),
             )
             for item in self.get("separatedMaterials", ())
         )
@@ -461,9 +470,7 @@ class Record(APIModel):
             logger.error(message)
             sentry_sdk.capture_message(message, level="error")
             # add context for debugging in Sentry
-            sentry_sdk.set_context(
-                "missing_info", {"hierarchy_record_id": {self.id}}
-            )
+            sentry_sdk.set_context("missing_info", {"hierarchy_record_id": {self.id}})
             return MISSING_COUNT_TEXT
         return format_number(count)
 
@@ -545,10 +552,10 @@ class Record(APIModel):
 
     @cached_property
     def hierarchy_series(self) -> Record | None:
-        """Returns series record from hierarchy if found, None otherwise"""
-        for item in self.hierarchy:
-            if item.level == "Series":
-                return item
+        """Return the series-level record from this record's hierarchy, if present."""
+        for record in self.hierarchy:
+            if record.level == TnaLevels.SERIES.level:
+                return record
         return None
 
     @cached_property
@@ -572,21 +579,12 @@ class Record(APIModel):
         Field appears in ARCHON records."""
         raw_description = self.get("placeDescription.raw", "")
 
-        if (
-            not settings.FEATURE_ENABLE_RECORD_DETAILS_HELD_BY
-            and self.reference_number == TNA_ARCHON_CODE
-        ):
-            # HARCODED: For TNA ARCHON record, when the feature is disabled,
-            # show the expected values for the field, as the API data is inaccurate
-            # This is to avoid user-facing impact while the API data issue is being resolved.
-            raw_description = """<span class="accessconditions"><span class="openinghours">For opening times please consult the &lt;a href="https://www.nationalarchives.gov.uk/about/visit-us/opening-times/ " target="_blank"&gt;website&lt;/a&gt;</span><span class="holidays">See the &lt;a href="https://www.nationalarchives.gov.uk/about/visit-us/opening-times/ " target="_blank"&gt;website&lt;/a&gt;</span><span class="disabledaccess">Wheelchair access</span><span class="comments">If you would like to contact The National Archives please go the &lt;a href="http://www.nationalarchives.gov.uk/contact-us/" target="_blank"&gt;contact form&lt;/a&gt; page on the website and use the form provided
+        if self.reference_number == TNA_ARCHON_CODE:
+            raw_description = PLACE_DESCRIPTION_XML_FRAGMENT
 
-&lt;li&gt;Readers tickets are required for access to original records only. Proof of identity and current address are required to obtain reader tickets. For further details please consult the &lt;a href="https://www.nationalarchives.gov.uk/about/visit-us/researching-here/do-i-need-a-readers-ticket/" target=?_blank?&gt;website&lt;/a&gt;&lt;/li&gt;</span></span>"""
         if raw_description:
             if self.custom_record_type == RecordTypes.ARCHON:
-                return apply_archon_xsl(
-                    raw_description, "ArchonPlaceDescription.xsl"
-                )
+                return apply_archon_xsl(raw_description, "ArchonPlaceDescription.xsl")
         return ""
 
     @cached_property
@@ -598,9 +596,7 @@ class Record(APIModel):
             if self.reference_number != TNA_ARCHON_CODE:
                 # Only apply for NonTNA ARCHON records, to hide presentation
                 # of the field as per Wireframes for TNA ARCHON records
-                return apply_archon_xsl(
-                    self.raw_description, "ArchonWebsite.xsl"
-                )
+                return apply_archon_xsl(self.raw_description, "ArchonWebsite.xsl")
         return ""
 
     @cached_property
@@ -610,9 +606,9 @@ class Record(APIModel):
 
         if self.custom_record_type == RecordTypes.ARCHON:
             try:
+                url_name = "search:catalogue"
                 if self.reference_number == TNA_ARCHON_CODE:
-                    url_name = "main:catalogue"
-                    # landing page for the new catalogue
+                    # For TNA ARCHON records, link to the main catalogue search page without filters
                     return f"{reverse(url_name)}"
                 else:
                     params = {
@@ -621,7 +617,6 @@ class Record(APIModel):
                         # until we have specific aggs collection value
                         FieldsConstant.HELD_BY: self.clean_title_or_summary_title,
                     }
-                    url_name = "search:catalogue"
                     # For other records, link to search results filtered for the record's title
                     return f"{reverse(url_name)}?{urlencode(params)}"
             except NoReverseMatch:
@@ -638,15 +633,15 @@ class Record(APIModel):
 
         if self.custom_record_type == RecordTypes.ARCHON:
             if self.reference_number == TNA_ARCHON_CODE:
-                # landing page for Discovery
-                return f"{BASE_TNA_DISCOVERY_URL}"
+                # Discovery * search for Tna records
+                params = {"_q": "*", "_hb": "tna"}
             else:
+                # For other records, link to Discovery search results filtered for the record's
+                # archon reference number
                 params = {
                     "_q": "*",
                     "_hb": "oth",
                     "_nrar": self.reference_number,
                 }
-                # For other records, link to Discovery search results filtered for the record's
-                # archon reference number
-                return f"{BASE_TNA_DISCOVERY_URL}/results/r?{urlencode(params)}"
+            return f"{BASE_TNA_DISCOVERY_URL}/results/r?{urlencode(params)}"
         return ""

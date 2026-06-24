@@ -2,14 +2,15 @@
 
 import logging
 
-from app.main.api import fetch_global_notifications
-from app.records.enrichment import RecordEnrichmentHelper
-from app.records.labels import FIELD_LABELS
-from app.records.mixins import RecordContextMixin
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.views import View
 from django.views.generic import TemplateView
+
+from app.main.api import fetch_global_notifications
+from app.records.enrichment import RecordEnrichmentHelper
+from app.records.labels import FIELD_LABELS
+from app.records.mixins import RecordContextMixin
 
 from .constants import RecordTypes
 
@@ -69,9 +70,7 @@ class RecordDetailView(RecordContextMixin, TemplateView):
             # JS is enabled - skip enrichment, let JavaScript load progressively
             # Only fetch distressing_content as it's needed for initial page padding
             enrichment_helper = RecordEnrichmentHelper(record)
-            context["distressing_content"] = (
-                enrichment_helper.fetch_distressing()
-            )
+            context["distressing_content"] = enrichment_helper.fetch_distressing()
 
             # Set empty defaults for template
             context["related_records"] = []
@@ -94,14 +93,10 @@ class RecordDetailView(RecordContextMixin, TemplateView):
             context["distressing_content"] = enrichment_data.get(
                 "distressing_content", False
             )
-            context["related_records"] = enrichment_data.get(
-                "related_records", []
-            )
+            context["related_records"] = enrichment_data.get("related_records", [])
 
             # Apply subjects enrichment to record for template access
-            record._subjects_enrichment = enrichment_data.get(
-                "subjects_enrichment", {}
-            )
+            record._subjects_enrichment = enrichment_data.get("subjects_enrichment", {})
 
             # Process delivery options
             delivery_options = enrichment_data.get("delivery_options", {})
@@ -115,9 +110,7 @@ class RecordDetailView(RecordContextMixin, TemplateView):
             context["delivery_instructions"] = delivery_options.get(
                 "delivery_instructions", []
             )
-            context["tna_discovery_link"] = delivery_options.get(
-                "tna_discovery_link"
-            )
+            context["tna_discovery_link"] = delivery_options.get("tna_discovery_link")
 
             # Add analytics data with delivery options
             self._add_analytics_data(context, delivery_options)
@@ -143,13 +136,9 @@ class RecordDetailView(RecordContextMixin, TemplateView):
                     class_name + "[TNA catalogue digitised record description]"
                 )
             else:
-                data["page_type"] = (
-                    class_name + "[TNA catalogue record description]"
-                )
+                data["page_type"] = class_name + "[TNA catalogue record description]"
         else:
-            data["page_type"] = (
-                class_name + "[Other archive record description]"
-            )
+            data["page_type"] = class_name + "[Other archive record description]"
 
         data["reader_type"] = ""
         data["user_type"] = ""
@@ -190,9 +179,7 @@ class RecordDetailView(RecordContextMixin, TemplateView):
             data["delivery_option_category"] = delivery_options.get(
                 "do_availability_group", ""
             )
-            data["delivery_option"] = delivery_options.get(
-                "delivery_option", ""
-            )
+            data["delivery_option"] = delivery_options.get("delivery_option", "")
         else:
             data["delivery_option_category"] = ""
             data["delivery_option"] = ""
@@ -223,9 +210,7 @@ class RecordSubjectsEnrichmentView(RecordContextMixin, View):
                 request=request,
             )
 
-        return JsonResponse(
-            {"success": True, "html": html, "has_content": bool(html)}
-        )
+        return JsonResponse({"success": True, "html": html, "has_content": bool(html)})
 
 
 class RecordRelatedRecordsView(RecordContextMixin, View):
@@ -280,9 +265,7 @@ class RecordDeliveryOptionsView(RecordContextMixin, View):
 
         # Extract data (will be None for non-TNA records without API data)
         do_availability_group = (
-            delivery_data.get("do_availability_group")
-            if delivery_data
-            else None
+            delivery_data.get("do_availability_group") if delivery_data else None
         )
         delivery_option = (
             delivery_data.get("delivery_option") if delivery_data else None
@@ -310,9 +293,7 @@ class RecordDeliveryOptionsView(RecordContextMixin, View):
                     "delivery_instructions": delivery_data.get(
                         "delivery_instructions", []
                     ),
-                    "tna_discovery_link": delivery_data.get(
-                        "tna_discovery_link"
-                    ),
+                    "tna_discovery_link": delivery_data.get("tna_discovery_link"),
                 },
                 request=request,
             )

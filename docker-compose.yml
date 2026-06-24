@@ -19,11 +19,11 @@ services:
       - CSP_FONT_SRC='self',fonts.gstatic.com,use.typekit.net
       - CSP_FRAME_SRC='self',www.youtube.com
       - FEATURE_PHASE_BANNER=False
-      - ROSETTA_API_URL
-      - WAGTAIL_API_URL
+      - ROSETTA_API_URL=https://rosetta-dev.k-int.com/rosetta/data
+      - WAGTAIL_API_URL=http://host.docker.internal:8000/api/v2
       - WAGTAIL_API_KEY
       - DELIVERY_OPTIONS_API_URL
-      - DCS_PREFIXES
+      - DCS_PREFIXES=LEV
       - STAFFIN_IP_ADDRESSES
       - ONSITE_IP_ADDRESSES
       - ENABLE_PARALLEL_API_CALLS

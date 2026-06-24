@@ -1,8 +1,9 @@
-from unittest.mock import Mock, patch
+from unittest.mock import patch
+
+from django.test import TestCase
 
 from app.deliveryoptions.constants import AvailabilityCondition
 from app.records.models import Record
-from django.test import TestCase
 
 
 def _make_record(details: dict) -> Record:
@@ -31,9 +32,7 @@ class TestClosedRetainedAvailability(TestCase):
             "title": "Test Closed Retained Record",
             "source": "CAT",
             "heldByCount": 1,
-            "level": {
-                "code": 3
-            },  # Sub-sub-fonds — in DELIVERY_OPTIONS_NON_TNA_LEVELS
+            "level": {"code": 3},  # Sub-sub-fonds — in DELIVERY_OPTIONS_NON_TNA_LEVELS
         }
         if held_by:
             details["heldBy"] = held_by
@@ -56,9 +55,7 @@ class TestClosedRetainedAvailability(TestCase):
 
     @patch("app.records.mixins.record_details_by_id")
     @patch("app.records.enrichment.get_subjects_enrichment", return_value={})
-    @patch(
-        "app.records.enrichment.get_related_records_by_series", return_value=[]
-    )
+    @patch("app.records.enrichment.get_related_records_by_series", return_value=[])
     @patch(
         "app.records.enrichment.get_tna_related_records_by_subjects",
         return_value=[],

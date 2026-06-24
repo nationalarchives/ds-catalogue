@@ -4,15 +4,16 @@ import json
 from unittest.mock import Mock, patch
 
 import responses
+from django.conf import settings
+from django.core.cache import cache
+from django.test import RequestFactory, TestCase
+
 from app.records.views import (
     RecordDeliveryOptionsView,
     RecordDetailView,
     RecordRelatedRecordsView,
     RecordSubjectsEnrichmentView,
 )
-from django.conf import settings
-from django.core.cache import cache
-from django.test import RequestFactory, TestCase
 
 
 class TestRecordDetailViewJsEnabled(TestCase):
@@ -241,9 +242,7 @@ class TestRecordRelatedRecordsView(TestCase):
     @patch("app.records.mixins.cache")
     @patch("app.records.views.RecordEnrichmentHelper")
     @patch("app.records.mixins.record_details_by_id")
-    def test_returns_json_response(
-        self, mock_record_details, mock_helper, mock_cache
-    ):
+    def test_returns_json_response(self, mock_record_details, mock_helper, mock_cache):
         """Endpoint should return JSON response with related records."""
         mock_cache.get.return_value = None
 
@@ -353,9 +352,7 @@ class TestRecordDeliveryOptionsView(TestCase):
     @patch("app.records.mixins.cache")
     @patch("app.records.views.RecordEnrichmentHelper")
     @patch("app.records.mixins.record_details_by_id")
-    def test_returns_analytics_data(
-        self, mock_record_details, mock_helper, mock_cache
-    ):
+    def test_returns_analytics_data(self, mock_record_details, mock_helper, mock_cache):
         """Endpoint should include analytics data in response."""
         mock_cache.get.return_value = None
 
@@ -378,9 +375,7 @@ class TestRecordDeliveryOptionsView(TestCase):
             response = view(request, id="C123456")
 
         data = json.loads(response.content)
-        self.assertEqual(
-            data["analytics"]["delivery_option"], "DigitizedDiscovery"
-        )
+        self.assertEqual(data["analytics"]["delivery_option"], "DigitizedDiscovery")
         self.assertEqual(
             data["analytics"]["delivery_option_category"], "AVAILABLE_ONLINE"
         )

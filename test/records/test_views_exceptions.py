@@ -1,15 +1,15 @@
 from http import HTTPStatus
-from test.utils import prevent_request_warnings
 
 import responses
-from app.lib.api import APIError
 from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase, override_settings
 
+from app.lib.api import APIError
+from test.utils import prevent_request_warnings
+
 
 class TestRecordViewExceptions(TestCase):
-
     def setUp(self):
         """Clear cache before each test."""
         cache.clear()
@@ -47,9 +47,7 @@ class TestRecordViewExceptions(TestCase):
         )
 
         with self.assertLogs("app.lib.api", level="ERROR") as log1:
-            with self.assertLogs(
-                "app.errors.middleware", level="ERROR"
-            ) as log2:
+            with self.assertLogs("app.errors.middleware", level="ERROR") as log2:
                 response = self.client.get("/catalogue/id/C123456/")
 
         self.assertIn(
@@ -77,9 +75,7 @@ class TestRecordViewExceptions(TestCase):
         )
 
         # DEBUG=True makes middleware re-raise exceptions, so assert APIError directly.
-        with self.assertRaisesMessage(
-            APIError, "THIS IS AN UNKNOWN API EXCEPTION"
-        ):
+        with self.assertRaisesMessage(APIError, "THIS IS AN UNKNOWN API EXCEPTION"):
             with self.assertLogs("app.lib.api", level="ERROR") as log1:
                 _ = self.client.get("/catalogue/id/C123456/")
 

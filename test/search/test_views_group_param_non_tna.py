@@ -1,12 +1,13 @@
 from http import HTTPStatus
 
 import responses
+from django.conf import settings
+from django.test import TestCase
+
 from app.search.forms import (
     CatalogueSearchNonTnaForm,
     FieldsConstant,
 )
-from django.conf import settings
-from django.test import TestCase
 
 
 class CatalogueSearchViewGroupParamTests(TestCase):
