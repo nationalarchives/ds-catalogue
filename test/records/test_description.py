@@ -2,7 +2,7 @@ import unittest
 
 from jinja2 import Environment
 
-from app.lib.xslt_transformations import apply_archon_xsl, apply_schema_xsl
+from app.lib.xslt_transformations import apply_schema_xsl
 from app.records.models import Record
 from config.jinja import remove_string_case_insensitive, truncate_preserve_mark_tags
 
