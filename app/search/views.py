@@ -22,7 +22,7 @@ from app.lib.pagination import pagination_object
 from app.main.api import fetch_global_notifications
 from app.records.constants import TnaLevels
 from app.search.api import search_records
-from config.jinja import qs_remove_value, qs_replace_value, qs_toggle_value
+from config.utils.query_string import qs_remove_value, qs_replace_value, qs_toggle_value
 
 from .buckets import (
     CATALOGUE_BUCKETS,

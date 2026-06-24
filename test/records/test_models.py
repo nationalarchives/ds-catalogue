@@ -4,7 +4,7 @@ from unittest.mock import patch
 from django.test import SimpleTestCase, override_settings
 
 from app.records.models import Record
-from config.jinja import sanitise_record_field
+from config.utils.html import sanitise_record_field
 
 
 class RecordModelTests(SimpleTestCase):

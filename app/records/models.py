@@ -30,7 +30,7 @@ from app.records.utils import (
 )
 from app.search.buckets import BucketKeys
 from app.search.constants import FieldsConstant
-from config.jinja import format_number
+from config.utils.number import format_number
 
 from .constants import MISSING_COUNT_TEXT, TNA_ARCHON_CODE, RecordTypes
 from .tna_archon_constants import (
