@@ -54,6 +54,8 @@ logger = logging.getLogger(__name__)
 
 
 class PageNotFound(Exception):
+    """Raised when a requested search results page number is out of range."""
+
     pass
 
 
