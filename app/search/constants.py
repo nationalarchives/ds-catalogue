@@ -1,8 +1,11 @@
 from enum import StrEnum
 
+# Elasticsearch limitation: can only return first 10,000 results
+# With RESULTS_PER_PAGE=20, PAGE_LIMIT=500 ensures we never request beyond
+# that limit: 500 pages × 20 results/page = 10,000 results.
 RESULTS_PER_PAGE = 20  # max records to show per page
-# Known limitation of Elasticsearch, it can only return first 10,000 results
 PAGE_LIMIT = 500  # max page number that can be queried
+
 FILTER_DATATYPE_RECORD = "datatype:record"  # filter for records in search results
 
 
