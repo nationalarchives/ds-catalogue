@@ -1,9 +1,12 @@
+const FIRST_TAB_INDEX = 0;
+const TAB_INDEX_STEP = 1;
+
 class SubjectPicker {
   constructor() {
     this.tabsContainer = document.querySelector('.subject-picker-list');
     this.tabsItems = [...this.tabsContainer.querySelectorAll('.subject-picker-list__button')];
     this.tabsContent = document.querySelectorAll('.subject-picker-content');
-    this.selectedTabIndex = 0;
+    this.selectedTabIndex = FIRST_TAB_INDEX;
 
     this.init();
   }
@@ -56,18 +59,18 @@ class SubjectPicker {
    * Set up keyboard navigation for arrow key controls
    */
   setupKeyboardNavigation() {
-    const clamp = (index, max) => Math.max(0, Math.min(max, index));
+    const clamp = (index, max) => Math.max(FIRST_TAB_INDEX, Math.min(max, index));
 
     const getNextIndex = (key, index, max) => {
       switch (key) {
         case 'ArrowRight':
         case 'ArrowDown':
-          return clamp(index + 1, max);
+          return clamp(index + TAB_INDEX_STEP, max);
         case 'ArrowLeft':
         case 'ArrowUp':
-          return clamp(index - 1, max);
+          return clamp(index - TAB_INDEX_STEP, max);
         case 'Home':
-          return 0;
+          return FIRST_TAB_INDEX;
         case 'End':
           return max;
         default:
@@ -76,13 +79,18 @@ class SubjectPicker {
     };
 
     this.tabsContainer.addEventListener('keydown', (event) => {
-      const maxIndex = this.tabsItems.length - 1;
+      const maxIndex = this.tabsItems.length - TAB_INDEX_STEP;
       const nextIndex = getNextIndex(event.key, this.selectedTabIndex, maxIndex);
 
-      if (nextIndex === null) return;
+      if (nextIndex === null) {
+        return;
+      }
 
       event.preventDefault();
-      if (nextIndex === this.selectedTabIndex) return;
+
+      if (nextIndex === this.selectedTabIndex) {
+        return;
+      }
 
       this.selectedTabIndex = nextIndex;
       this.selectTab(true);
@@ -112,4 +120,4 @@ class SubjectPicker {
   }
 }
 
-const tabs = new SubjectPicker();
+new SubjectPicker();
