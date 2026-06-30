@@ -482,9 +482,13 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
     def paginate_api_result(self) -> tuple | HttpResponse:
 
         pages = math.ceil(self.api_result.stats_total / RESULTS_PER_PAGE)
+
+        # limit pages to PAGE_LIMIT since Elasticsearch can only return first 10,000 results
         if pages > PAGE_LIMIT:
             pages = PAGE_LIMIT
 
+        # check if requested page is greater than calculated total pages, raise PageNotFound
+        # e.g. calculated 35 pages, and user requests page=36
         if self.page > pages:
             raise PageNotFound
 
