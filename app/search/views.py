@@ -36,6 +36,7 @@ from .constants import (
     FILTER_DATATYPE_RECORD,
     FILTER_FIELDS,
     PAGE_LIMIT,
+    PAGE_LIMIT_WARNING_THRESHOLD,
     RESULTS_PER_PAGE,
     Display,
     Sort,
@@ -567,6 +568,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
                 "bucket_keys": BucketKeys,
                 "display_options": Display,
                 "fields_constant": FieldsConstant,
+                "page_limit_warning_threshold": PAGE_LIMIT_WARNING_THRESHOLD,
             }
         )
         # call to set filter fields visibility after context is set

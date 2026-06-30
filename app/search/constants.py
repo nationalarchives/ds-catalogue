@@ -6,6 +6,9 @@ from enum import StrEnum
 RESULTS_PER_PAGE = 20  # max records to show per page
 PAGE_LIMIT = 500  # max page number that can be queried
 
+# UI: warn users when approaching page limit
+PAGE_LIMIT_WARNING_THRESHOLD = PAGE_LIMIT - 5  # Show warning at page 495
+
 FILTER_DATATYPE_RECORD = "datatype:record"  # filter for records in search results
 
 
