@@ -120,4 +120,5 @@ class SubjectPicker {
   }
 }
 
+// eslint-disable-next-line no-new
 new SubjectPicker();
