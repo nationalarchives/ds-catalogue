@@ -3,9 +3,11 @@ const TAB_INDEX_STEP = 1;
 
 class SubjectPicker {
   constructor() {
-    this.tabsContainer = document.querySelector('.subject-picker-list');
-    this.tabsItems = [...this.tabsContainer.querySelectorAll('.subject-picker-list__button')];
-    this.tabsContent = document.querySelectorAll('.subject-picker-content');
+    this.tabsContainer = document.querySelector(".subject-picker-list");
+    this.tabsItems = [
+      ...this.tabsContainer.querySelectorAll(".subject-picker-list__button"),
+    ];
+    this.tabsContent = document.querySelectorAll(".subject-picker-content");
     this.selectedTabIndex = FIRST_TAB_INDEX;
 
     this.init();
@@ -16,12 +18,12 @@ class SubjectPicker {
    */
   hideAllTabs() {
     this.tabsItems.forEach((item) => {
-      item.removeAttribute('aria-selected');
-      item.setAttribute('tabindex', '-1');
+      item.removeAttribute("aria-selected");
+      item.setAttribute("tabindex", "-1");
     });
 
     this.tabsContent.forEach((content) => {
-      content.setAttribute('hidden', '');
+      content.setAttribute("hidden", "");
     });
   }
 
@@ -34,12 +36,12 @@ class SubjectPicker {
 
     const selectedTab = this.tabsItems[this.selectedTabIndex];
 
-    const selectedContentId = selectedTab.getAttribute('aria-controls');
+    const selectedContentId = selectedTab.getAttribute("aria-controls");
     const selectedContent = document.getElementById(selectedContentId);
 
-    selectedTab.setAttribute('aria-selected', 'true');
-    selectedTab.removeAttribute('tabindex');
-    selectedContent?.removeAttribute('hidden');
+    selectedTab.setAttribute("aria-selected", "true");
+    selectedTab.removeAttribute("tabindex");
+    selectedContent?.removeAttribute("hidden");
 
     if (setFocus) {
       selectedTab.focus();
@@ -59,28 +61,33 @@ class SubjectPicker {
    * Set up keyboard navigation for arrow key controls
    */
   setupKeyboardNavigation() {
-    const clamp = (index, max) => Math.max(FIRST_TAB_INDEX, Math.min(max, index));
+    const clamp = (index, max) =>
+      Math.max(FIRST_TAB_INDEX, Math.min(max, index));
 
     const getNextIndex = (key, index, max) => {
       switch (key) {
-        case 'ArrowRight':
-        case 'ArrowDown':
+        case "ArrowRight":
+        case "ArrowDown":
           return clamp(index + TAB_INDEX_STEP, max);
-        case 'ArrowLeft':
-        case 'ArrowUp':
+        case "ArrowLeft":
+        case "ArrowUp":
           return clamp(index - TAB_INDEX_STEP, max);
-        case 'Home':
+        case "Home":
           return FIRST_TAB_INDEX;
-        case 'End':
+        case "End":
           return max;
         default:
           return null;
       }
     };
 
-    this.tabsContainer.addEventListener('keydown', (event) => {
+    this.tabsContainer.addEventListener("keydown", (event) => {
       const maxIndex = this.tabsItems.length - TAB_INDEX_STEP;
-      const nextIndex = getNextIndex(event.key, this.selectedTabIndex, maxIndex);
+      const nextIndex = getNextIndex(
+        event.key,
+        this.selectedTabIndex,
+        maxIndex,
+      );
 
       if (nextIndex === null) {
         return;
@@ -102,7 +109,7 @@ class SubjectPicker {
    */
   setupClickNavigation() {
     this.tabsItems.forEach((item) => {
-      item.addEventListener('click', () => {
+      item.addEventListener("click", () => {
         this.selectedTabIndex = this.getTabIndex(item);
         this.selectTab();
       });
@@ -113,7 +120,7 @@ class SubjectPicker {
    * Initialize the subject picker
    */
   init() {
-    this.tabsContainer.removeAttribute('hidden');
+    this.tabsContainer.removeAttribute("hidden");
     this.selectTab();
     this.setupKeyboardNavigation();
     this.setupClickNavigation();
