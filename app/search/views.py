@@ -417,10 +417,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             if page < 1:
                 raise ValueError
             # raise PageNotFound if page number exceeds PAGE_LIMIT,
-            # before querying the API,
-            # since Elasticsearch can only return first 10,000 results
-            # After that, the API returns 0 results e.g. page=501,
-            # or even raise an API error for a very high page number e.g. 999999999
+            # before querying the API
             if page > PAGE_LIMIT:
                 raise PageNotFound
         except (ValueError, KeyError):
