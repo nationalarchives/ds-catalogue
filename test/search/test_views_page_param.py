@@ -71,7 +71,7 @@ class CatalogueSearchViewInvalidPageNumberTests(TestCase):
         response = self.client.get("/catalogue/search/?q=ufo&page=36")
         self.assertEqual(HTTPStatus.NOT_FOUND, response.status_code)
 
-        # test from param is calculated correctly for the last page of results
+        # test from param is calculated correctly for the requested page
         mock_logger.debug.assert_called_with(
             "https://rosetta.test/data/search?"
             "filter=group%3Atna"
