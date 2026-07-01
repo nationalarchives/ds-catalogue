@@ -46,5 +46,6 @@ FEATURE_ENABLE_HELD_BY_DISCOVERY: bool = False
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "test-cache",
     }
 }

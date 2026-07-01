@@ -103,6 +103,6 @@ See [Sentry's official guide](https://docs.sentry.io/platforms/python/guides/dja
 | `ENRICHMENT_TIMING_ENABLED`        | True = show api call timings in log (works for both sequential and parallel)   |
 | `FEATURE_ENABLE_HELD_BY_DISCOVERY` | True=activates held by link to Discovery, otherwise to Catalogue Archon page   |
 | `REDIS_URL`                        | Connection URL for the Redis cache backend                                     |
-| `REDIS_CACHE_DEFAULT_TIMEOUT`      | Default expiry (secs) for cached entries when no per-key timeout is specified. |
+| `CACHE_TIMEOUT`                    | Default expiry (secs) for cached entries when no per-key timeout is specified. |
 
 TODO: Find where the IP_ADDRESSES are documented and link to document here
