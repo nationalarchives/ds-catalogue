@@ -20,7 +20,6 @@ class CatalogueSearchViewInvalidPageNumberTests(TestCase):
         self.assertEqual(500, PAGE_LIMIT)
         self.assertEqual(20, RESULTS_PER_PAGE)
 
-    @responses.activate
     def test_search_with_invalid_page_number_param_returns_404(self):
         """Test invalid page number param returns 404."""
 
@@ -82,7 +81,6 @@ class CatalogueSearchViewInvalidPageNumberTests(TestCase):
             "&from=700"
         )
 
-    @responses.activate
     def test_requested_page_above_page_limit_returns_404(self):
         """Test page number param greater than PAGE_LIMIT returns 404."""
 
