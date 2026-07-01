@@ -119,7 +119,7 @@ class CatalogueSearchViewValidPageNumberTests(TestCase):
 
     @patch("app.lib.api.logger")
     @responses.activate
-    def test_last_page_within_page_limit_and_page_warning_treshold(self, mock_logger):
+    def test_last_page_within_page_limit_and_page_warning_threshold(self, mock_logger):
         """Tests page related parts when page number equals to last page and has pages
         of records less than PAGE_LIMIT."""
 
