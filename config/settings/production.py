@@ -293,9 +293,9 @@ IMAGE_LIBRARY_URL = os.getenv(
     "IMAGE_LIBRARY_URL", "https://images.nationalarchives.gov.uk/"
 )
 
-REDIS_URL = os.getenv("REDIS_URL")
-if not REDIS_URL:
-    raise RuntimeError("REDIS_URL is not set")
+CACHE_REDIS_URL = os.getenv("CACHE_REDIS_URL")
+if not CACHE_REDIS_URL:
+    raise RuntimeError("CACHE_REDIS_URL is not set")
 
 DEFAULT_CACHE_TIMEOUT = "900"
 CACHE_TIMEOUT = int(os.getenv("CACHE_TIMEOUT", DEFAULT_CACHE_TIMEOUT))
@@ -303,7 +303,7 @@ CACHE_TIMEOUT = int(os.getenv("CACHE_TIMEOUT", DEFAULT_CACHE_TIMEOUT))
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": REDIS_URL,
+        "LOCATION": CACHE_REDIS_URL,
         "KEY_PREFIX": "ds_catalogue",
         "TIMEOUT": CACHE_TIMEOUT,
         "OPTIONS": {

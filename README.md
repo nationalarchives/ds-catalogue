@@ -76,9 +76,11 @@ In addition to the [base Docker image variables](https://github.com/nationalarch
 | `GA4_ID`                          | The Google Analytics 4 ID                             | _none_                                                      |
 | `ROSETTA_API_VERIFY_CERTIFICATES` | Verify certificate for API                            | `True`                                                      |
 | `ENVIRONMENT_NAME`                | The name of the environment (for reporting purposes)  | `production`                                                |
+| `CACHE_REDIS_URL`                 | Connection URL for the Redis cache backend            | Provided by Docker Compose locally; must be set in deployed |
+|                                                                                             environments                                                |
+| `CACHE_TIMEOUT`                   | Default expiry (secs) for cached entries              | 900                                                         |
 | `SENTRY_DSN`                      | The ID of the Sentry client project to catch issues   | _none_                                                      |
 | `SENTRY_SAMPLE_RATE`              | How often to sample traces and profiles (0-1.0)       | production: `0.1`, staging: `0.25`, develop: `1`, test: `0` |
-
 See [Sentry's official guide](https://docs.sentry.io/platforms/python/guides/django/) for further information on configuring Sentry for Django projects.
 
 ### `.env` variables:
@@ -102,7 +104,5 @@ See [Sentry's official guide](https://docs.sentry.io/platforms/python/guides/dja
 | `ENABLE_PARALLEL_API_CALLS`        | True = use parallel code for detail page api calls, False for sequential       |
 | `ENRICHMENT_TIMING_ENABLED`        | True = show api call timings in log (works for both sequential and parallel)   |
 | `FEATURE_ENABLE_HELD_BY_DISCOVERY` | True=activates held by link to Discovery, otherwise to Catalogue Archon page   |
-| `REDIS_URL`                        | Connection URL for the Redis cache backend                                     |
-| `CACHE_TIMEOUT`                    | Default expiry (secs) for cached entries when no per-key timeout is specified. |
 
 TODO: Find where the IP_ADDRESSES are documented and link to document here
