@@ -6,8 +6,6 @@ These helpers operate on HTML content and are independent of application-specifi
 
 import re
 
-from app.records.utils import change_discovery_record_details_links
-
 
 def tna_html(s):
     """
