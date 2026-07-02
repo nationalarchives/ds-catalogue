@@ -1,5 +1,3 @@
-from types import SimpleNamespace
-
 from django.test import SimpleTestCase
 
 from config.utils.html import tna_html
