@@ -19,7 +19,7 @@ Useful links
 - <https://github.com/nationalarchives/docker/tree/main/docker/tna-python-dev#ruff>
 - <https://nationalarchives.github.io/engineering-handbook/technology/backend/python/>
 
-## Git/Github conventions
+## Git/GitHub conventions
 
 ### Signed Commits
 
@@ -28,7 +28,7 @@ Useful links
 
 ### Branching
 
-- Changes are developed in feature branches and submitted as pull requests via Github
+- Changes are developed in feature branches and submitted as pull requests via GitHub
 - Feature branches should always be based on: `main`
 - Create a new branch if the branch for that ticket has been merged.
 
