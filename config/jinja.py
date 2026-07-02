@@ -9,7 +9,6 @@ from jinja2 import Environment
 from tna_utilities.string import slugify
 
 from app.lib.xslt_transformations import apply_generic_xsl
-from app.records.utils import change_discovery_record_details_links
 from config.utils.date_iso8601 import now_iso_8601, now_iso_8601_date
 from config.utils.encoding import base64_decode, base64_encode
 from config.utils.html import tna_html
