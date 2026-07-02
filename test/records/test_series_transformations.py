@@ -2,7 +2,7 @@ from django.test import SimpleTestCase
 
 from app.lib.xslt_transformations import SERIES_TRANSFORMATIONS
 from app.records.models import Record
-from config.utils.html import sanitise_record_field
+from config.utils.records import normalise_record_field
 
 
 class SeriesTransformationTests(SimpleTestCase):
@@ -112,7 +112,7 @@ class SeriesTransformationTests(SimpleTestCase):
 
         # test sanitisation as does in template
         self.assertEqual(
-            sanitise_record_field(self.record.description),
+            normalise_record_field(self.record.description),
             """<dl class="tna-dl tna-dl--lined tna-dl--dotted">
 <dt>Name</dt>
 <dd>Wibmer, Lewis Martin </dd>
@@ -227,7 +227,7 @@ class SeriesTransformationTests(SimpleTestCase):
 
         # test sanitisation as does in template
         self.assertEqual(
-            sanitise_record_field(self.record.description),
+            normalise_record_field(self.record.description),
             """<p>MIRANDA, Surgeon H Slade: wounded of naval brigade in New Zealand: """
             """notes on Fiji.</p><p>For description purposes, ADM 101/240 has been split """
             """into two parts (1A and 1B), as follows: </p><p>Wounded of the Naval Brigade """

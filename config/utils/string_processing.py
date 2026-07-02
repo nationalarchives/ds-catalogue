@@ -1,3 +1,5 @@
+"""Pure string processing helpers with no HTTP or Django dependencies."""
+
 import re
 
 

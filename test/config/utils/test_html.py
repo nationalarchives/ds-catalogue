@@ -2,20 +2,7 @@ from types import SimpleNamespace
 
 from django.test import SimpleTestCase
 
-from config.utils.html import (
-    override_tna_record_count,
-    sanitise_record_field,
-    tna_html,
-)
-
-
-class SanitiseRecordFieldTestCase(SimpleTestCase):
-    def test_collapses_whitespace_between_paragraphs(self):
-        source = """  <p>Test</p> <p>Test</p>     <p>Test</p> """
-        self.assertEqual(
-            sanitise_record_field(source),
-            "<p>Test</p><p>Test</p><p>Test</p>",
-        )
+from config.utils.html import tna_html
 
 
 class TnaHtmlTestCase(SimpleTestCase):
@@ -56,17 +43,3 @@ class TnaHtmlTestCase(SimpleTestCase):
             link = f'<a href="https://{host}.nationalarchives.gov.uk/x">i</a>'
             with self.subTest(host=host):
                 self.assertEqual(tna_html(link), link)
-
-
-class OverrideTnaRecordCountTestCase(SimpleTestCase):
-    def test_override_tna_record_count_parametrized(self):
-        cases = [
-            ("12345678", True, "Over 27 million"),
-            ("12,345,678", False, "12,345,678"),
-            ("321", None, "321"),
-            ("654", "", "654"),
-        ]
-        for value, is_tna, expected in cases:
-            with self.subTest(value=value, is_tna=is_tna):
-                record = SimpleNamespace(is_tna=is_tna)
-                self.assertEqual(override_tna_record_count(value, record), expected)

@@ -2,7 +2,7 @@ from django.test import SimpleTestCase
 
 from app.records.constants import TNA_ARCHON_CODE, RecordTypes
 from app.records.models import Record
-from config.utils.html import sanitise_record_field
+from config.utils.records import normalise_record_field
 
 
 class NonTnaArchonRecordTransformationTests(SimpleTestCase):
@@ -33,7 +33,7 @@ class NonTnaArchonRecordTransformationTests(SimpleTestCase):
 
         # field is sanitised in the template
         self.assertEqual(
-            sanitise_record_field(self.record.description),
+            normalise_record_field(self.record.description),
             """<dl class="tna-dl tna-dl--stacked">
 <dt>
 <i class="fa-solid fa-fw fa-building" aria-hidden="true"></i>Address</dt>
@@ -69,7 +69,7 @@ class NonTnaArchonRecordTransformationTests(SimpleTestCase):
 
         # field is sanitised in the template
         self.assertEqual(
-            sanitise_record_field(self.record.archon_website),
+            normalise_record_field(self.record.archon_website),
             """https://www.shakespeare.org.uk/""",
         )
 
@@ -92,7 +92,7 @@ class NonTnaArchonRecordTransformationTests(SimpleTestCase):
 
         # field is sanitised in the template
         self.assertEqual(
-            sanitise_record_field(self.record.place_description),
+            normalise_record_field(self.record.place_description),
             """<p><strong>Open: </strong>Monday 10.15-12.30, Tuesday 10.15-3, Wednesday 10.15-12.30 by appointment</p><p><strong>Closed: </strong>Bank holidays; Christmas/New Year</p><strong>Facilities: </strong><ul class="tna-ul">
 <li>Wheelchair access</li>
 <li>Proof of identity required</li>
@@ -130,7 +130,7 @@ class TnaArchonRecordTransformationTests(SimpleTestCase):
 
         # field is sanitised in the template
         self.assertEqual(
-            sanitise_record_field(self.record.description),
+            normalise_record_field(self.record.description),
             """<dl class="tna-dl tna-dl--stacked">
 <dt>
 <i class="fa-solid fa-fw fa-building" aria-hidden="true"></i>Address</dt>
@@ -163,7 +163,7 @@ class TnaArchonRecordTransformationTests(SimpleTestCase):
 
         # website url should not be extracted for TNA ARCHON records, so empty string
         # field is sanitised in the template
-        self.assertEqual(sanitise_record_field(self.record.archon_website), """""")
+        self.assertEqual(normalise_record_field(self.record.archon_website), """""")
 
     def test_place_description(
         self,
@@ -184,7 +184,7 @@ class TnaArchonRecordTransformationTests(SimpleTestCase):
 
         # field is sanitised in the template
         self.assertEqual(
-            sanitise_record_field(self.record.place_description),
+            normalise_record_field(self.record.place_description),
             """<p><strong>Open: </strong>
     For opening times please consult the <a href="https://www.nationalarchives.gov.uk/about/visit-us/opening-times/" target="_blank">website</a>
   </p><p><strong>Closed: </strong>

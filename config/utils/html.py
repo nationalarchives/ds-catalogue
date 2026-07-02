@@ -1,16 +1,18 @@
+"""
+Utilities for transforming and normalising HTML markup.
+
+These helpers operate on HTML content and are independent of application-specific business rules.
+"""
+
 import re
 
 from app.records.utils import change_discovery_record_details_links
 
 
-def sanitise_record_field(s):
-    # Remove whitespace between <p> tags
-    s = re.sub(r"(</p>)\s+(<p[ >])", r"\1\2", s).strip()
-    s = change_discovery_record_details_links(s)
-    return s
-
-
 def tna_html(s):
+    """
+    Transforms HTML into TNA-compatible frontend markup.
+    """
     if not s:
         return s
     # lists_to_tna_lists
@@ -32,13 +34,3 @@ def tna_html(s):
         s,
     )
     return s
-
-
-def override_tna_record_count(value, record):
-    """
-    Override the record count for records that are held by The National Archives.
-    """
-    if record.is_tna:
-        return "Over 27 million"
-
-    return value

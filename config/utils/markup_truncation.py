@@ -71,6 +71,8 @@ def truncate_preserve_mark_tags(value, max_length=250):
     - Counts only visible characters; tags do not count towards the limit.
     - Auto-closes any <mark> left open at the truncation point.
     - Appends an ellipsis (…) when the text is shortened.
+
+    This refactor addresses the TODO about reducing cyclomatic complexity.
     """
     if value is None:
         return ""

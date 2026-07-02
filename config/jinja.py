@@ -10,9 +10,9 @@ from tna_utilities.string import slugify
 
 from app.lib.xslt_transformations import apply_generic_xsl
 from app.records.utils import change_discovery_record_details_links
-from config.utils.date_8601 import now_iso_8601, now_iso_8601_date
+from config.utils.date_iso8601 import now_iso_8601, now_iso_8601_date
 from config.utils.encoding import base64_decode, base64_encode
-from config.utils.html import override_tna_record_count, sanitise_record_field, tna_html
+from config.utils.html import tna_html
 from config.utils.json_utils import dump_json, parse_json
 from config.utils.markup_truncation import truncate_preserve_mark_tags
 from config.utils.number import format_number
@@ -24,6 +24,7 @@ from config.utils.query_string import (
     qs_toggle_value,
     sanitise_search_qs,
 )
+from config.utils.records import normalise_record_field, override_tna_record_count
 from config.utils.string_processing import (
     none_to_empty_string,
     remove_string_case_insensitive,
@@ -77,7 +78,7 @@ def environment(**options):
             "base64_encode": base64_encode,
             "base64_decode": base64_decode,
             "sanitise_search_qs": sanitise_search_qs,
-            "sanitise_record_field": sanitise_record_field,
+            "normalise_record_field": normalise_record_field,
             "apply_generic_xsl": apply_generic_xsl,
             "parse_json": parse_json,
             "tna_html": tna_html,
