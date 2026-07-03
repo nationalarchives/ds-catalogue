@@ -152,12 +152,7 @@ class Record(APIModel):
         clean_value = ""
         clean_title_length = len(self.clean_title)
         clean_summary_title_length = len(self.clean_summary_title)
-        # fmt: off
-        if (
-            clean_title_length > 0
-            and clean_title_length <= clean_summary_title_length
-        ):
-            # fmt: on
+        if clean_title_length > 0 and clean_title_length <= clean_summary_title_length:
             clean_value = self.clean_title
         else:
             clean_value = self.clean_summary_title
