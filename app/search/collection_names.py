@@ -453,9 +453,6 @@ COLLECTION_NAMES = {
     "ZWEB": "Regularly Archived Government Websites",
 }
 
-# fmt: off
 COLLECTION_CHOICES = tuple(
-    (k, f"{k} - {v}")
-    for k, v in sorted(COLLECTION_NAMES.items(), key=lambda x: x[1])
+    (k, f"{k} - {v}") for k, v in sorted(COLLECTION_NAMES.items(), key=lambda x: x[1])
 )
-# fmt: on

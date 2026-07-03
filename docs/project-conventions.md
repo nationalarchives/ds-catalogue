@@ -4,6 +4,8 @@ At TNA we follow a set of conventions for our projects to ensure consistency and
 
 ## Python
 
+### Formatting/Linting
+
 This project uses a few tools to improve the consistency and quality of Python code:
 
 - [`Ruff`](https://docs.astral.sh/ruff/): An extremely fast Python linter and code formatter, written in Rust.
@@ -19,7 +21,24 @@ Useful links
 - <https://github.com/nationalarchives/docker/tree/main/docker/tna-python-dev#ruff>
 - <https://nationalarchives.github.io/engineering-handbook/technology/backend/python/>
 
-## Git/GitHub conventions
+Configuration
+
+- The project uses the department-wide Ruff configuration as a base. No additional installation is needed for development. It is included in the dev docker image.
+- Project-level configuration may extend this base where necessary.
+- Configuration is defined in `ruff.toml`, which extends the base configuration.
+
+Guidelines
+
+- Always run formatting locally before pushing changes.
+- CI will enforce formatting and linting on every commit.
+
+Important Notes:
+
+- Do not use inline overrides such as # fmt: off/on or # noqa unless explicitly agreed by the team. Consistency is prioritised over individual formatting preferences.
+- If a rule significantly impacts readability or developer experience, raise it for team discussion rather than bypassing it locally.
+- Existing rule ignores (if any) are considered temporary and should be reduced over time.
+
+## Git/Github conventions
 
 ### Signed Commits
 
