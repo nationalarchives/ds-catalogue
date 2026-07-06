@@ -2,6 +2,12 @@
 
 Using the app container should give you access to commands to update poetry which should update the `pyproject.toml` and/or `poetry.lock` files ready to commit to version control.
 
+**Note**
+
+To provide a cooling-off period for newly published dependencies, Poetry is configured with `POETRY_SOLVER_MIN_RELEASE_AGE`, which is set through an image environment variable derived from `COOLDOWN_PERIOD`.
+
+The default value is the recommended setting and should only be changed following discussion and approval. Reducing this value increases the likelihood of consuming very recent package releases.
+
 ## Updating build numbers
 
 e.g. `x.y.1` -> `x.y.2`
@@ -48,7 +54,7 @@ docker compose exec dev poetry add --group <group-name> <package-name>
 
 See the [Poetry docs](https://python-poetry.org/docs/cli/#add) for more options.
 
-### Removing a dependency
+## Removing a dependency
 
 ```sh
 docker compose exec app poetry remove DateTime
