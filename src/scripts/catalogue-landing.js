@@ -4,6 +4,11 @@ const TAB_INDEX_STEP = 1;
 class SubjectPicker {
   constructor() {
     this.tabsContainer = document.querySelector(".subject-picker-list");
+
+    if (!this.tabsContainer) {
+      return;
+    }
+
     this.tabsItems = [
       ...this.tabsContainer.querySelectorAll(".subject-picker-list__button"),
     ];
