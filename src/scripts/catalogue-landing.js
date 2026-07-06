@@ -3,14 +3,14 @@ const TAB_INDEX_STEP = 1;
 
 class SubjectPicker {
   constructor() {
-    this.tabsContainer = document.querySelector(".subject-picker-list");
+    this.tabsContainer = document.querySelector(".subject-picker");
 
     if (!this.tabsContainer) {
       return;
     }
 
     this.tabsItems = [
-      ...this.tabsContainer.querySelectorAll(".subject-picker-list__button"),
+      ...this.tabsContainer.querySelectorAll(".subject-picker__button"),
     ];
     this.tabsContent = document.querySelectorAll(".subject-picker-content");
     this.selectedTabIndex = FIRST_TAB_INDEX;
