@@ -18,7 +18,7 @@ class SubjectPicker {
    */
   hideAllTabs() {
     this.tabsItems.forEach((item) => {
-      item.removeAttribute("aria-selected");
+      item.setAttribute("aria-selected", "false");
       item.setAttribute("tabindex", "-1");
     });
 
