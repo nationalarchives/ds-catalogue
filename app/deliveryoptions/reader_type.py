@@ -136,13 +136,7 @@ def get_client_ip(request: HttpRequest) -> Optional[str]:
             return validate_ip(ip)
 
     # If all IPs in the chain are trusted, use the leftmost one
-    # fmt: off
-    return (
-        validate_ip(forwarded_ips[0])
-        if forwarded_ips
-        else validate_ip(remote_addr)
-    )
-    # fmt: on
+    return validate_ip(forwarded_ips[0]) if forwarded_ips else validate_ip(remote_addr)
 
 
 def validate_ip(ip_str: str) -> Optional[str]:

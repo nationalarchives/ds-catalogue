@@ -59,13 +59,9 @@ def _build_search_params(
         params["from"] = (page - 1) * results_per_page
 
     # remove params having empty values, for long filters size=0 is valid
-    # fmt: off
     return {
-        param: value
-        for param, value in params.items()
-        if value not in [None, "", []]
+        param: value for param, value in params.items() if value not in [None, "", []]
     }
-    # fmt: on
 
 
 def _validate_search_results(results, page):
