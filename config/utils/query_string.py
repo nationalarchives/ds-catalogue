@@ -1,3 +1,5 @@
+"""HTTP query string manipulation (Django QueryDict + URL state logic)"""
+
 from django.http import QueryDict
 
 from app.lib.constants import DATE_YMD_SEPARATOR
