@@ -233,9 +233,21 @@ CLIENT_VERIFY_CERTIFICATES = strtobool(
 # To avoid importing from app constants, define here and reference other places via settings.
 API_TIMING_LOGGER_NAME = "performance.api_timings"
 
+# Logger name used by django-redis for ignored exception reporting.
+DJANGO_REDIS_LOGGER_NAME = "django_redis"
+
 # INFO shows enrichment API timings, WARNING to hide them as they can be noisy and
 # are not critical information for normal operation.
 _API_TIMING_LOG_LEVEL = "INFO" if ENRICHMENT_TIMING_ENABLED else "WARNING"
+
+# Redis cache failures are non-fatal (IGNORE_EXCEPTIONS=True) but should still
+# be observable. WARNING is appropriate: not noise, but not critical either.
+_REDIS_CACHING_LOG_LEVEL = "WARNING"
+
+# Instruct django-redis to emit ignored exceptions to the logger rather than
+# swallowing them silently. Works in tandem with IGNORE_EXCEPTIONS: True in CACHES.
+DJANGO_REDIS_LOG_IGNORED_EXCEPTIONS = True
+DJANGO_REDIS_LOGGER = DJANGO_REDIS_LOGGER_NAME
 
 # logging
 LOGGING = {
@@ -252,6 +264,13 @@ LOGGING = {
             "handlers": ["console"],
             "level": _API_TIMING_LOG_LEVEL,
             "propagate": False,  # prevents noise leaking
+        },
+        # Captures Redis cache failures that are ignored by IGNORE_EXCEPTIONS: True,
+        # making outages observable without crashing the application.
+        DJANGO_REDIS_LOGGER_NAME: {
+            "handlers": ["console"],
+            "level": _REDIS_CACHING_LOG_LEVEL,
+            "propagate": False,
         },
     },
     "root": {
@@ -274,11 +293,23 @@ IMAGE_LIBRARY_URL = os.getenv(
     "IMAGE_LIBRARY_URL", "https://images.nationalarchives.gov.uk/"
 )
 
-# TODO: Switch to a more robust cache backend such as Redis in production
+CACHE_REDIS_URL = os.getenv("CACHE_REDIS_URL")
+if not CACHE_REDIS_URL:
+    raise RuntimeError("CACHE_REDIS_URL is not set")
+
+DEFAULT_CACHE_TIMEOUT = "900"
+CACHE_TIMEOUT = int(os.getenv("CACHE_TIMEOUT", DEFAULT_CACHE_TIMEOUT))
+
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-        "LOCATION": "/home/app/django_cache",
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": CACHE_REDIS_URL,
+        "KEY_PREFIX": "ds_catalogue",
+        "TIMEOUT": CACHE_TIMEOUT,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "IGNORE_EXCEPTIONS": True,
+        },
     }
 }
 
