@@ -5,7 +5,7 @@ from sysconfig import get_path
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.csp import CSP
 
-from config.util import get_bool_env, get_int_env, strtobool
+from config.utils.env_vars import get_bool_env, get_int_env, strtobool
 
 from .features import *
 

@@ -763,7 +763,7 @@ class XsltTransformationsTestCase(unittest.TestCase):
 
         with self.assertLogs("app.lib.xslt_transformations", level="WARNING") as lc:
             return_value = xsl_transformation(source, schema)
-            self.assertIn("", return_value)
+            self.assertEqual("", return_value)
 
         self.assertIn(
             "WARNING:app.lib.xslt_transformations:Empty source provided for XSLT transformation",

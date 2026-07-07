@@ -521,7 +521,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
     #         "collection"
     #     ]
 
-    #     self.assertEqual(form.is_valid(), False)
+    #     self.assertFalse(form.is_valid())
 
     #     # returns None when errors present
     #     self.assertEqual(context_data.get("results"), None)
