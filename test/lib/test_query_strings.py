@@ -2,7 +2,7 @@ import unittest
 
 from django.http import QueryDict
 
-from config.jinja import (
+from config.utils.query_string import (
     qs_append_value,
     qs_is_value_active,
     qs_remove_value,

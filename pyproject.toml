@@ -11,6 +11,7 @@ package-mode = false
 python = "^3.12"
 requests = "^2.31.0"
 tna-frontend-jinja = "0.40.0"
+tna-utilities = "^1.5.0"
 django = "^6.0"
 whitenoise = "^6.7.0"
 responses = "^0.25.3"
