@@ -33,7 +33,7 @@
 
       {% for letter in alphabet %}
         {% if letter not in disabled_letters %}
-          <div class="tna-!--margin-top-s subject-picker-content" id="subject-picker-{{ letter | lower }}" aria-describedby="tab-{{ letter | lower }}">
+          <div class="tna-!--margin-top-s subject-picker-content" id="subject-picker-{{ letter | lower }}" tabindex="0" role="tabpanel" aria-labelledby="tab-{{ letter | lower }}">
             <h3>{{ letter }}</h3>
             {% if subjects_grouped_by_letter[letter] %}
               <dl class="tna-dl-chips tna-!--no-margin-top">
