@@ -3,6 +3,11 @@ import logging
 from django.core.cache import cache
 
 from app.records.api import wagtail_request_handler
+from app.search.api import search_records
+from app.search.constants import (
+    LONG_FILTER_RESULTS_PER_PAGE,
+    LONG_FILTER_SUBJECT_PARAMS,
+)
 
 from .constants import (
     GLOBAL_NOTIFICATIONS_CACHE_KEY,
@@ -104,3 +109,14 @@ def get_explore_the_collection() -> dict:
     if data is None:
         return {}
     return data.get("explore_the_collection", {})
+
+
+def fetch_all_subjects() -> dict:
+    """Fetch all subjects from the search API using longSubject aggregation."""
+
+    api_result = search_records(
+        query="",
+        results_per_page=LONG_FILTER_RESULTS_PER_PAGE,
+        params=LONG_FILTER_SUBJECT_PARAMS,
+    )
+    return api_result.aggregations[0].get("entries", {})
