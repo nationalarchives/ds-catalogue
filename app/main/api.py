@@ -18,6 +18,8 @@ from .constants import (
 logger = logging.getLogger(__name__)
 
 
+# TODO: refactor to move to cache.py and remove from api.py,
+# since this is not an API call but a cache getter
 def fetch_global_notifications() -> dict | None:
     """Fetch and cache global notification data shared across all pages.
 
@@ -50,6 +52,8 @@ def fetch_global_notifications() -> dict | None:
     return data
 
 
+# TODO: refactor to move to cache.py and remove from api.py,
+# since this is not an API call but a cache getter
 def fetch_landing_page_data() -> dict | None:
     """Fetch and cache landing page data from the Wagtail API.
 
@@ -103,6 +107,8 @@ def fetch_landing_page_data() -> dict | None:
 # Landing page getters (for catalogue landing page only)
 
 
+# TODO: refactor to move to cache.py and remove from api.py,
+# since this is not an API call but a cache getter
 def get_explore_the_collection() -> dict:
     """Get explore the collection data (top_pages and latest_articles) from cached landing page data."""
     data = fetch_landing_page_data()
