@@ -44,7 +44,8 @@ def get_subjects_grouped_by_letter() -> dict:
                 timeout=SUBJECTS_CACHE_TIMEOUT,
             )
         except Exception as e:
-            # Fall back to an empty result if the API request fails
+            # Fall back to an empty result if the API request fails,
+            # incorrectly formatted data is returned
             data = empty_subjects_grouped_by_letter()
             logger.error(f"Failed to fetch all Subjects: {e}")
 

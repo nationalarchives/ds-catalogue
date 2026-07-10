@@ -117,7 +117,7 @@ def get_explore_the_collection() -> dict:
     return data.get("explore_the_collection", {})
 
 
-def fetch_all_subjects() -> dict:
+def fetch_all_subjects() -> list[dict[str, str]]:
     """Fetch all subjects from the search API using longSubject aggregation."""
 
     api_result = search_records(
@@ -125,4 +125,8 @@ def fetch_all_subjects() -> dict:
         results_per_page=LONG_FILTER_RESULTS_PER_PAGE,
         params=LONG_FILTER_SUBJECT_PARAMS,
     )
+    # Note:
+    # It is expected that the search API will always return the longSubject aggregation 
+    # as the first aggregation in the list. If the API response structure changes, it must 
+    # error out and be handled appropriately.
     return api_result.aggregations[0].get("entries", {})
