@@ -19,7 +19,7 @@ class CatalogueViewExceptionsTests(TestCase):
     @responses.activate
     @patch("app.main.views.fetch_global_notifications", return_value=None)
     @patch("app.main.views.get_explore_the_collection", return_value={})
-    def test_catalogue_view_subjects_error(
+    def test_catalogue_view_subjects_api_returns_invalid_json(
         self,
         mock_get_explore_the_collection,
         mock_fetch_global_notifications,
@@ -119,3 +119,118 @@ class CatalogueViewExceptionsTests(TestCase):
             "ERROR:app.lib.api:JSON API provided non-JSON response", lc.output
         )
         self.assertIn("ERROR:app.lib.api:Non-JSON response: TEST", lc.output)
+
+    @responses.activate
+    @patch("app.main.views.fetch_global_notifications", return_value=None)
+    @patch("app.main.views.get_explore_the_collection", return_value={})
+    def test_catalogue_view_subjects_api_returns_invalid_structure(
+        self,
+        mock_get_explore_the_collection,
+        mock_fetch_global_notifications,
+    ):
+        """This test simulates a response from the subjects API that has an invalid structure,
+        specifically missing the expected 'aggregations' key.
+        It is expected that the search API will always return the longSubject aggregation
+        as the first aggregation in the list. If the API response structure changes, it must
+        error out and be handled appropriately."""
+
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [],
+                "errors": [],
+                # invalid structure: missing "aggregations" key
+                "stats": {
+                    "total": 28024092,
+                    "results": 0,
+                    "providers": 1,
+                    "latency": 31,
+                },
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "tna", "count": 28024092},
+                        ],
+                    }
+                ],
+            },
+            status=HTTPStatus.OK,
+        )
+
+        with self.assertLogs("app.main.cache", level="ERROR") as lc:
+            response = self.client.get("/catalogue/")
+            # The page does not raise an exception
+            self.assertEqual(response.status_code, HTTPStatus.OK)
+            context_data = response.context_data
+
+        # test error logging
+        self.assertIn(
+            "ERROR:app.main.cache:Failed to fetch all Subjects: list index out of range",
+            lc.output,
+        )
+        # test that the context contains the expected data
+        expected_disabled_letters = [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E",
+            "F",
+            "G",
+            "H",
+            "I",
+            "J",
+            "K",
+            "L",
+            "M",
+            "N",
+            "O",
+            "P",
+            "Q",
+            "R",
+            "S",
+            "T",
+            "U",
+            "V",
+            "W",
+            "X",
+            "Y",
+            "Z",
+        ]
+        expected_subjects_grouped_by_letter = {
+            "A": [],
+            "B": [],
+            "C": [],
+            "D": [],
+            "E": [],
+            "F": [],
+            "G": [],
+            "H": [],
+            "I": [],
+            "J": [],
+            "K": [],
+            "L": [],
+            "M": [],
+            "N": [],
+            "O": [],
+            "P": [],
+            "Q": [],
+            "R": [],
+            "S": [],
+            "T": [],
+            "U": [],
+            "V": [],
+            "W": [],
+            "X": [],
+            "Y": [],
+            "Z": [],
+        }
+        self.assertEqual(
+            context_data.get("subjects_grouped_by_letter"),
+            expected_subjects_grouped_by_letter,
+        )
+        self.assertEqual(
+            context_data.get("disabled_letters"), expected_disabled_letters
+        )
