@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from unittest.mock import patch
 
 import responses
 from django.conf import settings
@@ -16,7 +17,13 @@ class CatalogueViewTests(TestCase):
         cache.clear()
 
     @responses.activate
-    def test_catalogue_view(self):
+    @patch("app.main.views.fetch_global_notifications", return_value=None)
+    @patch("app.main.views.get_explore_the_collection", return_value={})
+    def test_catalogue_view(
+        self,
+        mock_get_explore_the_collection,
+        mock_fetch_global_notifications,
+    ):
 
         responses.add(
             responses.GET,
@@ -73,13 +80,13 @@ class CatalogueViewTests(TestCase):
         context_data = response.context_data
 
         # test that the API was called the expected number of times
-        self.assertEqual(len(responses.calls), 3)
+        self.assertEqual(len(responses.calls), 1)
 
         # test that the API was called with the expected URL
-        urls = [call.request.url for call in responses.calls]
-        self.assertIn(
+        url = responses.calls[0].request.url
+        self.assertEqual(
             "https://rosetta.test/data/search?filter=group%3Atna&aggs=longSubject&q=%2A&size=0",
-            urls,
+            url,
         )
 
         # test that the context contains the expected data
