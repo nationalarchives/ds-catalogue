@@ -126,7 +126,7 @@ def fetch_all_subjects() -> list[dict[str, str]]:
         params=LONG_FILTER_SUBJECT_PARAMS,
     )
     # Note:
-    # It is expected that the search API will always return the longSubject aggregation 
-    # as the first aggregation in the list. If the API response structure changes, it must 
+    # It is expected that the search API will always return the longSubject aggregation
+    # as the first aggregation in the list. If the API response structure changes, it must
     # error out and be handled appropriately.
     return api_result.aggregations[0].get("entries", {})
