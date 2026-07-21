@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.template import loader
 from django.views.generic import TemplateView
 
-from app.main.api import (
+from app.main.cache import (
     fetch_global_notifications,
     get_explore_the_collection,
 )
