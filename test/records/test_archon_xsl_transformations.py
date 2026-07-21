@@ -97,7 +97,7 @@ class NonTnaArchonRecordTransformationTests(SimpleTestCase):
 <li>Wheelchair access</li>
 <li>Proof of identity required</li>
 <li>Readers ticket required</li>
-</ul><div><p>Two hour appointment slots must by booked in advance.  See <a href="https://www.shakespeare.org.uk/visit/plan-your-visit/reading-room/" target="_blank">website</a> for details</p><p>Readers will need to provide a letter of recommendation to see certain items - please <a href="mailto:collections@shakespeare.org.uk">email</a> for further details</p><p>Reprographics: Staff can copy certain items for a small fee; self-service photograph permits (certain items only) - £5 per day</p></div>""",
+</ul><div class="tna-!--margin-top-s"><p>Two hour appointment slots must by booked in advance.  See <a href="https://www.shakespeare.org.uk/visit/plan-your-visit/reading-room/" target="_blank">website</a> for details</p><p>Readers will need to provide a letter of recommendation to see certain items - please <a href="mailto:collections@shakespeare.org.uk">email</a> for further details</p><p>Reprographics: Staff can copy certain items for a small fee; self-service photograph permits (certain items only) - £5 per day</p></div>""",
         )
 
 
@@ -191,7 +191,7 @@ class TnaArchonRecordTransformationTests(SimpleTestCase):
     See the <a href="https://www.nationalarchives.gov.uk/about/visit-us/opening-times/" target="_blank">website</a>
   </p><strong>Facilities: </strong><ul class="tna-ul"><li>
     Wheelchair access
-  </li></ul><div>
+  </li></ul><div class="tna-!--margin-top-s">
     If you would like to contact The National Archives please go to the 
     <a href="http://www.nationalarchives.gov.uk/contact-us/" target="_blank">contact form</a> 
     page on the website and use the form provided.
