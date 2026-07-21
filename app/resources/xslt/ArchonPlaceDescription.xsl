@@ -56,7 +56,7 @@
         <xsl:with-param name="text" select="."/>
       </xsl:call-template>
     </xsl:variable>
-    <div>
+    <div class="tna-!--margin-top-s">
       <xsl:value-of select="string($cleaned)" disable-output-escaping="yes"/>
     </div>
   </xsl:template>

@@ -55,6 +55,8 @@
   </div>
 </div>
 
+{% include "main/subject-picker.html" %}
+
 <!--hiding this element until further development
 <div class="tna-block-accent-light tna-!--padding-vertical-s">
   <div class="tna-container">
@@ -203,7 +205,7 @@ hiding this work for now 22.09.2025-->
       {{ under_development_banner() }}
 
     </div>
-    
+
   </div>
 
 </div>
@@ -294,3 +296,8 @@ hiding this work for now 22.09.2025-->
   {% endif %}
 </div>
 {% endblock content %}
+
+{% block bodyEnd %}
+{{ super() }}
+  <script src="{{ static('catalogue-landing.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+{% endblock bodyEnd %}

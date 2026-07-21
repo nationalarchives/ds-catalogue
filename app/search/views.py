@@ -19,7 +19,7 @@ from app.lib.fields import (
     ToDateField,
 )
 from app.lib.pagination import pagination_object
-from app.main.api import fetch_global_notifications
+from app.main.cache import fetch_global_notifications
 from app.records.constants import TnaLevels
 from app.search.api import search_records
 from config.utils.query_string import qs_remove_value, qs_replace_value, qs_toggle_value
@@ -35,6 +35,7 @@ from .constants import (
     DATE_DISPLAY_FORMAT,
     FILTER_DATATYPE_RECORD,
     FILTER_FIELDS,
+    LONG_FILTER_RESULTS_PER_PAGE,
     PAGE_LIMIT,
     RESULTS_PER_PAGE,
     Display,
@@ -422,8 +423,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         are cleaned and validated. Renders with form, context."""
 
         if self.is_filter_list_applied(self.form):
-            # for long filter, skip pagination to get all options
-            results_per_page = 0
+            results_per_page = LONG_FILTER_RESULTS_PER_PAGE
         else:
             results_per_page = RESULTS_PER_PAGE
 
