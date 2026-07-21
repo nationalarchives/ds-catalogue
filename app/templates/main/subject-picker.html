@@ -1,0 +1,58 @@
+<div class="tna-block-accent-light tna-!--padding-vertical-s">
+  <div class="tna-container">
+    <div class="tna-column tna-column--full">
+
+      <h2 class="tna-accordion__heading tna-heading-s">
+        Find records by subject
+      </h2>
+
+      {% set alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+      {% set disabled_letters = ['Q', 'X', 'Y', 'Z'] %}
+
+      {% set subjects_grouped_by_letter = {
+        'A': ['Africa', 'Aid and development', 'Air force', 'Air transport', 'Ancient Monuments and Historical Buildings', 'Archives and libraries', 'Armed Forces (General Administration)', 'Army', 'Art, architecture and design', 'Asia', 'Australia and Pacific'],
+        'B': ['Badges and insignia', 'Banking'],
+        'C': ['Canals and river transport', 'Caribbean', 'Census', 'Charities', 'Chartism', 'Children', 'Clothing', 'Coal', 'Common land', 'Communications', 'Communism', 'Computing', 'Conflict', 'Conscientious objection', 'Construction industries', 'Conveyancing', 'Crime', 'Crown lands and estates'],
+        'D': ['Debt', 'Democracy', 'Devolution', 'Diaries', 'Disability', 'Disarmament', 'Disasters and emergencies', 'Disease'],
+        'E': ['Education', 'Electoral reform', 'Electricity', 'Europe and Russia', 'Events and Exhibitions'],
+        'F': ['Farming', 'Fascism', 'Fishing', 'Food and drink', 'Forestry', 'Freemasons', 'Friendly societies'],
+        'G': ['Government finances']
+      } %}
+
+      <div class="subject-picker tna-!--margin-top-s" hidden role="tablist">
+        {% for letter in alphabet %}
+          {% if letter not in disabled_letters %}
+            <button id="tab-{{ letter | lower }}" type="button" aria-controls="subject-picker-{{ letter | lower }}" class="subject-picker__button" role="tab">
+              {{ letter }}
+            </button>
+          {% else %}
+            <span>{{ letter }}</span>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% for letter in alphabet %}
+        {% if letter not in disabled_letters %}
+          <div class="tna-!--margin-top-s subject-picker-content" id="subject-picker-{{ letter | lower }}" tabindex="0" role="tabpanel" aria-labelledby="tab-{{ letter | lower }}">
+            <h3>{{ letter }}</h3>
+            {% if subjects_grouped_by_letter[letter] %}
+              <dl class="tna-dl-chips tna-!--no-margin-top">
+                <dt>Topics</dt>
+                {% for subject in subjects_grouped_by_letter[letter] %}
+                  <dd>
+                    <a href="{{ url('search:catalogue') }}?subject={{ subject|urlencode }}" class="tna-dl-chips__item">
+                      {{ subject }}
+                    </a>
+                  </dd>
+                {% endfor %}
+              </dl>
+            {% else %}
+              <p class="tna-!--no-margin-top">No subjects found for
+                {{ letter }}</p>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
