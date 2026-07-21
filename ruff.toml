@@ -5,7 +5,6 @@ extend = "/home/app/ruff.toml"
 ignore = [
     "B904", # TODO: Re-evaluate after progressive Ruff adoption
     "B006", # TODO: Re-evaluate after progressive Ruff adoption
-    "B018", # TODO: Re-evaluate after progressive Ruff adoption
     "F403", # TODO: Re-evaluate after progressive Ruff adoption
     "F401", # TODO: Re-evaluate after progressive Ruff adoption
     "B007", # TODO: Re-evaluate after progressive Ruff adoption

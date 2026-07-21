@@ -386,7 +386,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         """
 
         try:
-            self.page  # checks valid page
+            _ = self.page  # checks valid page
             if self.form.is_valid():
                 self.query = self.form.fields[FieldsConstant.Q].cleaned
                 self.sort = self.form.fields[FieldsConstant.SORT].cleaned
