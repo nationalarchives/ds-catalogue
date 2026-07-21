@@ -298,5 +298,6 @@ hiding this work for now 22.09.2025-->
 {% endblock content %}
 
 {% block bodyEnd %}
+{{ super() }}
   <script src="{{ static('catalogue-landing.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
 {% endblock bodyEnd %}
