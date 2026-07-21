@@ -1,3 +1,5 @@
+"""Module for cache management in the main app."""
+
 import logging
 
 from django.core.cache import cache
