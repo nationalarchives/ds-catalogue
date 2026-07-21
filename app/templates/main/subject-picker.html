@@ -7,17 +7,6 @@
       </h2>
 
       {% set alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
-      {% set disabled_letters = ['Q', 'X', 'Y', 'Z'] %}
-
-      {% set subjects_grouped_by_letter = {
-        'A': ['Africa', 'Aid and development', 'Air force', 'Air transport', 'Ancient Monuments and Historical Buildings', 'Archives and libraries', 'Armed Forces (General Administration)', 'Army', 'Art, architecture and design', 'Asia', 'Australia and Pacific'],
-        'B': ['Badges and insignia', 'Banking'],
-        'C': ['Canals and river transport', 'Caribbean', 'Census', 'Charities', 'Chartism', 'Children', 'Clothing', 'Coal', 'Common land', 'Communications', 'Communism', 'Computing', 'Conflict', 'Conscientious objection', 'Construction industries', 'Conveyancing', 'Crime', 'Crown lands and estates'],
-        'D': ['Debt', 'Democracy', 'Devolution', 'Diaries', 'Disability', 'Disarmament', 'Disasters and emergencies', 'Disease'],
-        'E': ['Education', 'Electoral reform', 'Electricity', 'Europe and Russia', 'Events and Exhibitions'],
-        'F': ['Farming', 'Fascism', 'Fishing', 'Food and drink', 'Forestry', 'Freemasons', 'Friendly societies'],
-        'G': ['Government finances']
-      } %}
 
       <div class="subject-picker tna-!--margin-top-s" hidden role="tablist">
         {% for letter in alphabet %}
