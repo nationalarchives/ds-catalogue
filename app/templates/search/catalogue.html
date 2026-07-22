@@ -276,8 +276,8 @@
   </div>
   <div class="tna-column tna-column--full tna-!--margin-top-l">
     {{ tnaPagination(pagination) }}
-    {% if page >= 495 %}
-    <p class="tna-!--align-centre tna-!--margin-top-xs"><small><strong>Only the first 10,000 results are shown, apply filters to narrow your search.</strong></small></p>
+    {% if page >= page_limit_warning_threshold %}
+      <p class="tna-!--align-centre tna-!--margin-top-xs"><small><strong>{{ page_limit_warning_message }}</strong></small></p>
     {% endif %}
   </div>
   {% else %}
