@@ -5,6 +5,7 @@
 {%- from 'components/search-field/macro.html' import tnaSearchField %}
 {%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
 {%- from 'macros/under_development_banner.html' import under_development_banner -%}
+{%- from 'macros/feedback_banner.html' import feedback -%}
 
 {%- set pageTitle = 'Search our catalogue' -%}
 
@@ -295,6 +296,9 @@ hiding this work for now 22.09.2025-->
   </ul>
   {% endif %}
 </div>
+
+{{ feedback('l') }}
+
 {% endblock content %}
 
 {% block bodyEnd %}
