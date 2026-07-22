@@ -13,7 +13,17 @@
     <xsl:value-of select="text()"/>
   </xsl:template>
   <xsl:template match="scopecontent">
-    <xsl:apply-templates/>
+    <!-- 
+    Process only child elements, ignore text nodes to prevent unwanted text 
+    e.g. "Scope and Content" in <head>Scope and Content</head>
+    being output 
+    -->
+    <xsl:apply-templates select="*"/>
+  </xsl:template>
+  <xsl:template match="mark">
+    <mark>
+      <xsl:apply-templates/>
+    </mark>
   </xsl:template>
   <xsl:template match="bioghist">
     <xsl:apply-templates/>
