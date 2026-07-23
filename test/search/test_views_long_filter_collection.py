@@ -222,6 +222,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
             "&level=Piece"
             "&covering_date_from-year=1940"
             "&filter_list=longCollection"
+            "&subject=Army"
         )
 
         context_data = response.context_data
@@ -242,6 +243,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                 "&level=Item"
                 "&level=Piece"
                 "&covering_date_from-year=1940"
+                "&subject=Army"
             ),
         )
         self.assertIsInstance(
@@ -282,6 +284,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         self.assertIn("""<input type="hidden" name="online" value="true">""", html)
         self.assertIn("""<input type="hidden" name="level" value="Item">""", html)
         self.assertIn("""<input type="hidden" name="level" value="Piece">""", html)
+        self.assertIn("""<input type="hidden" name="subject" value="Army">""", html)
         self.assertIn(
             """<input type="hidden" name="covering_date_from-year" value="1940">""",
             html,

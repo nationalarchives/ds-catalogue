@@ -613,6 +613,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             )
             if field_name:
                 filter_context["mfc_field"] = self.form.fields.get(field_name)
+                filter_context["aggregation"] = Aggregation
         return filter_context
 
     def build_selected_filters_list(self):
