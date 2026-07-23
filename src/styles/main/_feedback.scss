@@ -1,0 +1,16 @@
+@use "@nationalarchives/frontend/nationalarchives/tools/borders";
+@use "@nationalarchives/frontend/nationalarchives/tools/colour";
+@use "@nationalarchives/frontend/nationalarchives/tools/spacing";
+
+.etna-feedback {
+  padding: spacing.space(2);
+
+  text-align: center;
+
+  @include colour.colour-border("keyline", 1px);
+  @include borders.rounded-border;
+
+  .tna-button-group {
+    justify-content: center;
+  }
+}
