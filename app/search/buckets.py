@@ -94,9 +94,7 @@ class Aggregation(MultiValueForAggregation):
                 return agg.long_aggs
 
         # should be never reached, but keep for safety
-        logger.warning(
-            f"Long aggregation name not found for field name: {field_name}"
-        )
+        logger.warning(f"Long aggregation name not found for field name: {field_name}")
         return None
 
 

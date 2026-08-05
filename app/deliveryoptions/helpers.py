@@ -17,15 +17,14 @@ generic function will automatically handle it.
 import re
 from typing import List, Optional
 
-from app.deliveryoptions.departments import DEPARTMENT_DETAILS
-from app.records.models import Record
 from django.conf import settings
 from django.core.cache import cache
 
-BASE_TNA_HOME_URL = "https://www.nationalarchives.gov.uk"
+from app.deliveryoptions.departments import DEPARTMENT_DETAILS
+from app.lib.constants import BASE_TNA_DISCOVERY_URL
+from app.records.models import Record
 
-# TODO: will no longer be needed in time when Etna is fully functional
-BASE_TNA_DISCOVERY_URL = "https://discovery.nationalarchives.gov.uk"
+BASE_TNA_HOME_URL = "https://www.nationalarchives.gov.uk"
 
 # TODO: Max basket items may be dropped, or disabled at some point
 MAX_BASKET_ITEMS = "10"
@@ -47,7 +46,7 @@ def get_dept(reference_number: str, key_type: str) -> Optional[str]:
         The value for the specified key_type from the matching department or None if not found
     """
     # Create a cache key based on the parameters
-    cache_key = f"dept_{reference_number.replace(" ", "")}_{key_type}"
+    cache_key = f"dept_{reference_number.replace(' ', '')}_{key_type}"
 
     # Try to get the result from the cache
     cached_result = cache.get(cache_key)
@@ -488,9 +487,7 @@ def get_paid_search_url(record: Record) -> str:
 
     TODO: URL will undoubtedly change with Etna
     """
-    return (
-        f"{BASE_TNA_HOME_URL}/paidsearch/foirequest/{record.id}?type=foirequest"
-    )
+    return f"{BASE_TNA_HOME_URL}/paidsearch/foirequest/{record.id}?type=foirequest"
 
 
 def get_price() -> str:

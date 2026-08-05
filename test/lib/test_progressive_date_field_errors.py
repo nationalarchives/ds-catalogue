@@ -1,9 +1,10 @@
 from datetime import date
 
-from app.lib.fields import FromDateField, ToDateField
-from app.lib.forms import BaseForm
 from django.http import QueryDict
 from django.test import TestCase
+
+from app.lib.fields import FromDateField, ToDateField
+from app.lib.forms import BaseForm
 
 
 class BaseFormWithProgressiveDateRequiredErrorTest(TestCase):
@@ -67,9 +68,7 @@ class BaseFormWithProgressiveDateRequiredErrorTest(TestCase):
         )
 
         # join_date_from field
-        self.assertEqual(
-            self.date_from.value, {"year": "", "month": "", "day": ""}
-        )
+        self.assertEqual(self.date_from.value, {"year": "", "month": "", "day": ""})
         self.assertEqual(self.date_from.cleaned, None)
         self.assertEqual(
             self.date_from.error,
@@ -77,9 +76,7 @@ class BaseFormWithProgressiveDateRequiredErrorTest(TestCase):
         )
 
         # join_date_to field
-        self.assertEqual(
-            self.date_to.value, {"year": "", "month": "", "day": ""}
-        )
+        self.assertEqual(self.date_to.value, {"year": "", "month": "", "day": ""})
         self.assertEqual(self.date_to.cleaned, None)
         self.assertEqual(
             self.date_to.error,
@@ -195,11 +192,7 @@ class BaseFormWithProgressiveDateErrorTest(TestCase):
         self.assertEqual(self.form.errors, {})
         self.assertEqual(
             self.form.non_field_errors,
-            [
-                {
-                    "text": "Low value [2000-01-01] must be <= High value[1999-12-31]."
-                }
-            ],
+            [{"text": "Low value [2000-01-01] must be <= High value[1999-12-31]."}],
         )
 
         # join_date_from field
@@ -383,9 +376,7 @@ class BaseFormWithProgressiveDateErrorTest(TestCase):
                 # expected
                 self.assertEqual(self.date_from.value, expected_value)
                 self.assertEqual(self.date_from.cleaned, None)
-                self.assertEqual(
-                    self.date_from.error.get("text"), expected_error
-                )
+                self.assertEqual(self.date_from.error.get("text"), expected_error)
 
 
 class ProgressiveDateCrossValidateAssignFieldErrorTest(TestCase):
@@ -478,9 +469,7 @@ class ProgressiveDateCrossValidateAssignFieldErrorTest(TestCase):
         # Error assigned in cross_validate to field
         self.assertEqual(
             self.date_from.error,
-            {
-                "text": "This date must be earlier than or equal to the 'to' date."
-            },
+            {"text": "This date must be earlier than or equal to the 'to' date."},
         )
 
         # join_date_to field

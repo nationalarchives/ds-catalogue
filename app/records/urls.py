@@ -1,5 +1,6 @@
-from app.records import views
 from django.urls import path
+
+from app.records import views
 
 urlpatterns = [
     path(

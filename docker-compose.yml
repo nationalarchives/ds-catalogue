@@ -14,16 +14,16 @@ services:
       - DJANGO_SUPERUSER_PASSWORD=admin
       - DJANGO_SUPERUSER_USERNAME=admin
       - COOKIE_DOMAIN=localhost
-      - CSP_IMG_SRC='self',*.nationalarchives.gov.uk
+      - CSP_IMG_SRC='self',*.nationalarchives.gov.uk,http://localhost:65501
       - CSP_STYLE_SRC='self',fonts.googleapis.com,p.typekit.net,use.typekit.net
       - CSP_FONT_SRC='self',fonts.gstatic.com,use.typekit.net
       - CSP_FRAME_SRC='self',www.youtube.com
       - FEATURE_PHASE_BANNER=False
-      - ROSETTA_API_URL
-      - WAGTAIL_API_URL
+      - ROSETTA_API_URL=https://rosetta-dev.k-int.com/rosetta/data
+      - WAGTAIL_API_URL=http://host.docker.internal:8000/api/v2
       - WAGTAIL_API_KEY
       - DELIVERY_OPTIONS_API_URL
-      - DCS_PREFIXES
+      - DCS_PREFIXES=LEV
       - STAFFIN_IP_ADDRESSES
       - ONSITE_IP_ADDRESSES
       - ENABLE_PARALLEL_API_CALLS
@@ -40,7 +40,7 @@ services:
       start_period: 10s
       start_interval: 2s
 
-  mock-delivery-options-api:
+  api-mocks:
     image: wiremock/wiremock:3.13.1
     volumes:
       - ./wiremock:/home/wiremock

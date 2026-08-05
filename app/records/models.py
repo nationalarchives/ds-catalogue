@@ -2,29 +2,41 @@ from __future__ import annotations
 
 import logging
 from typing import Any
+from urllib.parse import urlencode
 
 import sentry_sdk
+from django.conf import settings
+from django.urls import NoReverseMatch, reverse
+from django.utils.functional import cached_property
+from lxml import etree
+
+from app.lib.constants import BASE_TNA_DISCOVERY_URL
+from app.lib.exceptions import MissingAPIAttributeError
 from app.lib.xslt_transformations import (
+    apply_archon_xsl,
     apply_schema_xsl,
     apply_series_xsl,
     has_series_xsl,
 )
 from app.records.constants import (
-    NON_TNA_LEVELS,
     SUBJECTS_LIMIT,
     TNA_HELD_BY_VALUES,
-    TNA_LEVELS,
+    NonTnaLevels,
+    TnaLevels,
 )
 from app.records.utils import (
     extract,
     format_link,
 )
-from config.jinja import format_number
-from django.urls import NoReverseMatch, reverse
-from django.utils.functional import cached_property
-from lxml import etree
+from app.search.buckets import BucketKeys
+from app.search.constants import FieldsConstant
+from config.utils.number import format_number
 
-from .constants import MISSING_COUNT_TEXT
+from .constants import MISSING_COUNT_TEXT, TNA_ARCHON_CODE, RecordTypes
+from .tna_archon_constants import (
+    DESCRIPTION_XML_FRAGMENT,
+    PLACE_DESCRIPTION_XML_FRAGMENT,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +68,9 @@ class APIResponse(APIModel):
     def record(self) -> Record:
         if "@template" in self._raw and "details" in self._raw["@template"]:
             return Record(self._raw["@template"]["details"])
-        raise Exception("Record template not found in response")
+        raise MissingAPIAttributeError(
+            "API response missing required '@template' field"
+        )
 
 
 class Record(APIModel):
@@ -138,10 +152,7 @@ class Record(APIModel):
         clean_value = ""
         clean_title_length = len(self.clean_title)
         clean_summary_title_length = len(self.clean_summary_title)
-        if (
-            clean_title_length > 0
-            and clean_title_length <= clean_summary_title_length
-        ):
+        if clean_title_length > 0 and clean_title_length <= clean_summary_title_length:
             clean_value = self.clean_title
         else:
             clean_value = self.clean_summary_title
@@ -186,8 +197,8 @@ class Record(APIModel):
     def level(self) -> str:
         """Returns level name for tna, non tna level codes"""
         if self.is_tna:
-            return TNA_LEVELS.get(str(self.level_code), "")
-        return NON_TNA_LEVELS.get(str(self.level_code), "")
+            return TnaLevels.level_from_code(str(self.level_code or ""))
+        return NonTnaLevels.level_from_code(str(self.level_code or ""))
 
     @cached_property
     def level_code(self) -> int | None:
@@ -237,20 +248,22 @@ class Record(APIModel):
     @cached_property
     def held_by_url(self) -> str:
         """Returns url path if the id is found, empty str otherwise."""
+
+        if settings.FEATURE_ENABLE_HELD_BY_DISCOVERY:
+            # For non-TNA held-by records, use the Discovery URL instead of the internal catalogue details URL.
+            if not self.is_held_by_tna:
+                return f"{BASE_TNA_DISCOVERY_URL}/details/a/{self.held_by_id}"
         if self.held_by_id:
-            # TODO: Temporary link to Discovery until archon template is ready
-            return f"https://discovery.nationalarchives.gov.uk/details/a/{self.held_by_id}"
-            # TODO: commented out until archon template is ready
-            # try:
-            #     return reverse(
-            #         "records:details",
-            #         kwargs={"id": self.held_by_id},
-            #     )
-            # except NoReverseMatch:
-            #     # warning for partially valid record
-            #     logger.warning(
-            #         f"held_by_url:Record({self.id}):No reverse match for record_details with held_by_id={self.held_by_id}"
-            #     )
+            try:
+                return reverse(
+                    "records:details",
+                    kwargs={"id": self.held_by_id},
+                )
+            except NoReverseMatch:
+                # warning for partially valid record
+                logger.warning(
+                    f"held_by_url:Record({self.id}):No reverse match for record_details with held_by_id={self.held_by_id}"
+                )
         return ""
 
     @cached_property
@@ -350,9 +363,7 @@ class Record(APIModel):
         return tuple(
             dict(
                 description=item.get("description", ""),
-                links=list(
-                    format_link(val, inc_msg) for val in item.get("links", ())
-                ),
+                links=list(format_link(val, inc_msg) for val in item.get("links", ())),
             )
             for item in self.get("relatedMaterials", ())
         )
@@ -371,12 +382,20 @@ class Record(APIModel):
 
     @cached_property
     def description(self) -> str:
-        """Returns the api value of the attr if found, empty str otherwise.
-        Applies series-specific or schema-based XSLT transformation as needed.
+        """Returns the transformed api value of the attr if found, empty str otherwise.
+        Applies series-specific, schema-based, archon-based XSLT transformation as needed.
         """
 
         # Use raw_description as the base description
         description = self.raw_description
+
+        if self.custom_record_type == RecordTypes.ARCHON:
+            if self.reference_number == TNA_ARCHON_CODE:
+                description = DESCRIPTION_XML_FRAGMENT
+
+            # For ARCHON records, apply archon-specific transformation
+            # regardless of series or schema
+            return apply_archon_xsl(description, "ArchonDescription.xsl")
 
         # Apply series-specific transformation if applicable first
         series = self.hierarchy_series
@@ -406,9 +425,7 @@ class Record(APIModel):
         return tuple(
             dict(
                 description=item.get("description", ""),
-                links=list(
-                    format_link(val, inc_msg) for val in item.get("links", ())
-                ),
+                links=list(format_link(val, inc_msg) for val in item.get("links", ())),
             )
             for item in self.get("separatedMaterials", ())
         )
@@ -448,9 +465,7 @@ class Record(APIModel):
             logger.error(message)
             sentry_sdk.capture_message(message, level="error")
             # add context for debugging in Sentry
-            sentry_sdk.set_context(
-                "missing_info", {"hierarchy_record_id": {self.id}}
-            )
+            sentry_sdk.set_context("missing_info", {"hierarchy_record_id": {self.id}})
             return MISSING_COUNT_TEXT
         return format_number(count)
 
@@ -532,10 +547,10 @@ class Record(APIModel):
 
     @cached_property
     def hierarchy_series(self) -> Record | None:
-        """Returns series record from hierarchy if found, None otherwise"""
-        for item in self.hierarchy:
-            if item.level == "Series":
-                return item
+        """Return the series-level record from this record's hierarchy, if present."""
+        for record in self.hierarchy:
+            if record.level == TnaLevels.SERIES.level:
+                return record
         return None
 
     @cached_property
@@ -552,3 +567,76 @@ class Record(APIModel):
     def has_subjects_enrichment(self) -> bool:
         """Check if this record has enrichment data available."""
         return bool(self.subjects_enrichment)
+
+    @cached_property
+    def place_description(self) -> str:
+        """Returns the transformed api value of the attr if found, empty str otherwise.
+        Field appears in ARCHON records."""
+        raw_description = self.get("placeDescription.raw", "")
+
+        if self.reference_number == TNA_ARCHON_CODE:
+            raw_description = PLACE_DESCRIPTION_XML_FRAGMENT
+
+        if raw_description:
+            if self.custom_record_type == RecordTypes.ARCHON:
+                return apply_archon_xsl(raw_description, "ArchonPlaceDescription.xsl")
+        return ""
+
+    @cached_property
+    def archon_website(self) -> str:
+        """Returns the transformed api value of the attr if found, empty str otherwise.
+        Field is used only in ARCHON records."""
+
+        if self.custom_record_type == RecordTypes.ARCHON:
+            if self.reference_number != TNA_ARCHON_CODE:
+                # Only apply for NonTNA ARCHON records, to hide presentation
+                # of the field as per Wireframes for TNA ARCHON records
+                return apply_archon_xsl(self.raw_description, "ArchonWebsite.xsl")
+        return ""
+
+    @cached_property
+    def archon_catalogue_url(self) -> str:
+        """Returns appropriate Catalogue URL for the record, empty str otherwise.
+        Field is used only in ARCHON records."""
+
+        if self.custom_record_type == RecordTypes.ARCHON:
+            try:
+                url_name = "search:catalogue"
+                if self.reference_number == TNA_ARCHON_CODE:
+                    # For TNA ARCHON records, link to the main catalogue search page without filters
+                    return f"{reverse(url_name)}"
+                else:
+                    params = {
+                        FieldsConstant.GROUP: BucketKeys.NON_TNA,
+                        # TODO: temporary solution to use clean_title_or_summary_title
+                        # until we have specific aggs collection value
+                        FieldsConstant.HELD_BY: self.clean_title_or_summary_title,
+                    }
+                    # For other records, link to search results filtered for the record's title
+                    return f"{reverse(url_name)}?{urlencode(params)}"
+            except NoReverseMatch:
+                # warning for partially valid url configuration
+                logger.warning(
+                    f"archon_catalogue_url:Record({self.id}):No reverse match for {url_name}"
+                )
+        return ""
+
+    @cached_property
+    def archon_discovery_url(self) -> str:
+        """Returns appropriate Discovery URL for the record, empty str otherwise.
+        Field is used only in ARCHON records."""
+
+        if self.custom_record_type == RecordTypes.ARCHON:
+            if self.reference_number == TNA_ARCHON_CODE:
+                # Discovery * search for Tna records
+                params = {"_q": "*", "_hb": "tna"}
+            else:
+                # For other records, link to Discovery search results filtered for the record's
+                # archon reference number
+                params = {
+                    "_q": "*",
+                    "_hb": "oth",
+                    "_nrar": self.reference_number,
+                }
+            return f"{BASE_TNA_DISCOVERY_URL}/results/r?{urlencode(params)}"
+        return ""

@@ -1,6 +1,7 @@
+from django.test import SimpleTestCase
+
 from app.records.models import Record
 from app.search.models import APISearchResponse
-from django.test import SimpleTestCase
 
 
 class APISearchResponseTests(SimpleTestCase):

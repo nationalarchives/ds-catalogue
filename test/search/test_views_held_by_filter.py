@@ -1,8 +1,9 @@
 import responses
-from app.records.models import Record
-from app.search.constants import FieldsConstant
 from django.conf import settings
 from django.test import TestCase
+
+from app.records.models import Record
+from app.search.constants import FieldsConstant
 
 
 class CatalogueSearchViewHeldByFilterTests(TestCase):
@@ -80,7 +81,7 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
         form = context_data.get("form")
         held_by_field = form.fields[FieldsConstant.HELD_BY]
 
-        self.assertEqual(form.is_valid(), True)
+        self.assertTrue(form.is_valid())
 
         self.assertIsInstance(context_data.get("results"), list)
         self.assertEqual(len(context_data.get("results")), 2)
@@ -192,7 +193,7 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
         form = context_data.get("form")
         held_by_field = form.fields["held_by"]
 
-        self.assertEqual(form.is_valid(), True)
+        self.assertTrue(form.is_valid())
 
         self.assertEqual(context_data.get("results"), [])
         self.assertEqual(context_data.get("results_range"), None)

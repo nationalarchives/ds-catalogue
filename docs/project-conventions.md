@@ -4,33 +4,50 @@ At TNA we follow a set of conventions for our projects to ensure consistency and
 
 ## Python
 
+### Formatting/Linting
+
 This project uses a few tools to improve the consistency and quality of Python code:
 
-- [`Black`](https://black.readthedocs.io/en/stable/): An opinionated Python formatter that takes care of code formatting (so we don't have to think about it).
-- [`isort`](https://pycqa.github.io/isort/): Ensures that import statements are ordered in a consistant way accross the project.
-- [`flake8`](https://flake8.pycqa.org/en/stable/): Catches things like unused parameters, unused imports and other non-formatting related things.
-
-The easiest way to ensure the code you're contributing adheres to these standards is to find and install plugins for your code editor of choice, that will check and transparently reformat your code whenever you save changes. Standard configuration files are included in the root of the repository, which _should_ be picked up and respected by such plugins.
-
-Another option is to run the `format` command from your console to apply `isort` and `Black` formatting to Python code:
+- [`Ruff`](https://docs.astral.sh/ruff/): An extremely fast Python linter and code formatter, written in Rust.
 
 ```console
-docker compose exec dev format
+docker compose exec app format
 ```
-
-`flake8` will just flag things in the terminal, it will not update any code for you like `isort` or `Black`.
 
 This will be checked by CI on every commit, so it's a good idea to run this locally before pushing your changes.
 
 Useful links
 
+- <https://github.com/nationalarchives/docker/tree/main/docker/tna-python-dev#ruff>
 - <https://nationalarchives.github.io/engineering-handbook/technology/backend/python/>
+
+Configuration
+
+- The project uses the department-wide Ruff configuration as a base. No additional installation is needed for development. It is included in the dev docker image.
+- Project-level configuration may extend this base where necessary.
+- Configuration is defined in `ruff.toml`, which extends the base configuration.
+
+Guidelines
+
+- Always run formatting locally before pushing changes.
+- CI will enforce formatting and linting on every commit.
+
+Important Notes:
+
+- Do not use inline overrides such as # fmt: off/on or # noqa unless explicitly agreed by the team. Consistency is prioritised over individual formatting preferences.
+- If a rule significantly impacts readability or developer experience, raise it for team discussion rather than bypassing it locally.
+- Existing rule ignores (if any) are considered temporary and should be reduced over time.
 
 ## Git/Github conventions
 
+### Signed Commits
+
+    Ensure commits are signed before pushing to GitHub
+    See 4. Security <https://nationalarchives.github.io/engineering-handbook/third-party/github/>
+
 ### Branching
 
-- Changes are developed in feature branches and submitted as pull requests via Github
+- Changes are developed in feature branches and submitted as pull requests via GitHub
 - Feature branches should always be based on: `main`
 - Create a new branch if the branch for that ticket has been merged.
 

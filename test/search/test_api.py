@@ -1,16 +1,17 @@
 import responses
-from app.lib.api import JSONAPIClient, ResourceNotFound
-from app.records.models import Record
-from app.search.api import search_records
-from app.search.models import APISearchResponse
 from django.conf import settings
 from django.test import SimpleTestCase
 
+from app.lib.exceptions import (
+    MissingAPIAttributeError,
+    NoResultsFound,
+)
+from app.records.models import Record
+from app.search.api import search_records
+from app.search.models import APISearchResponse
+
 
 class SearchRecordsTests(SimpleTestCase):
-    def setUp(self):
-        self.records_client = JSONAPIClient
-
     @responses.activate
     def test_search_records_response(self):
         responses.add(
@@ -45,7 +46,7 @@ class SearchRecordsTests(SimpleTestCase):
         self.assertEqual(api_results.buckets, {"tna": 1})
 
     @responses.activate
-    def test_no_data_returned(self):
+    def test_missing_data_field_raises_error(self):
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
@@ -53,11 +54,14 @@ class SearchRecordsTests(SimpleTestCase):
             status=200,
         )
 
-        with self.assertRaisesMessage(Exception, "No data returned"):
+        with self.assertRaisesMessage(
+            MissingAPIAttributeError,
+            "Search API response missing required 'data' field",
+        ):
             _ = search_records(query="")
 
     @responses.activate
-    def test_no_buckets_returned(self):
+    def test_missing_buckets_field_raises_error(self):
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
@@ -72,7 +76,8 @@ class SearchRecordsTests(SimpleTestCase):
         )
 
         with self.assertRaisesMessage(
-            Exception, "Search API response missing required 'buckets' field"
+            MissingAPIAttributeError,
+            "Search API response missing required 'buckets' field",
         ):
             _ = search_records(query="")
 
@@ -88,6 +93,8 @@ class SearchRecordsTests(SimpleTestCase):
                     "total": 0,
                     "results": 0,
                 },
+                # "buckets"->"entries" key is not included in the response when
+                # there are no matches for the search query term, as per Rosetta API.
                 "buckets": [
                     {
                         "name": "group",
@@ -96,8 +103,15 @@ class SearchRecordsTests(SimpleTestCase):
             },
         )
 
-        with self.assertRaisesMessage(ResourceNotFound, "No results found"):
-            _ = search_records(query="")
+        with self.assertRaisesMessage(NoResultsFound, "No results found"):
+            # search query term is not relevant to any record, so that "data" is empty
+            # and "buckets"->"entries" is also empty.
+            _ = search_records(
+                query="qwert",
+                params={
+                    "filter": ["group:tna"],  # default filter
+                },
+            )
 
     @responses.activate
     def test_does_not_raise_no_results_found_when_data_is_empty(self):
@@ -114,6 +128,9 @@ class SearchRecordsTests(SimpleTestCase):
                 "buckets": [
                     {
                         "name": "group",
+                        # "entries" key is included in the response with at least one configured bucket
+                        # having count when search queried without search term, so that "data" is empty
+                        # but "buckets"->"entries" is not empty.
                         "entries": [
                             {"value": "tna", "count": 100},
                             {"value": "medal", "count": 50},
@@ -124,11 +141,21 @@ class SearchRecordsTests(SimpleTestCase):
         )
 
         try:
-            api_result = search_records(query="")
-        except Exception as e:
-            self.fail(
-                f"search_records raised an exception unexpectedly. {str(e)}"
+            api_result = search_records(
+                # search term is empty to query all records, but its possible that "data" is empty
+                # if filters are applied which do not match any record,
+                # but at least one configured bucket has count in the response
+                query="",
+                # adding additional filters to ensure that "data" is empty,
+                # but at least one configured bucket has count in the response
+                params={
+                    "filter": ["group:tna", "level:Division"],
+                    "aggs": ["level", "collection", "closure", "subject"],
+                    "digitised": "true",
+                },
             )
+        except Exception as e:
+            self.fail(f"search_records raised an exception unexpectedly. {str(e)}")
         self.assertIsInstance(api_result, APISearchResponse)
         self.assertEqual(api_result.records, [])
         self.assertEqual(api_result.stats_total, 0)

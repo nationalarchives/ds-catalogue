@@ -1,14 +1,15 @@
 from http import HTTPStatus
 
 import responses
+from django.conf import settings
+from django.test import TestCase
+
 from app.records.models import Record
 from app.search.buckets import BucketKeys
 from app.search.forms import (
     CatalogueSearchTnaForm,
     FieldsConstant,
 )
-from django.conf import settings
-from django.test import TestCase
 
 
 class CatalogueSearchViewDefaultTests(TestCase):
@@ -90,9 +91,7 @@ class CatalogueSearchViewDefaultTests(TestCase):
         collection_field = form.fields[FieldsConstant.COLLECTION]
         closure_field = form.fields[FieldsConstant.CLOSURE]
         subject_field = form.fields[FieldsConstant.SUBJECT]
-        covering_date_from_field = form.fields[
-            FieldsConstant.COVERING_DATE_FROM
-        ]
+        covering_date_from_field = form.fields[FieldsConstant.COVERING_DATE_FROM]
         covering_date_to_field = form.fields[FieldsConstant.COVERING_DATE_TO]
         online_field = form.fields[FieldsConstant.ONLINE]
         opening_date_from_field = form.fields[FieldsConstant.OPENING_DATE_FROM]

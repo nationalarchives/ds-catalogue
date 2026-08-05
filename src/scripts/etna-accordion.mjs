@@ -7,12 +7,13 @@ export class Accordion {
     }
 
     this.allowMultipleItemsOpen =
-      this.$module.dataset["multiselectable"] === "true";
+      this.$module.dataset.multiselectable === "true";
 
     this.$items.forEach(($item) => this.initItem($item));
     this.initState();
   }
 
+  // eslint-disable-next-line max-statements
   initItem($item) {
     const $heading = $item.querySelector(".etna-accordion__heading");
     const $content = $item.querySelector(".etna-accordion__body");
@@ -50,7 +51,7 @@ export class Accordion {
 
   initState() {
     this.$items.forEach(($item) => {
-      if ($item.dataset["isopen"] === "true") {
+      if ($item.dataset.isopen === "true") {
         this.openItem($item);
       } else {
         this.closeItem($item);
@@ -73,6 +74,7 @@ export class Accordion {
     $content.removeAttribute("hidden");
   }
 
+  // eslint-disable-next-line class-methods-use-this
   closeItem($item) {
     const $headingButton = $item.querySelector(".etna-accordion__summary");
     const $content = $item.querySelector(".etna-accordion__content");

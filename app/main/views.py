@@ -1,11 +1,15 @@
 import logging
 
-from app.lib.api import JSONAPIClient
-from django.conf import settings
 from django.http import HttpResponse
 from django.template import loader
+from django.views.generic import TemplateView
 
-from .global_alert import fetch_global_alert_api_data
+from app.main.cache import (
+    fetch_global_notifications,
+    get_explore_the_collection,
+)
+
+from .cache import get_subjects_grouped_by_letter
 
 logger = logging.getLogger(__name__)
 
@@ -16,49 +20,37 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 
-def catalogue(request):
-    template = loader.get_template("main/catalogue.html")
-    context = {}
+class CatalogueView(TemplateView):
+    template_name = "main/catalogue.html"
 
-    pages_client = JSONAPIClient(settings.WAGTAIL_API_URL)
-    if settings.WAGTAIL_API_KEY:
-        pages_client.add_header(
-            "Authorization", f"Token {settings.WAGTAIL_API_KEY}"
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+
+        explore = get_explore_the_collection()
+        notifications = fetch_global_notifications()
+
+        # context for the subjects picker
+        subjects_grouped_by_letter = get_subjects_grouped_by_letter()
+        disabled_letters = [
+            letter
+            for letter, subjects in subjects_grouped_by_letter.items()
+            if not subjects
+        ]
+
+        context.update(
+            {
+                "latest_articles": explore.get("latest_articles", [])[:3],
+                "top_pages": explore.get("top_pages", [])[:3],
+                "global_alert": (
+                    notifications.get("global_alert") if notifications else None
+                ),
+                "mourning_notice": (
+                    notifications.get("mourning_notice") if notifications else None
+                ),
+                "disabled_letters": disabled_letters,
+                "subjects_grouped_by_letter": subjects_grouped_by_letter,
+            }
         )
-    pages_client.add_parameters(
-        {
-            "child_of": settings.WAGTAIL_EXPLORE_THE_COLLECTION_STORIES_PAGE_ID,
-            "limit": 3,
-            "order": "-first_published_at",
-        }
-    )
-    try:
-        response_data = pages_client.get("/pages/")
-        context["pages"] = response_data.get("items", [])
-    except Exception as e:
-        logger.error(e)
-        context["pages"] = []
 
-    top_pages_client = JSONAPIClient(settings.WAGTAIL_API_URL)
-    if settings.WAGTAIL_API_KEY:
-        top_pages_client.add_header(
-            "Authorization", f"Token {settings.WAGTAIL_API_KEY}"
-        )
-    top_pages_client.add_parameters(
-        {
-            "child_of": settings.WAGTAIL_EXPLORE_THE_COLLECTION_PAGE_ID,
-            "limit": 3,
-            "type": "collections.TopicExplorerIndexPage,collections.TimePeriodExplorerIndexPage,articles.ArticleIndexPage",
-            "order": "title",
-        }
-    )
-    try:
-        response_data = top_pages_client.get("/pages/")
-        context["top_pages"] = response_data.get("items", [])
-    except Exception as e:
-        logger.error(e)
-        context["top_pages"] = []
-
-    context["global_alert"] = fetch_global_alert_api_data()
-
-    return HttpResponse(template.render(context, request))
+        return context

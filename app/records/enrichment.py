@@ -3,9 +3,11 @@
 import logging
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Dict
+from typing import Any
 
 import sentry_sdk
+from django.conf import settings
+
 from app.deliveryoptions.api import delivery_options_request_handler
 from app.deliveryoptions.constants import (
     DELIVERY_OPTIONS_NON_TNA_LEVELS,
@@ -16,17 +18,23 @@ from app.deliveryoptions.delivery_options import (
     get_availability_group,
     has_distressing_content,
 )
-from app.deliveryoptions.helpers import BASE_TNA_DISCOVERY_URL
+from app.lib.constants import BASE_TNA_DISCOVERY_URL
 from app.records.api import get_subjects_enrichment
-from app.records.constants import API_TIMEOUTS, THREADPOOL_MAX_WORKERS
+from app.records.constants import (
+    API_TIMEOUTS,
+    THREADPOOL_MAX_WORKERS,
+    RecordTypes,
+)
 from app.records.models import Record
 from app.records.related import (
     get_related_records_by_series,
     get_tna_related_records_by_subjects,
 )
 from app.records.utils import log_enrichment_execution_time
-from django.conf import settings
 
+# Dedicated logger for API timing information; effective level/handlers come from logging configuration
+api_timer_logger = logging.getLogger(settings.API_TIMING_LOGGER_NAME)
+# Regular logger for errors and other messages
 logger = logging.getLogger(__name__)
 
 
@@ -41,9 +49,8 @@ class RecordEnrichmentHelper:
         self.record = record
         self.related_limit = related_limit
 
-    # TODO: consider bringing distressing_content outside of fetch_parallel or fetch_sequential
     @log_enrichment_execution_time
-    def fetch_all(self) -> Dict[str, Any]:
+    def fetch_all(self) -> dict[str, Any]:
         """
         Fetch all enrichment data.
 
@@ -52,12 +59,11 @@ class RecordEnrichmentHelper:
 
         Returns:
             Dictionary with keys: subjects_enrichment, related_records,
-            delivery_options, distressing_content
+            delivery_options
         """
         if settings.ENABLE_PARALLEL_API_CALLS:
             return self._fetch_parallel()
-        else:
-            return self._fetch_sequential()
+        return self._fetch_sequential()
 
     def _submit_fetch_tasks(self, executor) -> dict:
         """Submit all fetch tasks to the executor and return futures map."""
@@ -69,26 +75,20 @@ class RecordEnrichmentHelper:
         try:
             futures_map[executor.submit(self._fetch_subjects)] = "subjects"
         except RuntimeError:
-            message = (
-                f"Failed to submit subjects task for record {self.record.id}"
-            )
+            message = f"Failed to submit subjects task for record {self.record.id}"
             logger.error(message)
 
         # Submit related fetch
         try:
             futures_map[executor.submit(self._fetch_related)] = "related"
         except RuntimeError:
-            message = (
-                f"Failed to submit related task for record {self.record.id}"
-            )
+            message = f"Failed to submit related task for record {self.record.id}"
             logger.error(message)
 
         # Submit delivery options if applicable
         if self._should_include_delivery_options():
             try:
-                futures_map[executor.submit(self._fetch_delivery_options)] = (
-                    "delivery"
-                )
+                futures_map[executor.submit(self._fetch_delivery_options)] = "delivery"
             except RuntimeError:
                 message = f"Failed to submit delivery task for record {self.record.id}"
                 logger.error(message)
@@ -118,14 +118,13 @@ class RecordEnrichmentHelper:
         """Log completion timing if enabled."""
         if settings.ENRICHMENT_TIMING_ENABLED and completion_order:
             timing_details = ", ".join(
-                f"{name}: {completion_times[name]:.3f}s"
-                for name in completion_order
+                f"{name}: {completion_times[name]:.3f}s" for name in completion_order
             )
-            logger.info(
+            api_timer_logger.info(
                 f"Record {self.record.id} completion order: [{timing_details}]"
             )
 
-    def _fetch_parallel(self) -> Dict[str, Any]:
+    def _fetch_parallel(self) -> dict[str, Any]:
         """Fetch enrichment data in parallel using thread pool."""
         results = self._empty_results()
         completion_order = []
@@ -147,18 +146,14 @@ class RecordEnrichmentHelper:
 
             self._log_completion_timing(completion_order, completion_times)
 
-        # Fetch distressing content directly (not an API call, no need for threading)
-        results["distressing_content"] = self._fetch_distressing()
-
         return results
 
-    def _fetch_sequential(self) -> Dict[str, Any]:
+    def _fetch_sequential(self) -> dict[str, Any]:
         """Fetch enrichment data sequentially."""
         results = {
             "subjects_enrichment": self._fetch_subjects(),
             "related_records": self._fetch_related(),
             "delivery_options": {},
-            "distressing_content": self._fetch_distressing(),
         }
 
         if self._should_include_delivery_options():
@@ -294,7 +289,7 @@ class RecordEnrichmentHelper:
 
         return data
 
-    def _fetch_distressing(self) -> bool:
+    def fetch_distressing(self) -> bool:
         try:
             return has_distressing_content(self.record.reference_number)
         except Exception as e:
@@ -304,13 +299,13 @@ class RecordEnrichmentHelper:
             return False
 
     def _should_include_delivery_options(self) -> bool:
-        if self.record.custom_record_type in ["ARCHON", "CREATORS"]:
+        if self.record.custom_record_type in [
+            RecordTypes.ARCHON,
+            RecordTypes.CREATORS,
+        ]:
             return False
 
-        if (
-            self.record.is_tna
-            and self.record.level_code in DELIVERY_OPTIONS_TNA_LEVELS
-        ):
+        if self.record.is_tna and self.record.level_code in DELIVERY_OPTIONS_TNA_LEVELS:
             return True
         elif (
             not self.record.is_tna
@@ -321,10 +316,9 @@ class RecordEnrichmentHelper:
         return False
 
     @staticmethod
-    def _empty_results() -> Dict[str, Any]:
+    def _empty_results() -> dict[str, Any]:
         return {
             "subjects_enrichment": {},
             "related_records": [],
             "delivery_options": {},
-            "distressing_content": False,
         }

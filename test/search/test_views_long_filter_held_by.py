@@ -1,11 +1,12 @@
 from http import HTTPStatus
 
 import responses
-from app.search.constants import FieldsConstant
-from app.search.forms import DynamicMultipleChoiceField
 from django.conf import settings
 from django.test import TestCase
 from django.utils.encoding import force_str
+
+from app.search.constants import FieldsConstant
+from app.search.forms import DynamicMultipleChoiceField
 
 
 class CatalogueSearchViewHeldByMoreFilterChoicesTests(TestCase):
@@ -72,9 +73,7 @@ class CatalogueSearchViewHeldByMoreFilterChoicesTests(TestCase):
             held_by_field.more_filter_choices_available,
             True,
         )
-        self.assertEqual(
-            held_by_field.more_filter_choices_text, "See more held by"
-        )
+        self.assertEqual(held_by_field.more_filter_choices_text, "See more held by")
         self.assertEqual(
             held_by_field.more_filter_choices_url,
             "?group=nonTna&filter_list=longHeldBy",
@@ -168,14 +167,10 @@ class CatalogueSearchViewHeldByMoreFilterChoicesTests(TestCase):
         )
 
         # test hidden inputs to retain other filters in form
-        self.assertIn(
-            """<input type="hidden" name="group" value="nonTna">""", html
-        )
+        self.assertIn("""<input type="hidden" name="group" value="nonTna">""", html)
         self.assertNotIn("""<input type="hidden" name="q" """, html)
         self.assertNotIn("""<input type="hidden" name="sort" """, html)
-        self.assertIn(
-            """<input type="hidden" name="display" value="list">""", html
-        )
+        self.assertIn("""<input type="hidden" name="display" value="list">""", html)
 
     @responses.activate
     def test_search_for_filter_list_param_with_other_params(
@@ -236,12 +231,7 @@ class CatalogueSearchViewHeldByMoreFilterChoicesTests(TestCase):
 
         self.assertEqual(
             context_data.get("mfc_cancel_and_return_to_search_url"),
-            (
-                "?group=nonTna"
-                "&q=ufo"
-                "&sort=title%3Aasc"
-                "&covering_date_from-year=1940"
-            ),
+            ("?group=nonTna&q=ufo&sort=title%3Aasc&covering_date_from-year=1940"),
         )
         self.assertIsInstance(
             mfc_field,
@@ -274,16 +264,10 @@ class CatalogueSearchViewHeldByMoreFilterChoicesTests(TestCase):
         )
 
         # test hidden inputs to retain other filters in form
-        self.assertIn(
-            """<input type="hidden" name="group" value="nonTna">""", html
-        )
+        self.assertIn("""<input type="hidden" name="group" value="nonTna">""", html)
         self.assertIn("""<input type="hidden" name="q" value="ufo">""", html)
-        self.assertIn(
-            """<input type="hidden" name="sort" value="title:asc">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="display" value="list">""", html
-        )
+        self.assertIn("""<input type="hidden" name="sort" value="title:asc">""", html)
+        self.assertIn("""<input type="hidden" name="display" value="list">""", html)
         self.assertIn(
             """<input type="hidden" name="covering_date_from-year" value="1940">""",
             html,

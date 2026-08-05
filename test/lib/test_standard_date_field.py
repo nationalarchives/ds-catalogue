@@ -1,9 +1,10 @@
 from datetime import date
 
-from app.lib.fields import FromDateField, ToDateField
-from app.lib.forms import BaseForm
 from django.http import QueryDict
 from django.test import TestCase
+
+from app.lib.fields import FromDateField, ToDateField
+from app.lib.forms import BaseForm
 
 
 class BaseFormWithStandardDatesTest(TestCase):
@@ -63,9 +64,7 @@ class BaseFormWithStandardDatesTest(TestCase):
         self.assertEqual(self.date_from.label, "From")
         self.assertEqual(self.date_from.active_filter_label, "Join date from")
         self.assertEqual(self.date_from.hint, "")
-        self.assertEqual(
-            self.date_from.value, {"year": "", "month": "", "day": ""}
-        )
+        self.assertEqual(self.date_from.value, {"year": "", "month": "", "day": ""})
         self.assertEqual(self.date_from.cleaned, None)
         self.assertEqual(self.date_from.error, {})
 
@@ -77,9 +76,7 @@ class BaseFormWithStandardDatesTest(TestCase):
         self.assertEqual(self.date_to.label, "To")
         self.assertEqual(self.date_to.active_filter_label, "Join date to")
         self.assertEqual(self.date_to.hint, "")
-        self.assertEqual(
-            self.date_to.value, {"year": "", "month": "", "day": ""}
-        )
+        self.assertEqual(self.date_to.value, {"year": "", "month": "", "day": ""})
         self.assertEqual(self.date_to.cleaned, None)
         self.assertEqual(self.date_to.error, {})
 
@@ -154,7 +151,7 @@ class BaseFormWithStandardDatesTest(TestCase):
 
     def test_form_with_date_fields_year_part(self):
 
-        data = QueryDict("join_date_from-year=1999" "&join_date_to-year=2000")
+        data = QueryDict("join_date_from-year=1999&join_date_to-year=2000")
         self.form = self.get_form_with_date_fields(data)
         self.date_from = self.form.fields["join_date_from"]
         self.date_to = self.form.fields["join_date_to"]
@@ -176,9 +173,7 @@ class BaseFormWithStandardDatesTest(TestCase):
         self.assertEqual(self.form.non_field_errors, [])
 
         # join_date_from field
-        self.assertEqual(
-            self.date_from.value, {"year": "1999", "month": "", "day": ""}
-        )
+        self.assertEqual(self.date_from.value, {"year": "1999", "month": "", "day": ""})
         self.assertEqual(self.date_from.cleaned, None)
         self.assertEqual(
             self.date_from.error,
@@ -188,9 +183,7 @@ class BaseFormWithStandardDatesTest(TestCase):
         )
 
         # join_date_to field
-        self.assertEqual(
-            self.date_to.value, {"year": "2000", "month": "", "day": ""}
-        )
+        self.assertEqual(self.date_to.value, {"year": "2000", "month": "", "day": ""})
         self.assertEqual(self.date_to.cleaned, None)
         self.assertEqual(
             self.date_to.error,
@@ -240,9 +233,7 @@ class BaseFormWithStandardDatesTest(TestCase):
         )
 
         # join_date_to field
-        self.assertEqual(
-            self.date_to.value, {"year": "2000", "month": "2", "day": ""}
-        )
+        self.assertEqual(self.date_to.value, {"year": "2000", "month": "2", "day": ""})
         self.assertEqual(self.date_to.cleaned, None)
         self.assertEqual(
             self.date_to.error,

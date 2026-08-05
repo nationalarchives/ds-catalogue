@@ -1,10 +1,10 @@
 from enum import StrEnum
 
 RESULTS_PER_PAGE = 20  # max records to show per page
+LONG_FILTER_RESULTS_PER_PAGE = 0  # for long filter, skip pagination to get all options
+LONG_FILTER_SUBJECT_PARAMS = {"filter": ["group:tna"], "aggs": "longSubject"}
 PAGE_LIMIT = 500  # max page number that can be queried
-FILTER_DATATYPE_RECORD = (
-    "datatype:record"  # filter for records in search results
-)
+FILTER_DATATYPE_RECORD = "datatype:record"  # filter for records in search results
 
 
 class Sort(StrEnum):
@@ -22,7 +22,6 @@ DATE_DISPLAY_FORMAT = "%d-%m-%Y"
 
 
 class FieldsConstant:
-
     Q = "q"
     SORT = "sort"
     LEVEL = "level"

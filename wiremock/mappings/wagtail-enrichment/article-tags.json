@@ -1,0 +1,174 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/article_tags/"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": [
+      {
+        "id": 330,
+        "title": "An unusual royal gift to the poet Geoffrey Chaucer",
+        "short_title": null,
+        "page_path": "/explore-the-collection/stories/an-unusual-royal-gift-to-the-poet-geoffrey-chaucer/",
+        "url": "https://localhost/explore-the-collection/stories/an-unusual-royal-gift-to-the-poet-geoffrey-chaucer/",
+        "full_url": "https://localhost/explore-the-collection/stories/an-unusual-royal-gift-to-the-poet-geoffrey-chaucer/",
+        "type": "articles.RecordArticlePage",
+        "type_label": "Record revealed",
+        "teaser_text": "How do you reward a medieval poet? This document granted the author of the Canterbury Tales an unusual royal gift: a daily allowance of wine.",
+        "teaser_image": {
+          "id": 1676,
+          "uuid": "6225d0e4-9406-4210-9440-a7ad55d56109",
+          "title": "Geoffrey Chaucer wine grant teaser",
+          "description": "",
+          "jpeg": {
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
+            "width": 600,
+            "height": 400
+          },
+          "webp": {
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
+            "width": 600,
+            "height": 400
+          }
+        },
+        "first_published_at": "2024-03-14T12:34:17.549716Z",
+        "last_published_at": "2024-06-11T14:35:12.836746Z",
+        "is_newly_published": false
+      },
+      {
+        "id": 329,
+        "title": "The 1888 matchgirls' strike",
+        "short_title": null,
+        "page_path": "/explore-the-collection/stories/1888-matchgirls-strike/",
+        "url": "https://localhost/explore-the-collection/stories/1888-matchgirls-strike/",
+        "full_url": "https://localhost/explore-the-collection/stories/1888-matchgirls-strike/",
+        "type": "articles.ArticlePage",
+        "type_label": "The story of",
+        "teaser_text": "In 1888, the women and girls employed by Bryant & May in the East End of London went out on strike. Why did these workers feel so driven to remove their labour?",
+        "teaser_image": {
+          "id": 1668,
+          "uuid": "2e9c8e39-7376-49bf-98a7-95503eb0011c",
+          "title": "Matchgirls (Wellcome)",
+          "description": "A group of young working class women stand together looking directly at the camera",
+          "jpeg": {
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
+            "width": 600,
+            "height": 400
+          },
+          "webp": {
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
+            "width": 600,
+            "height": 400
+          }
+        },
+        "first_published_at": "2024-03-14T10:50:44.210513Z",
+        "last_published_at": "2024-03-18T14:31:27.231479Z",
+        "is_newly_published": false
+      },
+      {
+        "id": 328,
+        "title": "How the first women's refuge enacted change in the UK",
+        "short_title": null,
+        "page_path": "/explore-the-collection/stories/how-the-first-women-refuge-enacted-change/",
+        "url": "https://localhost/explore-the-collection/stories/how-the-first-women-refuge-enacted-change/",
+        "full_url": "https://localhost/explore-the-collection/stories/how-the-first-women-refuge-enacted-change/",
+        "type": "articles.FocusedArticlePage",
+        "type_label": "Focus on",
+        "teaser_text": "The founding years of Chiswick Women's Aid saw the opening of the world's first women's refuge, disputes with local government, and creating change in the UK.",
+        "teaser_image": {
+          "id": 1698,
+          "uuid": "92a860c2-35af-4e32-8e54-10dca11aa1b1",
+          "title": "The existing research into battered women teaser",
+          "description": "",
+          "jpeg": {
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
+            "width": 517,
+            "height": 344
+          },
+          "webp": {
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
+            "width": 517,
+            "height": 344
+          }
+        },
+        "first_published_at": "2024-03-08T15:42:52.411700Z",
+        "last_published_at": "2024-08-21T17:32:00.778982Z",
+        "is_newly_published": false
+      },
+      {
+        "id": 300,
+        "title": "Section 28: impact, fightback and repeal",
+        "short_title": null,
+        "page_path": "/explore-the-collection/stories/section-28-impact-fightback-repeal/",
+        "url": "https://localhost/explore-the-collection/stories/section-28-impact-fightback-repeal/",
+        "full_url": "https://localhost/explore-the-collection/stories/section-28-impact-fightback-repeal/",
+        "type": "articles.FocusedArticlePage",
+        "type_label": "Focus on",
+        "teaser_text": "What was the everyday reality for LGBTQ+ people in the 80s and 90s living under the infamous Section 28, and how was it eventually repealed?",
+        "teaser_image": {
+          "id": 1615,
+          "uuid": "7bee6861-a588-4a3e-8e51-4d47de0b332a",
+          "title": "Section 28 part 2 teaser",
+          "description": "",
+          "jpeg": {
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
+            "width": 600,
+            "height": 400
+          },
+          "webp": {
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
+            "width": 600,
+            "height": 400
+          }
+        },
+        "first_published_at": "2023-11-08T15:37:42.702903Z",
+        "last_published_at": "2024-06-18T15:38:43.460250Z",
+        "is_newly_published": false
+      },
+      {
+        "id": 293,
+        "title": "The origins of Section 28",
+        "short_title": null,
+        "page_path": "/explore-the-collection/stories/origins-section-28/",
+        "url": "https://localhost/explore-the-collection/stories/origins-section-28/",
+        "full_url": "https://localhost/explore-the-collection/stories/origins-section-28/",
+        "type": "articles.FocusedArticlePage",
+        "type_label": "Focus on",
+        "teaser_text": "Section 28 of the 1988 Local Government Act negatively affected LGBTQ+ lives for decades. How did such a seismic piece of legislation come about?",
+        "teaser_image": {
+          "id": 1433,
+          "uuid": "c14a3117-eac2-409f-9411-5ddeeab7bc9d",
+          "title": "origins_28_header.jpg",
+          "description": "",
+          "jpeg": {
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
+            "width": 600,
+            "height": 400
+          },
+          "webp": {
+            "url": "http://localhost:65501/images/test-image-961.jpg",
+            "full_url": "http://localhost:65501/images/test-image-961.jpg",
+            "width": 600,
+            "height": 400
+          }
+        },
+        "first_published_at": "2023-10-25T11:11:11.698698Z",
+        "last_published_at": "2024-06-18T15:40:32.802609Z",
+        "is_newly_published": false
+      }
+    ]
+  }
+}

@@ -1,15 +1,25 @@
 import logging
 
-from app.lib.api import JSONAPIClient, ResourceNotFound, rosetta_request_handler
-from app.records.models import APIResponse, Record
 from django.conf import settings
-from django.utils.text import slugify
+from django.core.exceptions import ImproperlyConfigured
+from tna_utilities.string import slugify
+
+from app.lib.api import JSONAPIClient, rosetta_request_handler
+from app.lib.exceptions import (
+    APIResourceNotFound,
+    MissingAPIAttributeError,
+    MultipleRecordsError,
+    RecordNotFound,
+)
+from app.records.models import APIResponse, Record
 
 logger = logging.getLogger(__name__)
 
 
 def record_details_by_id(
-    id: str, params: dict | None = None, timeout=None
+    id: str,
+    params: dict | None = None,
+    timeout=None,
 ) -> Record:
     """
     Fetches a record by its ID from the Rosetta API.
@@ -22,8 +32,10 @@ def record_details_by_id(
         Record object
 
     Raises:
-        ResourceNotFound: If record doesn't exist
-        Exception: If data format is unexpected
+        MissingAPIAttributeError: If the API response is missing the required
+        'data' field.
+        MultipleRecordsError: If multiple records are returned for the given id.
+        RecordNotFound: If no record exists for the given id.
 
     Note:
         The errors are handled by a custom middleware in the app.
@@ -34,14 +46,16 @@ def record_details_by_id(
     params.update({"id": id})
     results = rosetta_request_handler(uri, params, timeout=timeout)
     if "data" not in results:
-        raise Exception(f"No data returned for id {id}")
+        raise MissingAPIAttributeError(
+            f"Get API response missing required 'data' field for id {id}"
+        )
     if len(results["data"]) > 1:
-        raise Exception(f"Multiple records returned for id {id}")
+        raise MultipleRecordsError(f"Multiple records returned for id {id}")
     if len(results["data"]) == 1:
         record_data = results["data"][0]
         response = APIResponse(record_data)
         return response.record
-    raise ResourceNotFound(f"id {id} does not exist")
+    raise RecordNotFound(f"id {id} does not exist")
 
 
 def record_details_by_ref(reference: str, params: dict = {}):
@@ -71,13 +85,14 @@ def wagtail_request_handler(uri: str, params: dict = {}, timeout=None) -> dict:
         Dictionary containing the API response
 
     Raises:
-        Exception: If WAGTAIL_API_URL is not configured
+        ImproperlyConfigured: If WAGTAIL_API_URL is not configured
     """
+
     api_url = settings.WAGTAIL_API_URL
     if not api_url:
-        raise Exception("WAGTAIL_API_URL not set")
+        raise ImproperlyConfigured("WAGTAIL_API_URL not set")
 
-    client = JSONAPIClient(api_url, params)
+    client = JSONAPIClient(api_url, default_params=params)
     if settings.WAGTAIL_API_KEY:
         client.add_header("Authorization", f"Token {settings.WAGTAIL_API_KEY}")
     return client.get(uri, timeout=timeout)
@@ -109,14 +124,14 @@ def get_subjects_enrichment(
     try:
         params = {"tags": subjects_param, "limit": limit}
         results = wagtail_request_handler(
-            "/article_tags/", params, timeout=timeout
+            "/article_tags/",
+            params,
+            timeout=timeout,
         )
         return results
-    except ResourceNotFound:
+    except APIResourceNotFound:
         logger.warning(f"No subjects enrichment found for {subjects_param}")
         return {}
     except Exception as e:
-        logger.warning(
-            f"Failed to fetch subjects enrichment for {subjects_param}: {e}"
-        )
+        logger.warning(f"Failed to fetch subjects enrichment for {subjects_param}: {e}")
         return {}

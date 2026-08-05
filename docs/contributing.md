@@ -9,10 +9,15 @@ Before contributing code, please familiarise yourself with the [Project conventi
 - Don't be afraid to show your working. We're all learning. If you need help, linking to code changes in a PR is a quick and easy way to explain the problem.
 - Where possible, a feature branch should be kept up-to-date with `main` by regularly merging `main` into the feature branch. This will help to prevent conflicts when merging the feature branch back into `main`, and ensure there are no inconsistencies.
 
+## Naming Conventions
+
+Avoid overriding or shadowing Python standard library module names in utility modules, as this can lead to confusion and import ambiguity.
+For example, use `json_utils.py` instead of `json.py` to avoid confusion with the standard library `json` module.
+
 ## Submitting a pull request (PR)
 
 1. Push your branch to the remote.
-2. Head to <https://github.com/nationalarchives/ds-search/pulls> and create a pull request from your branch.
+2. Head to <https://github.com/nationalarchives/ds-catalogue/pulls> and create a pull request from your branch.
    - For the PR Title:
      - For ticketed features or ticketed bugs, use the naming convention: `FIND-XXX: Short description`
      - For housekeeping tasks or other unticketed work, use the convention: `CHORE: Short description`

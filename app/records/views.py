@@ -2,19 +2,19 @@
 
 import logging
 
+from django.views.generic import TemplateView
+
+from app.main.cache import fetch_global_notifications
 from app.records.enrichment import RecordEnrichmentHelper
 from app.records.labels import FIELD_LABELS
-from app.records.mixins import GlobalAlertsMixin, RecordContextMixin
-from django.views.generic import TemplateView
+from app.records.mixins import RecordContextMixin
+
+from .constants import RecordTypes
 
 logger = logging.getLogger(__name__)
 
 
-class RecordDetailView(
-    GlobalAlertsMixin,
-    RecordContextMixin,
-    TemplateView,
-):
+class RecordDetailView(RecordContextMixin, TemplateView):
     """View for rendering an individual archive record's details page."""
 
     template_name = "records/record_detail.html"
@@ -24,9 +24,9 @@ class RecordDetailView(
         """Determine template based on record type."""
         record = self.get_record()
 
-        if record.custom_record_type == "ARCHON":
+        if record.custom_record_type == RecordTypes.ARCHON:
             return ["records/archon_detail.html"]
-        elif record.custom_record_type == "CREATORS":
+        elif record.custom_record_type == RecordTypes.CREATORS:
             return ["records/creator_detail.html"]
 
         return [self.template_name]
@@ -34,6 +34,15 @@ class RecordDetailView(
     def get_context_data(self, **kwargs):
         """Build context with record and enrichment data."""
         context = super().get_context_data(**kwargs)
+
+        # Global alerts
+        notifications = fetch_global_notifications()
+        context["global_alert"] = (
+            notifications.get("global_alert") if notifications else None
+        )
+        context["mourning_notice"] = (
+            notifications.get("mourning_notice") if notifications else None
+        )
 
         record = context["record"]
 
@@ -46,7 +55,7 @@ class RecordDetailView(
         # Add enrichment to context
         record._subjects_enrichment = enrichment["subjects_enrichment"]
         context["related_records"] = enrichment["related_records"]
-        context["distressing_content"] = enrichment["distressing_content"]
+        context["distressing_content"] = enrichment_helper.fetch_distressing()
 
         if enrichment["delivery_options"]:
             context.update(enrichment["delivery_options"])
@@ -76,13 +85,9 @@ class RecordDetailView(
                     class_name + "[TNA catalogue digitised record description]"
                 )
             else:
-                data["page_type"] = (
-                    class_name + "[TNA catalogue record description]"
-                )
+                data["page_type"] = class_name + "[TNA catalogue record description]"
         else:
-            data["page_type"] = (
-                class_name + "[Other archive record description]"
-            )
+            data["page_type"] = class_name + "[Other archive record description]"
 
         data["reader_type"] = ""
         data["user_type"] = ""
@@ -117,9 +122,7 @@ class RecordDetailView(
             data["catalogue_reference"] = record.reference_number
 
         data["catalogue_datasource"] = record.source
-        data["delivery_option_category"] = context.get(
-            "do_availability_group", ""
-        )
+        data["delivery_option_category"] = context.get("do_availability_group", "")
         data["delivery_option"] = context.get("delivery_option", "")
 
         context["analytics_data"] = data

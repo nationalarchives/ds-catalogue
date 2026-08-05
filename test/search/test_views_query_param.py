@@ -1,9 +1,10 @@
 from http import HTTPStatus
 
 import responses
-from app.search.constants import FieldsConstant
 from django.conf import settings
 from django.test import TestCase
+
+from app.search.constants import FieldsConstant
 
 
 class CatalogueSearchViewQueryParamTests(TestCase):
@@ -100,7 +101,7 @@ class CatalogueSearchViewQueryParamTests(TestCase):
         self.assertEqual(response.context_data.get("total"), None)
 
         # no errors, but no results
-        self.assertEqual(form.is_valid(), True)
+        self.assertTrue(form.is_valid())
         self.assertEqual(form.errors, {})
 
         self.assertFalse(response.context_data.get("filters_visible"))
@@ -124,16 +125,10 @@ class CatalogueSearchViewQueryParamTests(TestCase):
 
         # other fields visibility
         self.assertFalse(form.fields[FieldsConstant.ONLINE].is_visible)
-        self.assertFalse(
-            form.fields[FieldsConstant.COVERING_DATE_FROM].is_visible
-        )
-        self.assertFalse(
-            form.fields[FieldsConstant.COVERING_DATE_TO].is_visible
-        )
+        self.assertFalse(form.fields[FieldsConstant.COVERING_DATE_FROM].is_visible)
+        self.assertFalse(form.fields[FieldsConstant.COVERING_DATE_TO].is_visible)
         self.assertFalse(form.fields[FieldsConstant.SUBJECT].is_visible)
-        self.assertFalse(
-            form.fields[FieldsConstant.OPENING_DATE_FROM].is_visible
-        )
+        self.assertFalse(form.fields[FieldsConstant.OPENING_DATE_FROM].is_visible)
         self.assertFalse(form.fields[FieldsConstant.OPENING_DATE_TO].is_visible)
         self.assertFalse(form.fields[FieldsConstant.CLOSURE].is_visible)
 

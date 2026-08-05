@@ -7,7 +7,6 @@ from django.utils.encoding import force_str
 
 
 class CatalogueSearchViewIntegrationTests(TestCase):
-
     @responses.activate
     def test_catalogue_search_online_checkbox(self):
 

@@ -1,7 +1,8 @@
 from typing import Any
 
-from app.lib.analytics_mixins import DataLayerMixin
 from django.http import HttpRequest
+
+from app.lib.analytics_mixins import DataLayerMixin
 
 
 class SearchDataLayerMixin(DataLayerMixin):

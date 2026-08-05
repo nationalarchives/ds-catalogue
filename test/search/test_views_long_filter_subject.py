@@ -1,11 +1,12 @@
 from http import HTTPStatus
 
 import responses
-from app.search.constants import FieldsConstant
-from app.search.forms import DynamicMultipleChoiceField
 from django.conf import settings
 from django.test import TestCase
 from django.utils.encoding import force_str
+
+from app.search.constants import FieldsConstant
+from app.search.forms import DynamicMultipleChoiceField
 
 
 class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
@@ -72,9 +73,7 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
             subject_field.more_filter_choices_available,
             True,
         )
-        self.assertEqual(
-            subject_field.more_filter_choices_text, "See more subjects"
-        )
+        self.assertEqual(subject_field.more_filter_choices_text, "See more subjects")
         self.assertEqual(
             subject_field.more_filter_choices_url,
             "?filter_list=longSubject",
@@ -166,14 +165,10 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
         )
 
         # test hidden inputs to retain other filters in form
-        self.assertIn(
-            """<input type="hidden" name="group" value="tna">""", html
-        )
+        self.assertIn("""<input type="hidden" name="group" value="tna">""", html)
         self.assertNotIn("""<input type="hidden" name="q" """, html)
         self.assertNotIn("""<input type="hidden" name="sort" """, html)
-        self.assertIn(
-            """<input type="hidden" name="display" value="list">""", html
-        )
+        self.assertIn("""<input type="hidden" name="display" value="list">""", html)
         self.assertNotIn("""<input type="hidden" name="online" """, html)
 
     @responses.activate
@@ -225,6 +220,7 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
             "&level=Piece"
             "&covering_date_from-year=1940"
             "&filter_list=longSubject"
+            "&subject=Army"
         )
 
         context_data = response.context_data
@@ -245,6 +241,7 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
                 "&level=Item"
                 "&level=Piece"
                 "&covering_date_from-year=1940"
+                "&subject=Army"
             ),
         )
         self.assertIsInstance(
@@ -263,6 +260,7 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
                     "value": "International",
                 },
                 {
+                    "checked": True,
                     "text": "Army (35)",
                     "value": "Army",
                 },
@@ -278,25 +276,13 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
         )
 
         # test hidden inputs to retain other filters in form
-        self.assertIn(
-            """<input type="hidden" name="group" value="tna">""", html
-        )
+        self.assertIn("""<input type="hidden" name="group" value="tna">""", html)
         self.assertIn("""<input type="hidden" name="q" value="ufo">""", html)
-        self.assertIn(
-            """<input type="hidden" name="sort" value="title:asc">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="display" value="list">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="online" value="true">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="level" value="Item">""", html
-        )
-        self.assertIn(
-            """<input type="hidden" name="level" value="Piece">""", html
-        )
+        self.assertIn("""<input type="hidden" name="sort" value="title:asc">""", html)
+        self.assertIn("""<input type="hidden" name="display" value="list">""", html)
+        self.assertIn("""<input type="hidden" name="online" value="true">""", html)
+        self.assertIn("""<input type="hidden" name="level" value="Item">""", html)
+        self.assertIn("""<input type="hidden" name="level" value="Piece">""", html)
         self.assertIn(
             """<input type="hidden" name="covering_date_from-year" value="1940">""",
             html,
@@ -307,3 +293,4 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
         self.assertNotIn(
             """<input type="hidden" name="covering_date_from-day" """, html
         )
+        self.assertNotIn("""<input type="hidden" name="subject" """, html)

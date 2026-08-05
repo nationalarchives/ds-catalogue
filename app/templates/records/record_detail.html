@@ -14,6 +14,7 @@
 {% from 'records/macros/related_records_block.html' import related_records_block %}
 {% from 'records/macros/related_content_block.html' import related_content_block %}
 {% from 'records/macros/content_warning.html' import content_warning %}
+{% from 'macros/feedback_banner.html' import feedback %}
 
 {%- set pageTitle = (record.clean_title_or_summary_title or '[No title]') | striptags -%}
 
@@ -36,12 +37,13 @@
 {% endblock beforeContent %}
 
 {% block content %}
-{{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
+{{ global_alert_banners(request, global_alert, mourning_notice, 'm') }}
 <div class="tna-section tna-!--padding-top-{{ 's' if distressing_content else 'l' }}">
   <div class="tna-container">
+    {# TODO: May need to consider whether to have more bespoke wording #}
     {{ content_warning(
         distressing_content,
-        "This record may include content that reflects the trauma and distress experienced by those present during or affected by the event of the time"
+        "This record may include content that reflects the trauma and distress experienced by those present during or affected by the events of the time"
       ) }}
     <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny tna-!--padding-top-xs">
       <hgroup class="tna-hgroup-xl">
@@ -77,7 +79,7 @@
             <p>Sorry, information for accessing this record is currently unavailable online. Please try again later.</p>
           </div>
         </div>
-      {% endif %} 
+      {% endif %}
     </div>
   {% endif %}
 
@@ -120,6 +122,8 @@
 {% endif %}
 
 {{ related_records_block(record, related_records) }}
+
+{{ feedback() }}
 
 {% endblock content %}
 

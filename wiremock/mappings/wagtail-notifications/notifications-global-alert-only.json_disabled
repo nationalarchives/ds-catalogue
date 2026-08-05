@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/globals/notifications/?$"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "global_alert": {
+        "title": "Test Alert",
+        "message": "Test global alert from Wagtail Notifications Api",
+        "alert_level": "high",
+        "cascade": true,
+        "uid": 234567896
+      },
+      "mourning_notice": null
+    }
+  }
+}

@@ -137,11 +137,11 @@
         </ol>
       </xsl:when>
       <xsl:when test="@type='simple'">
-        <blockquote class="tna-blockquote">
-          <div class="tna-blockquote__quote">
+        <div class="tna-blockquote">
+          <blockquote class="tna-blockquote__quote">
             <xsl:apply-templates/>
-          </div>
-        </blockquote>
+          </blockquote>
+        </div>
       </xsl:when>
       <xsl:otherwise>
         <ul class="tna-ul">
@@ -263,11 +263,11 @@
     </small>
   </xsl:template>
   <xsl:template match="blockquote">
-    <blockquote class="tna-blockquote">
-      <div class="tna-blockquote__quote">
+    <div class="tna-blockquote">
+      <blockquote class="tna-blockquote__quote">
         <xsl:apply-templates/>
-      </div>
-    </blockquote>
+      </blockquote>
+    </div>
   </xsl:template>
   <!--
   <xsl:template match="abbr">

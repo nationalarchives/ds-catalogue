@@ -95,9 +95,7 @@ class BaseForm:
         """Returns field errors."""
 
         errors = {
-            field.name: field.error
-            for field in self.fields.values()
-            if field.error
+            field.name: field.error for field in self.fields.values() if field.error
         }
         return errors
 

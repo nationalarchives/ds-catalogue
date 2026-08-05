@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.records.models import APIResponse, Record
 from django.utils.functional import cached_property
+
+from app.records.models import APIResponse, Record
 
 
 class APISearchResponse(APIResponse):
-
     @cached_property
     def records(self) -> list[Record]:
         records = []

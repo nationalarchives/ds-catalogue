@@ -2,6 +2,7 @@ import logging
 from http import HTTPStatus
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from requests import (
     ConnectionError,
     JSONDecodeError,
@@ -11,11 +12,19 @@ from requests import (
     get,
 )
 
+from .exceptions import (
+    APIBadRequestError,
+    APIConnectionError,
+    APIError,
+    APIForbiddenError,
+    APINonJSONResponseError,
+    APIRedirectError,
+    APIRequestFailedError,
+    APIResourceNotFound,
+    APITimeoutError,
+)
+
 logger = logging.getLogger(__name__)
-
-
-class ResourceNotFound(Exception):
-    pass
 
 
 class JSONAPIClient:
@@ -72,16 +81,16 @@ class JSONAPIClient:
             )
         except ConnectionError:
             logger.error("JSON API connection error")
-            raise Exception("A connection error occured")
+            raise APIConnectionError("A connection error occurred")
         except Timeout:
             logger.error("JSON API timeout")
-            raise Exception("The request timed out")
+            raise APITimeoutError("The request timed out")
         except TooManyRedirects:
             logger.error("JSON API had too many redirects")
-            raise Exception("Too many redirects")
+            raise APIRedirectError("Too many redirects")
         except Exception as e:
             logger.error(f"Unknown JSON API exception: {e}")
-            raise Exception(str(e))
+            raise APIError(str(e)) from e
         logger.debug(response.url)
         if response.status_code == codes.ok:
             try:
@@ -99,19 +108,19 @@ class JSONAPIClient:
                 )
                 logger.error(f"Non-JSON response: {truncated_text}{suffix}")
 
-                raise Exception("Non-JSON response provided")
+                raise APINonJSONResponseError("Non-JSON response provided")
 
         if response.status_code == HTTPStatus.BAD_REQUEST:
             logger.error(f"Bad request: {response.url}")
-            raise Exception("Bad request")
+            raise APIBadRequestError("Bad request")
         if response.status_code == HTTPStatus.FORBIDDEN:
             logger.warning("Forbidden")
-            raise Exception("Forbidden")
+            raise APIForbiddenError("Forbidden")
         if response.status_code == HTTPStatus.NOT_FOUND:
             logger.warning("Resource not found")
-            raise ResourceNotFound("Resource not found")
+            raise APIResourceNotFound("Resource not found")
         logger.error(f"JSON API responded with {response.status_code}")
-        raise Exception("Request failed")
+        raise APIRequestFailedError("Request failed")
 
 
 def rosetta_request_handler(uri, params=None, timeout=None) -> dict:
@@ -120,7 +129,7 @@ def rosetta_request_handler(uri, params=None, timeout=None) -> dict:
         params = {}
     api_url = settings.ROSETTA_API_URL
     if not api_url:
-        raise Exception("ROSETTA_API_URL not set")
+        raise ImproperlyConfigured("ROSETTA_API_URL not set")
     client = JSONAPIClient(api_url)
     client.add_parameters(params)
     data = client.get(uri, timeout=timeout)

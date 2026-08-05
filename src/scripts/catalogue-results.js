@@ -27,6 +27,7 @@ if (
   };
 
   const displayFilters = () => {
+    // eslint-disable-next-line id-length, no-plusplus
     for (let i = 0; i < $visibleAsideElements.length; i++) {
       $visibleAsideElements[i].style.display = "block";
     }
@@ -34,6 +35,7 @@ if (
   };
 
   const hideFilters = () => {
+    // eslint-disable-next-line id-length, no-plusplus
     for (let i = 0; i < $visibleAsideElements.length; i++) {
       $visibleAsideElements[i].style.display = "none";
     }
@@ -49,6 +51,7 @@ if (
   });
 
   const isMobile = window.matchMedia("(max-width: 48em)");
+  // eslint-disable-next-line id-length
   isMobile.onchange = (e) => {
     if (e.matches) {
       showEventFiltersButton();

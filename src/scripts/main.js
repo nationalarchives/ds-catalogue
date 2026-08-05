@@ -1,8 +1,9 @@
 import {
-  initAll,
   Cookies,
+  initAll,
 } from "@nationalarchives/frontend/nationalarchives/all.mjs";
 
+// eslint-disable-next-line init-declarations
 let cookies;
 
 const cookiesDomain =
@@ -30,6 +31,7 @@ const initNotifications = () => {
       const $alertDismissButton = $globalAlert.querySelector(
         ".etna-global-alert__dismiss",
       );
+      // eslint-disable-next-line radix
       const alertUid = parseInt($alertDismissButton.value);
       if (initialDismissedNotifications.includes(alertUid)) {
         $globalAlert.hidden = true;
@@ -40,6 +42,7 @@ const initNotifications = () => {
             cookies.get("dismissed_notifications") || "[]",
           );
           const dismissedNotificationsSet = new Set(dismissedNotifications);
+          // eslint-disable-next-line radix
           dismissedNotificationsSet.add(parseInt(alertUid));
           cookies.set(
             "dismissed_notifications",
@@ -66,7 +69,7 @@ if (cookies.isPolicyAccepted("settings")) {
   initNotifications();
 } else {
   cookies.once("changePolicy", (policies) => {
-    if (policies["settings"]) {
+    if (policies.settings) {
       initNotifications();
     }
   });
