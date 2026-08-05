@@ -1,4 +1,4 @@
-import { Cookies } from "@nationalarchives/frontend/nationalarchives/all.mjs";
+import Cookies from "@nationalarchives/cookies";
 
 import { Accordion } from "./etna-accordion.mjs";
 
@@ -39,7 +39,7 @@ class toggleDetailsListDescriptions {
     );
 
     if (
-      this.cookies.isPolicyAccepted("settings") &&
+      this.cookies.preference("settings") &&
       this.cookies.exists("hide_record_detail_descriptions")
     ) {
       this.checkbox.checked = this.cookies.hasValue(
@@ -60,7 +60,7 @@ class toggleDetailsListDescriptions {
       }
     }
 
-    if (this.cookies.isPolicyAccepted("settings")) {
+    if (this.cookies.preference("settings")) {
       this.cookies.set("hide_record_detail_descriptions", hide);
     }
   }
@@ -79,7 +79,7 @@ const youtubeLink = document.getElementById("youtube-link");
 if (
   youtubeLink &&
   youtubeLink.dataset.youtubeVideoId &&
-  cookies.isPolicyAccepted("marketing")
+  cookies.preference("marketing")
 ) {
   const embededPlayer = document.createElement("iframe");
   embededPlayer.id = "youtube-embeded-player";
