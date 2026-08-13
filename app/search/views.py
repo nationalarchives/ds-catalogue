@@ -990,9 +990,31 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
     for word in ignore_words:
         query_arr.append(f'NOT "{word}"')
 
-    q = " ".join(query_arr) if query_arr else "*"
+    params: dict[str, str] = {
+        "q": " ".join(query_arr) if query_arr else "*",
+    }
 
-    return q
+    for prefix in ("date_from", "date_to"):
+        value = form.fields[prefix].value
+        year = (value.get("year", "") if value else "").strip()
+        month = (value.get("month", "") if value else "").strip()
+        day = (value.get("day", "") if value else "").strip()
+
+        if year:
+            if prefix == "date_from":
+                target = "covering_date_from"
+            else:
+                target = "covering_date_to"
+
+            params[f"{target}-year"] = year
+            if month:
+                params[f"{target}-month"] = month
+            if day:
+                params[f"{target}-day"] = day
+
+
+
+    return urlencode(params), []
 
 
 def _advanced_search_errors_from_form(form: AdvancedSearchForm) -> list[str]:

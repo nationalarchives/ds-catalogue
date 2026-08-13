@@ -163,7 +163,11 @@
                 "headingSize": "s",
                 "id": "date_from",
                 "name": "date_from",
-                "value": "",
+                "value": {
+                  "year": request.POST.get("date_from-year") or "",
+                  "month": request.POST.get("date_from-month") or "",
+                  "day": request.POST.get("date_from-day") or ""
+                },
                 "hint": "For example: 1997, 1999 and 1, or 1997 1 and 31",
                 "fields": ["y", "m", "d"],
                 "progressive": true
@@ -176,7 +180,11 @@
                 "headingSize": "s",
                 "id": "date_to",
                 "name": "date_to",
-                "value": "",
+                "value": {
+                  "year": request.POST.get("date_to-year") or "",
+                  "month": request.POST.get("date_to-month") or "",
+                  "day": request.POST.get("date_to-day") or ""
+                },
                 "hint": "For example: 1997, 1999 and 1, or 1997 1 and 31",
                 "fields": ["y", "m", "d"],
                 "progressive": true
