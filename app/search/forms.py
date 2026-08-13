@@ -18,6 +18,45 @@ from .constants import (
     Sort,
 )
 
+#TODO add constants for each field probs?
+
+class AdvancedSearchForm(BaseForm):
+    def add_fields(self):
+        return {
+            "all_words": CharField(required=False),
+            "exact_words": CharField(required=False),
+            "any_words": CharField(required=False),
+            "ignore_words": CharField(required=False),
+            "references": CharField(required=False),
+            "date_from": FromDateField(
+                label="From",
+                required=False,
+                progressive=True,
+                date_ymd_separator=DATE_YMD_SEPARATOR,
+            ),
+            "date_to": ToDateField(
+                label="To",
+                required=False,
+                progressive=True,
+                date_ymd_separator=DATE_YMD_SEPARATOR,
+            ),
+        }
+
+    def cross_validate(self) -> list[str]:
+        errors = []
+        date_from = self.fields["date_from"]
+        date_to = self.fields["date_to"]
+
+        if date_from.cleaned and date_to.cleaned and date_from.cleaned > date_to.cleaned:
+            date_from.add_error("This date must be earlier than or equal to the 'to' date.")
+            errors.append(
+                "Record dates: 'from' date ({from_date}) cannot be after 'to' date ({to_date}).".format(
+                    from_date=date_from.cleaned.strftime(DATE_DISPLAY_FORMAT),
+                    to_date=date_to.cleaned.strftime(DATE_DISPLAY_FORMAT),
+                )
+            )
+        return errors
+
 
 class CatalogueSearchBaseForm(BaseForm):
     """This is Base form that corresponds to top level (UI) for catalogue search
