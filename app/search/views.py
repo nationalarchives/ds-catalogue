@@ -107,6 +107,15 @@ class APIMixin:
         # date related filters
         add_filter(params, self._get_date_api_params(form))
 
+        # references filter (from advanced search redirect)
+        refs_raw = (
+            self.request.GET.get("references") if hasattr(self, "request") else None
+        )
+        if refs_raw:
+            refs = [r.strip() for r in refs_raw.splitlines() if r.strip()]
+            if refs:
+                add_filter(params, f"referenceNumber:({','.join(refs)})")
+
         # filter aggregations for each field
         filter_aggregations = []
         for field_name in form.fields:
@@ -917,9 +926,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
 
 def advanced_search(request):
-
-    template_name = "search/advanced_search.html"
-    template = loader.get_template(template_name)
+    template = loader.get_template("search/advanced_search.html")
     notifications = fetch_global_notifications() or {}
 
     context = {
@@ -995,15 +1002,15 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
     for word in ignore_words:
         query_arr.append(f'NOT "{word}"')
 
-    if references:
-        references_group = (
-            f"({' OR '.join(references)})" if len(references) > 1 else references[0]
-        )
-        query_arr.append(f"AND {references_group}" if query_arr else references_group)
+    # references are sent as a dedicated query param for Rosetta filter
 
     params: dict[str, str] = {
         "q": " ".join(query_arr) if query_arr else "*",
     }
+
+    if references:
+        # keep the originally-entered line-separated format for APIMixin
+        params["references"] = "\n".join(references)
 
     for prefix in ("date_from", "date_to"):
         value = form.fields[prefix].value
