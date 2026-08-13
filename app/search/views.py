@@ -925,6 +925,7 @@ def advanced_search(request):
         "mourning_notice": notifications.get("mourning_notice")
         if notifications
         else None,
+        "advanced_search_errors": [],
     }
 
     def _parse_lines(request, field_name):
@@ -934,9 +935,11 @@ def advanced_search(request):
 
     form = AdvancedSearchForm(data=request.POST)
     if not form.is_valid():
+        context["advanced_search_errors"] = _advanced_search_errors_from_form(form)
         return HttpResponse(template.render(context, request))
 
     redirect_qs, errors = _build_advanced_search_query(form)
+    context["advanced_search_errors"] = errors
 
     if errors:
         return HttpResponse(template.render(context, request))
@@ -983,6 +986,18 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
     return q
 
 
+def _advanced_search_errors_from_form(form: AdvancedSearchForm) -> list[str]:
+    errors = []
+
+    for field_error in form.errors.values():
+        if message := field_error.get("text"):
+            errors.append(message)
+
+    for non_field_error in form.non_field_errors:
+        if message := non_field_error.get("text"):
+            errors.append(message)
+
+    return errors
 
 
 def advanced_search_js(request):

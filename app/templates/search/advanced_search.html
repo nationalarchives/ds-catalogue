@@ -46,6 +46,20 @@
   <div class="tna-background-accent-light">
     {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
   </div>
+  {% if advanced_search_errors %}
+  <div class="tna-container tna-!--margin-top-m">
+    <div class="tna-column tna-column--full">
+      <div class="tna-message tna-message--error">
+        <h2 class="tna-message__heading">There is a problem</h2>
+        <ul class="tna-ul">
+          {% for error in advanced_search_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  {% endif %}
   <div class="tna-background-accent-light tna-!--padding-top-s tna-!--padding-bottom-m">
     <div class="tna-container">
       <div class="tna-column tna-column--full">
