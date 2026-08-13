@@ -948,16 +948,22 @@ def advanced_search(request):
     return redirect(f"{search_url}?{redirect_qs}")
 
 
-def _split_lines(value: str) -> list[str]:
-    return [line.strip() for line in value.splitlines() if line.strip()]
-
 
 def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
+
+    def _cleaned_list(field_name: str) -> list[str]:
+        return [
+            line.strip()
+            for line in (form.fields[field_name].cleaned or "").splitlines()
+            if line.strip()
+        ]
+
     all_words = (form.fields["all_words"].cleaned or "").strip()
-    exact_words = _split_lines(form.fields["exact_words"].cleaned or "")
-    any_words = _split_lines(form.fields["any_words"].cleaned or "")
-    ignore_words = _split_lines(form.fields["ignore_words"].cleaned or "")
-    references = _split_lines(form.fields["references"].cleaned or "")
+    exact_words = _cleaned_list(form, "exact_words")
+    any_words = _cleaned_list(form, "any_words")
+    ignore_words = _cleaned_list(form, "ignore_words")
+    references = _cleaned_list(form, "references")
+
     date_from = form.fields["date_from"].cleaned
     date_to = form.fields["date_to"].cleaned
 
@@ -990,6 +996,12 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
     for word in ignore_words:
         query_arr.append(f'NOT "{word}"')
 
+    if references:
+        references_group = (
+            f"({' OR '.join(references)})" if len(references) > 1 else references[0]
+        )
+        query_arr.append(f"AND {references_group}" if query_arr else references_group)
+
     params: dict[str, str] = {
         "q": " ".join(query_arr) if query_arr else "*",
     }
@@ -1011,8 +1023,6 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
                 params[f"{target}-month"] = month
             if day:
                 params[f"{target}-day"] = day
-
-
 
     return urlencode(params), []
 
