@@ -2,7 +2,7 @@ class AdvancedSearchPreview {
   constructor() {
     this.searchPreview = document.querySelector("[data-js-search-preview]");
     this.searchPreviewQuery = document.querySelector("[data-js-search-preview-query]");
-    if (!this.searchPreview || !this.searchPreviewQuery) return;
+    if (!this.searchPreview || !this.searchPreviewQuery) {return;}
 
     this.allWordsInput = document.getElementById("all_words");
     this.exactWords = document.getElementById("exact_words");
@@ -20,7 +20,7 @@ class AdvancedSearchPreview {
    * @returns {string[]} The values from the textarea
    */
   getChipValues(textarea) {
-    if (!textarea) return [];
+    if (!textarea) {return [];}
     return textarea.value
       .split("\n")
       .map(v => v.trim())
@@ -55,15 +55,15 @@ class AdvancedSearchPreview {
    * @param {boolean} options.wrap - Whether to wrap in parentheses (default true)
    */
   addGroup(parts, terms, { prefix = null, joiner = "OR", wrap = true } = {}) {
-    if (terms.length === 0) return;
+    if (terms.length === 0) {return;}
     const showParens = wrap && terms.length > 1;
-    if (prefix) parts.push({ type: "operator", value: prefix });
-    if (showParens) parts.push({ type: "paren", value: "(" });
+    if (prefix) {parts.push({ type: "operator", value: prefix });}
+    if (showParens) {parts.push({ type: "paren", value: "(" });}
     terms.forEach((term, i) => {
-      if (i > 0) parts.push({ type: "operator", value: joiner });
+      if (i > 0) {parts.push({ type: "operator", value: joiner });}
       parts.push({ type: "term", value: term });
     });
-    if (showParens) parts.push({ type: "paren", value: ")" });
+    if (showParens) {parts.push({ type: "paren", value: ")" });}
   }
 
   /**

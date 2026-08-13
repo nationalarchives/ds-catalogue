@@ -39,7 +39,7 @@ class ChipField {
     if (this.textarea.id) {
       this.input.id = `${this.textarea.id}-enhanced`;
       const label = this.container?.querySelector(`label[for="${this.textarea.id}"]`);
-      if (label) label.setAttribute("for", this.input.id);
+      if (label) {label.setAttribute("for", this.input.id);}
     }
 
     this.button = document.createElement("button");
@@ -127,7 +127,7 @@ class ChipField {
    */
   addValue(rawValue) {
     const value = rawValue.trim();
-    if (!value || this.values.has(value)) return;
+    if (!value || this.values.has(value)) {return;}
 
     this.values.add(value);
     this.syncTextarea();
@@ -142,7 +142,7 @@ class ChipField {
    * @param {string} value The value to remove
    */
   removeValue(value) {
-    if (!this.values.has(value)) return;
+    if (!this.values.has(value)) {return;}
 
     this.values.delete(value);
     this.syncTextarea();
@@ -175,7 +175,7 @@ class ChipField {
 
       if (e.key === "Backspace" && !this.input.value) {
         const last = Array.from(this.values).at(-1);
-        if (last) this.removeValue(last);
+        if (last) {this.removeValue(last);}
       }
     });
 
@@ -186,7 +186,7 @@ class ChipField {
 
     this.list.addEventListener("click", (e) => {
       const link = e.target.closest(".tna-compound-filters__link");
-      if (!link) return;
+      if (!link) {return;}
       e.preventDefault();
       this.removeValue(link.dataset.value);
     });
