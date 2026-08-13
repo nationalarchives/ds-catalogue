@@ -5,6 +5,7 @@ from typing import Any
 
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, QueryDict
+from django.template import loader
 from django.views.generic import TemplateView
 
 from app.errors import views as errors_view
@@ -913,55 +914,27 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
 def advanced_search(request):
     """View for the advanced search page."""
-    from app.main.global_alert import fetch_global_alert_api_data
-    from django.http import HttpResponse
-    from django.template import loader
-
-    def _parse_lines(request, field_name):
-        return [line.strip() for line in request.GET.get(field_name, "").splitlines() if line.strip()]
-
-    all_words    = request.GET.get("all_words", "").strip()
-    exact_words  = _parse_lines(request, "exact_words")
-    any_words    = _parse_lines(request, "any_words")
-    ignore_words = _parse_lines(request, "ignore_words")
-    references   = _parse_lines(request, "references")
-
-    has_input = any([all_words, exact_words, any_words, ignore_words, references])
-
-    if has_input:
-        # build query parameters q = blah
-        query_arr = []
-        if all_words:
-            query_arr.append(all_words)
-
-        for word in exact_words:
-            query_arr.append(f'AND "{word}"' if parts else f'"{word}"')
-
-        for word in any_words:
-            words = f"({' OR '.join(any_words)})" if len(any_words) > 1 else any_words[0]
-            query_arr.append(f"AND {words}" if query_arr else words)
-
-        for word in ignore_words:
-            query_arr.append(f'NOT "{word}"')
-
-        q = " ".join(query_arr) if query_arr else "*"
-
 
     template = loader.get_template("search/advanced_search.html")
+    notifications = fetch_global_notifications()
     context = {
-        "global_alert": fetch_global_alert_api_data(),
+        "global_alert": notifications.get("global_alert") if notifications else None,
+        "mourning_notice": notifications.get("mourning_notice")
+        if notifications
+        else None,
     }
     return HttpResponse(template.render(context, request))
 
 
 def advanced_search_js(request):
     """JS-enhanced version of the advanced search page for testing."""
-    from app.main.global_alert import fetch_global_alert_api_data
-    from django.http import HttpResponse
-    from django.template import loader
 
     template = loader.get_template("search/advanced_search_js.html")
+    notifications = fetch_global_notifications()
     context = {
-        "global_alert": fetch_global_alert_api_data(),
+        "global_alert": notifications.get("global_alert") if notifications else None,
+        "mourning_notice": notifications.get("mourning_notice")
+        if notifications
+        else None,
     }
     return HttpResponse(template.render(context, request))

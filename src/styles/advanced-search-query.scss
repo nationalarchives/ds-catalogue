@@ -8,9 +8,10 @@
   @include colour.colour-font("font-base");
 
   &__term {
-    display: inline-block;
-    padding: spacing.space(0.25) spacing.space(0.5);
     margin-bottom: spacing.space(0.25);
+    padding: spacing.space(0.25) spacing.space(0.5);
+
+    display: inline-block;
 
     @include borders.rounded-border;
     @include colour.colour-background("background-tint");
