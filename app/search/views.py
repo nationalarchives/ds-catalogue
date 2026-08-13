@@ -6,8 +6,8 @@ from urllib.parse import urlencode
 
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, QueryDict
-from django.template import loader
 from django.shortcuts import redirect
+from django.template import loader
 from django.urls import reverse
 from django.views.generic import TemplateView
 
@@ -947,6 +947,7 @@ def advanced_search(request):
 
 def _split_lines(value: str) -> list[str]:
     return [line.strip() for line in value.splitlines() if line.strip()]
+
 
 def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
     all_words = (form.fields["all_words"].cleaned or "").strip()
