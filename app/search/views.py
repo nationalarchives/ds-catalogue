@@ -2,10 +2,13 @@ import copy
 import logging
 import math
 from typing import Any
+from urllib.parse import urlencode
 
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.template import loader
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic import TemplateView
 
 from app.errors import views as errors_view
@@ -43,6 +46,7 @@ from .constants import (
     Sort,
 )
 from .forms import (
+    AdvancedSearchForm,
     CatalogueSearchBaseForm,
     CatalogueSearchNonTnaForm,
     CatalogueSearchTnaForm,
@@ -925,38 +929,60 @@ def advanced_search(request):
 
     def _parse_lines(request, field_name):
         return [line.strip() for line in request.GET.get(field_name, "").splitlines() if line.strip()]
+    if request.method != "POST":
+        return HttpResponse(template.render(context, request))
 
-    all_words    = request.GET.get("all_words", "").strip()
-    exact_words  = _parse_lines(request, "exact_words")
-    any_words    = _parse_lines(request, "any_words")
-    ignore_words = _parse_lines(request, "ignore_words")
-    references   = _parse_lines(request, "references")
-    # date_from =
-    # date_to =
+    form = AdvancedSearchForm(data=request.POST)
+    if not form.is_valid():
+        return HttpResponse(template.render(context, request))
 
-    has_input = any([all_words, exact_words, any_words, ignore_words, references])
+    redirect_qs, errors = _build_advanced_search_query(form)
 
-    if has_input:
-        # build query parameters q = blah
-        query_arr = []
-        if all_words:
-            query_arr.append(all_words)
+    if errors:
+        return HttpResponse(template.render(context, request))
 
-        for word in exact_words:
-            query_arr.append(f'AND "{word}"' if query_arr else f'"{word}"')
-
-        for word in any_words:
-            words = f"({' OR '.join(any_words)})" if len(any_words) > 1 else any_words[0]
-            query_arr.append(f"AND {words}" if query_arr else words)
-
-        for word in ignore_words:
-            query_arr.append(f'NOT "{word}"')
-
-        q = " ".join(query_arr) if query_arr else "*"
+    search_url = reverse("search:catalogue")
+    return redirect(f"{search_url}?{redirect_qs}")
 
 
+def _split_lines(value: str) -> list[str]:
+    return [line.strip() for line in value.splitlines() if line.strip()]
 
-    return HttpResponse(template.render(context, request))
+def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
+    all_words = (form.fields["all_words"].cleaned or "").strip()
+    exact_words = _split_lines(form.fields["exact_words"].cleaned or "")
+    any_words = _split_lines(form.fields["any_words"].cleaned or "")
+    ignore_words = _split_lines(form.fields["ignore_words"].cleaned or "")
+    references = _split_lines(form.fields["references"].cleaned or "")
+    # date_from = form.fields["date_from"].cleaned
+    # date_to = form.fields["date_to"].cleaned
+
+    has_input = any(
+        [all_words, exact_words, any_words, ignore_words, references, from_date, to_date]
+    )
+
+    if not has_input:
+        return "", ["Enter at least one value to search."]
+
+    query_arr = []
+    if all_words:
+        query_arr.append(all_words)
+
+    for word in exact_words:
+        query_arr.append(f'AND "{word}"' if query_arr else f'"{word}"')
+
+    for word in any_words:
+        words = f"({' OR '.join(any_words)})" if len(any_words) > 1 else any_words[0]
+        query_arr.append(f"AND {words}" if query_arr else words)
+
+    for word in ignore_words:
+        query_arr.append(f'NOT "{word}"')
+
+    q = " ".join(query_arr) if query_arr else "*"
+
+    return q
+
+
 
 
 def advanced_search_js(request):

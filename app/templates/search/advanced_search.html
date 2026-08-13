@@ -57,7 +57,8 @@
 
   <div class="tna-container">
     <div class="tna-column tna-column--width-2-3 tna-column--full-medium tna-column--full-small tna-column--full-tiny">
-      <form action="" method="get" novalidate class="tna-!--margin-top-m">
+      <form action="" method="post" novalidate class="tna-!--margin-top-m">
+        {% csrf_token %}
 
         {% call tnaFieldset({
           "legend": "Find  records that contain",
@@ -73,7 +74,7 @@
             "headingSize": "s",
             "id": "all_words",
             "name": "all_words",
-            "value": "",
+            "value": request.POST.get("all_words") or "",
             "hint": "Include the important words, for example: medal card UK"
           }) }}
 
@@ -85,7 +86,7 @@
               "headingSize": "s",
               "id": "exact_words",
               "name": "exact_words",
-              "value": "",
+              "value": request.POST.get("exact_words") or "",
               "hint": "Put each word on a new line, for example:<br>medal<br>card" | safe
             }) }}
           {% endblock exact_words_field %}
@@ -98,7 +99,7 @@
               "headingSize": "s",
               "id": "any_words",
               "name": "any_words",
-              "value": "",
+              "value": request.POST.get("any_words") or "",
               "hint": "Put each word on a new line, for example:<br>medal<br>card" | safe
             }) }}
           {% endblock any_words_field %}
@@ -111,7 +112,7 @@
               "headingSize": "s",
               "id": "ignore_words",
               "name": "ignore_words",
-              "value": "",
+              "value": request.POST.get("ignore_words") or "",
               "hint": "Put each word on a new line, for example:<br>medal<br>card" | safe
             }) }}
           {% endblock ignore_words_field %}
@@ -134,7 +135,7 @@
               "headingSize": "s",
               "id": "references",
               "name": "references",
-              "value": ""
+              "value": request.POST.get("references") or ""
             }) }}
           {% endblock references_field %}
 

@@ -11,7 +11,7 @@
     "headingSize": "s",
     "id": "exact_words",
     "name": "exact_words",
-    "value": "",
+    "value": request.POST.get("exact_words") or "",
     "attributes": {
       "data-js-chip-field": "",
       "data-js-chip-hint": "Add words or phrases separately"
@@ -28,7 +28,7 @@
     "headingSize": "s",
     "id": "any_words",
     "name": "any_words",
-    "value": "",
+    "value": request.POST.get("any_words") or "",
     "attributes": {
       "data-js-chip-field": "",
       "data-js-chip-hint": "Add words separately"
@@ -44,7 +44,7 @@
     "headingSize": "s",
     "id": "ignore_words",
     "name": "ignore_words",
-    "value": "",
+    "value": request.POST.get("ignore_words") or "",
     "hint": "Put each word on a new line, for example: \nmedal\ncard",
     "attributes": {
       "data-js-chip-field": "",
@@ -62,7 +62,7 @@
   "headingSize": "s",
   "id": "references",
   "name": "references",
-  "value": "",
+  "value": request.POST.get("references") or "",
   "attributes": {
     "data-js-chip-field": "",
     "data-js-chip-hint": "Add catalogue references separately"
