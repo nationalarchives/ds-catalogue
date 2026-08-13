@@ -948,7 +948,6 @@ def advanced_search(request):
     return redirect(f"{search_url}?{redirect_qs}")
 
 
-
 def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
 
     def _cleaned_list(field_name: str) -> list[str]:
