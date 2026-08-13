@@ -18,7 +18,8 @@ from .constants import (
     Sort,
 )
 
-#TODO add constants for each field probs?
+# TODO add constants for each field probs?
+
 
 class AdvancedSearchForm(BaseForm):
     def add_fields(self):
@@ -47,8 +48,14 @@ class AdvancedSearchForm(BaseForm):
         date_from = self.fields["date_from"]
         date_to = self.fields["date_to"]
 
-        if date_from.cleaned and date_to.cleaned and date_from.cleaned > date_to.cleaned:
-            date_from.add_error("This date must be earlier than or equal to the 'to' date.")
+        if (
+            date_from.cleaned
+            and date_to.cleaned
+            and date_from.cleaned > date_to.cleaned
+        ):
+            date_from.add_error(
+                "This date must be earlier than or equal to the 'to' date."
+            )
             errors.append(
                 "Record dates: 'from' date ({from_date}) cannot be after 'to' date ({to_date}).".format(
                     from_date=date_from.cleaned.strftime(DATE_DISPLAY_FORMAT),

@@ -917,19 +917,16 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
 
 def advanced_search(request):
-    """View for the advanced search page."""
     template = loader.get_template("search/advanced_search.html")
     notifications = fetch_global_notifications()
     context = {
-        "global_alert": notifications.get("global_alert") if notifications else None,
         "mourning_notice": notifications.get("mourning_notice")
         if notifications
         else None,
+        "global_alert": notifications,
         "advanced_search_errors": [],
     }
 
-    def _parse_lines(request, field_name):
-        return [line.strip() for line in request.GET.get(field_name, "").splitlines() if line.strip()]
     if request.method != "POST":
         return HttpResponse(template.render(context, request))
 
@@ -957,11 +954,19 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
     any_words = _split_lines(form.fields["any_words"].cleaned or "")
     ignore_words = _split_lines(form.fields["ignore_words"].cleaned or "")
     references = _split_lines(form.fields["references"].cleaned or "")
-    # date_from = form.fields["date_from"].cleaned
-    # date_to = form.fields["date_to"].cleaned
+    date_from = form.fields["date_from"].cleaned
+    date_to = form.fields["date_to"].cleaned
 
     has_input = any(
-        [all_words, exact_words, any_words, ignore_words, references, from_date, to_date]
+        [
+            all_words,
+            exact_words,
+            any_words,
+            ignore_words,
+            references,
+            date_from,
+            date_to,
+        ]
     )
 
     if not has_input:
