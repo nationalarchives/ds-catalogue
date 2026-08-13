@@ -917,8 +917,11 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
 
 def advanced_search(request):
-    template = loader.get_template("search/advanced_search.html")
-    notifications = fetch_global_notifications()
+
+    template_name = "search/advanced_search.html"
+    template = loader.get_template(template_name)
+    notifications = fetch_global_notifications() or {}
+
     context = {
         "mourning_notice": notifications.get("mourning_notice")
         if notifications
