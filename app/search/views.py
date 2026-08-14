@@ -927,7 +927,9 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
 
 def advanced_search(request):
-    template = loader.get_template("search/advanced_search.html")
+    # Serve the JS-enhanced template by default; the template is
+    # progressive-enhanced so it works without JS as a fallback.
+    template = loader.get_template("search/advanced_search_js.html")
     notifications = fetch_global_notifications() or {}
 
     context = {
