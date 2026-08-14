@@ -966,10 +966,10 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
         ]
 
     all_words = (form.fields["all_words"].cleaned or "").strip()
-    exact_words = _cleaned_list(form, "exact_words")
-    any_words = _cleaned_list(form, "any_words")
-    ignore_words = _cleaned_list(form, "ignore_words")
-    references = _cleaned_list(form, "references")
+    exact_words = _cleaned_list("exact_words")
+    any_words = _cleaned_list("any_words")
+    ignore_words = _cleaned_list("ignore_words")
+    references = _cleaned_list("references")
 
     date_from = form.fields["date_from"].cleaned
     date_to = form.fields["date_to"].cleaned
