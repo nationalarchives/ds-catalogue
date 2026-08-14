@@ -1047,6 +1047,12 @@ def _advanced_search_errors_from_form(form: AdvancedSearchForm) -> list[str]:
 
 
 def advanced_search_js(request):
+    """JS-enhanced version of the advanced search page for testing."""
+    # Delegate POST handling to the standard `advanced_search` view so the
+    # JS-enhanced page uses the same PRG flow and validation.
+    if request.method == "POST":
+        return advanced_search(request)
+
     template = loader.get_template("search/advanced_search_js.html")
     notifications = fetch_global_notifications()
     context = {
