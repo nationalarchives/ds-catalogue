@@ -966,10 +966,10 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
         ]
 
     all_words = (form.fields["all_words"].cleaned or "").strip()
-    exact_words = _cleaned_list(form, "exact_words")
-    any_words = _cleaned_list(form, "any_words")
-    ignore_words = _cleaned_list(form, "ignore_words")
-    references = _cleaned_list(form, "references")
+    exact_words = _cleaned_list("exact_words")
+    any_words = _cleaned_list("any_words")
+    ignore_words = _cleaned_list("ignore_words")
+    references = _cleaned_list("references")
 
     date_from = form.fields["date_from"].cleaned
     date_to = form.fields["date_to"].cleaned
@@ -1050,6 +1050,10 @@ def _advanced_search_errors_from_form(form: AdvancedSearchForm) -> list[str]:
 
 def advanced_search_js(request):
     """JS-enhanced version of the advanced search page for testing."""
+    # Delegate POST handling to the standard `advanced_search` view so the
+    # JS-enhanced page uses the same PRG flow and validation.
+    if request.method == "POST":
+        return advanced_search(request)
 
     template = loader.get_template("search/advanced_search_js.html")
     notifications = fetch_global_notifications()
