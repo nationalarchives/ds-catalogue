@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, QueryDict
+from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.template import loader
 from django.urls import reverse
