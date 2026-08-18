@@ -3,16 +3,19 @@ from unittest.mock import patch
 
 import responses
 from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import TestCase, modify_settings, override_settings
 
 
 @override_settings(DEBUG=False)
+@modify_settings(MIDDLEWARE={"remove": "debug_toolbar.middleware.DebugToolbarMiddleware"})
 class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
     """Tests API calls (url) made by the catalogue search view for tna bucket/group."""
 
     @patch("app.lib.api.logger")
     @responses.activate
     def test_catalogue_debug_api(self, mock_logger):
+
+        api_url = f"{settings.ROSETTA_API_URL}/search?"
 
         responses.add(
             responses.GET,
@@ -70,7 +73,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         response = self.client.get("/catalogue/search/")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?"
+            api_url +
             "filter=group%3Atna"
             "&aggs=level"
             "&aggs=collection"
@@ -85,7 +88,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         response = self.client.get("/catalogue/search/?group=tna")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?"
+            api_url +
             "filter=group%3Atna"
             "&aggs=level"
             "&aggs=collection"
@@ -100,7 +103,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         response = self.client.get("/catalogue/search/?group=tna&held_by=somearchive")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?"
+            api_url +
             "filter=group%3Atna"
             "&aggs=level"
             "&aggs=collection"
@@ -117,7 +120,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?"
+            api_url +
             "filter=group%3Atna"
             "&filter=subject%3AArmy"
             "&filter=subject%3ANavy"
@@ -142,7 +145,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?"
+            api_url +
             "filter=group%3Atna"
             "&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29"
             "&filter=coveringToDate%3A%28%3C%3D2000-12-31%29"
@@ -167,7 +170,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?"
+            api_url +
             "filter=group%3Atna"
             "&filter=openingFromDate%3A%28%3E%3D2000-12-1%29"
             "&filter=openingToDate%3A%28%3C%3D2000-12-31%29"
@@ -183,7 +186,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         response = self.client.get("/catalogue/search/?filter_list=longCollection")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?"
+            api_url +
             "filter=group%3Atna"
             "&aggs=longCollection"
             "&q=%2A"
@@ -194,7 +197,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         response = self.client.get("/catalogue/search/?filter_list=longSubject")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?"
+            api_url +
             "filter=group%3Atna"
             "&aggs=longSubject"
             "&q=%2A"
