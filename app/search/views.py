@@ -1056,7 +1056,6 @@ def advanced_search_js(request):
     # JS-enhanced page uses the same PRG flow and validation.
     if request.method == "POST":
         return advanced_search(request)
-
     template = loader.get_template("search/advanced_search_js.html")
     notifications = fetch_global_notifications()
     context = {
