@@ -53,13 +53,16 @@ class AdvancedSearchForm(BaseForm):
             and date_to.cleaned
             and date_from.cleaned > date_to.cleaned
         ):
+            from_date = date_from.cleaned.strftime(DATE_DISPLAY_FORMAT)
+            to_date = date_to.cleaned.strftime(DATE_DISPLAY_FORMAT)
+
             date_from.add_error(
                 "This date must be earlier than or equal to the 'to' date."
             )
             errors.append(
                 "Record dates: 'from' date ({from_date}) cannot be after 'to' date ({to_date}).".format(
-                    from_date=date_from.cleaned.strftime(DATE_DISPLAY_FORMAT),
-                    to_date=date_to.cleaned.strftime(DATE_DISPLAY_FORMAT),
+                    from_date=from_date,
+                    to_date=to_date,
                 )
             )
         return errors
