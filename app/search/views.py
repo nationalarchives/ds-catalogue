@@ -8,6 +8,7 @@ from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.middleware.csrf import get_token
 from django.shortcuts import redirect
+from django.template import TemplateDoesNotExist
 from django.template import loader
 from django.urls import reverse
 from django.views.generic import TemplateView
@@ -925,9 +926,6 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
 
 def advanced_search(request):
-    # Serve the JS-enhanced template by default; the template is
-    # progressive-enhanced so it works without JS as a fallback.
-    template = loader.get_template("search/advanced_search_js.html")
     notifications = fetch_global_notifications() or {}
 
     context = {
@@ -939,21 +937,45 @@ def advanced_search(request):
     }
 
     if request.method != "POST":
-        return HttpResponse(template.render(context, request))
+        return _render_advanced_search_template(request, context, prefer_js=False)
 
     form = AdvancedSearchForm(data=request.POST)
     if not form.is_valid():
         context["advanced_search_errors"] = _advanced_search_errors_from_form(form)
-        return HttpResponse(template.render(context, request))
+        return _render_advanced_search_template(request, context, prefer_js=False)
 
     redirect_qs, errors = _build_advanced_search_query(form)
     context["advanced_search_errors"] = errors
 
     if errors:
-        return HttpResponse(template.render(context, request))
+        return _render_advanced_search_template(request, context, prefer_js=False)
 
     search_url = reverse("search:catalogue")
     return redirect(f"{search_url}?{redirect_qs}")
+
+
+def _get_advanced_search_template():
+    return loader.get_template("search/advanced_search.html")
+
+
+def _render_advanced_search_template(request, context, prefer_js: bool):
+    template_names = ["search/advanced_search.html"]
+    if prefer_js:
+        template_names = ["search/advanced_search_js.html", "search/advanced_search.html"]
+
+    template_errors: list[Exception] = []
+    for template_name in template_names:
+        try:
+            template = loader.get_template(template_name)
+            return HttpResponse(template.render(context, request))
+        except TemplateDoesNotExist as exc:
+            template_errors.append(exc)
+            logger.warning("Template not found: %s", template_name)
+        except Exception as exc:
+            template_errors.append(exc)
+            logger.exception("Template failed to render: %s", template_name)
+
+    raise template_errors[-1]
 
 
 def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
@@ -1063,4 +1085,4 @@ def advanced_search_js(request):
         if notifications
         else None,
     }
-    return HttpResponse(template.render(context, request))
+    return _render_advanced_search_template(request, context, prefer_js=True)

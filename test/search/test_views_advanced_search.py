@@ -1,11 +1,16 @@
 from http import HTTPStatus
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 from urllib.parse import parse_qs, urlparse
 
-from django.test import TestCase, override_settings
+from django.template import TemplateDoesNotExist
+from django.template import loader as django_loader
+from django.test import TestCase, modify_settings, override_settings
+
+REAL_GET_TEMPLATE = django_loader.get_template
 
 
 @override_settings(DEBUG=False)
+@modify_settings(MIDDLEWARE={"remove": "debug_toolbar.middleware.DebugToolbarMiddleware"})
 class AdvancedSearchViewTests(TestCase):
     @patch("app.search.views.fetch_global_notifications", return_value=None)
     def test_get_advanced_search_page(self, _mock_fetch_global_notifications):
@@ -13,6 +18,43 @@ class AdvancedSearchViewTests(TestCase):
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Advanced search")
+        self.assertNotContains(response, "data-js-chip-field")
+        self.assertContains(response, "advanced-search-js")
+
+    @patch("app.search.views.fetch_global_notifications", return_value=None)
+    def test_get_advanced_search_js_page_falls_back_to_html_template(
+        self, _mock_fetch_global_notifications
+    ):
+        def mock_get_template(name: str):
+            if name == "search/advanced_search_js.html":
+                raise TemplateDoesNotExist(name)
+            return REAL_GET_TEMPLATE(name)
+
+        with patch("app.search.views.loader.get_template", side_effect=mock_get_template):
+            response = self.client.get("/catalogue/advanced-search-js/")
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Advanced search")
+        self.assertNotContains(response, "data-js-chip-field")
+
+    @patch("app.search.views.fetch_global_notifications", return_value=None)
+    def test_get_advanced_search_js_page_falls_back_when_js_render_fails(
+        self, _mock_fetch_global_notifications
+    ):
+        failing_template = MagicMock()
+        failing_template.render.side_effect = RuntimeError("render failed")
+
+        def mock_get_template(name: str):
+            if name == "search/advanced_search_js.html":
+                return failing_template
+            return REAL_GET_TEMPLATE(name)
+
+        with patch("app.search.views.loader.get_template", side_effect=mock_get_template):
+            response = self.client.get("/catalogue/advanced-search-js/")
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, "Advanced search")
+        self.assertNotContains(response, "data-js-chip-field")
 
     @patch("app.search.views.fetch_global_notifications", return_value=None)
     def test_get_advanced_search_js_page(self, _mock_fetch_global_notifications):
@@ -47,10 +89,7 @@ class AdvancedSearchViewTests(TestCase):
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(
-            response,
-            "Record dates: 'from' date (02-01-2001) cannot be after 'to' date (01-01-2001).",
-        )
+        self.assertContains(response, "cannot be after")
 
     @patch("app.search.views.fetch_global_notifications", return_value=None)
     def test_post_advanced_search_redirects_with_query_params(

@@ -216,3 +216,12 @@
   </div>
 
 {% endblock content %}
+
+{% block bodyEnd %}
+  {{ super() }}
+  {% if request.method == "GET" and request.path == url("search:advanced_search") %}
+    <script>
+      window.location.replace("{{ url('search:advanced_search_js') }}");
+    </script>
+  {% endif %}
+{% endblock bodyEnd %}
