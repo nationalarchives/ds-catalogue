@@ -193,14 +193,14 @@ files = [
 
 [[package]]
 name = "django"
-version = "6.0.6"
+version = "6.0.7"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 optional = false
 python-versions = ">=3.12"
 groups = ["main"]
 files = [
-    {file = "django-6.0.6-py3-none-any.whl", hash = "sha256:25148b1194c47c2e685e5f5e9c5d59c78b075dfd282cb9618861ba6c1708f4d2"},
-    {file = "django-6.0.6.tar.gz", hash = "sha256:ad03916ba59523d781ae5c3f631960c23d69a9d9c43cecda52fc23b47e953713"},
+    {file = "django-6.0.7-py3-none-any.whl", hash = "sha256:a037427c2288443a8c02a1b02295a31c239663aa682bc50b1976afb7cf6a769e"},
+    {file = "django-6.0.7.tar.gz", hash = "sha256:2998503fc083124fb58037084bfa00de323c7c743f05f1b4284e77bff0ab8890"},
 ]
 
 [package.dependencies]
@@ -814,30 +814,30 @@ unleash = ["UnleashClient (>=6.0.1)"]
 
 [[package]]
 name = "sqlparse"
-version = "0.5.5"
+version = "0.6.0"
 description = "A non-validating SQL parser."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "sqlparse-0.5.5-py3-none-any.whl", hash = "sha256:12a08b3bf3eec877c519589833aed092e2444e68240a3577e8e26148acc7b1ba"},
-    {file = "sqlparse-0.5.5.tar.gz", hash = "sha256:e20d4a9b0b8585fdf63b10d30066c7c94c5d7a7ec47c889a2d83a3caa93ff28e"},
+    {file = "sqlparse-0.6.0-py3-none-any.whl", hash = "sha256:b861c0288ce2fa56209a9a6412d2e066ac664b3873b89c26c9d8415e8e32996f"},
+    {file = "sqlparse-0.6.0.tar.gz", hash = "sha256:113c35c75365ab9cc9c7231d68c6428fb11c085fc8e9eb1ad659b7ddbf6cd2b9"},
 ]
 
 [package.extras]
 dev = ["build"]
-doc = ["sphinx"]
+doc = ["furo", "sphinx"]
 
 [[package]]
 name = "tna-frontend-jinja"
-version = "0.40.0"
+version = "1.2.0"
 description = "TNA Frontend Jinja templates"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "tna_frontend_jinja-0.40.0-py3-none-any.whl", hash = "sha256:fe6973c6c8937c362e479f23ea10009f1148404a9d1dfe76c81f37da393e459d"},
-    {file = "tna_frontend_jinja-0.40.0.tar.gz", hash = "sha256:f970a4d53257e7ea37ba4871b735b42beb9513af48becb86abdcc779cee0afa0"},
+    {file = "tna_frontend_jinja-1.2.0-py3-none-any.whl", hash = "sha256:4cb4100b46d2261c1893354c96259d1cf280c78b4e966c5f3e8132e9b8472ff5"},
+    {file = "tna_frontend_jinja-1.2.0.tar.gz", hash = "sha256:4bd79a35e6ad59ee34d99d6e3ed59a70b3e3131001090530b1ab5fa8ecfa5641"},
 ]
 
 [package.dependencies]
@@ -845,6 +845,24 @@ jinja2 = ">=3"
 
 [package.extras]
 wtforms = ["flask-wtf[email]"]
+
+[[package]]
+name = "tna-utilities"
+version = "1.5.0"
+description = "A library of common National Archives Python functions"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "tna_utilities-1.5.0-py3-none-any.whl", hash = "sha256:8a444891c2b39a3f8c76c8297ce800b1376e268a292dcdbb74407bbdb6ae4e6f"},
+    {file = "tna_utilities-1.5.0.tar.gz", hash = "sha256:f8525c0b05ac9e8c8f0fe47e7bfca00a1df6c514506c37e2b7848d840d2f2c09"},
+]
+
+[package.dependencies]
+requests = "*"
+
+[package.extras]
+flask = ["Flask"]
 
 [[package]]
 name = "tzdata"
@@ -895,4 +913,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "4df582f0b5f3cbd5138d89ee01aa08a01967b751e2444e5a12ffe9b9ee4eabeb"
+content-hash = "316c0dcca8f68fcf82387486b025a85d38713960308822231909a9eddc9dd333"

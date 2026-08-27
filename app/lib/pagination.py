@@ -1,4 +1,5 @@
-from config.jinja import format_number, qs_replace_value
+from config.utils.number import format_number
+from config.utils.query_string import qs_replace_value
 
 
 def pagination_list(current_page, total_pages, boundaries=1, around=1):

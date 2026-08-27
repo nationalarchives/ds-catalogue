@@ -47,7 +47,7 @@ Important Notes:
 
 ### Branching
 
-- Changes are developed in feature branches and submitted as pull requests via Github
+- Changes are developed in feature branches and submitted as pull requests via GitHub
 - Feature branches should always be based on: `main`
 - Create a new branch if the branch for that ticket has been merged.
 

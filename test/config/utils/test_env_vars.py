@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from config.util import get_bool_env, get_int_env
+from config.utils.env_vars import get_bool_env, get_int_env
 
 
 class TestGetIntEnv(TestCase):

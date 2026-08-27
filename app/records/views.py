@@ -4,7 +4,7 @@ import logging
 
 from django.views.generic import TemplateView
 
-from app.main.api import fetch_global_notifications
+from app.main.cache import fetch_global_notifications
 from app.records.enrichment import RecordEnrichmentHelper
 from app.records.labels import FIELD_LABELS
 from app.records.mixins import RecordContextMixin

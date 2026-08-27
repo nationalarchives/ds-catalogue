@@ -128,7 +128,7 @@
 
               {% elif field == 'description' %}
                 {# Output the field value and maybe the raw value #}
-                {{ record[field] | sanitise_record_field | safe }}
+                {{ record[field] | normalise_record_field | safe }}
 
               {% elif field == 'subjects' %}
                 <dl class="tna-dl-chips">
@@ -147,14 +147,14 @@
                   {% if record[field] | length > 1 %}
                     <ul class="tna-ul">
                     {% for item in record[field] %}
-                      <li>{{ item | apply_generic_xsl | sanitise_record_field | safe }}</li>
+                      <li>{{ item | apply_generic_xsl | normalise_record_field | safe }}</li>
                     {% endfor %}
                     </ul>
                   {% else %}
-                    {{ record[field][0] | apply_generic_xsl | sanitise_record_field | safe }}
+                    {{ record[field][0] | apply_generic_xsl | normalise_record_field | safe }}
                   {% endif %}
                 {% else %}
-                  {{ record[field] | apply_generic_xsl | sanitise_record_field | safe }}
+                  {{ record[field] | apply_generic_xsl | normalise_record_field | safe }}
                 {% endif %}
               {% endif %}
             </dd>

@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.text import slugify
+from tna_utilities.string import slugify
 
 from app.lib.api import JSONAPIClient, rosetta_request_handler
 from app.lib.exceptions import (

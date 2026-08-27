@@ -1,6 +1,7 @@
 @use "@nationalarchives/frontend/nationalarchives/tools/colour";
 @use "@nationalarchives/frontend/nationalarchives/tools/borders";
 @use "@nationalarchives/frontend/nationalarchives/tools/spacing";
+@use "@nationalarchives/frontend/nationalarchives/tools/media";
 
 .choose-section {
   background-color: #dde5d5;
@@ -56,5 +57,33 @@
         @include colour.accent;
       }
     }
+  }
+}
+
+.subject-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: spacing.space(1);
+
+  font-weight: bold;
+
+  list-style: none;
+
+  @include media.on-larger-than-mobile {
+    justify-content: space-between;
+  }
+
+  &__button {
+    padding: 0;
+
+    color: var(--link, #005fa3);
+    font-weight: bold;
+    text-decoration: underline;
+
+    background: none;
+
+    border: none;
+
+    cursor: pointer;
   }
 }

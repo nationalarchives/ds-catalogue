@@ -19,10 +19,10 @@ from app.lib.fields import (
     ToDateField,
 )
 from app.lib.pagination import pagination_object
-from app.main.api import fetch_global_notifications
+from app.main.cache import fetch_global_notifications
 from app.records.constants import TnaLevels
 from app.search.api import search_records
-from config.jinja import qs_remove_value, qs_replace_value, qs_toggle_value
+from config.utils.query_string import qs_remove_value, qs_replace_value, qs_toggle_value
 
 from .buckets import (
     CATALOGUE_BUCKETS,
@@ -35,6 +35,7 @@ from .constants import (
     DATE_DISPLAY_FORMAT,
     FILTER_DATATYPE_RECORD,
     FILTER_FIELDS,
+    LONG_FILTER_RESULTS_PER_PAGE,
     PAGE_LIMIT,
     PAGE_LIMIT_WARNING_MESSAGE,
     PAGE_LIMIT_WARNING_THRESHOLD,
@@ -389,7 +390,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         """
 
         try:
-            self.page  # checks valid page
+            _ = self.page  # checks valid page
             if self.form.is_valid():
                 self.query = self.form.fields[FieldsConstant.Q].cleaned
                 self.sort = self.form.fields[FieldsConstant.SORT].cleaned
@@ -430,8 +431,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         are cleaned and validated. Renders with form, context."""
 
         if self.is_filter_list_applied(self.form):
-            # for long filter, skip pagination to get all options
-            results_per_page = 0
+            results_per_page = LONG_FILTER_RESULTS_PER_PAGE
         else:
             results_per_page = RESULTS_PER_PAGE
 
@@ -627,6 +627,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             )
             if field_name:
                 filter_context["mfc_field"] = self.form.fields.get(field_name)
+                filter_context["aggregation"] = Aggregation
         return filter_context
 
     def build_selected_filters_list(self):

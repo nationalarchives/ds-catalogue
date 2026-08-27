@@ -101,7 +101,7 @@ class CatalogueSearchViewQueryParamTests(TestCase):
         self.assertEqual(response.context_data.get("total"), None)
 
         # no errors, but no results
-        self.assertEqual(form.is_valid(), True)
+        self.assertTrue(form.is_valid())
         self.assertEqual(form.errors, {})
 
         self.assertFalse(response.context_data.get("filters_visible"))

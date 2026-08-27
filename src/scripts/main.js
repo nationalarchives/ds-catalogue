@@ -1,20 +1,9 @@
-import {
-  Cookies,
-  initAll,
-} from "@nationalarchives/frontend/nationalarchives/all.mjs";
-
-// eslint-disable-next-line init-declarations
-let cookies;
-
-const cookiesDomain =
-  document.documentElement.getAttribute("data-cookiesdomain");
-if (cookiesDomain) {
-  cookies = new Cookies({ domain: cookiesDomain });
-} else {
-  cookies = new Cookies();
-}
+import Cookies from "@nationalarchives/cookies";
+import { initAll } from "@nationalarchives/frontend/nationalarchives/all.mjs";
 
 initAll();
+
+const cookies = new Cookies();
 
 /**
  * BELOW COPIED FROM https://github.com/nationalarchives/ds-frontend/blob/main/src/scripts/main.js
@@ -65,10 +54,10 @@ const initNotifications = () => {
     });
 };
 
-if (cookies.isPolicyAccepted("settings")) {
+if (cookies.preference("settings")) {
   initNotifications();
 } else {
-  cookies.once("changePolicy", (policies) => {
+  cookies.once("changePreference", (policies) => {
     if (policies.settings) {
       initNotifications();
     }
