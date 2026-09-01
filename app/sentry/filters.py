@@ -43,7 +43,7 @@ def should_ignore_delivery_options(hint: Hint) -> bool:
 
 def before_send(event: Event, hint: Hint) -> Event | None:
     """Filter out known, non-critical exceptions before sending to Sentry."""
-    
+
     if should_ignore_exception(hint):
         return None
 
