@@ -11,9 +11,6 @@ REAL_GET_TEMPLATE = django_loader.get_template
 
 @override_settings(DEBUG=False)
 @modify_settings(MIDDLEWARE={"remove": "debug_toolbar.middleware.DebugToolbarMiddleware"})
-
-
-@override_settings(DEBUG=False)
 class AdvancedSearchViewTests(TestCase):
     @patch("app.search.views.fetch_global_notifications", return_value=None)
     def test_get_advanced_search_page(self, _mock_fetch_global_notifications):
@@ -58,7 +55,6 @@ class AdvancedSearchViewTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Advanced search")
         self.assertNotContains(response, "data-js-chip-field")
-
 
     @patch("app.search.views.fetch_global_notifications", return_value=None)
     def test_get_advanced_search_js_page(self, _mock_fetch_global_notifications):
