@@ -59,8 +59,6 @@ logger = logging.getLogger(__name__)
 class PageNotFound(Exception):
     """Raised when a requested search results page number is out of range."""
 
-    pass
-
 
 class APIMixin:
     """A mixin to get the api result, processes api result, sets the context."""
