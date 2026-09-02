@@ -4,6 +4,7 @@ from config.utils.env_vars import strtobool
 
 from .features import *
 from .production import *
+from .production import INSTALLED_APPS, MIDDLEWARE
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
@@ -15,13 +16,13 @@ if DEBUG:
     try:
         import debug_toolbar
 
-        INSTALLED_APPS += [  # noqa: F405
+        INSTALLED_APPS += [
             "debug_toolbar",
         ]
 
         MIDDLEWARE = [
             "debug_toolbar.middleware.DebugToolbarMiddleware",
-        ] + MIDDLEWARE  # noqa: F405
+        ] + MIDDLEWARE
 
         DEBUG_TOOLBAR_CONFIG = {
             "SHOW_TOOLBAR_CALLBACK": lambda request: True,

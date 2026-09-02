@@ -2,7 +2,7 @@ import os
 
 from .features import *
 from .production import *
-from .production import BASE_DIR, INSTALLED_APPS
+from .production import BASE_DIR, INSTALLED_APPS, LOGGING
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
@@ -11,7 +11,7 @@ INSTALLED_APPS = INSTALLED_APPS + ["test"]
 SECRET_KEY = "abc123"
 
 DEBUG = True
-LOGGING["root"]["level"] = "DEBUG"  # noqa: F405
+LOGGING["root"]["level"] = "DEBUG"
 
 DATABASES = {
     "default": {
