@@ -113,7 +113,7 @@ class Bucket:
     record_count: int = 0
     is_current: bool = False
 
-    aggregations: list[str] = field(default_factory=list)
+    aggregations: list[str] = field(default_factory=lambda: [])
 
     @property
     def label_with_count(self) -> str:

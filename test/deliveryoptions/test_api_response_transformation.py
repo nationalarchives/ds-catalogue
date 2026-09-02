@@ -189,111 +189,105 @@ class DeliveryOptionsTestCase(unittest.TestCase):
 
     def test_construct_delivery_options_digital(self):
         """Test construction of delivery options for a digital record."""
-        with (
-            patch(
-                "app.deliveryoptions.delivery_options.get_reader_type"
-            ) as mock_reader_type,
-            patch(
+        with patch(
+            "app.deliveryoptions.delivery_options.get_reader_type"
+        ) as mock_reader_type:
+            with patch(
                 "app.deliveryoptions.delivery_options.read_delivery_options"
-            ) as mock_read_options,
-        ):
-            # Setup mocks
-            mock_read_options.return_value = self.mock_delivery_options_config
-            mock_reader_type.return_value = Reader.OFFSITE
+            ) as mock_read_options:
+                # Setup mocks
+                mock_read_options.return_value = self.mock_delivery_options_config
+                mock_reader_type.return_value = Reader.OFFSITE
 
-            # Call the function under test
-            result = construct_delivery_options(
-                self.api_result_digital, self.record, self.request
-            )
+                # Call the function under test
+                result = construct_delivery_options(
+                    self.api_result_digital, self.record, self.request
+                )
 
-            # Assertions
-            self.assertEqual(result["reader_type"], Reader.OFFSITE)
-            self.assertIn("do_heading", result)
-            self.assertIn("do_description", result)
-            self.assertIn("do_orderbuttons", result)
-            self.assertIn("View this record", result["do_heading"])
-            self.assertIn(
-                "This record is available to download",
-                result["do_description"],
-            )
+                # Assertions
+                self.assertEqual(result["reader_type"], Reader.OFFSITE)
+                self.assertIn("do_heading", result)
+                self.assertIn("do_description", result)
+                self.assertIn("do_orderbuttons", result)
+                self.assertIn("View this record", result["do_heading"])
+                self.assertIn(
+                    "This record is available to download",
+                    result["do_description"],
+                )
 
-            # Verify the orderbuttons have been properly processed
-            buttons = result["do_orderbuttons"]
-            self.assertEqual(len(buttons), 1)
-            self.assertEqual(buttons[0]["text"], "Download now")
-            self.assertEqual(buttons[0]["href"], "details/download")
+                # Verify the orderbuttons have been properly processed
+                buttons = result["do_orderbuttons"]
+                self.assertEqual(len(buttons), 1)
+                self.assertEqual(buttons[0]["text"], "Download now")
+                self.assertEqual(buttons[0]["href"], "details/download")
 
     def test_construct_delivery_options_onsite(self):
         """Test construction of delivery options for an onsite-only record."""
-        with (
-            patch(
-                "app.deliveryoptions.delivery_options.get_reader_type"
-            ) as mock_reader_type,
-            patch(
+        with patch(
+            "app.deliveryoptions.delivery_options.get_reader_type"
+        ) as mock_reader_type:
+            with patch(
                 "app.deliveryoptions.delivery_options.read_delivery_options"
-            ) as mock_read_options,
-        ):
-            # Setup mocks
-            mock_read_options.return_value = self.mock_delivery_options_config
-            mock_reader_type.return_value = Reader.OFFSITE
+            ) as mock_read_options:
+                # Setup mocks
+                mock_read_options.return_value = self.mock_delivery_options_config
+                mock_reader_type.return_value = Reader.OFFSITE
 
-            # Call the function under test
-            result = construct_delivery_options(
-                self.api_result_onsite, self.record, self.request
-            )
+                # Call the function under test
+                result = construct_delivery_options(
+                    self.api_result_onsite, self.record, self.request
+                )
 
-            # Assertions
-            self.assertEqual(result["reader_type"], Reader.OFFSITE)
-            self.assertIn("do_heading", result)
-            self.assertIn("do_description", result)
-            self.assertIn(
-                "do_supplemental", result
-            )  # Note: this is the correct key name
-            self.assertIn("do_orderbuttons", result)
-            self.assertIn("do_basketlimit", result)
-            self.assertIn("Order this record", result["do_heading"])
-            self.assertIn("The National Archives, Kew", result["do_description"])
+                # Assertions
+                self.assertEqual(result["reader_type"], Reader.OFFSITE)
+                self.assertIn("do_heading", result)
+                self.assertIn("do_description", result)
+                self.assertIn(
+                    "do_supplemental", result
+                )  # Note: this is the correct key name
+                self.assertIn("do_orderbuttons", result)
+                self.assertIn("do_basketlimit", result)
+                self.assertIn("Order this record", result["do_heading"])
+                self.assertIn("The National Archives, Kew", result["do_description"])
 
-            # Verify the orderbuttons have been properly processed
-            buttons = result["do_orderbuttons"]
-            self.assertEqual(len(buttons), 1)
-            self.assertEqual(buttons[0]["text"], "Request a copy")
-            self.assertIn("/pagecheck/start/C123456/", buttons[0]["href"])
+                # Verify the orderbuttons have been properly processed
+                buttons = result["do_orderbuttons"]
+                self.assertEqual(len(buttons), 1)
+                self.assertEqual(buttons[0]["text"], "Request a copy")
+                self.assertIn("/pagecheck/start/C123456/", buttons[0]["href"])
 
     def test_construct_delivery_options_digital_onsite_reader(self):
         """Test construction of delivery options for a digital record viewed by an onsite reader."""
-        with (
-            patch(
-                "app.deliveryoptions.delivery_options.get_reader_type"
-            ) as mock_reader_type,
-            patch(
+        with patch(
+            "app.deliveryoptions.delivery_options.get_reader_type"
+        ) as mock_reader_type:
+            with patch(
                 "app.deliveryoptions.delivery_options.read_delivery_options"
-            ) as mock_read_options,
-        ):
-            # Setup mocks
-            mock_read_options.return_value = self.mock_delivery_options_config
-            mock_reader_type.return_value = Reader.ONSITEPUBLIC
+            ) as mock_read_options:
+                # Setup mocks
+                mock_read_options.return_value = self.mock_delivery_options_config
+                mock_reader_type.return_value = Reader.ONSITEPUBLIC
 
-            # Call the function under test
-            result = construct_delivery_options(
-                self.api_result_digital, self.record, self.request
-            )
+                # Call the function under test
+                result = construct_delivery_options(
+                    self.api_result_digital, self.record, self.request
+                )
 
-            # Assertions
-            self.assertEqual(result["reader_type"], Reader.ONSITEPUBLIC)
-            self.assertIn("do_heading", result)
-            self.assertIn("do_description", result)
-            self.assertIn("do_orderbuttons", result)
-            self.assertIn("View this record", result["do_heading"])
-            self.assertIn(
-                "This record is available to view onsite",
-                result["do_description"],
-            )
+                # Assertions
+                self.assertEqual(result["reader_type"], Reader.ONSITEPUBLIC)
+                self.assertIn("do_heading", result)
+                self.assertIn("do_description", result)
+                self.assertIn("do_orderbuttons", result)
+                self.assertIn("View this record", result["do_heading"])
+                self.assertIn(
+                    "This record is available to view onsite",
+                    result["do_description"],
+                )
 
-            # Verify the orderbuttons have been properly processed
-            buttons = result["do_orderbuttons"]
-            self.assertEqual(len(buttons), 1)
-            self.assertEqual(buttons[0]["text"], "View")
+                # Verify the orderbuttons have been properly processed
+                buttons = result["do_orderbuttons"]
+                self.assertEqual(len(buttons), 1)
+                self.assertEqual(buttons[0]["text"], "View")
 
     def test_construct_delivery_options_closed_records(self):
         """
@@ -356,34 +350,34 @@ class DeliveryOptionsTestCase(unittest.TestCase):
     def test_construct_delivery_options_multiple_results_error(self):
         """Test that construct_delivery_options raises an error with multiple API results."""
         # Setup mocks
-        with (
-            patch(
-                "app.deliveryoptions.delivery_options.get_reader_type"
-            ) as mock_reader_type,
-            patch(
+        with patch(
+            "app.deliveryoptions.delivery_options.get_reader_type"
+        ) as mock_reader_type:
+            with patch(
                 "app.deliveryoptions.delivery_options.read_delivery_options"
-            ) as mock_read_options,
-        ):
-            mock_read_options.return_value = self.mock_delivery_options_config
-            mock_reader_type.return_value = Reader.OFFSITE
+            ) as mock_read_options:
+                mock_read_options.return_value = self.mock_delivery_options_config
+                mock_reader_type.return_value = Reader.OFFSITE
 
-            # Create a sample API result with multiple entries
-            multiple_results = [
-                {
-                    "options": AvailabilityCondition.DigitizedDiscovery,
-                    "surrogateLinks": [],
-                },
-                {
-                    "options": AvailabilityCondition.OrderOriginal,
-                    "surrogateLinks": [],
-                },
-            ]
+                # Create a sample API result with multiple entries
+                multiple_results = [
+                    {
+                        "options": AvailabilityCondition.DigitizedDiscovery,
+                        "surrogateLinks": [],
+                    },
+                    {
+                        "options": AvailabilityCondition.OrderOriginal,
+                        "surrogateLinks": [],
+                    },
+                ]
 
-            # Verify that an error is raised
-            with self.assertRaises(ValueError) as context:
-                construct_delivery_options(multiple_results, self.record, self.request)
+                # Verify that an error is raised
+                with self.assertRaises(ValueError) as context:
+                    construct_delivery_options(
+                        multiple_results, self.record, self.request
+                    )
 
-            self.assertIn("Expected one record only", str(context.exception))
+                self.assertIn("Expected one record only", str(context.exception))
 
     def test_delivery_options_context_structure(self):
         """Test the structure of delivery options context for different combinations."""
