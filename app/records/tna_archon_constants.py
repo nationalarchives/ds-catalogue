@@ -15,7 +15,7 @@ DESCRIPTION_XML_FRAGMENT = """
   <correspaddr><![CDATA[]]></correspaddr>
   <contactpeople/>
 </contacts>
-"""
+"""  # noqa: W291
 
 PLACE_DESCRIPTION_XML_FRAGMENT: str = """
 <span class="accessconditions">

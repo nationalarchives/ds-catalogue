@@ -81,7 +81,7 @@ def get_reader_type(request: HttpRequest) -> Reader:
     return reader
 
 
-def get_client_ip(request: HttpRequest) -> str | None:
+def get_client_ip(request: HttpRequest) -> Optional[str]:
     """
     Extract the client IP address from the HTTP request.
 
@@ -139,7 +139,7 @@ def get_client_ip(request: HttpRequest) -> str | None:
     return validate_ip(forwarded_ips[0]) if forwarded_ips else validate_ip(remote_addr)
 
 
-def validate_ip(ip_str: str) -> str | None:
+def validate_ip(ip_str: str) -> Optional[str]:
     """
     Validate that the string is a proper IP address.
 
@@ -160,7 +160,7 @@ def validate_ip(ip_str: str) -> str | None:
         return None
 
 
-def is_ip_in_cidr(ip: str, cidr: list[str]) -> bool:
+def is_ip_in_cidr(ip: str, cidr: List[str]) -> bool:
     """
     Check if an IP address is within any of the specified CIDR ranges.
     Args:

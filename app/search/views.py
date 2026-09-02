@@ -111,7 +111,7 @@ class APIMixin:
                 selected_values = form.fields[field_name].cleaned
                 selected_values = self.replace_input_data(field_name, selected_values)
                 filter_aggregations.extend(
-                    f"{filter_name}:{value}" for value in selected_values
+                    (f"{filter_name}:{value}" for value in selected_values)
                 )
         if filter_aggregations:
             add_filter(params, filter_aggregations)
@@ -476,7 +476,8 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
     def paginate_api_result(self) -> tuple | HttpResponse:
 
         pages = math.ceil(self.api_result.stats_total / RESULTS_PER_PAGE)
-        pages = min(pages, PAGE_LIMIT)
+        if pages > PAGE_LIMIT:
+            pages = PAGE_LIMIT
 
         if self.page > pages:
             raise PageNotFound
@@ -791,28 +792,29 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         if group:
             # hide filters - only online field has error and no results
             if (
-                (
-                    group == BucketKeys.TNA.value
-                    and FieldsConstant.ONLINE in self.form.errors
-                    and len(self.form.errors) == 1
+                group == BucketKeys.TNA.value
+                and FieldsConstant.ONLINE in self.form.errors
+                and len(self.form.errors) == 1
+            ) and not has_results:
+                pass  # default is False
+            # hide filters - no results, no errors, no selected filters
+            elif (
+                not has_results
+                and len(self.form.errors) == 0
+                and len(self.form.non_field_errors) == 0
+                and self.selected_filters == []
+            ):
+                pass  # default is False
+            # hide filters when using non-filter fields
+            elif (
+                not has_results
+                # using any() since there could be either sort or display
+                # field errors or both
+                and any(
+                    field in self.form.errors
+                    for field in (FieldsConstant.SORT, FieldsConstant.DISPLAY)
                 )
-                and not has_results
-                or (
-                    not has_results
-                    and len(self.form.errors) == 0
-                    and len(self.form.non_field_errors) == 0
-                    and self.selected_filters == []
-                )
-                or (
-                    not has_results
-                    # using any() since there could be either sort or display
-                    # field errors or both
-                    and any(
-                        field in self.form.errors
-                        for field in (FieldsConstant.SORT, FieldsConstant.DISPLAY)
-                    )
-                    and self.selected_filters == []
-                )
+                and self.selected_filters == []
             ):
                 pass  # default is False
             # everything else, show filters

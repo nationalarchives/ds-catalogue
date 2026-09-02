@@ -16,13 +16,13 @@ if DEBUG:
     try:
         import debug_toolbar
 
-        INSTALLED_APPS += [
+        INSTALLED_APPS += [  # noqa: F405
             "debug_toolbar",
         ]
 
         MIDDLEWARE = [
             "debug_toolbar.middleware.DebugToolbarMiddleware",
-        ] + MIDDLEWARE
+        ] + MIDDLEWARE  # noqa: F405
 
         DEBUG_TOOLBAR_CONFIG = {
             "SHOW_TOOLBAR_CALLBACK": lambda request: True,

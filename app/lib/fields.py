@@ -159,8 +159,10 @@ class ChoiceField(BaseField):
         valid_choices = [value for value, _ in self.choices]
         if not self._has_match(value, valid_choices):
             raise ValidationError(
-                f"Enter a valid choice. [{value or 'Empty param value'}] is not one of the available choices. "
-                f"Valid choices are [{', '.join(valid_choices)}]"
+                (
+                    f"Enter a valid choice. [{value or 'Empty param value'}] is not one of the available choices. "
+                    f"Valid choices are [{', '.join(valid_choices)}]"
+                )
             )
 
     @property
@@ -247,8 +249,10 @@ class DynamicMultipleChoiceField(BaseField):
             if self.validate_input:
                 if not self._has_match_all(value, self.valid_choices):
                     raise ValidationError(
-                        f"Enter a valid choice. Value(s) [{', '.join(value)}] do not belong "
-                        f"to the available choices. Valid choices are [{', '.join(self.valid_choices)}]"
+                        (
+                            f"Enter a valid choice. Value(s) [{', '.join(value)}] do not belong "
+                            f"to the available choices. Valid choices are [{', '.join(self.valid_choices)}]"
+                        )
                     )
 
         # TODO: FILTER_CHOICES_LIMIT: discuss limit with team

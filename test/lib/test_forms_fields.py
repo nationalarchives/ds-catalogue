@@ -279,7 +279,7 @@ class NewFieldWithRaiseValidationTest(TestCase):
                 {"text": "Value is not in format YYYY-MM-DD"},
             )
         except Exception as e:
-            self.fail(f"form.is_valid() raised an exception unexpectedly. {e!s}")
+            self.fail(f"form.is_valid() raised an exception unexpectedly. {str(e)}")
 
 
 class BaseFormWithCrossValidationTest(TestCase):
