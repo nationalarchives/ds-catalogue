@@ -13,7 +13,6 @@ REAL_GET_TEMPLATE = django_loader.get_template
 @modify_settings(
     MIDDLEWARE={"remove": "debug_toolbar.middleware.DebugToolbarMiddleware"}
 )
-@override_settings(DEBUG=False)
 class AdvancedSearchViewTests(TestCase):
     @patch("app.search.views.fetch_global_notifications", return_value=None)
     def test_get_advanced_search_page(self, _mock_fetch_global_notifications):

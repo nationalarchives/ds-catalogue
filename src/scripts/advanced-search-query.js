@@ -1,17 +1,28 @@
+const INDEX_FIRST = 0;
+const MIN_PARENS_LENGTH = 2;
+
 class AdvancedSearchPreview {
   constructor() {
+    this.initElements();
+    if (!this.searchPreview || !this.searchPreviewQuery) {
+      return;
+    }
+
+    this.bindEvents();
+    this.update();
+  }
+
+  initElements() {
     this.searchPreview = document.querySelector("[data-js-search-preview]");
-    this.searchPreviewQuery = document.querySelector("[data-js-search-preview-query]");
-    if (!this.searchPreview || !this.searchPreviewQuery) {return;}
+    this.searchPreviewQuery = document.querySelector(
+      "[data-js-search-preview-query]",
+    );
 
     this.allWordsInput = document.getElementById("all_words");
     this.exactWords = document.getElementById("exact_words");
     this.anyWords = document.getElementById("any_words");
     this.ignoreWords = document.getElementById("ignore_words");
     this.references = document.getElementById("references");
-
-    this.bindEvents();
-    this.update();
   }
 
   /**
@@ -19,11 +30,13 @@ class AdvancedSearchPreview {
    * @param {HTMLTextAreaElement} textarea - The textarea element
    * @returns {string[]} The values from the textarea
    */
-  getChipValues(textarea) {
-    if (!textarea) {return [];}
+  static getChipValues(textarea) {
+    if (!textarea) {
+      return [];
+    }
     return textarea.value
       .split("\n")
-      .map(v => v.trim())
+      .map((value) => value.trim())
       .filter(Boolean);
   }
 
@@ -54,16 +67,30 @@ class AdvancedSearchPreview {
    * @param {string} options.joiner - Operator between terms (default "OR")
    * @param {boolean} options.wrap - Whether to wrap in parentheses (default true)
    */
-  addGroup(parts, terms, { prefix = null, joiner = "OR", wrap = true } = {}) {
-    if (terms.length === 0) {return;}
-    const showParens = wrap && terms.length > 1;
-    if (prefix) {parts.push({ type: "operator", value: prefix });}
-    if (showParens) {parts.push({ type: "paren", value: "(" });}
-    terms.forEach((term, i) => {
-      if (i > 0) {parts.push({ type: "operator", value: joiner });}
+  static addGroup(
+    parts,
+    terms,
+    { prefix = null, joiner = "OR", wrap = true } = {},
+  ) {
+    if (terms.length === INDEX_FIRST) {
+      return;
+    }
+    const showParens = wrap && terms.length >= MIN_PARENS_LENGTH;
+    if (prefix) {
+      parts.push({ type: "operator", value: prefix });
+    }
+    if (showParens) {
+      parts.push({ type: "paren", value: "(" });
+    }
+    terms.forEach((term, index) => {
+      if (index > INDEX_FIRST) {
+        parts.push({ type: "operator", value: joiner });
+      }
       parts.push({ type: "term", value: term });
     });
-    if (showParens) {parts.push({ type: "paren", value: ")" });}
+    if (showParens) {
+      parts.push({ type: "paren", value: ")" });
+    }
   }
 
   /**
@@ -72,37 +99,74 @@ class AdvancedSearchPreview {
    */
   buildQuery() {
     const parts = [];
+    this.pushAllWords(parts);
+    this.pushExactWords(parts);
+    this.pushAnyWords(parts);
+    this.pushIgnoreWords(parts);
+    this.pushReferenceWords(parts);
+    return parts;
+  }
+  pushAllWords(parts) {
     const allWords = this.allWordsInput?.value.trim();
-
     if (allWords) {
       parts.push({ type: "term", value: allWords });
     }
+  }
 
-    this.addGroup(parts, this.getChipValues(this.exactWords), {
-      prefix: parts.length > 0 ? "AND" : null,
-      joiner: "AND",
-      wrap: false,
-    });
+  pushExactWords(parts) {
+    let prefixForExact = null;
+    if (parts.length > INDEX_FIRST) {
+      prefixForExact = "AND";
+    }
+    AdvancedSearchPreview.addGroup(
+      parts,
+      AdvancedSearchPreview.getChipValues(this.exactWords),
+      {
+        prefix: prefixForExact,
+        joiner: "AND",
+        wrap: false,
+      },
+    );
+  }
 
-    this.addGroup(parts, this.getChipValues(this.anyWords), {
-      prefix: parts.length > 0 ? "AND" : null,
-      joiner: "OR",
-      wrap: true,
-    });
+  pushAnyWords(parts) {
+    let prefixForAny = null;
+    if (parts.length > INDEX_FIRST) {
+      prefixForAny = "AND";
+    }
+    AdvancedSearchPreview.addGroup(
+      parts,
+      AdvancedSearchPreview.getChipValues(this.anyWords),
+      {
+        prefix: prefixForAny,
+        joiner: "OR",
+        wrap: true,
+      },
+    );
+  }
 
-    this.addGroup(parts, this.getChipValues(this.ignoreWords), {
-      prefix: "NOT",
-      joiner: "OR",
-      wrap: true,
-    });
+  pushIgnoreWords(parts) {
+    AdvancedSearchPreview.addGroup(
+      parts,
+      AdvancedSearchPreview.getChipValues(this.ignoreWords),
+      {
+        prefix: "NOT",
+        joiner: "OR",
+        wrap: true,
+      },
+    );
+  }
 
-    this.addGroup(parts, this.getChipValues(this.references), {
-      prefix: "IN",
-      joiner: "OR",
-      wrap: true,
-    });
-
-    return parts;
+  pushReferenceWords(parts) {
+    AdvancedSearchPreview.addGroup(
+      parts,
+      AdvancedSearchPreview.getChipValues(this.references),
+      {
+        prefix: "IN",
+        joiner: "OR",
+        wrap: true,
+      },
+    );
   }
 
   /**
@@ -111,13 +175,13 @@ class AdvancedSearchPreview {
   update() {
     const parts = this.buildQuery();
 
-    if (parts.length === 0) {
+    if (parts.length === INDEX_FIRST) {
       this.searchPreview.hidden = true;
       return;
     }
 
     this.searchPreviewQuery.innerHTML = "";
-    parts.forEach(part => this.renderPart(part));
+    parts.forEach((part) => this.renderPart(part));
     this.searchPreview.hidden = false;
   }
 
@@ -138,11 +202,20 @@ class AdvancedSearchPreview {
         break;
       case "paren":
         el.className = "search-preview__paren";
-        el.textContent = part.value === "(" ? " ( " : " ) ";
+        if (part.value === "(") {
+          el.textContent = " ( ";
+        } else {
+          el.textContent = " ) ";
+        }
+        break;
+      default:
+        // Unknown part type; render as plain text to avoid breaking the preview.
+        el.className = "search-preview__unknown";
+        el.textContent = String(part.value || "");
         break;
     }
     this.searchPreviewQuery.appendChild(el);
   }
 }
 
-new AdvancedSearchPreview();
+window.advancedSearchPreview = new AdvancedSearchPreview();
