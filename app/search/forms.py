@@ -18,6 +18,7 @@ from .constants import (
     Sort,
 )
 
+
 class AdvancedSearchForm(BaseForm):
     def add_fields(self):
         return {

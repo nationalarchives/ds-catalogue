@@ -960,7 +960,10 @@ def _get_advanced_search_template():
 def _render_advanced_search_template(request, context, prefer_js: bool):
     template_names = ["search/advanced_search.html"]
     if prefer_js:
-        template_names = ["search/advanced_search_js.html", "search/advanced_search.html"]
+        template_names = [
+            "search/advanced_search_js.html",
+            "search/advanced_search.html",
+        ]
 
     template_errors: list[Exception] = []
     for template_name in template_names:
@@ -1075,7 +1078,6 @@ def advanced_search_js(request):
     # JS-enhanced page uses the same PRG flow and validation.
     if request.method == "POST":
         return advanced_search(request)
-    template = loader.get_template("search/advanced_search_js.html")
     notifications = fetch_global_notifications()
     context = {
         "global_alert": notifications.get("global_alert") if notifications else None,
