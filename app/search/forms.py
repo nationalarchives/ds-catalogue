@@ -18,6 +18,9 @@ from .constants import (
     Sort,
 )
 
+# TODO add constants for each field probs?
+
+
 class AdvancedSearchForm(BaseForm):
     def add_fields(self):
         return {

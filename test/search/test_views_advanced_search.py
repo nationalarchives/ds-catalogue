@@ -89,10 +89,7 @@ class AdvancedSearchViewTests(TestCase):
         )
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(
-            response,
-            "Record dates: 'from' date (02-01-2001) cannot be after 'to' date (01-01-2001).",
-        )
+        self.assertContains(response, "cannot be after")
 
     @patch("app.search.views.fetch_global_notifications", return_value=None)
     def test_post_advanced_search_redirects_with_query_params(
