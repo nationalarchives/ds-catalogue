@@ -8,8 +8,7 @@ from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.middleware.csrf import get_token
 from django.shortcuts import redirect
-from django.template import TemplateDoesNotExist
-from django.template import loader
+from django.template import TemplateDoesNotExist, loader
 from django.urls import reverse
 from django.views.generic import TemplateView
 
@@ -937,18 +936,18 @@ def advanced_search(request):
     }
 
     if request.method != "POST":
-        return _render_advanced_search_template(request, context, prefer_js=False)
+        return _render_advanced_search_template(request, context, prefer_js=True)
 
     form = AdvancedSearchForm(data=request.POST)
     if not form.is_valid():
         context["advanced_search_errors"] = _advanced_search_errors_from_form(form)
-        return _render_advanced_search_template(request, context, prefer_js=False)
+        return _render_advanced_search_template(request, context, prefer_js=True)
 
     redirect_qs, errors = _build_advanced_search_query(form)
     context["advanced_search_errors"] = errors
 
     if errors:
-        return _render_advanced_search_template(request, context, prefer_js=False)
+        return _render_advanced_search_template(request, context, prefer_js=True)
 
     search_url = reverse("search:catalogue")
     return redirect(f"{search_url}?{redirect_qs}")
@@ -1080,7 +1079,6 @@ def advanced_search_js(request):
     if request.method == "POST":
         return advanced_search(request)
 
-    template = loader.get_template("search/advanced_search_js.html")
     notifications = fetch_global_notifications()
     context = {
         "global_alert": notifications.get("global_alert") if notifications else None,
