@@ -4,6 +4,7 @@ from config.utils.env_vars import strtobool
 
 from .features import *
 from .production import *
+from .production import INSTALLED_APPS, MIDDLEWARE
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
