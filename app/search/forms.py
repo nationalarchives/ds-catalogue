@@ -58,10 +58,7 @@ class AdvancedSearchForm(BaseForm):
                 "This date must be earlier than or equal to the 'to' date."
             )
             errors.append(
-                "Record dates: 'from' date ({from_date}) cannot be after 'to' date ({to_date}).".format(
-                    from_date=from_date,
-                    to_date=to_date,
-                )
+                f"Record dates: 'from' date ({from_date}) cannot be after 'to' date ({to_date})."
             )
         return errors
 
