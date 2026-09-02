@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def delivery_options_request_handler(
     iaid: str,
     timeout: int = None,
-) -> Optional[List[Dict[str, Any]]]:
+) -> list[dict[str, Any]] | None:
     """
     Makes an API call to the delivery options service to fetch available
     delivery options for a given iaid.
@@ -61,5 +61,5 @@ def delivery_options_request_handler(
 
     except Exception as e:
         # Log the original exception for debugging
-        logger.error(f"Delivery options request error: {str(e)}")
+        logger.error(f"Delivery options request error: {e!s}")
         raise Exception("Delivery Options database is currently unavailable")
