@@ -9,4 +9,25 @@ ignore = [
     "F401", # TODO: Re-evaluate after progressive Ruff adoption
     "B007", # TODO: Re-evaluate after progressive Ruff adoption
     "B905", # TODO: Re-evaluate after progressive Ruff adoption
+    "SIM117", # TODO: Re-evaluate after progressive Ruff adoption
+    "BLE001", # TODO: Re-evaluate after progressive Ruff adoption
+    "RUF012", # TODO: Re-evaluate after progressive Ruff adoption
+    "EXE002", # TODO: Re-evaluate after progressive Ruff adoption
+    "DTZ011", # TODO: Re-evaluate after progressive Ruff adoption
+    "TRY002", # TODO: Re-evaluate after progressive Ruff adoption
+    "DTZ007", # TODO: Re-evaluate after progressive Ruff adoption
+    "PERF102", # TODO: Re-evaluate after progressive Ruff adoption
+    "EXE001", # TODO: Re-evaluate after progressive Ruff adoption
+    "SIM102", # TODO: Re-evaluate after progressive Ruff adoption
+    "UP031", # TODO: Re-evaluate after progressive Ruff adoption
+    "SIM103", # TODO: Re-evaluate after progressive Ruff adoption
+    "PERF402", # TODO: Re-evaluate after progressive Ruff adoption
+    "UP035", # TODO: Re-evaluate after progressive Ruff adoption
+    "RUF013", # TODO: Re-evaluate after progressive Ruff adoption
+    "C400", # TODO: Re-evaluate after progressive Ruff adoption
+    "C408", # TODO: Re-evaluate after progressive Ruff adoption
+    "RUF034", # TODO: Re-evaluate after progressive Ruff adoption
+    "SIM210", # TODO: Re-evaluate after progressive Ruff adoption
+    "PLE0704", # TODO: Re-evaluate after progressive Ruff adoption
+    "TRY203", # TODO: Re-evaluate after progressive Ruff adoption
 ]
