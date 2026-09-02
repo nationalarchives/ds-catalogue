@@ -8,6 +8,7 @@ from django.test import TestCase, modify_settings, override_settings
 
 @override_settings(DEBUG=False)
 @modify_settings(MIDDLEWARE={"remove": "debug_toolbar.middleware.DebugToolbarMiddleware"})
+
 class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
     """Tests API calls (url) made by the catalogue search view for tna bucket/group."""
 

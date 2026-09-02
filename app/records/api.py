@@ -70,7 +70,6 @@ def record_details_by_ref(reference: str, params: dict = {}):
         TODO: Implement once Rosetta has support for reference-based lookup
     """
     # TODO: Implement record_details_by_ref once Rosetta has support
-    pass
 
 
 def wagtail_request_handler(uri: str, params: dict = {}, timeout=None) -> dict:
