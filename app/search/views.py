@@ -961,7 +961,10 @@ def _get_advanced_search_template():
 def _render_advanced_search_template(request, context, prefer_js: bool):
     template_names = ["search/advanced_search.html"]
     if prefer_js:
-        template_names = ["search/advanced_search_js.html", "search/advanced_search.html"]
+        template_names = [
+            "search/advanced_search_js.html",
+            "search/advanced_search.html",
+        ]
 
     template_errors: list[Exception] = []
     for template_name in template_names:

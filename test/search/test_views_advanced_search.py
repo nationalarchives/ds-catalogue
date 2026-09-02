@@ -30,7 +30,9 @@ class AdvancedSearchViewTests(TestCase):
                 raise TemplateDoesNotExist(name)
             return REAL_GET_TEMPLATE(name)
 
-        with patch("app.search.views.loader.get_template", side_effect=mock_get_template):
+        with patch(
+            "app.search.views.loader.get_template", side_effect=mock_get_template
+        ):
             response = self.client.get("/catalogue/advanced-search-js/")
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -49,7 +51,9 @@ class AdvancedSearchViewTests(TestCase):
                 return failing_template
             return REAL_GET_TEMPLATE(name)
 
-        with patch("app.search.views.loader.get_template", side_effect=mock_get_template):
+        with patch(
+            "app.search.views.loader.get_template", side_effect=mock_get_template
+        ):
             response = self.client.get("/catalogue/advanced-search-js/")
 
         self.assertEqual(response.status_code, HTTPStatus.OK)

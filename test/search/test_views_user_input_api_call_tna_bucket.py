@@ -73,8 +73,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         response = self.client.get("/catalogue/search/")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            api_url +
-            "filter=group%3Atna"
+            api_url + "filter=group%3Atna"
             "&aggs=level"
             "&aggs=collection"
             "&aggs=closure"
@@ -88,8 +87,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         response = self.client.get("/catalogue/search/?group=tna")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            api_url +
-            "filter=group%3Atna"
+            api_url + "filter=group%3Atna"
             "&aggs=level"
             "&aggs=collection"
             "&aggs=closure"
@@ -103,8 +101,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         response = self.client.get("/catalogue/search/?group=tna&held_by=somearchive")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            api_url +
-            "filter=group%3Atna"
+            api_url + "filter=group%3Atna"
             "&aggs=level"
             "&aggs=collection"
             "&aggs=closure"
@@ -120,8 +117,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            api_url +
-            "filter=group%3Atna"
+            api_url + "filter=group%3Atna"
             "&filter=subject%3AArmy"
             "&filter=subject%3ANavy"
             "&aggs=level"
@@ -145,8 +141,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            api_url +
-            "filter=group%3Atna"
+            api_url + "filter=group%3Atna"
             "&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29"
             "&filter=coveringToDate%3A%28%3C%3D2000-12-31%29"
             "&aggs=level"
@@ -170,8 +165,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            api_url +
-            "filter=group%3Atna"
+            api_url + "filter=group%3Atna"
             "&filter=openingFromDate%3A%28%3E%3D2000-12-1%29"
             "&filter=openingToDate%3A%28%3C%3D2000-12-31%29"
             "&aggs=level&aggs=collection"
@@ -186,22 +180,14 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         response = self.client.get("/catalogue/search/?filter_list=longCollection")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            api_url +
-            "filter=group%3Atna"
-            "&aggs=longCollection"
-            "&q=%2A"
-            "&size=0"
+            api_url + "filter=group%3Atna&aggs=longCollection&q=%2A&size=0"
         )
 
         # Test longSubject filter
         response = self.client.get("/catalogue/search/?filter_list=longSubject")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         mock_logger.debug.assert_called_with(
-            api_url +
-            "filter=group%3Atna"
-            "&aggs=longSubject"
-            "&q=%2A"
-            "&size=0"
+            api_url + "filter=group%3Atna&aggs=longSubject&q=%2A&size=0"
         )
 
         # Test online filter (digitised parameter)
