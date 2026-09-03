@@ -15,13 +15,6 @@ class AdvancedSearchViewTests(TestCase):
         self.assertContains(response, "Advanced search")
 
     @patch("app.search.views.fetch_global_notifications", return_value=None)
-    def test_get_advanced_search_js_page(self, _mock_fetch_global_notifications):
-        response = self.client.get("/catalogue/advanced-search-js/")
-
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertContains(response, "data-js-chip-field")
-
-    @patch("app.search.views.fetch_global_notifications", return_value=None)
     def test_post_advanced_search_without_input_shows_error(
         self, _mock_fetch_global_notifications
     ):

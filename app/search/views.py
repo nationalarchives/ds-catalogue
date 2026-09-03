@@ -1044,15 +1044,3 @@ def _advanced_search_errors_from_form(form: AdvancedSearchForm) -> list[str]:
             errors.append(message)
 
     return errors
-
-
-def advanced_search_js(request):
-    template = loader.get_template("search/advanced_search_js.html")
-    notifications = fetch_global_notifications()
-    context = {
-        "global_alert": notifications.get("global_alert") if notifications else None,
-        "mourning_notice": notifications.get("mourning_notice")
-        if notifications
-        else None,
-    }
-    return HttpResponse(template.render(context, request))
