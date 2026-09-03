@@ -967,7 +967,8 @@ class AdvancedSearchView(CatalogueSearchFormMixin, TemplateView):
         form = AdvancedSearchForm(data=self.request.GET or None)
         context = self._base_context()
 
-        if self.request.GET:
+        is_submission = bool(self.request.GET) or ("?" in self.request.get_full_path())
+        if is_submission:
             if not form.is_valid():
                 context["advanced_search_errors"] = _advanced_search_errors_from_form(
                     form
@@ -1021,7 +1022,7 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
 
     query_arr = []
     if all_words:
-        query_arr.append(all_words)
+        query_arr.append(_quote_if_needed(all_words))
 
     for word in exact_words:
         query_arr.append(f'AND "{word}"' if query_arr else f'"{word}"')
