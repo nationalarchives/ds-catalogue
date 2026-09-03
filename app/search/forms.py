@@ -22,18 +22,18 @@ from .constants import (
 class AdvancedSearchForm(BaseForm):
     def add_fields(self):
         return {
-            "all_words": CharField(required=False),
-            "exact_words": CharField(required=False),
-            "any_words": CharField(required=False),
-            "ignore_words": CharField(required=False),
-            "references": CharField(required=False),
-            "date_from": FromDateField(
+            FieldsConstant.ALL_WORDS: CharField(required=False),
+            FieldsConstant.EXACT_WORDS: CharField(required=False),
+            FieldsConstant.ANY_WORDS: CharField(required=False),
+            FieldsConstant.IGNORE_WORDS: CharField(required=False),
+            FieldsConstant.REFERENCES: CharField(required=False),
+            FieldsConstant.DATE_FROM: FromDateField(
                 label="From",
                 required=False,
                 progressive=True,
                 date_ymd_separator=DATE_YMD_SEPARATOR,
             ),
-            "date_to": ToDateField(
+            FieldsConstant.DATE_TO: ToDateField(
                 label="To",
                 required=False,
                 progressive=True,
@@ -43,8 +43,8 @@ class AdvancedSearchForm(BaseForm):
 
     def cross_validate(self) -> list[str]:
         errors = []
-        date_from = self.fields["date_from"]
-        date_to = self.fields["date_to"]
+        date_from = self.fields[FieldsConstant.DATE_FROM]
+        date_to = self.fields[FieldsConstant.DATE_TO]
 
         if (
             date_from.cleaned

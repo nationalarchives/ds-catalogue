@@ -110,7 +110,9 @@ class APIMixin:
 
         # references filter (from advanced search redirect)
         refs_raw = (
-            self.request.GET.get("references") if hasattr(self, "request") else None
+            self.request.GET.get(FieldsConstant.REFERENCES)
+            if hasattr(self, "request")
+            else None
         )
         if refs_raw:
             refs = [r.strip() for r in refs_raw.splitlines() if r.strip()]
@@ -963,14 +965,14 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
             if line.strip()
         ]
 
-    all_words = (form.fields["all_words"].cleaned or "").strip()
-    exact_words = _cleaned_list("exact_words")
-    any_words = _cleaned_list("any_words")
-    ignore_words = _cleaned_list("ignore_words")
-    references = _cleaned_list("references")
+    all_words = (form.fields[FieldsConstant.ALL_WORDS].cleaned or "").strip()
+    exact_words = _cleaned_list(FieldsConstant.EXACT_WORDS)
+    any_words = _cleaned_list(FieldsConstant.ANY_WORDS)
+    ignore_words = _cleaned_list(FieldsConstant.IGNORE_WORDS)
+    references = _cleaned_list(FieldsConstant.REFERENCES)
 
-    date_from = form.fields["date_from"].cleaned
-    date_to = form.fields["date_to"].cleaned
+    date_from = form.fields[FieldsConstant.DATE_FROM].cleaned
+    date_to = form.fields[FieldsConstant.DATE_TO].cleaned
 
     has_input = any(
         [
@@ -1009,19 +1011,19 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
 
     if references:
         # keep the originally-entered line-separated format for APIMixin
-        params["references"] = "\n".join(references)
+        params[FieldsConstant.REFERENCES] = "\n".join(references)
 
-    for prefix in ("date_from", "date_to"):
+    for prefix in (FieldsConstant.DATE_FROM, FieldsConstant.DATE_TO):
         value = form.fields[prefix].value
         year = (value.get("year", "") if value else "").strip()
         month = (value.get("month", "") if value else "").strip()
         day = (value.get("day", "") if value else "").strip()
 
         if year:
-            if prefix == "date_from":
-                target = "covering_date_from"
+            if prefix == FieldsConstant.DATE_FROM:
+                target = FieldsConstant.COVERING_DATE_FROM
             else:
-                target = "covering_date_to"
+                target = FieldsConstant.COVERING_DATE_TO
 
             params[f"{target}-year"] = year
             if month:
