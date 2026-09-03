@@ -964,7 +964,7 @@ class AdvancedSearchView(CatalogueSearchFormMixin, TemplateView):
         self.request = request
 
         # If query parameters present, treat as form submission (GET-based search)
-        form = AdvancedSearchForm(data=self.request.GET or None)
+        form = AdvancedSearchForm(data=self.request.GET)
         context = self._base_context()
 
         is_submission = bool(self.request.GET) or ("?" in self.request.get_full_path())
