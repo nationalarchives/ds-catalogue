@@ -42,7 +42,7 @@ class AdvancedSearchViewTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(
             response,
-            "Record dates: 'from' date (02-01-2001) cannot be after 'to' date (01-01-2001).",
+            "Record dates: &#39;from&#39; date (02-01-2001) cannot be after &#39;to&#39; date (01-01-2001).",
         )
 
     @patch("app.search.views.fetch_global_notifications", return_value=None)
@@ -72,7 +72,7 @@ class AdvancedSearchViewTests(TestCase):
         self.assertEqual(parsed.path, "/catalogue/search/")
         self.assertEqual(
             query_params["q"][0],
-            'medal card AND "war diary" AND "signal" AND army NOT "navy"',
+            '"medal card" AND "war diary" AND "signal" AND army NOT "navy"',
         )
         self.assertEqual(query_params["references"][0], "WO 95\nADM 1")
         self.assertEqual(query_params["covering_date_from-year"][0], "1900")

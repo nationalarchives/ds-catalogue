@@ -115,9 +115,16 @@ class APIMixin:
         # date related filters
         add_filter(params, self._get_date_api_params(form))
 
-        # references filter (from advanced search redirect)
+        # references filter (from advanced search redirect or direct query param)
         refs_field = form.fields.get(FieldsConstant.REFERENCES)
-        refs_raw = refs_field.cleaned if refs_field is not None else None
+        if refs_field is not None:
+            refs_raw = refs_field.cleaned
+        else:
+            refs_raw = None
+            # fallback to request.GET if the catalogue form doesn't include references
+            if getattr(self, "request", None) is not None:
+                refs_raw = self.request.GET.get(FieldsConstant.REFERENCES)
+
         if refs_raw:
             refs = [r.strip() for r in refs_raw.splitlines() if r.strip()]
             if refs:
@@ -1014,7 +1021,7 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
 
     query_arr = []
     if all_words:
-        query_arr.append(_quote_if_needed(all_words))
+        query_arr.append(all_words)
 
     for word in exact_words:
         query_arr.append(f'AND "{word}"' if query_arr else f'"{word}"')
