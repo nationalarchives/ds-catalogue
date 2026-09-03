@@ -950,7 +950,6 @@ class AdvancedSearchView(TemplateView):
             if notifications
             else None,
             "global_alert": notifications,
-            "advanced_search_errors": [],
         }
 
     def _render(self, context: dict) -> HttpResponse:
@@ -985,15 +984,12 @@ class AdvancedSearchView(TemplateView):
         is_submission = bool(self.request.GET) or ("?" in self.request.get_full_path())
         if is_submission:
             if not form.is_valid():
-                context["advanced_search_errors"] = _advanced_search_errors_from_form(
-                    form
-                )
                 return self._render(context)
 
             redirect_qs, errors = _build_advanced_search_query(form)
-            context["advanced_search_errors"] = errors
-
             if errors:
+                # attach build-time errors to the form so template can render them
+                form.add_non_field_error(errors)
                 return self._render(context)
 
             search_url = reverse("search:catalogue")
@@ -1079,17 +1075,3 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
                 params[f"{target}-day"] = day
 
     return urlencode(params), []
-
-
-def _advanced_search_errors_from_form(form: AdvancedSearchForm) -> list[str]:
-    errors = []
-
-    for field_error in form.errors.values():
-        if message := field_error.get("text"):
-            errors.append(message)
-
-    for non_field_error in form.non_field_errors:
-        if message := non_field_error.get("text"):
-            errors.append(message)
-
-    return errors

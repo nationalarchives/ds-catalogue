@@ -45,16 +45,22 @@
   <div class="tna-background-accent-light">
     {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
   </div>
-  {% if advanced_search_errors %}
+  {% if form.errors or form.non_field_errors %}
   <div class="tna-container tna-!--margin-top-m">
     <div class="tna-column tna-column--full">
       <div class="tna-message tna-message--error">
         <h2 class="tna-message__heading">There is a problem</h2>
-        <ul class="tna-ul">
-          {% for error in advanced_search_errors %}
-            <li>{{ error }}</li>
+        <dl class="tna-dl">
+          {% for field_name, error in form.errors.items() %}
+            {% set field = form.fields.get(field_name) %}
+            <dt>{{ field.label if field else field_name }}</dt>
+            <dd>{{ error.text }}</dd>
           {% endfor %}
-        </ul>
+          {% for error in form.non_field_errors %}
+            <dt>General</dt>
+            <dd>{{ error.text }}</dd>
+          {% endfor %}
+        </dl>
       </div>
     </div>
   </div>
