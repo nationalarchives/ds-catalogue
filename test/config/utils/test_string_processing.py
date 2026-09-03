@@ -46,6 +46,28 @@ class RemoveStringCaseInsensitiveTestCase(SimpleTestCase):
             "ffo",
         )
 
+    def test_remove_string_case_insensitive_scope_and_content_without_leading_space(
+        self,
+    ):
+        # Ensure only full matches removed.
+        self.assertEqual(
+            remove_string_case_insensitive(
+                "(Details of exhibition references are given at piece level scope and content)",
+                "scope and content",
+            ),
+            "(Details of exhibition references are given at piece level )",
+        )
+
+    def test_remove_string_case_insensitive_scope_and_content_with_leading_space(self):
+        # Ensure only full matches removed.
+        self.assertEqual(
+            remove_string_case_insensitive(
+                "(Details of exhibition references are given at piece level scope and content)",
+                " scope and content",
+            ),
+            "(Details of exhibition references are given at piece level)",
+        )
+
 
 class NoneToEmptyStringTestCase(SimpleTestCase):
     def test_none_to_empty_string(self):

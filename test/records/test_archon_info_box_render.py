@@ -41,7 +41,7 @@ class NonTnaArchonPageInfoBoxTests(TestCase):
                                 "title": "Test Title",
                                 "source": "ARCHON",
                                 "description": {
-                                    "raw": "<contacts><addressline1><![CDATA[England]]></addressline1></contacts>"
+                                    "value": "<contacts><addressline1><![CDATA[England]]></addressline1></contacts>"
                                 },
                                 "placeDescription": {
                                     "raw": '<span class="accessconditions"><span class="openinghours">Monday to Friday 9am to 5pm</span></span>'
@@ -91,7 +91,7 @@ class NonTnaArchonPageInfoBoxTests(TestCase):
                                 "title": "Test Title",
                                 "source": "ARCHON",
                                 "description": {
-                                    "raw": "<contacts><addressline1><![CDATA[USA]]></addressline1></contacts>"
+                                    "value": "<contacts><addressline1><![CDATA[USA]]></addressline1></contacts>"
                                 },
                             }
                         }

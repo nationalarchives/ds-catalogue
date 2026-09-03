@@ -55,7 +55,7 @@ class TestRecordView(TestCase):
                                 "title": "Test Title",
                                 "source": "ARCHON",
                                 "description": {
-                                    "raw": "<contacts><addressline1><![CDATA[Kew]]></addressline1></contacts>"
+                                    "value": "<contacts><addressline1><![CDATA[Kew]]></addressline1></contacts>"
                                 },
                             }
                         }

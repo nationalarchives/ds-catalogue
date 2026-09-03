@@ -19,9 +19,7 @@
                 {% if related_record.date_covering %}
                   <p class="tna-!--no-margin-top"><strong>Date:</strong> {{ related_record.date_covering }}</p>
                 {% endif %}
-                {% if related_record.clean_description %}
-                  <p>{{ related_record.clean_description | striptags | truncate(150) }}</p>
-                {% elif related_record.description %}
+                {% if related_record.description %}
                   <p>{{ related_record.description | striptags | truncate(150) }}</p>
                 {% endif %}
               </div>
