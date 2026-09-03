@@ -923,34 +923,49 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             self.form.fields[FieldsConstant.HELD_BY].is_visible = True
 
 
-def advanced_search(request):
-    template = loader.get_template("search/advanced_search.html")
-    notifications = fetch_global_notifications() or {}
+class AdvancedSearchView(CatalogueSearchFormMixin, TemplateView):
+    template_name = "search/advanced_search.html"
 
-    context = {
-        "mourning_notice": notifications.get("mourning_notice")
-        if notifications
-        else None,
-        "global_alert": notifications,
-        "advanced_search_errors": [],
-    }
+    def _base_context(self) -> dict:
+        notifications = fetch_global_notifications() or {}
+        return {
+            "mourning_notice": notifications.get("mourning_notice")
+            if notifications
+            else None,
+            "global_alert": notifications,
+            "advanced_search_errors": [],
+        }
 
-    if request.method != "POST":
-        return HttpResponse(template.render(context, request))
+    def _render(self, context: dict) -> HttpResponse:
+        return HttpResponse(
+            loader.get_template(self.template_name).render(
+                context, getattr(self, "request", None)
+            )
+        )
 
-    form = AdvancedSearchForm(data=request.POST)
-    if not form.is_valid():
-        context["advanced_search_errors"] = _advanced_search_errors_from_form(form)
-        return HttpResponse(template.render(context, request))
+    def get(self, request, *args, **kwargs):
+        self.request = request
+        return self._render(self._base_context())
 
-    redirect_qs, errors = _build_advanced_search_query(form)
-    context["advanced_search_errors"] = errors
+    def post(self, request, *args, **kwargs):
+        self.request = request
+        context = self._base_context()
 
-    if errors:
-        return HttpResponse(template.render(context, request))
+        form = AdvancedSearchForm(data=self.request.POST)
+        if not form.is_valid():
+            context["advanced_search_errors"] = _advanced_search_errors_from_form(form)
+            return self._render(context)
 
-    search_url = reverse("search:catalogue")
-    return redirect(f"{search_url}?{redirect_qs}")
+        redirect_qs, errors = _build_advanced_search_query(form)
+        context["advanced_search_errors"] = errors
+
+        if errors:
+            return self._render(context)
+
+        search_url = reverse("search:catalogue")
+        return redirect(f"{search_url}?{redirect_qs}")
+
+
 
 
 def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
