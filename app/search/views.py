@@ -967,7 +967,7 @@ class AdvancedSearchView(CatalogueSearchFormMixin, TemplateView):
         form = AdvancedSearchForm(data=self.request.GET or None)
         context = self._base_context()
 
-        if form.is_bound:
+        if self.request.GET:
             if not form.is_valid():
                 context["advanced_search_errors"] = _advanced_search_errors_from_form(
                     form
