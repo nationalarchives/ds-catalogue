@@ -130,7 +130,7 @@ class APIMixin:
             if refs:
                 add_filter(
                     params,
-                    f"referenceNumber:({','.join(_quote_if_needed(r) for r in refs)})",
+                    f"referenceNumber:({','.join(r for r in refs)})",
                 )
 
         # filter aggregations for each field
