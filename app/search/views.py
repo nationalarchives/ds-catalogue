@@ -966,6 +966,21 @@ class AdvancedSearchView(TemplateView):
         # If query parameters present, treat as form submission (GET-based search)
         form = AdvancedSearchForm(data=self.request.GET)
         context = self._base_context()
+        # expose the form and date parts to the template for rendering
+        context["form"] = form
+
+        # prepare date values for the FE date component
+        date_from_field = form.fields.get(FieldsConstant.DATE_FROM)
+        if date_from_field and isinstance(date_from_field.value, dict):
+            context["date_from_value"] = date_from_field.value
+        else:
+            context["date_from_value"] = {"year": "", "month": "", "day": ""}
+
+        date_to_field = form.fields.get(FieldsConstant.DATE_TO)
+        if date_to_field and isinstance(date_to_field.value, dict):
+            context["date_to_value"] = date_to_field.value
+        else:
+            context["date_to_value"] = {"year": "", "month": "", "day": ""}
 
         is_submission = bool(self.request.GET) or ("?" in self.request.get_full_path())
         if is_submission:

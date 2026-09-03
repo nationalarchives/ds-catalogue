@@ -8,17 +8,6 @@
 {%- from "components/fieldset/macro.html" import tnaFieldset -%}
 {%- from "components/date-input/macro.html" import tnaDateInput -%}
 {%- set pageTitle = "Advanced search" -%}
-{%- set post = request.GET -%}
-{%- set date_from_value = {
-  "year": post.get("date_from-year") or "",
-  "month": post.get("date_from-month") or "",
-  "day": post.get("date_from-day") or ""
-} -%}
-{%- set date_to_value = {
-  "year": post.get("date_to-year") or "",
-  "month": post.get("date_to-month") or "",
-  "day": post.get("date_to-day") or ""
-} -%}
 
 {% block stylesheets %}
 {{ super() }}
@@ -90,14 +79,14 @@
           "id": "find_fieldset"
         }) %}
 
-          {{ tnaTextInput({
+            {{ tnaTextInput({
             "formItemClasses": "tna-!--margin-top-s",
             "label": "All of these words",
             "headingLevel": 3,
             "headingSize": "s",
             "id": "all_words",
             "name": "all_words",
-            "value": post.get("all_words") or "",
+              "value": form.fields.all_words.value|default(""),
             "hint": "Include the important words, for example: medal card UK"
           }) }}
 
@@ -109,7 +98,7 @@
               "headingSize": "s",
               "id": "exact_words",
               "name": "exact_words",
-              "value": post.get("exact_words") or "",
+              "value": form.fields.exact_words.value|default(""),
               "hint": "Put each word on a new line, for example:<br>medal<br>card" | safe
             }) }}
           {% endblock exact_words_field %}
@@ -122,7 +111,7 @@
               "headingSize": "s",
               "id": "any_words",
               "name": "any_words",
-              "value": post.get("any_words") or "",
+              "value": form.fields.any_words.value|default(""),
               "hint": "Put each word on a new line, for example:<br>medal<br>card" | safe
             }) }}
           {% endblock any_words_field %}
@@ -135,7 +124,7 @@
               "headingSize": "s",
               "id": "ignore_words",
               "name": "ignore_words",
-              "value": post.get("ignore_words") or "",
+              "value": form.fields.ignore_words.value|default(""),
               "hint": "Put each word on a new line, for example:<br>medal<br>card" | safe
             }) }}
           {% endblock ignore_words_field %}
@@ -153,12 +142,12 @@
             {{ tnaTextarea({
               "formItemClasses": "tna-!--margin-top-s",
               "label": "Search for or within any of these references",
-              "hint": "Put each catalogue reference on a new line, for example: <br>WO 95<br>WO 95" | safe,
+              "hint": "Put each catalogue reference on a new line, for example: <br>WO 95<br>WO 96" | safe,
               "headingLevel": 3,
               "headingSize": "s",
               "id": "references",
               "name": "references",
-              "value": post.get("references") or ""
+              "value": form.fields.references.value|default("")
             }) }}
           {% endblock references_field %}
 
