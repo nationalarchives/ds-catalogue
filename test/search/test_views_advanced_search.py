@@ -18,7 +18,7 @@ class AdvancedSearchViewTests(TestCase):
     def test_post_advanced_search_without_input_shows_error(
         self, _mock_fetch_global_notifications
     ):
-        response = self.client.post("/catalogue/advanced-search/", data={})
+        response = self.client.get("/catalogue/advanced-search/", data={})
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Enter at least one value to search.")
@@ -27,7 +27,7 @@ class AdvancedSearchViewTests(TestCase):
     def test_post_advanced_search_with_invalid_date_range_shows_error(
         self, _mock_fetch_global_notifications
     ):
-        response = self.client.post(
+        response = self.client.get(
             "/catalogue/advanced-search/",
             data={
                 "date_from-year": "2001",
@@ -49,7 +49,7 @@ class AdvancedSearchViewTests(TestCase):
     def test_post_advanced_search_redirects_with_query_params(
         self, _mock_fetch_global_notifications
     ):
-        response = self.client.post(
+        response = self.client.get(
             "/catalogue/advanced-search/",
             data={
                 "all_words": "medal card",

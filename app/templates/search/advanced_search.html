@@ -8,7 +8,7 @@
 {%- from "components/fieldset/macro.html" import tnaFieldset -%}
 {%- from "components/date-input/macro.html" import tnaDateInput -%}
 {%- set pageTitle = "Advanced search" -%}
-{%- set post = request.POST -%}
+{%- set post = request.GET -%}
 {%- set date_from_value = {
   "year": post.get("date_from-year") or "",
   "month": post.get("date_from-month") or "",
@@ -81,8 +81,7 @@
 
   <div class="tna-container">
     <div class="tna-column tna-column--width-2-3 tna-column--full-medium tna-column--full-small tna-column--full-tiny">
-      <form action="" method="post" novalidate class="tna-!--margin-top-m">
-        {{ csrf_input_html() | safe }}
+      <form action="" method="get" novalidate class="tna-!--margin-top-m">
 
         {% call tnaFieldset({
           "legend": "Find  records that contain",
