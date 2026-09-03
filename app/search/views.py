@@ -955,25 +955,28 @@ class AdvancedSearchView(CatalogueSearchFormMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         self.request = request
-        return self._render(self._base_context())
 
-    def post(self, request, *args, **kwargs):
-        self.request = request
+        # If query parameters present, treat as form submission (GET-based search)
+        form = AdvancedSearchForm(data=self.request.GET or None)
         context = self._base_context()
 
-        form = AdvancedSearchForm(data=self.request.POST)
-        if not form.is_valid():
-            context["advanced_search_errors"] = _advanced_search_errors_from_form(form)
-            return self._render(context)
+        if form.is_bound:
+            if not form.is_valid():
+                context["advanced_search_errors"] = _advanced_search_errors_from_form(
+                    form
+                )
+                return self._render(context)
 
-        redirect_qs, errors = _build_advanced_search_query(form)
-        context["advanced_search_errors"] = errors
+            redirect_qs, errors = _build_advanced_search_query(form)
+            context["advanced_search_errors"] = errors
 
-        if errors:
-            return self._render(context)
+            if errors:
+                return self._render(context)
 
-        search_url = reverse("search:catalogue")
-        return redirect(f"{search_url}?{redirect_qs}")
+            search_url = reverse("search:catalogue")
+            return redirect(f"{search_url}?{redirect_qs}")
+
+        return self._render(context)
 
 
 def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
