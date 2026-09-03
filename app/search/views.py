@@ -109,11 +109,8 @@ class APIMixin:
         add_filter(params, self._get_date_api_params(form))
 
         # references filter (from advanced search redirect)
-        refs_raw = (
-            self.request.GET.get(FieldsConstant.REFERENCES)
-            if hasattr(self, "request")
-            else None
-        )
+        refs_field = form.fields.get(FieldsConstant.REFERENCES)
+        refs_raw = refs_field.cleaned if refs_field is not None else None
         if refs_raw:
             refs = [r.strip() for r in refs_raw.splitlines() if r.strip()]
             if refs:
