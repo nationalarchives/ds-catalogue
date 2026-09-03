@@ -940,7 +940,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             self.form.fields[FieldsConstant.HELD_BY].is_visible = True
 
 
-class AdvancedSearchView(CatalogueSearchFormMixin, TemplateView):
+class AdvancedSearchView(TemplateView):
     template_name = "search/advanced_search.html"
 
     def _base_context(self) -> dict:
