@@ -64,6 +64,13 @@ class PageNotFound(Exception):
     pass
 
 
+def _quote_if_needed(value: str) -> str:
+    # wrap the value in double-quotes if it contains spaces
+    if not isinstance(value, str) or not value:
+        return value
+    return f'"{value}"' if " " in value else value
+
+
 class APIMixin:
     """A mixin to get the api result, processes api result, sets the context."""
 
@@ -114,7 +121,10 @@ class APIMixin:
         if refs_raw:
             refs = [r.strip() for r in refs_raw.splitlines() if r.strip()]
             if refs:
-                add_filter(params, f"referenceNumber:({','.join(refs)})")
+                add_filter(
+                    params,
+                    f"referenceNumber:({','.join(_quote_if_needed(r) for r in refs)})",
+                )
 
         # filter aggregations for each field
         filter_aggregations = []
@@ -124,7 +134,7 @@ class APIMixin:
                 selected_values = form.fields[field_name].cleaned
                 selected_values = self.replace_input_data(field_name, selected_values)
                 filter_aggregations.extend(
-                    f"{filter_name}:{value}" for value in selected_values
+                    [f"{filter_name}:{_quote_if_needed(v)}" for v in selected_values]
                 )
         if filter_aggregations:
             add_filter(params, filter_aggregations)
@@ -1001,13 +1011,14 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
 
     query_arr = []
     if all_words:
-        query_arr.append(all_words)
+        query_arr.append(_quote_if_needed(all_words))
 
     for word in exact_words:
         query_arr.append(f'AND "{word}"' if query_arr else f'"{word}"')
 
-    for word in any_words:
-        words = f"({' OR '.join(any_words)})" if len(any_words) > 1 else any_words[0]
+    if any_words:
+        quoted_any = [_quote_if_needed(w) for w in any_words]
+        words = f"({' OR '.join(quoted_any)})" if len(quoted_any) > 1 else quoted_any[0]
         query_arr.append(f"AND {words}" if query_arr else words)
 
     for word in ignore_words:
