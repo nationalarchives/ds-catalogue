@@ -134,7 +134,7 @@
               {% elif field == 'subjects' %}
                 {% set subject_tags = [] %}
                 {% for item in record[field] %}
-                  {% set _ = subject_tags.append({
+                  {% do subject_tags.append({
                     'label': item,
                     'href': url('search:catalogue') ~ '?subject=' ~ (item | urlencode)
                   }) %}

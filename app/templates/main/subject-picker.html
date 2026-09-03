@@ -29,7 +29,7 @@
             {% if subjects_grouped_by_letter[letter] %}
               {% set subject_tags = [] %}
               {% for subject in subjects_grouped_by_letter[letter] %}
-                {% set _ = subject_tags.append({
+                {% do subject_tags.append({
                   'label': subject,
                   'href': url('search:catalogue') ~ '?subject=' ~ (subject | urlencode)
                 }) %}
