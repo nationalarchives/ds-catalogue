@@ -982,6 +982,7 @@ class AdvancedSearchView(TemplateView):
             context["date_to_value"] = {"year": "", "month": "", "day": ""}
 
         is_submission = bool(self.request.GET) or ("?" in self.request.get_full_path())
+        is_submission = bool(self.request.GET) or ("QUERY_STRING" in self.request.META)
         if is_submission:
             if not form.is_valid():
                 return self._render(context)
