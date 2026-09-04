@@ -32,6 +32,7 @@ from config.utils.string_processing import (
 
 def environment(**options):
     env = Environment(**options)
+    env.add_extension("jinja2.ext.do")
 
     TNA_FRONTEND_VERSION = ""
     try:

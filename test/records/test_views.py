@@ -176,11 +176,10 @@ class TestSubjectLinks(TestCase):
 
         response = self.client.get("/catalogue/id/C123456/")
 
-        # Check that links have the lozenge class
-        self.assertContains(response, 'class="tna-dl-chips__item"')
-        # Ensure subjects are wrapped in proper structure
-        self.assertContains(response, '<dl class="tna-dl-chips">')
-        self.assertContains(response, "<dt>Topics</dt>")
+        # Check that links have the tags component class
+        self.assertContains(response, 'class="tna-tags__link"')
+        # Ensure subjects are wrapped in the tags component structure
+        self.assertContains(response, '<ul class="tna-tags tna-tags--small"')
 
     @responses.activate
     def test_record_with_no_subjects_shows_no_subject_section(self):
@@ -210,8 +209,7 @@ class TestSubjectLinks(TestCase):
         response = self.client.get("/catalogue/id/C456789/")
 
         # Should not show subjects section if no subjects
-        self.assertNotContains(response, "<dt>Topics</dt>")
-        self.assertNotContains(response, 'class="tna-dl-chips"')
+        self.assertNotContains(response, 'class="tna-tags__link"')
 
     @responses.activate
     def test_subject_links_are_not_placeholders(self):
@@ -227,13 +225,13 @@ class TestSubjectLinks(TestCase):
         html = response.content.decode()
 
         # Count actual subject links (should be 5 based on sample data)
-        subject_count = html.count('class="tna-dl-chips__item"')
+        subject_count = html.count('class="tna-tags__link"')
         self.assertEqual(subject_count, 5)
 
         # Extract subjects section and verify no placeholder links
-        if '<dl class="tna-dl-chips">' in html:
-            subjects_section_start = html.find('<dl class="tna-dl-chips">')
-            subjects_section_end = html.find("</dl>", subjects_section_start)
+        if '<ul class="tna-tags tna-tags--small"' in html:
+            subjects_section_start = html.find('<ul class="tna-tags tna-tags--small"')
+            subjects_section_end = html.find("</ul>", subjects_section_start)
             subjects_section = html[subjects_section_start:subjects_section_end]
 
             # Should not contain href="#" in subjects section
