@@ -3,10 +3,9 @@ import re
 
 from django.conf import settings
 from django.http import QueryDict
-from django.middleware.csrf import get_token
 from django.templatetags.static import static
 from django.urls import reverse
-from jinja2 import Environment, pass_context
+from jinja2 import Environment
 from tna_utilities.string import slugify
 
 from app.lib.xslt_transformations import apply_generic_xsl
@@ -89,13 +88,4 @@ def environment(**options):
         }
     )
 
-    @pass_context
-    def csrf_input(context):
-        request = context.get("request")
-        if not request:
-            return ""
-        token = get_token(request)
-        return f'<input type="hidden" name="csrfmiddlewaretoken" value="{token}">'
-
-    env.globals.update({"csrf_input_html": csrf_input})
     return env
