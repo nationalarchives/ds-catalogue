@@ -2,10 +2,14 @@ import copy
 import logging
 import math
 from typing import Any
+from urllib.parse import urlencode
 
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, QueryDict
+from django.middleware.csrf import get_token
+from django.shortcuts import redirect
 from django.template import loader
+from django.urls import reverse
 from django.views.generic import TemplateView
 
 from app.errors import views as errors_view
@@ -43,6 +47,7 @@ from .constants import (
     Sort,
 )
 from .forms import (
+    AdvancedSearchForm,
     CatalogueSearchBaseForm,
     CatalogueSearchNonTnaForm,
     CatalogueSearchTnaForm,
@@ -57,6 +62,13 @@ logger = logging.getLogger(__name__)
 
 class PageNotFound(Exception):
     pass
+
+
+def _quote_if_needed(value: str) -> str:
+    # wrap the value in double-quotes if it contains spaces
+    if not isinstance(value, str) or not value:
+        return value
+    return f'"{value}"' if " " in value else value
 
 
 class APIMixin:
@@ -103,6 +115,24 @@ class APIMixin:
         # date related filters
         add_filter(params, self._get_date_api_params(form))
 
+        # references filter (from advanced search redirect or direct query param)
+        refs_field = form.fields.get(FieldsConstant.REFERENCES)
+        if refs_field is not None:
+            refs_raw = refs_field.cleaned
+        else:
+            refs_raw = None
+            # fallback to request.GET if the catalogue form doesn't include references
+            if getattr(self, "request", None) is not None:
+                refs_raw = self.request.GET.get(FieldsConstant.REFERENCES)
+
+        if refs_raw:
+            refs = [r.strip() for r in refs_raw.splitlines() if r.strip()]
+            if refs:
+                add_filter(
+                    params,
+                    f"referenceNumber:({','.join(r for r in refs)})",
+                )
+
         # filter aggregations for each field
         filter_aggregations = []
         for field_name in form.fields:
@@ -111,7 +141,7 @@ class APIMixin:
                 selected_values = form.fields[field_name].cleaned
                 selected_values = self.replace_input_data(field_name, selected_values)
                 filter_aggregations.extend(
-                    f"{filter_name}:{value}" for value in selected_values
+                    [f"{filter_name}:{_quote_if_needed(v)}" for v in selected_values]
                 )
         if filter_aggregations:
             add_filter(params, filter_aggregations)
@@ -910,29 +940,139 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             self.form.fields[FieldsConstant.HELD_BY].is_visible = True
 
 
-def advanced_search(request):
-    """View for the advanced search page."""
+class AdvancedSearchView(TemplateView):
+    template_name = "search/advanced_search.html"
 
-    template = loader.get_template("search/advanced_search.html")
-    notifications = fetch_global_notifications()
-    context = {
-        "global_alert": notifications.get("global_alert") if notifications else None,
-        "mourning_notice": notifications.get("mourning_notice")
-        if notifications
-        else None,
+    def _base_context(self) -> dict:
+        notifications = fetch_global_notifications() or {}
+        return {
+            "mourning_notice": notifications.get("mourning_notice")
+            if notifications
+            else None,
+            "global_alert": notifications,
+        }
+
+    def _render(self, context: dict) -> HttpResponse:
+        return HttpResponse(
+            loader.get_template(self.template_name).render(
+                context, getattr(self, "request", None)
+            )
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.request = request
+
+        # If query parameters present, treat as form submission (GET-based search)
+        form = AdvancedSearchForm(data=self.request.GET)
+        context = self._base_context()
+        # expose the form and date parts to the template for rendering
+        context["form"] = form
+
+        # prepare date values for the FE date component
+        date_from_field = form.fields.get(FieldsConstant.DATE_FROM)
+        if date_from_field and isinstance(date_from_field.value, dict):
+            context["date_from_value"] = date_from_field.value
+        else:
+            context["date_from_value"] = {"year": "", "month": "", "day": ""}
+
+        date_to_field = form.fields.get(FieldsConstant.DATE_TO)
+        if date_to_field and isinstance(date_to_field.value, dict):
+            context["date_to_value"] = date_to_field.value
+        else:
+            context["date_to_value"] = {"year": "", "month": "", "day": ""}
+
+        is_submission = bool(self.request.GET) or ("?" in self.request.get_full_path())
+        is_submission = bool(self.request.GET) or ("QUERY_STRING" in self.request.META)
+        if is_submission:
+            if not form.is_valid():
+                return self._render(context)
+
+            redirect_qs, errors = _build_advanced_search_query(form)
+            if errors:
+                # attach build-time errors to the form so template can render them
+                form.add_non_field_error(errors)
+                return self._render(context)
+
+            search_url = reverse("search:catalogue")
+            return redirect(f"{search_url}?{redirect_qs}")
+
+        return self._render(context)
+
+
+def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
+
+    def _cleaned_list(field_name: str) -> list[str]:
+        return [
+            line.strip()
+            for line in (form.fields[field_name].cleaned or "").splitlines()
+            if line.strip()
+        ]
+
+    all_words = (form.fields[FieldsConstant.ALL_WORDS].cleaned or "").strip()
+    exact_words = _cleaned_list(FieldsConstant.EXACT_WORDS)
+    any_words = _cleaned_list(FieldsConstant.ANY_WORDS)
+    ignore_words = _cleaned_list(FieldsConstant.IGNORE_WORDS)
+    references = _cleaned_list(FieldsConstant.REFERENCES)
+
+    date_from = form.fields[FieldsConstant.DATE_FROM].cleaned
+    date_to = form.fields[FieldsConstant.DATE_TO].cleaned
+
+    has_input = any(
+        [
+            all_words,
+            exact_words,
+            any_words,
+            ignore_words,
+            references,
+            date_from,
+            date_to,
+        ]
+    )
+
+    if not has_input:
+        return "", ["Enter at least one value to search."]
+
+    query_arr = []
+    if all_words:
+        query_arr.append(_quote_if_needed(all_words))
+
+    for word in exact_words:
+        query_arr.append(f'AND "{word}"' if query_arr else f'"{word}"')
+
+    if any_words:
+        quoted_any = [_quote_if_needed(w) for w in any_words]
+        words = f"({' OR '.join(quoted_any)})" if len(quoted_any) > 1 else quoted_any[0]
+        query_arr.append(f"AND {words}" if query_arr else words)
+
+    for word in ignore_words:
+        query_arr.append(f'NOT "{word}"')
+
+    # references are sent as a dedicated query param for Rosetta filter
+
+    params: dict[str, str] = {
+        "q": " ".join(query_arr) if query_arr else "*",
     }
-    return HttpResponse(template.render(context, request))
 
+    if references:
+        # keep the originally-entered line-separated format for APIMixin
+        params[FieldsConstant.REFERENCES] = "\n".join(references)
 
-def advanced_search_js(request):
-    """JS-enhanced version of the advanced search page for testing."""
+    for prefix in (FieldsConstant.DATE_FROM, FieldsConstant.DATE_TO):
+        value = form.fields[prefix].value
+        year = (value.get("year", "") if value else "").strip()
+        month = (value.get("month", "") if value else "").strip()
+        day = (value.get("day", "") if value else "").strip()
 
-    template = loader.get_template("search/advanced_search_js.html")
-    notifications = fetch_global_notifications()
-    context = {
-        "global_alert": notifications.get("global_alert") if notifications else None,
-        "mourning_notice": notifications.get("mourning_notice")
-        if notifications
-        else None,
-    }
-    return HttpResponse(template.render(context, request))
+        if year:
+            if prefix == FieldsConstant.DATE_FROM:
+                target = FieldsConstant.COVERING_DATE_FROM
+            else:
+                target = FieldsConstant.COVERING_DATE_TO
+
+            params[f"{target}-year"] = year
+            if month:
+                params[f"{target}-month"] = month
+            if day:
+                params[f"{target}-day"] = day
+
+    return urlencode(params), []

@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {%- from "components/breadcrumbs/macro.html" import tnaBreadcrumbs -%}
-{%- from "components/search-field/macro.html" import tnaSearchField -%}
 {%- from "macros/global_alert_banners.html" import global_alert_banners -%}
 {%- from "components/text-input/macro.html" import tnaTextInput -%}
 {%- from "components/textarea/macro.html" import tnaTextarea -%}
@@ -46,6 +45,26 @@
   <div class="tna-background-accent-light">
     {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
   </div>
+  {% if form.errors or form.non_field_errors %}
+  <div class="tna-container tna-!--margin-top-m">
+    <div class="tna-column tna-column--full">
+      <div class="tna-message tna-message--error">
+        <h2 class="tna-message__heading">There is a problem</h2>
+        <dl class="tna-dl">
+          {% for field_name, error in form.errors.items() %}
+            {% set field = form.fields.get(field_name) %}
+            <dt>{{ field.label if field else field_name }}</dt>
+            <dd>{{ error.text }}</dd>
+          {% endfor %}
+          {% for error in form.non_field_errors %}
+            <dt>General</dt>
+            <dd>{{ error.text }}</dd>
+          {% endfor %}
+        </dl>
+      </div>
+    </div>
+  </div>
+  {% endif %}
   <div class="tna-background-accent-light tna-!--padding-top-s tna-!--padding-bottom-m">
     <div class="tna-container">
       <div class="tna-column tna-column--full">
@@ -66,14 +85,14 @@
           "id": "find_fieldset"
         }) %}
 
-          {{ tnaTextInput({
+            {{ tnaTextInput({
             "formItemClasses": "tna-!--margin-top-s",
             "label": "All of these words",
             "headingLevel": 3,
             "headingSize": "s",
             "id": "all_words",
             "name": "all_words",
-            "value": "",
+              "value": form.fields.all_words.value|default(""),
             "hint": "Include the important words, for example: medal card UK"
           }) }}
 
@@ -85,7 +104,7 @@
               "headingSize": "s",
               "id": "exact_words",
               "name": "exact_words",
-              "value": "",
+              "value": form.fields.exact_words.value|default(""),
               "hint": "Put each word on a new line, for example:<br>medal<br>card" | safe
             }) }}
           {% endblock exact_words_field %}
@@ -98,7 +117,7 @@
               "headingSize": "s",
               "id": "any_words",
               "name": "any_words",
-              "value": "",
+              "value": form.fields.any_words.value|default(""),
               "hint": "Put each word on a new line, for example:<br>medal<br>card" | safe
             }) }}
           {% endblock any_words_field %}
@@ -106,12 +125,12 @@
           {% block ignore_words_field %}
             {{ tnaTextarea({
               "formItemClasses": "tna-!--margin-top-s",
-              "label": "Ignore these words",
+              "label": "None of these words",
               "headingLevel": 3,
               "headingSize": "s",
               "id": "ignore_words",
               "name": "ignore_words",
-              "value": "",
+              "value": form.fields.ignore_words.value|default(""),
               "hint": "Put each word on a new line, for example:<br>medal<br>card" | safe
             }) }}
           {% endblock ignore_words_field %}
@@ -129,12 +148,12 @@
             {{ tnaTextarea({
               "formItemClasses": "tna-!--margin-top-s",
               "label": "Search for or within any of these references",
-              "hint": "Put each cartalogue reference on a new line, for example: <br>WO 95<br>WO 95" | safe,
+              "hint": "Put each catalogue reference on a new line, for example: <br>WO 95<br>WO 96" | safe,
               "headingLevel": 3,
               "headingSize": "s",
               "id": "references",
               "name": "references",
-              "value": ""
+              "value": form.fields.references.value|default("")
             }) }}
           {% endblock references_field %}
 
@@ -148,7 +167,7 @@
                 "headingSize": "s",
                 "id": "date_from",
                 "name": "date_from",
-                "value": "",
+                "value": date_from_value,
                 "hint": "For example: 1997, 1999 and 1, or 1997 1 and 31",
                 "fields": ["y", "m", "d"],
                 "progressive": true
@@ -161,7 +180,7 @@
                 "headingSize": "s",
                 "id": "date_to",
                 "name": "date_to",
-                "value": "",
+                "value": date_to_value,
                 "hint": "For example: 1997, 1999 and 1, or 1997 1 and 31",
                 "fields": ["y", "m", "d"],
                 "progressive": true

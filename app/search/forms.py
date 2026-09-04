@@ -19,6 +19,50 @@ from .constants import (
 )
 
 
+class AdvancedSearchForm(BaseForm):
+    def add_fields(self):
+        return {
+            FieldsConstant.ALL_WORDS: CharField(required=False),
+            FieldsConstant.EXACT_WORDS: CharField(required=False),
+            FieldsConstant.ANY_WORDS: CharField(required=False),
+            FieldsConstant.IGNORE_WORDS: CharField(required=False),
+            FieldsConstant.REFERENCES: CharField(required=False),
+            FieldsConstant.DATE_FROM: FromDateField(
+                label="From",
+                required=False,
+                progressive=True,
+                date_ymd_separator=DATE_YMD_SEPARATOR,
+            ),
+            FieldsConstant.DATE_TO: ToDateField(
+                label="To",
+                required=False,
+                progressive=True,
+                date_ymd_separator=DATE_YMD_SEPARATOR,
+            ),
+        }
+
+    def cross_validate(self) -> list[str]:
+        errors = []
+        date_from = self.fields[FieldsConstant.DATE_FROM]
+        date_to = self.fields[FieldsConstant.DATE_TO]
+
+        if (
+            date_from.cleaned
+            and date_to.cleaned
+            and date_from.cleaned > date_to.cleaned
+        ):
+            from_date = date_from.cleaned.strftime(DATE_DISPLAY_FORMAT)
+            to_date = date_to.cleaned.strftime(DATE_DISPLAY_FORMAT)
+
+            date_from.add_error(
+                "This date must be earlier than or equal to the 'to' date."
+            )
+            errors.append(
+                f"Record dates: 'from' date ({from_date}) cannot be after 'to' date ({to_date})."
+            )
+        return errors
+
+
 class CatalogueSearchBaseForm(BaseForm):
     """This is Base form that corresponds to top level (UI) for catalogue search
     page. Other fields and validations are added in subclass forms."""
