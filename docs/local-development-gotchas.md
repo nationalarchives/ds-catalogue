@@ -75,3 +75,9 @@ This will revert to using the default specified in the Dockerfile which is `ghcr
 environment:
     - APPLICATION_PROTOCOL=http
 ```
+
+## Formatting
+
+**NOTE:** If you missed a Docker image update: After running `docker compose exec app format`, you may see code changes that aren’t yours.
+
+If this happens, check whether the changes need to be applied to main first. Otherwise, they’ll show up in your branch and may be mistaken for changes related to your ticket.
