@@ -37,6 +37,8 @@ from .constants import (
     FILTER_FIELDS,
     LONG_FILTER_RESULTS_PER_PAGE,
     PAGE_LIMIT,
+    PAGE_LIMIT_WARNING_MESSAGE,
+    PAGE_LIMIT_WARNING_THRESHOLD,
     RESULTS_PER_PAGE,
     Display,
     Sort,
@@ -55,7 +57,7 @@ logger = logging.getLogger(__name__)
 
 
 class PageNotFound(Exception):
-    pass
+    """Raised when a requested search results page number is out of range."""
 
 
 class APIMixin:
@@ -414,6 +416,10 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             page = int(self.request.GET.get("page", 1))
             if page < 1:
                 raise ValueError
+            # raise PageNotFound if page number exceeds PAGE_LIMIT,
+            # before querying the API
+            if page > PAGE_LIMIT:
+                raise PageNotFound
         except (ValueError, KeyError):
             raise PageNotFound
         return page
@@ -475,8 +481,11 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
     def paginate_api_result(self) -> tuple | HttpResponse:
 
         pages = math.ceil(self.api_result.stats_total / RESULTS_PER_PAGE)
+        # limit pages to PAGE_LIMIT since Elasticsearch can only return first 10,000 results
         pages = min(pages, PAGE_LIMIT)
 
+        # check if requested page is greater than calculated total pages, raise PageNotFound
+        # e.g. calculated 35 pages, and user requests page=36
         if self.page > pages:
             raise PageNotFound
 
@@ -553,6 +562,8 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
                 "bucket_keys": BucketKeys,
                 "display_options": Display,
                 "fields_constant": FieldsConstant,
+                "page_limit_warning_threshold": PAGE_LIMIT_WARNING_THRESHOLD,
+                "page_limit_warning_message": PAGE_LIMIT_WARNING_MESSAGE,
             }
         )
         # call to set filter fields visibility after context is set
