@@ -5,6 +5,7 @@ from typing import Any
 
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest, HttpResponse, QueryDict
+from django.template import loader
 from django.views.generic import TemplateView
 
 from app.errors import views as errors_view
@@ -907,3 +908,31 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         if self.form.fields[FieldsConstant.HELD_BY].items:
             # visible if items set (with api agg values or input values)
             self.form.fields[FieldsConstant.HELD_BY].is_visible = True
+
+
+def advanced_search(request):
+    """View for the advanced search page."""
+
+    template = loader.get_template("search/advanced_search.html")
+    notifications = fetch_global_notifications()
+    context = {
+        "global_alert": notifications.get("global_alert") if notifications else None,
+        "mourning_notice": notifications.get("mourning_notice")
+        if notifications
+        else None,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def advanced_search_js(request):
+    """JS-enhanced version of the advanced search page for testing."""
+
+    template = loader.get_template("search/advanced_search_js.html")
+    notifications = fetch_global_notifications()
+    context = {
+        "global_alert": notifications.get("global_alert") if notifications else None,
+        "mourning_notice": notifications.get("mourning_notice")
+        if notifications
+        else None,
+    }
+    return HttpResponse(template.render(context, request))
