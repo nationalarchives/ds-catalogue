@@ -40,3 +40,12 @@ ENABLE_PARALLEL_API_CALLS = True
 MAX_SUBJECTS_PER_RECORD = 20
 
 FEATURE_ENABLE_HELD_BY_DISCOVERY: bool = False
+
+# Use in-memory caching for tests: no Redis dependency, no network I/O,
+# and cache state is isolated per-process so tests don't pollute each other.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "test-cache",
+    }
+}

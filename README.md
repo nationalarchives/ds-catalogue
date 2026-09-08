@@ -76,6 +76,9 @@ In addition to the [base Docker image variables](https://github.com/nationalarch
 | `GA4_ID`                          | The Google Analytics 4 ID                             | _none_                                                      |
 | `ROSETTA_API_VERIFY_CERTIFICATES` | Verify certificate for API                            | `True`                                                      |
 | `ENVIRONMENT_NAME`                | The name of the environment (for reporting purposes)  | `production`                                                |
+| `CACHE_REDIS_URL`                 | Connection URL for the Redis cache backend            | Provided by Docker Compose locally; must be set in deployed |
+|                                   |                                                       | environments                                                |
+| `CACHE_TIMEOUT`                   | Default expiry (secs) for cached entries              | 900                                                         |
 | `SENTRY_DSN`                      | The ID of the Sentry client project to catch issues   | _none_                                                      |
 | `SENTRY_SAMPLE_RATE`              | How often to sample traces and profiles (0-1.0)       | production: `0.1`, staging: `0.25`, develop: `1`, test: `0` |
 
