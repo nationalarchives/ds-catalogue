@@ -136,7 +136,7 @@ class CatalogueSearchViewDisplayTests(TestCase):
         html = force_str(response.content)
 
         self.assertIsInstance(form, CatalogueSearchCommonForm)
-        self.assertEqual(form.is_valid(), False)
+        self.assertFalse(form.is_valid())
 
         self.assertEqual(
             form.errors,

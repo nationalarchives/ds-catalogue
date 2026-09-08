@@ -7,9 +7,8 @@
 {%- set pageTitle = (record.title or record.summary_title or '[No title]') | striptags -%}
 {% set has_place_description = record.place_description %}
 {% set full_width_class = "tna-column tna-column--full tna-!--margin-top-l" %}
-{% set contact_class = "tna-column tna-column--full-tiny tna-column--full-small tna-column--width-1-2 tna-!--margin-top-m" 
-          if has_place_description
-          else full_width_class %}
+{% set split_width_class = "tna-column tna-column--full-tiny tna-column--full-small tna-column--width-1-2 tna-!--margin-top-m" %}
+{% set contact_class = split_width_class if has_place_description else full_width_class %}
 
 {% block stylesheets %}
 {{ super() }}
@@ -35,7 +34,7 @@
 
   {% if record.archon_website %}
     {% call callout(heading='Looking for records?') %}
-      <p>Visit the <a href="{{ record.archon_website | sanitise_record_field | safe }}">{{ pageTitle }} website</a> for information on how to access records held there.</p>
+      <p>Visit the <a href="{{ record.archon_website | normalise_record_field | safe }}">{{ pageTitle }} website</a> for information on how to access records held there.</p>
     {% endcall %}
   {% endif %}
 
@@ -45,7 +44,7 @@
 
         <h2 class="tna-heading-l">Contact information</h2>
 
-        {{ record.description | sanitise_record_field | safe }}
+        {{ record.description | normalise_record_field | safe }}
       </div>
     </div>
 
@@ -54,7 +53,7 @@
         <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
           <h2 class="tna-heading-l">Information about this archive</h2>
 
-          {{ record.place_description | sanitise_record_field | safe }}
+          {{ record.place_description | normalise_record_field | safe }}
 
         </div>
       </div>

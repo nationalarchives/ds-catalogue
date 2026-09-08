@@ -6,6 +6,7 @@ module.exports = {
     analytics: "./src/scripts/analytics.js",
     "record-details": "./src/scripts/record-details.js",
     "catalogue-results": "./src/scripts/catalogue-results.js",
+    "catalogue-landing": "./src/scripts/catalogue-landing.js",
   },
   mode: "production",
   module: {

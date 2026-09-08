@@ -94,12 +94,8 @@ class CatalogueSearchCommonForm(CatalogueSearchBaseForm):
 
             # add cross field error message (not derived from field)
             cross_field_message = (
-                "{prefix_text}: 'from' date ({from_format}) "
-                "cannot be after 'to' date ({to_format}).".format(
-                    prefix_text=prefix_text,
-                    from_format=date_from.cleaned.strftime(DATE_DISPLAY_FORMAT),
-                    to_format=date_to.cleaned.strftime(DATE_DISPLAY_FORMAT),
-                )
+                f"{prefix_text}: 'from' date ({date_from.cleaned.strftime(DATE_DISPLAY_FORMAT)}) "
+                f"cannot be after 'to' date ({date_to.cleaned.strftime(DATE_DISPLAY_FORMAT)})."
             )
 
             # NOTE: add error after building cross field message to use cleaned date

@@ -82,7 +82,7 @@ class CatalogueSearchViewSortParamTests(TestCase):
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIsInstance(form, CatalogueSearchTnaForm)
-        self.assertEqual(form.is_valid(), False)
+        self.assertFalse(form.is_valid())
         self.assertEqual(
             form.errors,
             {
@@ -115,7 +115,7 @@ class CatalogueSearchViewSortParamTests(TestCase):
         form = response.context_data.get("form")
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertEqual(form.is_valid(), False)
+        self.assertFalse(form.is_valid())
 
         self.assertEqual(response.context_data.get("selected_filters"), [])
         self.assertFalse(response.context_data.get("filters_visible"))

@@ -43,7 +43,7 @@ def get_availability_group(
     return AVAILABILITY_CONDITION_STATE_TO_GROUP.get(delivery_option)
 
 
-def read_delivery_options(file_path: str) -> Dict:
+def read_delivery_options(file_path: str) -> dict:
     """
     Read and parse the delivery options JSON configuration file.
 
@@ -105,9 +105,7 @@ def has_distressing_content(reference: str) -> bool:
     return False
 
 
-def get_delivery_option_dict(
-    dict_cache: Dict, record_id: int
-) -> Optional[Dict[str, Any]]:
+def get_delivery_option_dict(dict_cache: dict, record_id: int) -> dict[str, Any] | None:
     """
     Get a record from the cache by its ID.
 
@@ -126,7 +124,7 @@ def get_delivery_option_dict(
         return None
 
 
-def html_replacer(value: str, record: Record, api_surrogate_list: List) -> str:
+def html_replacer(value: str, record: Record, api_surrogate_list: list) -> str:
     """
     Replace placeholders in a string with actual values.
 
@@ -172,9 +170,9 @@ def html_replacer(value: str, record: Record, api_surrogate_list: List) -> str:
 
 
 def html_builder(
-    delivery_option_data: Union[List, str],
+    delivery_option_data: list | str,
     record_data: Record,
-    api_surrogate_data: List = None,
+    api_surrogate_data: list = None,
     dcs: bool = False,
 ) -> str:
     """
@@ -208,7 +206,7 @@ def html_builder(
     return html
 
 
-def surrogate_link_builder(surrogates: List) -> List[Any]:
+def surrogate_link_builder(surrogates: list) -> list[Any]:
     """
     Extract surrogate links and AV media links from surrogate data.
 
@@ -228,10 +226,10 @@ def surrogate_link_builder(surrogates: List) -> List[Any]:
 
 
 def process_order_buttons(
-    delivery_option_data: List,
+    delivery_option_data: list,
     record_data: Record,
-    api_surrogate_data: List = None,
-) -> List[Dict]:
+    api_surrogate_data: list = None,
+) -> list[dict]:
     """
     Process order buttons data with HTML replacement.
 
@@ -260,11 +258,11 @@ def process_order_buttons(
 
 
 def generic_builder(
-    delivery_option_data: Union[List, str],
+    delivery_option_data: list | str,
     record_data: Record,
-    api_surrogate_data: List = None,
+    api_surrogate_data: list = None,
     builder_type: str = "default",
-) -> Union[str, List]:
+) -> str | list:
     """
     A generic builder function to handle various delivery option content types.
 
@@ -300,8 +298,8 @@ def generic_builder(
 
 
 def construct_delivery_options(
-    api_result: List, record: Record, request: HttpRequest
-) -> Dict[str, Any]:
+    api_result: list, record: Record, request: HttpRequest
+) -> dict[str, Any]:
     """
     Construct delivery options based on record and request information.
 

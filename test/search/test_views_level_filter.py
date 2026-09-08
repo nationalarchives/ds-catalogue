@@ -63,7 +63,7 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
         form = response.context_data.get("form")
         level_field = response.context_data.get("form").fields[FieldsConstant.LEVEL]
 
-        self.assertEqual(form.is_valid(), True)
+        self.assertTrue(form.is_valid())
 
         self.assertEqual(level_field.value, ["Department", "Division"])
         self.assertEqual(
@@ -134,7 +134,7 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
 
         html = force_str(response.content)
 
-        self.assertEqual(form.is_valid(), False)
+        self.assertFalse(form.is_valid())
 
         # test for presence of hidden inputs for invalid level params
         self.assertIn("""<input type="hidden" name="level" value="Item">""", html)

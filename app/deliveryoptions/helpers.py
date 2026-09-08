@@ -30,7 +30,7 @@ BASE_TNA_HOME_URL = "https://www.nationalarchives.gov.uk"
 MAX_BASKET_ITEMS = "10"
 
 
-def get_dept(reference_number: str, key_type: str) -> Optional[str]:
+def get_dept(reference_number: str, key_type: str) -> str | None:
     """
     Get department information from a reference number.
 
@@ -580,7 +580,7 @@ def get_record_url(record: Record) -> str:
     return f"{BASE_TNA_HOME_URL}/details/r/{record.id}/"
 
 
-def get_first_website_url(api_surrogate_list: List) -> str:
+def get_first_website_url(api_surrogate_list: list) -> str:
     """
     Get the URL of the first website in the surrogate list.
 
@@ -601,7 +601,7 @@ def get_first_website_url(api_surrogate_list: List) -> str:
     return ""
 
 
-def get_first_website_url_full(api_surrogate_list: List) -> str:
+def get_first_website_url_full(api_surrogate_list: list) -> str:
     """
     Get the full HTML for the first website in the surrogate list.
 
@@ -617,7 +617,7 @@ def get_first_website_url_full(api_surrogate_list: List) -> str:
     return ""
 
 
-def get_subsequent_website_urls(api_surrogate_list: List) -> str:
+def get_subsequent_website_urls(api_surrogate_list: list) -> str:
     """
     Get HTML for all websites in the surrogate list except the first one.
 
@@ -634,7 +634,7 @@ def get_subsequent_website_urls(api_surrogate_list: List) -> str:
     return st
 
 
-def get_all_website_urls(api_surrogate_list: List) -> str:
+def get_all_website_urls(api_surrogate_list: list) -> str:
     """
     Get HTML for all websites in the surrogate list.
 
@@ -650,7 +650,7 @@ def get_all_website_urls(api_surrogate_list: List) -> str:
     return st
 
 
-def get_website_url_text(api_surrogate_list: List) -> str:
+def get_website_url_text(api_surrogate_list: list) -> str:
     """
     Get the text from the first website URL in the surrogate list.
 

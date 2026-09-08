@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.text import slugify
+from tna_utilities.string import slugify
 
 from app.lib.api import JSONAPIClient, rosetta_request_handler
 from app.lib.exceptions import (
@@ -70,7 +70,6 @@ def record_details_by_ref(reference: str, params: dict = {}):
         TODO: Implement once Rosetta has support for reference-based lookup
     """
     # TODO: Implement record_details_by_ref once Rosetta has support
-    pass
 
 
 def wagtail_request_handler(uri: str, params: dict = {}, timeout=None) -> dict:

@@ -2,6 +2,8 @@ import sentry_sdk
 from django.conf import settings
 from sentry_sdk.integrations.django import DjangoIntegration
 
+from app.sentry.filters import before_send
+
 if settings.SENTRY_DSN:
     sentry_sdk.init(
         dsn=settings.SENTRY_DSN,
@@ -13,4 +15,5 @@ if settings.SENTRY_DSN:
         sample_rate=settings.SENTRY_SAMPLE_RATE,
         traces_sample_rate=settings.SENTRY_SAMPLE_RATE,
         profiles_sample_rate=settings.SENTRY_SAMPLE_RATE,
+        before_send=before_send,
     )

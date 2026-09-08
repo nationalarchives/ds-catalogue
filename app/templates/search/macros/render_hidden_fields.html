@@ -3,7 +3,7 @@
 {% from 'search/macros/as_hidden_for_date_input.html' import as_hidden_for_date_input %}
 {% from 'search/macros/as_hidden_for_checkboxes.html' import as_hidden_for_checkboxes %}
 
-{% macro render_hidden_fields(request, form, bucket_keys, mfc_field) %}
+{% macro render_hidden_fields(request, form, bucket_keys, mfc_field, aggregation) %}
   {{ as_hidden_for_single_value(form.fields.group) }}
   {{ as_hidden_for_single_value(form.fields.q) }}
   <input type="hidden" name="display" value="{{ request.GET.get('display') or 'list' }}">
@@ -13,7 +13,10 @@
     {{ as_hidden_for_date_input(form.fields.covering_date_from) }}
     {{ as_hidden_for_date_input(form.fields.covering_date_to) }}
     {{ as_hidden_for_checkboxes(form.fields.collection) }}
-    {{ as_hidden_for_checkboxes(form.fields.subject) }}
+    {# Avoid duplicate subject field #}
+    {% if mfc_field.name != aggregation.SUBJECT.field_name %}
+      {{ as_hidden_for_checkboxes(form.fields.subject) }}
+    {% endif %}
     {{ as_hidden_for_checkboxes(form.fields.level) }}
     {{ as_hidden_for_date_input(form.fields.opening_date_from) }}
     {{ as_hidden_for_date_input(form.fields.opening_date_to) }}

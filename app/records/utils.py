@@ -14,7 +14,7 @@ api_timer_logger = logging.getLogger(settings.API_TIMING_LOGGER_NAME)
 logger = logging.getLogger(__name__)
 
 
-def format_link(link_html: str, inc_msg: str = "") -> Dict[str, str]:
+def format_link(link_html: str, inc_msg: str = "") -> dict[str, str]:
     """
     Extracts id and text from a link HTML string, e.g. "<a href="C5789">DEFE 31</a>"
     and returns as dict in the format: `{"id":"C5789", "href": "/catalogue/id/C5789/", "text":"DEFE 31"}
@@ -51,7 +51,7 @@ def change_discovery_record_details_links(html: str) -> str:
     return html
 
 
-def extract(source: Dict[str, Any], key: str, default: Any = None) -> Any:
+def extract(source: dict[str, Any], key: str, default: Any = None) -> Any:
     """
     Attempts to extract `key` (a string with multiple '.' to indicate
     traversal) from `source` (a complex multi-level dict where values may

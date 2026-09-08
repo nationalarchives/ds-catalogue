@@ -54,7 +54,7 @@ docker compose exec dev poetry add --group <group-name> <package-name>
 
 See the [Poetry docs](https://python-poetry.org/docs/cli/#add) for more options.
 
-### Removing a dependency
+## Removing a dependency
 
 ```sh
 docker compose exec app poetry remove DateTime

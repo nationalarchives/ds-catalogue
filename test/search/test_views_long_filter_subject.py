@@ -220,6 +220,7 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
             "&level=Piece"
             "&covering_date_from-year=1940"
             "&filter_list=longSubject"
+            "&subject=Army"
         )
 
         context_data = response.context_data
@@ -240,6 +241,7 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
                 "&level=Item"
                 "&level=Piece"
                 "&covering_date_from-year=1940"
+                "&subject=Army"
             ),
         )
         self.assertIsInstance(
@@ -258,6 +260,7 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
                     "value": "International",
                 },
                 {
+                    "checked": True,
                     "text": "Army (35)",
                     "value": "Army",
                 },
@@ -290,3 +293,4 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
         self.assertNotIn(
             """<input type="hidden" name="covering_date_from-day" """, html
         )
+        self.assertNotIn("""<input type="hidden" name="subject" """, html)

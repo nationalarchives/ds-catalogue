@@ -155,7 +155,7 @@ class SearchRecordsTests(SimpleTestCase):
                 },
             )
         except Exception as e:
-            self.fail(f"search_records raised an exception unexpectedly. {str(e)}")
+            self.fail(f"search_records raised an exception unexpectedly. {e!s}")
         self.assertIsInstance(api_result, APISearchResponse)
         self.assertEqual(api_result.records, [])
         self.assertEqual(api_result.stats_total, 0)
