@@ -1,3 +1,4 @@
+import importlib.util
 import os
 
 from config.utils.env_vars import strtobool
@@ -11,22 +12,17 @@ DEBUG = strtobool(os.getenv("DEBUG", "False"))
 
 SENTRY_SAMPLE_RATE = float(os.getenv("SENTRY_SAMPLE_RATE", "1.0"))
 
-if DEBUG:
-    try:
-        import debug_toolbar
+# Configure debug toolbar when it's installed
+if DEBUG and importlib.util.find_spec("debug_toolbar") is not None:
+    INSTALLED_APPS += [
+        "debug_toolbar",
+    ]
 
-        INSTALLED_APPS += [
-            "debug_toolbar",
-        ]
+    MIDDLEWARE = [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ] + MIDDLEWARE
 
-        MIDDLEWARE = [
-            "debug_toolbar.middleware.DebugToolbarMiddleware",
-        ] + MIDDLEWARE
-
-        DEBUG_TOOLBAR_CONFIG = {
-            "SHOW_TOOLBAR_CALLBACK": lambda request: True,
-            "SHOW_COLLAPSED": True,
-        }
-    except ImportError:
-        # Debug toolbar is not installed
-        pass
+    DEBUG_TOOLBAR_CONFIG = {
+        "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+        "SHOW_COLLAPSED": True,
+    }

@@ -2,7 +2,7 @@ import logging
 import re
 import time
 from functools import wraps
-from typing import Any, Dict
+from typing import Any
 
 from django.conf import settings
 from django.urls import NoReverseMatch, reverse

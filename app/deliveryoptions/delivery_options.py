@@ -13,7 +13,7 @@ import json
 import logging
 import re
 from functools import lru_cache
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from django.conf import settings
 from django.http import HttpRequest

@@ -6,7 +6,6 @@ ignore = [
     "B904", # TODO: Re-evaluate after progressive Ruff adoption
     "B006", # TODO: Re-evaluate after progressive Ruff adoption
     "F403", # TODO: Re-evaluate after progressive Ruff adoption
-    "F401", # TODO: Re-evaluate after progressive Ruff adoption
     "B007", # TODO: Re-evaluate after progressive Ruff adoption
     "B905", # TODO: Re-evaluate after progressive Ruff adoption
     "SIM117", # TODO: Re-evaluate after progressive Ruff adoption
