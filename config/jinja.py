@@ -1,8 +1,6 @@
 import json
-import re
 
 from django.conf import settings
-from django.http import QueryDict
 from django.templatetags.static import static
 from django.urls import reverse
 from jinja2 import Environment
