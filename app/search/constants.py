@@ -38,8 +38,6 @@ class FieldsConstant:
     ANY_WORDS = "any_words"
     IGNORE_WORDS = "ignore_words"
     REFERENCES = "references"
-    DATE_FROM = "date_from"
-    DATE_TO = "date_to"
     COVERING_DATE_FROM = "covering_date_from"
     COVERING_DATE_TO = "covering_date_to"
     OPENING_DATE_FROM = "opening_date_from"
