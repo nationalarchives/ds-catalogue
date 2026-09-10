@@ -22,29 +22,51 @@ from .constants import (
 class AdvancedSearchForm(BaseForm):
     def add_fields(self):
         return {
-            FieldsConstant.ALL_WORDS: CharField(required=False),
-            FieldsConstant.EXACT_WORDS: CharField(required=False),
-            FieldsConstant.ANY_WORDS: CharField(required=False),
-            FieldsConstant.IGNORE_WORDS: CharField(required=False),
-            FieldsConstant.REFERENCES: CharField(required=False),
-            FieldsConstant.DATE_FROM: FromDateField(
+            FieldsConstant.ALL_WORDS: CharField(
+                required=False,
+                label="All of these words",
+                hint="Include the important words, for example: medal card UK",
+            ),
+            FieldsConstant.EXACT_WORDS: CharField(
+                required=False,
+                label="These exact words or phrases",
+                hint="Put each word on a new line, for example:<br>medal<br>card",
+            ),
+            FieldsConstant.ANY_WORDS: CharField(
+                required=False,
+                label="Any of these words",
+                hint="Put each word on a new line, for example:<br>medal<br>card",
+            ),
+            FieldsConstant.IGNORE_WORDS: CharField(
+                required=False,
+                label="Ignore these words",
+                hint="Put each word on a new line, for example:<br>medal<br>card",
+            ),
+            FieldsConstant.REFERENCES: CharField(
+                required=False,
+                label="Search for or within any of these references",
+                hint="Put each catalogue reference on a new line, for example: <br>WO 95<br>WO 96",
+            ),
+            FieldsConstant.COVERING_DATE_FROM: FromDateField(
                 label="From",
                 required=False,
                 progressive=True,
                 date_ymd_separator=DATE_YMD_SEPARATOR,
+                hint="For example: 1997, 1999 and 1, or 1997 1 and 31",
             ),
-            FieldsConstant.DATE_TO: ToDateField(
+            FieldsConstant.COVERING_DATE_TO: ToDateField(
                 label="To",
                 required=False,
                 progressive=True,
                 date_ymd_separator=DATE_YMD_SEPARATOR,
+                hint="For example: 1997, 1999 and 1, or 1997 1 and 31",
             ),
         }
 
     def cross_validate(self) -> list[str]:
         errors = []
-        date_from = self.fields[FieldsConstant.DATE_FROM]
-        date_to = self.fields[FieldsConstant.DATE_TO]
+        date_from = self.fields[FieldsConstant.COVERING_DATE_FROM]
+        date_to = self.fields[FieldsConstant.COVERING_DATE_TO]
 
         if (
             date_from.cleaned
