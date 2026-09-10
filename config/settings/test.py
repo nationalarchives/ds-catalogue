@@ -2,7 +2,7 @@ import os
 
 from .features import *
 from .production import *
-from .production import BASE_DIR, INSTALLED_APPS, LOGGING
+from .production import BASE_DIR, INSTALLED_APPS
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
