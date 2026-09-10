@@ -941,7 +941,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
 
 class AdvancedSearchView(TemplateView):
-    template_name = "search/advanced_search.html"
+    template_name = "search/advanced_search_js.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
