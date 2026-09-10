@@ -943,6 +943,12 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 class AdvancedSearchView(TemplateView):
     template_name = "search/advanced_search.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(self._base_context())
+        context["request"] = self.request
+        return context
+
     def _base_context(self) -> dict:
         notifications = fetch_global_notifications() or {}
         return {
@@ -952,51 +958,29 @@ class AdvancedSearchView(TemplateView):
             "global_alert": notifications,
         }
 
-    def _render(self, context: dict) -> HttpResponse:
-        return HttpResponse(
-            loader.get_template(self.template_name).render(
-                context, getattr(self, "request", None)
-            )
-        )
-
     def get(self, request, *args, **kwargs):
-        self.request = request
-
         # If query parameters present, treat as form submission (GET-based search)
-        form = AdvancedSearchForm(data=self.request.GET)
-        context = self._base_context()
-        # expose the form and date parts to the template for rendering
+        form = AdvancedSearchForm(data=request.GET)
+        context = self.get_context_data()
         context["form"] = form
+        return self.render_to_response(context)
 
-        # prepare date values for the FE date component
-        date_from_field = form.fields.get(FieldsConstant.DATE_FROM)
-        if date_from_field and isinstance(date_from_field.value, dict):
-            context["date_from_value"] = date_from_field.value
-        else:
-            context["date_from_value"] = {"year": "", "month": "", "day": ""}
+    def post(self, request, *args, **kwargs):
 
-        date_to_field = form.fields.get(FieldsConstant.DATE_TO)
-        if date_to_field and isinstance(date_to_field.value, dict):
-            context["date_to_value"] = date_to_field.value
-        else:
-            context["date_to_value"] = {"year": "", "month": "", "day": ""}
+        form = AdvancedSearchForm(data=request.POST)
+        context = self.get_context_data()
+        context["form"] = form
+        if not form.is_valid():
+            return self.render_to_response(context)
 
-        is_submission = bool(self.request.GET) or ("?" in self.request.get_full_path())
-        is_submission = bool(self.request.GET) or ("QUERY_STRING" in self.request.META)
-        if is_submission:
-            if not form.is_valid():
-                return self._render(context)
+        redirect_qs, errors = _build_advanced_search_query(form)
+        if errors:
+            # attach build-time errors to the form so template can render them
+            form.add_non_field_error(errors)
+            return self.render_to_response(context)
 
-            redirect_qs, errors = _build_advanced_search_query(form)
-            if errors:
-                # attach build-time errors to the form so template can render them
-                form.add_non_field_error(errors)
-                return self._render(context)
-
-            search_url = reverse("search:catalogue")
-            return redirect(f"{search_url}?{redirect_qs}")
-
-        return self._render(context)
+        search_url = reverse("search:catalogue")
+        return redirect(f"{search_url}?{redirect_qs}")
 
 
 def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
@@ -1014,27 +998,9 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
     ignore_words = _cleaned_list(FieldsConstant.IGNORE_WORDS)
     references = _cleaned_list(FieldsConstant.REFERENCES)
 
-    date_from = form.fields[FieldsConstant.DATE_FROM].cleaned
-    date_to = form.fields[FieldsConstant.DATE_TO].cleaned
-
-    has_input = any(
-        [
-            all_words,
-            exact_words,
-            any_words,
-            ignore_words,
-            references,
-            date_from,
-            date_to,
-        ]
-    )
-
-    if not has_input:
-        return "", ["Enter at least one value to search."]
-
     query_arr = []
     if all_words:
-        query_arr.append(_quote_if_needed(all_words))
+        query_arr.append(all_words)
 
     for word in exact_words:
         query_arr.append(f'AND "{word}"' if query_arr else f'"{word}"')
@@ -1057,22 +1023,27 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
         # keep the originally-entered line-separated format for APIMixin
         params[FieldsConstant.REFERENCES] = "\n".join(references)
 
-    for prefix in (FieldsConstant.DATE_FROM, FieldsConstant.DATE_TO):
-        value = form.fields[prefix].value
-        year = (value.get("year", "") if value else "").strip()
-        month = (value.get("month", "") if value else "").strip()
-        day = (value.get("day", "") if value else "").strip()
+    # set the covering date from and to parameters for the query
+    if form.fields[FieldsConstant.COVERING_DATE_FROM].cleaned:
+        params[
+            FieldsConstant.COVERING_DATE_FROM + DATE_YMD_SEPARATOR + DateKeys.YEAR
+        ] = form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(DateKeys.YEAR)
+        params[
+            FieldsConstant.COVERING_DATE_FROM + DATE_YMD_SEPARATOR + DateKeys.MONTH
+        ] = form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(DateKeys.MONTH)
+        params[
+            FieldsConstant.COVERING_DATE_FROM + DATE_YMD_SEPARATOR + DateKeys.DAY
+        ] = form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(DateKeys.DAY)
 
-        if year:
-            if prefix == FieldsConstant.DATE_FROM:
-                target = FieldsConstant.COVERING_DATE_FROM
-            else:
-                target = FieldsConstant.COVERING_DATE_TO
-
-            params[f"{target}-year"] = year
-            if month:
-                params[f"{target}-month"] = month
-            if day:
-                params[f"{target}-day"] = day
+    if form.fields[FieldsConstant.COVERING_DATE_TO].cleaned:
+        params[FieldsConstant.COVERING_DATE_TO + DATE_YMD_SEPARATOR + DateKeys.YEAR] = (
+            form.fields[FieldsConstant.COVERING_DATE_TO].value.get(DateKeys.YEAR)
+        )
+        params[
+            FieldsConstant.COVERING_DATE_TO + DATE_YMD_SEPARATOR + DateKeys.MONTH
+        ] = form.fields[FieldsConstant.COVERING_DATE_TO].value.get(DateKeys.MONTH)
+        params[FieldsConstant.COVERING_DATE_TO + DATE_YMD_SEPARATOR + DateKeys.DAY] = (
+            form.fields[FieldsConstant.COVERING_DATE_TO].value.get(DateKeys.DAY)
+        )
 
     return urlencode(params), []
