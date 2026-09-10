@@ -88,5 +88,4 @@ def environment(**options):
             "none_to_empty_string": none_to_empty_string,
         }
     )
-
     return env
