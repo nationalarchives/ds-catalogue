@@ -1016,7 +1016,7 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
     # references are sent as a dedicated query param for Rosetta filter
 
     params: dict[str, str] = {
-        "q": " ".join(query_arr) if query_arr else "*",
+        "q": " ".join(query_arr) if query_arr else "",
     }
 
     if references:
