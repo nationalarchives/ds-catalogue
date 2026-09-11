@@ -3,6 +3,7 @@
 import logging
 import string
 
+from django.conf import settings
 from django.core.cache import cache
 
 from app.records.api import wagtail_request_handler
@@ -17,8 +18,6 @@ from .constants import (
     GLOBAL_NOTIFICATIONS_CACHE_KEY,
     LANDING_PAGE_CACHE_KEY,
     SUBJECTS_CACHE_KEY,
-    SUBJECTS_CACHE_TIMEOUT,
-    WAGTAIL_API_CACHE_TIMEOUT,
 )
 
 logger = logging.getLogger(__name__)
@@ -54,7 +53,7 @@ def get_subjects_grouped_by_letter() -> dict:
             cache.set(
                 SUBJECTS_CACHE_KEY,
                 data,
-                timeout=SUBJECTS_CACHE_TIMEOUT,
+                timeout=settings.SUBJECTS_CACHE_TIMEOUT,
             )
         except Exception as e:
             # Fall back to an empty result if the API request fails,
@@ -88,7 +87,7 @@ def fetch_global_notifications() -> dict | None:
             cache.set(
                 GLOBAL_NOTIFICATIONS_CACHE_KEY,
                 data,
-                timeout=WAGTAIL_API_CACHE_TIMEOUT,
+                timeout=settings.WAGTAIL_API_CACHE_TIMEOUT,
             )
         except Exception as e:
             logger.error(f"Failed to fetch Wagtail notifications: {e}")
@@ -126,7 +125,7 @@ def fetch_landing_page_data() -> dict | None:
                 cache.set(
                     GLOBAL_NOTIFICATIONS_CACHE_KEY,
                     notifications,
-                    timeout=WAGTAIL_API_CACHE_TIMEOUT,
+                    timeout=settings.WAGTAIL_API_CACHE_TIMEOUT,
                 )
 
             data = {
@@ -138,7 +137,7 @@ def fetch_landing_page_data() -> dict | None:
             cache.set(
                 LANDING_PAGE_CACHE_KEY,
                 data,
-                timeout=WAGTAIL_API_CACHE_TIMEOUT,
+                timeout=settings.WAGTAIL_API_CACHE_TIMEOUT,
             )
         except Exception as e:
             logger.error(f"Failed to fetch Wagtail landing page data: {e}")

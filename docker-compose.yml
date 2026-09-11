@@ -22,6 +22,8 @@ services:
       - ROSETTA_API_URL=https://rosetta-dev.k-int.com/rosetta/data
       - WAGTAIL_API_URL=http://host.docker.internal:8000/api/v2
       - WAGTAIL_API_KEY
+      - WAGTAIL_API_CACHE_TIMEOUT=0
+      - SUBJECTS_CACHE_TIMEOUT=0
       - DELIVERY_OPTIONS_API_URL
       - DCS_PREFIXES=LEV
       - STAFFIN_IP_ADDRESSES
