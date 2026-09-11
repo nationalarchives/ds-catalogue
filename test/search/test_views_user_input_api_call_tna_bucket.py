@@ -3,9 +3,10 @@ from unittest.mock import patch
 
 import responses
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 
+@override_settings(DEBUG=False)
 class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
     """Tests API calls (url) made by the catalogue search view for tna bucket/group."""
 
@@ -226,3 +227,12 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         actual_url = mock_logger.debug.call_args[0][0]
         # digitised parameter should NOT be in the URL
         self.assertNotIn("digitised", actual_url)
+
+        # Test references filter (advanced search redirect query param)
+        response = self.client.get(
+            "/catalogue/search/?group=tna&q=war&references=WO%2095%0AADM%201"
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        actual_url = mock_logger.debug.call_args[0][0]
+        self.assertIn("filter=group%3Atna", actual_url)
+        self.assertIn("filter=referenceNumber%3A%28WO+95%2CADM+1%29", actual_url)

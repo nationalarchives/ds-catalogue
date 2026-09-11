@@ -32,6 +32,12 @@ class FieldsConstant:
     HELD_BY = "held_by"
     CLOSURE = "closure"
     FILTER_LIST = "filter_list"
+    # advanced search form fields
+    ALL_WORDS = "all_words"
+    EXACT_WORDS = "exact_words"
+    ANY_WORDS = "any_words"
+    IGNORE_WORDS = "ignore_words"
+    REFERENCES = "references"
     COVERING_DATE_FROM = "covering_date_from"
     COVERING_DATE_TO = "covering_date_to"
     OPENING_DATE_FROM = "opening_date_from"
