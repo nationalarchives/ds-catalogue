@@ -7,6 +7,8 @@ module.exports = {
     "record-details": "./src/scripts/record-details.js",
     "catalogue-results": "./src/scripts/catalogue-results.js",
     "catalogue-landing": "./src/scripts/catalogue-landing.js",
+    "chip-field": "./src/scripts/chip-field.js",
+    "advanced-search-query": "./src/scripts/advanced-search-query.js",
   },
   mode: "production",
   module: {
