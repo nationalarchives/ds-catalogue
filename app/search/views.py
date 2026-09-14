@@ -141,7 +141,7 @@ class APIMixin:
                 selected_values = form.fields[field_name].cleaned
                 selected_values = self.replace_input_data(field_name, selected_values)
                 filter_aggregations.extend(
-                    [f"{filter_name}:{_quote_if_needed(v)}" for v in selected_values]
+                    f"{filter_name}:{value}" for value in selected_values
                 )
         if filter_aggregations:
             add_filter(params, filter_aggregations)
