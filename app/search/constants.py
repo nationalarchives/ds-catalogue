@@ -42,6 +42,7 @@ class FieldsConstant:
     OPENING_DATE_FROM = "opening_date_from"
     OPENING_DATE_TO = "opening_date_to"
     DISPLAY = "display"
+    REFERENCE_NUMBER = "reference_number"
 
 
 FILTER_FIELDS = [
