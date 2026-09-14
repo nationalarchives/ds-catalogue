@@ -32,7 +32,6 @@ class FieldsConstant:
     HELD_BY = "held_by"
     CLOSURE = "closure"
     FILTER_LIST = "filter_list"
-    # advanced search form fields
     ALL_WORDS = "all_words"
     EXACT_WORDS = "exact_words"
     ANY_WORDS = "any_words"
