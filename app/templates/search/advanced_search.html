@@ -194,6 +194,7 @@
         {% block search_preview %}{% endblock search_preview %}
 
         <div class="tna-button-group tna-!--margin-top-xl">
+          <input type="hidden" name="group" value="{{ form.fields.group.value or bucket_keys.TNA }}">
           {{ tnaButton({
             "text": "Search",
             "buttonElement": true,

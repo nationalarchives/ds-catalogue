@@ -61,6 +61,9 @@ class AdvancedSearchForm(BaseForm):
                 date_ymd_separator=DATE_YMD_SEPARATOR,
                 hint="For example: 1997, 1999 and 1, or 1997 1 and 31",
             ),
+            FieldsConstant.GROUP: ChoiceField(
+                choices=CATALOGUE_BUCKETS.as_choices(),
+            ),
         }
 
     def cross_validate(self) -> list[str]:

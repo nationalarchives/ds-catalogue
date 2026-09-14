@@ -947,6 +947,7 @@ class AdvancedSearchView(TemplateView):
         context = super().get_context_data(**kwargs)
         context.update(self._base_context())
         context["request"] = self.request
+        context["bucket_keys"] = BucketKeys
         return context
 
     def _base_context(self) -> dict:
@@ -997,6 +998,7 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
     any_words = _cleaned_list(FieldsConstant.ANY_WORDS)
     ignore_words = _cleaned_list(FieldsConstant.IGNORE_WORDS)
     references = _cleaned_list(FieldsConstant.REFERENCES)
+    group = form.fields[FieldsConstant.GROUP].cleaned
 
     query_arr = []
     if all_words:
@@ -1022,6 +1024,11 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
     if references:
         # keep the originally-entered line-separated format for APIMixin
         params[FieldsConstant.REFERENCES] = "\n".join(references)
+
+    if group:
+        params[FieldsConstant.GROUP] = group
+    else:
+        params[FieldsConstant.GROUP] = BucketKeys.TNA
 
     # set the covering date from and to parameters for the query
     if form.fields[FieldsConstant.COVERING_DATE_FROM].cleaned:
