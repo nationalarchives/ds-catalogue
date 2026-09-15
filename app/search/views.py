@@ -972,21 +972,23 @@ class AdvancedSearchView(TemplateView):
         return redirect(f"{search_url}?{redirect_qs}")
 
 
-def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
+def _cleaned_list(form: AdvancedSearchForm, field_name: str) -> list[str]:
+    """Returns a list of non-empty, stripped lines from the specified form field."""
 
-    def _cleaned_list(field_name: str) -> list[str]:
-        return [
-            line.strip()
-            for line in (form.fields[field_name].cleaned or "").splitlines()
-            if line.strip()
-        ]
+    return [
+        line.strip()
+        for line in (form.fields[field_name].cleaned or "").splitlines()
+        if line.strip()
+    ]
+
+
+def _build_q(form: AdvancedSearchForm) -> str:
+    """Builds the main query string from form data."""
 
     all_words = (form.fields[FieldsConstant.ALL_WORDS].cleaned or "").strip()
-    exact_words = _cleaned_list(FieldsConstant.EXACT_WORDS)
-    any_words = _cleaned_list(FieldsConstant.ANY_WORDS)
-    ignore_words = _cleaned_list(FieldsConstant.IGNORE_WORDS)
-    references = _cleaned_list(FieldsConstant.REFERENCES)
-    group = form.fields[FieldsConstant.GROUP].cleaned
+    exact_words = _cleaned_list(form, FieldsConstant.EXACT_WORDS)
+    any_words = _cleaned_list(form, FieldsConstant.ANY_WORDS)
+    ignore_words = _cleaned_list(form, FieldsConstant.IGNORE_WORDS)
 
     query_arr = []
     if all_words:
@@ -1003,19 +1005,24 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
     for word in ignore_words:
         query_arr.append(f'NOT "{word}"')
 
-    # references are sent as a dedicated query param for Rosetta filter
+    return " ".join(query_arr) if query_arr else ""
 
+
+def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
+    """Builds the advanced search query from the form data and returns a tuple containing
+    the URL-encoded query string and a list of errors.
+    Note: `references` are sent as a dedicated query param for Rosetta filter
+    """
+
+    group = form.fields[FieldsConstant.GROUP].cleaned
     params: dict[str, str] = {
-        "q": " ".join(query_arr) if query_arr else "",
+        FieldsConstant.GROUP: group or BucketKeys.TNA,
     }
 
-    if references:
-        params[FieldsConstant.REFERENCE_NUMBER] = references
+    params[FieldsConstant.Q] = _build_q(form)
 
-    if group:
-        params[FieldsConstant.GROUP] = group
-    else:
-        params[FieldsConstant.GROUP] = BucketKeys.TNA
+    if references := _cleaned_list(form, FieldsConstant.REFERENCES):
+        params[FieldsConstant.REFERENCE_NUMBER] = references
 
     # set the covering date from and to parameters for the query
     if form.fields[FieldsConstant.COVERING_DATE_FROM].cleaned:
