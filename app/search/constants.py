@@ -56,6 +56,7 @@ FILTER_FIELDS = [
     FieldsConstant.COVERING_DATE_TO,
     FieldsConstant.OPENING_DATE_FROM,
     FieldsConstant.OPENING_DATE_TO,
+    FieldsConstant.REFERENCE_NUMBER,
 ]
 
 

@@ -23,6 +23,7 @@
 {% from 'search/macros/filters/checkboxes_with_submit.html' import checkboxes_with_submit %}
 {% from 'search/macros/filters_not_applied_banner.html' import filters_not_applied_banner %}
 {% from 'macros/feedback_banner.html' import feedback %}
+{% from 'search/macros/as_hidden_for_checkboxes.html' import as_hidden_for_checkboxes %}
 
 {%- set pageTitle = 'Catalogue search ' ~ ((' for "' ~ request.GET.q ~ '"') if request.GET.q else '') -%}
 {%- set encodedQuery = request.GET.urlencode() | base64_encode -%}
@@ -104,6 +105,10 @@
       {# display condition handles invalid group input #}
       <input type="hidden" name="display" value="{{ form.fields.display.value if form.fields.display else display_options.LIST.value }}">
       <input type="hidden" name="group" value="{{ request.GET.get('group') or bucket_keys.TNA }}">
+      {% if not form.errors and not form.non_field_errors %}
+        {# since reference number are not displayed, render them as hidden fields to preserve their values #}
+        {{ as_hidden_for_checkboxes(form.fields.reference_number) }}
+      {% endif %}
       {% if form.fields.group.value==bucket_keys.TNA %}
         {# preserve invalid inputs from disappearing when other filters are updated until invalids are removed #}
         {% if form.fields['level'].error %}
@@ -210,6 +215,7 @@
       {% if form.fields.closure.is_visible %}
         {{ checkboxes_with_submit(request, form.fields.closure) }}
       {% endif %}
+      {# {{ checkboxes_with_submit(request, form.fields.reference_number) }} #}
     {% elif form.fields.group.value==bucket_keys.NON_TNA %}
       {# {{ search_within(request) }} #}
       {% if form.fields.covering_date_from.is_visible or form.fields.covering_date_to.is_visible %}

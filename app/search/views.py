@@ -115,24 +115,6 @@ class APIMixin:
         # date related filters
         add_filter(params, self._get_date_api_params(form))
 
-        # references filter (from advanced search redirect or direct query param)
-        refs_field = form.fields.get(FieldsConstant.REFERENCES)
-        if refs_field is not None:
-            refs_raw = refs_field.cleaned
-        else:
-            refs_raw = None
-            # fallback to request.GET if the catalogue form doesn't include references
-            if getattr(self, "request", None) is not None:
-                refs_raw = self.request.GET.get(FieldsConstant.REFERENCES)
-
-        if refs_raw:
-            refs = [r.strip() for r in refs_raw.splitlines() if r.strip()]
-            if refs:
-                add_filter(
-                    params,
-                    f"referenceNumber:({','.join(r for r in refs)})",
-                )
-
         # filter aggregations for each field
         filter_aggregations = []
         for field_name in form.fields:
@@ -968,9 +950,15 @@ class AdvancedSearchView(TemplateView):
 
     def post(self, request, *args, **kwargs):
 
-        form = AdvancedSearchForm(data=request.POST)
+        form_data = request.POST.copy()
+
+        form_data.setdefault(FieldsConstant.GROUP, BucketKeys.TNA)
+
+        form = AdvancedSearchForm(data=form_data)
+
         context = self.get_context_data()
         context["form"] = form
+
         if not form.is_valid():
             return self.render_to_response(context)
 
@@ -1022,8 +1010,7 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
     }
 
     if references:
-        # keep the originally-entered line-separated format for APIMixin
-        params[FieldsConstant.REFERENCES] = "\n".join(references)
+        params[FieldsConstant.REFERENCE_NUMBER] = references
 
     if group:
         params[FieldsConstant.GROUP] = group
@@ -1052,5 +1039,4 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
         params[FieldsConstant.COVERING_DATE_TO + DATE_YMD_SEPARATOR + DateKeys.DAY] = (
             form.fields[FieldsConstant.COVERING_DATE_TO].value.get(DateKeys.DAY)
         )
-
-    return urlencode(params), []
+    return urlencode(params, doseq=True), []

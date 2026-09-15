@@ -240,6 +240,12 @@ class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
                     progressive=True,  # interfaces with FE component for progressive date entry
                     date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
                 ),
+                FieldsConstant.REFERENCE_NUMBER: DynamicMultipleChoiceField(
+                    label="Reference numbers",
+                    choices=[],
+                    validate_input=False,
+                    active_filter_label="Reference number",
+                ),
             }
         )
 
@@ -279,6 +285,12 @@ class CatalogueSearchNonTnaForm(CatalogueSearchCommonForm):
                     choices=[],  # no initial choices as they are set dynamically
                     active_filter_label="Held by",
                     more_filter_choices_text="See more held by",
+                ),
+                FieldsConstant.REFERENCE_NUMBER: DynamicMultipleChoiceField(
+                    label="Reference numbers",
+                    choices=[],
+                    validate_input=False,
+                    active_filter_label="Reference number",
                 ),
             }
         )
