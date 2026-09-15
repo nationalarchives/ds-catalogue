@@ -4,6 +4,8 @@ from urllib.parse import parse_qs, urlparse
 
 from django.test import TestCase, override_settings
 
+from app.search.views import AdvancedSearchQForm, _build_q
+
 
 @override_settings(DEBUG=False)
 class AdvancedSearchViewTests(TestCase):
@@ -71,3 +73,24 @@ class AdvancedSearchViewTests(TestCase):
         self.assertEqual(query_params["covering_date_from-year"][0], "1900")
         self.assertEqual(query_params["covering_date_to-year"][0], "1910")
         self.assertEqual(query_params["covering_date_to-month"][0], "12")
+
+
+class AdvancedSearchBuildQViewTests(TestCase):
+    def test_build_q(self):
+
+        response = self.client.post(
+            "/catalogue/advanced-search/build-q/",
+            data={
+                "all_words": "world war",
+                "exact_words": "official use only\nNavy",
+                "any_words": "armament\nRailway Company",
+                "ignore_words": "arranged numerically\nallocated",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "q": 'world war AND "official use only" AND "Navy" AND (armament OR "Railway Company") NOT "arranged numerically" NOT "allocated"'
+            },
+        )

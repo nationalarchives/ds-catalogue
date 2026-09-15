@@ -5,11 +5,12 @@ from typing import Any
 from urllib.parse import urlencode
 
 from django.core.exceptions import SuspiciousOperation
-from django.http import HttpRequest, HttpResponse, QueryDict
+from django.http import HttpRequest, HttpResponse, JsonResponse, QueryDict
 from django.middleware.csrf import get_token
 from django.shortcuts import redirect
 from django.template import loader
 from django.urls import reverse
+from django.views import View
 from django.views.generic import TemplateView
 
 from app.errors import views as errors_view
@@ -48,6 +49,7 @@ from .constants import (
 )
 from .forms import (
     AdvancedSearchForm,
+    AdvancedSearchQForm,
     CatalogueSearchBaseForm,
     CatalogueSearchNonTnaForm,
     CatalogueSearchTnaForm,
@@ -982,7 +984,7 @@ def _cleaned_list(form: AdvancedSearchForm, field_name: str) -> list[str]:
     ]
 
 
-def _build_q(form: AdvancedSearchForm) -> str:
+def _build_q(form: AdvancedSearchForm | AdvancedSearchQForm) -> str:
     """Builds the main query string from form data."""
 
     all_words = (form.fields[FieldsConstant.ALL_WORDS].cleaned or "").strip()
@@ -1047,3 +1049,15 @@ def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[st
             form.fields[FieldsConstant.COVERING_DATE_TO].value.get(DateKeys.DAY)
         )
     return urlencode(params, doseq=True), []
+
+
+class AdvancedSearchBuildQView(View):
+    """Build an advanced search query for q param and return it as JSON for the query preview."""
+
+    def post(self, request, *args, **kwargs):
+        form = AdvancedSearchQForm(request.POST)
+        if form.is_valid():
+            q = _build_q(form)
+            return JsonResponse({"q": q})
+        # return empty JSON response if the form is not valid
+        return JsonResponse({})

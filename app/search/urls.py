@@ -7,4 +7,9 @@ urlpatterns = [
     path(
         "advanced-search/", views.AdvancedSearchView.as_view(), name="advanced_search"
     ),
+    path(
+        "advanced-search/build-q/",
+        views.AdvancedSearchBuildQView.as_view(),
+        name="advanced_search_build_q",
+    ),
 ]
