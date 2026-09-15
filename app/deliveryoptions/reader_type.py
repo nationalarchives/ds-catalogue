@@ -1,6 +1,5 @@
 import logging
 from ipaddress import ip_address, ip_network
-from typing import List, Optional
 
 from django.conf import settings
 from django.http import HttpRequest
