@@ -4,8 +4,6 @@ from urllib.parse import parse_qs, urlparse
 
 from django.test import TestCase, override_settings
 
-from app.search.views import AdvancedSearchQForm, _build_q
-
 
 @override_settings(DEBUG=False)
 class AdvancedSearchViewTests(TestCase):
