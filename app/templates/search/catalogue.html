@@ -24,7 +24,7 @@
 {% from 'search/macros/filters_not_applied_banner.html' import filters_not_applied_banner %}
 {% from 'macros/feedback_banner.html' import feedback %}
 
-{%- set pageTitle = 'Catalogue search results' -%}
+{%- set pageTitle = 'Catalogue search ' ~ ((' for "' ~ request.GET.q ~ '"') if request.GET.q else '') -%}
 {%- set encodedQuery = request.GET.urlencode() | base64_encode -%}
 
 {% block stylesheets %}
@@ -52,6 +52,7 @@
   {% for property in analytics_data %}
     <meta name="tna_root:{{ property }}" content="{{ analytics_data[property] | none_to_empty_string() }}">
   {% endfor %}
+  <meta name="description" content="Catalogue search results{{ (' for \"' ~ request.GET.q ~ '\"') if request.GET.q else '' }} in the National Archives online catalogue">
 {% endblock head %}
 
 {% block beforeContent %}
@@ -85,7 +86,7 @@
   <div class="tna-container">
     <form id="search-form" method="get" class="tna-column tna-column--full">
       {{ tnaSearchField({
-        'label': pageTitle,
+        'label': 'Catalogue search results',
         'headingLevel': 1,
         'headingSize': 'l',
         'id': 'search',
