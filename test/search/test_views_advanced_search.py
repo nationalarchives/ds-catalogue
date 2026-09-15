@@ -1,4 +1,3 @@
-import unittest
 from http import HTTPStatus
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlparse
@@ -15,20 +14,20 @@ class AdvancedSearchViewTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, "Advanced search")
 
-    @unittest.skip("TODO-Temporary skip")
     @patch("app.search.views.fetch_global_notifications", return_value=None)
     def test_post_advanced_search_with_invalid_date_range_shows_error(
         self, _mock_fetch_global_notifications
     ):
-        response = self.client.get(
+        response = self.client.post(
             "/catalogue/advanced-search/",
             data={
-                "date_from-year": "2001",
-                "date_from-month": "1",
-                "date_from-day": "2",
-                "date_to-year": "2001",
-                "date_to-month": "1",
-                "date_to-day": "1",
+                "covering_date_from-year": "2001",
+                "covering_date_from-month": "1",
+                "covering_date_from-day": "2",
+                "covering_date_to-year": "2001",
+                "covering_date_to-month": "1",
+                "covering_date_to-day": "1",
+                "group": "tna",
             },
         )
 
@@ -38,12 +37,11 @@ class AdvancedSearchViewTests(TestCase):
             "Record dates: &#39;from&#39; date (02-01-2001) cannot be after &#39;to&#39; date (01-01-2001).",
         )
 
-    @unittest.skip("TODO-Temporary skip")
     @patch("app.search.views.fetch_global_notifications", return_value=None)
     def test_post_advanced_search_redirects_with_query_params(
         self, _mock_fetch_global_notifications
     ):
-        response = self.client.get(
+        response = self.client.post(
             "/catalogue/advanced-search/",
             data={
                 "all_words": "medal card",
@@ -54,10 +52,11 @@ class AdvancedSearchViewTests(TestCase):
                 "covering_date_from-year": "1900",
                 "covering_date_to-year": "1910",
                 "covering_date_to-month": "12",
+                "group": "tna",
             },
         )
 
-        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
         location = response["Location"]
         parsed = urlparse(location)
@@ -66,9 +65,9 @@ class AdvancedSearchViewTests(TestCase):
         self.assertEqual(parsed.path, "/catalogue/search/")
         self.assertEqual(
             query_params["q"][0],
-            '"medal card" AND "war diary" AND "signal" AND army NOT "navy"',
+            'medal card AND "war diary" AND "signal" AND army NOT "navy"',
         )
-        self.assertEqual(query_params["references"][0], "WO 95\nADM 1")
+        self.assertEqual(query_params["reference_number"], ["WO 95", "ADM 1"])
         self.assertEqual(query_params["covering_date_from-year"][0], "1900")
         self.assertEqual(query_params["covering_date_to-year"][0], "1910")
         self.assertEqual(query_params["covering_date_to-month"][0], "12")
