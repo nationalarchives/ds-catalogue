@@ -19,7 +19,9 @@ from .constants import (
 )
 
 
-class AdvancedSearchForm(BaseForm):
+class AdvancedSearchQForm(BaseForm):
+    """Fields that build the search term part i.e. q param of the advanced search form."""
+
     def add_fields(self):
         return {
             FieldsConstant.ALL_WORDS: CharField(
@@ -42,6 +44,15 @@ class AdvancedSearchForm(BaseForm):
                 label="Ignore these words",
                 hint="Put each word on a new line, for example:<br>medal<br>card",
             ),
+        }
+
+
+class AdvancedSearchForm(AdvancedSearchQForm):
+    def add_fields(self):
+
+        fields = super().add_fields()
+
+        return fields | {
             FieldsConstant.REFERENCES: CharField(
                 required=False,
                 label="Search for or within any of these references",
