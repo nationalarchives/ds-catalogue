@@ -1,5 +1,4 @@
-from app.search.views import _build_q
-from app.search.views import FieldsConstant
+from app.search.views import FieldsConstant, _build_q
 
 
 class _F:

@@ -18,7 +18,7 @@ def test_escape_without_spaces_for_internal_quote():
 
 
 def test_escape_backslash_and_quote_with_space():
-    value = 'back\\slash here'
+    value = "back\\slash here"
     # backslash doubled in the escaped output and whole string quoted
     assert _quote_if_needed(value) == '"back\\\\slash here"'
 

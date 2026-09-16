@@ -1,9 +1,10 @@
-from django.http import QueryDict
 from urllib.parse import parse_qs
 
-from app.search.views import _build_advanced_search_query
-from app.search.constants import FieldsConstant
+from django.http import QueryDict
+
 from app.search.buckets import BucketKeys
+from app.search.constants import FieldsConstant
+from app.search.views import _build_advanced_search_query
 
 
 def test_repeated_reference_number_and_dates():

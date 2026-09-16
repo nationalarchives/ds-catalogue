@@ -12,12 +12,12 @@ from app.records.constants import TnaLevels
 from .buckets import CATALOGUE_BUCKETS, Aggregation
 from .collection_names import COLLECTION_CHOICES
 from .constants import (
+    ADV_SEARCH_TEXTAREA_MAX_CHARS,
+    ADV_SEARCH_TEXTAREA_MAX_LINES,
     DATE_DISPLAY_FORMAT,
     Display,
     FieldsConstant,
     Sort,
-    ADV_SEARCH_TEXTAREA_MAX_CHARS,
-    ADV_SEARCH_TEXTAREA_MAX_LINES,
 )
 
 

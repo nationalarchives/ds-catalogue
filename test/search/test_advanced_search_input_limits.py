@@ -1,16 +1,16 @@
 from django.http import QueryDict
 
-from app.search.forms import AdvancedSearchForm
 from app.search.constants import (
-    FieldsConstant,
     ADV_SEARCH_TEXTAREA_MAX_CHARS,
     ADV_SEARCH_TEXTAREA_MAX_LINES,
+    FieldsConstant,
 )
+from app.search.forms import AdvancedSearchForm
 
 
 def test_textarea_char_limit_exceeded():
     long_value = "a" * (ADV_SEARCH_TEXTAREA_MAX_CHARS + 1)
-    qd = QueryDict('', mutable=True)
+    qd = QueryDict("", mutable=True)
     qd[FieldsConstant.EXACT_WORDS] = long_value
 
     form = AdvancedSearchForm(data=qd)
@@ -21,7 +21,7 @@ def test_textarea_char_limit_exceeded():
 
 def test_textarea_line_limit_exceeded():
     many_lines = "\n".join(["line"] * (ADV_SEARCH_TEXTAREA_MAX_LINES + 1))
-    qd = QueryDict('', mutable=True)
+    qd = QueryDict("", mutable=True)
     qd[FieldsConstant.REFERENCES] = many_lines
 
     form = AdvancedSearchForm(data=qd)

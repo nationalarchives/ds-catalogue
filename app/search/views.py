@@ -69,14 +69,9 @@ def _quote_if_needed(value: str) -> str:
     if not isinstance(value, str) or not value:
         return value
 
-    # Escape backslashes and double quotes to avoid producing malformed
-    # query parts. Do the replacement in this order so backslashes are
-    # escaped first, then double quotes.
+    # Escape backslashes and double quotes to avoid producing malformed queries
     safe = value.replace("\\", "\\\\").replace('"', '\\"')
 
-    # If the original value contained spaces, return as a quoted string
-    # using the escaped content. Otherwise return the escaped value
-    # (if escaping changed it) or the original value.
     if " " in safe:
         return f'"{safe}"'
     return safe if safe != value else value
@@ -994,7 +989,18 @@ def _cleaned_list(form: AdvancedSearchForm, field_name: str) -> list[str]:
 
 
 def _build_q(form: AdvancedSearchForm | AdvancedSearchQForm) -> str:
-    """Builds the main query string from form data."""
+    """Builds the main query string from form data.
+
+    Quoting and escaping behaviour
+    ------------------------------
+    - Server-side: `_quote_if_needed` escapes backslashes and double quotes
+      (so an input like `He said "hi"` becomes `"He said \"hi\""`) and
+      wraps values containing spaces in double quotes. This ensures API
+      query parts are well-formed and avoids injection of unbalanced quotes.
+    - Client-side preview: the preview rendered by `src/scripts/advanced-search-query.js`
+      is a local representation and does not perform the same escape sequence
+      transformations; it displays terms as entered.
+    """
 
     all_words = (form.fields[FieldsConstant.ALL_WORDS].cleaned or "").strip()
     exact_words = _cleaned_list(form, FieldsConstant.EXACT_WORDS)
