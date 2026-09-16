@@ -55,7 +55,11 @@ from .forms import (
 )
 from .mixins import SearchDataLayerMixin
 from .models import APISearchResponse
-from .utils import camelcase_to_underscore, underscore_to_camelcase
+from .utils import (
+    camelcase_to_underscore,
+    underscore_to_camelcase,
+    quote_if_needed,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -64,17 +68,7 @@ class PageNotFound(Exception):
     pass
 
 
-def _quote_if_needed(value: str) -> str:
-    # wrap the value in double-quotes if it contains spaces
-    if not isinstance(value, str) or not value:
-        return value
-
-    # Escape backslashes and double quotes to avoid producing malformed queries
-    safe = value.replace("\\", "\\\\").replace('"', '\\"')
-
-    if " " in safe:
-        return f'"{safe}"'
-    return safe if safe != value else value
+_quote_if_needed = quote_if_needed
 
 
 class APIMixin:
