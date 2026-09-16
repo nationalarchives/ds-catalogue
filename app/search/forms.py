@@ -98,38 +98,34 @@ class AdvancedSearchForm(AdvancedSearchQForm):
             errors.append(
                 f"Record dates: 'from' date ({from_date}) cannot be after 'to' date ({to_date})."
             )
-
-        # Limit textarea inputs to reasonable sizes to avoid excessively long
-        # requests and potential abuse. Add field errors when limits exceeded.
-        textarea_fields = (
+        # Enforce textarea limits for advanced search fields
+        for field_name in (
             FieldsConstant.EXACT_WORDS,
             FieldsConstant.ANY_WORDS,
             FieldsConstant.IGNORE_WORDS,
             FieldsConstant.REFERENCES,
-        )
-
-        for field_name in textarea_fields:
+        ):
             field = self.fields.get(field_name)
             if not field:
                 continue
-            value = field.cleaned or ""
-
-            if len(value) > ADV_SEARCH_TEXTAREA_MAX_CHARS:
-                field.add_error(
-                    f"This field must be {ADV_SEARCH_TEXTAREA_MAX_CHARS} characters or fewer."
-                )
-                errors.append(
-                    f"{field_name}: input too long (max {ADV_SEARCH_TEXTAREA_MAX_CHARS} chars)."
-                )
-
-            lines = value.splitlines()
-            if len(lines) > ADV_SEARCH_TEXTAREA_MAX_LINES:
-                field.add_error(
-                    f"This field must have no more than {ADV_SEARCH_TEXTAREA_MAX_LINES} lines."
-                )
-                errors.append(
-                    f"{field_name}: too many lines (max {ADV_SEARCH_TEXTAREA_MAX_LINES})."
-                )
+            value = field.value or ""
+            # character limit
+            if (
+                ADV_SEARCH_TEXTAREA_MAX_CHARS
+                and len(value) > ADV_SEARCH_TEXTAREA_MAX_CHARS
+            ):
+                field.add_error(f"Maximum {ADV_SEARCH_TEXTAREA_MAX_CHARS} characters")
+                errors.append(f"{field_name}: exceeds maximum characters")
+            # line limit (count non-empty trimmed lines)
+            lines = [
+                line for line in (value.split("\n") if value else []) if line.strip()
+            ]
+            if (
+                ADV_SEARCH_TEXTAREA_MAX_LINES
+                and len(lines) > ADV_SEARCH_TEXTAREA_MAX_LINES
+            ):
+                field.add_error(f"Maximum {ADV_SEARCH_TEXTAREA_MAX_LINES} lines")
+                errors.append(f"{field_name}: exceeds maximum lines")
 
         return errors
 

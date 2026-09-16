@@ -107,8 +107,16 @@
               "id": form.fields.exact_words.id,
               "name": form.fields.exact_words.name,
               "value": form.fields.exact_words.value,
-              "hint": form.fields.exact_words.hint | safe
+              "hint": form.fields.exact_words.hint | safe,
+              "attributes": {"maxlength": adv_search_max_chars, "data-max-lines": adv_search_max_lines}
             }) }}
+              <div class="tna-textarea-controls tna-!--margin-top-xx">
+                <div class="textarea-counter" data-counter-for="{{ form.fields.exact_words.id }}">
+                  <span class="char-count">0/{{ adv_search_max_chars }}</span>
+                  <span class="line-count">0/{{ adv_search_max_lines }}</span>
+                </div>
+                <div class="textarea-error" data-error-for="{{ form.fields.exact_words.id }}" hidden></div>
+              </div>
           {% endblock exact_words_field %}
 
           {% block any_words_field %}
@@ -120,8 +128,16 @@
               "id": form.fields.any_words.id,
               "name": form.fields.any_words.name,
               "value": form.fields.any_words.value,
-              "hint": form.fields.any_words.hint | safe
+              "hint": form.fields.any_words.hint | safe,
+              "attributes": {"maxlength": adv_search_max_chars, "data-max-lines": adv_search_max_lines}
             }) }}
+              <div class="tna-textarea-controls tna-!--margin-top-xx">
+                <div class="textarea-counter" data-counter-for="{{ form.fields.any_words.id }}">
+                  <span class="char-count">0/{{ adv_search_max_chars }}</span>
+                  <span class="line-count">0/{{ adv_search_max_lines }}</span>
+                </div>
+                <div class="textarea-error" data-error-for="{{ form.fields.any_words.id }}" hidden></div>
+              </div>
           {% endblock any_words_field %}
 
           {% block ignore_words_field %}
@@ -133,8 +149,16 @@
               "id": form.fields.ignore_words.id,
               "name": form.fields.ignore_words.name,
               "value": form.fields.ignore_words.value,
-              "hint": form.fields.ignore_words.hint | safe
+              "hint": form.fields.ignore_words.hint | safe,
+              "attributes": {"maxlength": adv_search_max_chars, "data-max-lines": adv_search_max_lines}
             }) }}
+              <div class="tna-textarea-controls tna-!--margin-top-xx">
+                <div class="textarea-counter" data-counter-for="{{ form.fields.ignore_words.id }}">
+                  <span class="char-count">0/{{ adv_search_max_chars }}</span>
+                  <span class="line-count">0/{{ adv_search_max_lines }}</span>
+                </div>
+                <div class="textarea-error" data-error-for="{{ form.fields.ignore_words.id }}" hidden></div>
+              </div>
           {% endblock ignore_words_field %}
 
         {% endcall %}
@@ -155,8 +179,16 @@
               "headingSize": "s",
               "id": form.fields.references.id,
               "name": form.fields.references.name,
-              "value": form.fields.references.value
+              "value": form.fields.references.value,
+              "attributes": {"maxlength": adv_search_max_chars, "data-max-lines": adv_search_max_lines}
             }) }}
+              <div class="tna-textarea-controls tna-!--margin-top-xx">
+                <div class="textarea-counter" data-counter-for="{{ form.fields.references.id }}">
+                  <span class="char-count">0/{{ adv_search_max_chars }}</span>
+                  <span class="line-count">0/{{ adv_search_max_lines }}</span>
+                </div>
+                <div class="textarea-error" data-error-for="{{ form.fields.references.id }}" hidden></div>
+              </div>
           {% endblock references_field %}
 
           <h3 class="tna-heading-s">Search within a date range</h3>

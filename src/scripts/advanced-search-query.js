@@ -1,5 +1,7 @@
-const INDEX_FIRST = 0;
-const MIN_PARENS_LENGTH = 2;
+/* eslint-disable max-lines */
+const INDEX_FIRST = 0,
+  MIN_PARENS_LENGTH = 2,
+  PARSE_RADIX = 10;
 
 class AdvancedSearchPreview {
   constructor() {
@@ -25,11 +27,6 @@ class AdvancedSearchPreview {
     this.references = document.getElementById("id_references");
   }
 
-  /**
-   * Get the values from the textarea
-   * @param {HTMLTextAreaElement} textarea - The textarea element
-   * @returns {string[]} The values from the textarea
-   */
   static getChipValues(textarea) {
     if (!textarea) {
       return [];
@@ -40,33 +37,106 @@ class AdvancedSearchPreview {
       .filter(Boolean);
   }
 
-  /**
-   * Bind the events to the elements
-   */
   bindEvents() {
-    if (this.allWordsInput) {
-      this.allWordsInput.addEventListener("input", () => this.update());
-    }
+    this.addInputListeners();
 
     document.addEventListener("chipchange", () => this.update());
 
     const form = this.searchPreview.closest("form");
     if (form) {
-      form.addEventListener("reset", () => {
-        requestAnimationFrame(() => this.update());
-      });
+      this.attachFormHandlers(form);
     }
   }
 
-  /**
-   * Append a group of terms to the query parts array.
-   * @param {Array} parts - The parts array to append to
-   * @param {string[]} terms - The terms to add
-   * @param {Object} options
-   * @param {string|null} options.prefix - Operator to prepend (e.g. "AND", "NOT", "IN")
-   * @param {string} options.joiner - Operator between terms (default "OR")
-   * @param {boolean} options.wrap - Whether to wrap in parentheses (default true)
-   */
+  addInputListeners() {
+    const inputs = [
+      this.allWordsInput,
+      this.exactWords,
+      this.anyWords,
+      this.ignoreWords,
+      this.references,
+    ];
+    inputs.forEach((el) => {
+      if (el) {
+        el.addEventListener("input", () => this.update());
+      }
+    });
+  }
+
+  attachFormHandlers(form) {
+    form.addEventListener("reset", () => {
+      requestAnimationFrame(() => this.update());
+    });
+    form.addEventListener("submit", (ev) => {
+      // Prevent submit if any textarea exceeds configured limits
+      const textareas = [
+        this.exactWords,
+        this.anyWords,
+        this.ignoreWords,
+        this.references,
+      ];
+      const invalid = textareas.some((ta) =>
+        AdvancedSearchPreview.isOverLimit(ta),
+      );
+      if (invalid) {
+        ev.preventDefault();
+        const first = textareas.find((ta) =>
+          AdvancedSearchPreview.isOverLimit(ta),
+        );
+        if (first) {
+          first.focus();
+        }
+      }
+    });
+  }
+
+  static isOverLimit(textarea) {
+    if (!textarea) {
+      return false;
+    }
+    const maxChars =
+      parseInt(
+        textarea.getAttribute("maxlength") || String(INDEX_FIRST),
+        PARSE_RADIX,
+      ) || INDEX_FIRST;
+    const maxLines =
+      parseInt(
+        textarea.getAttribute("data-max-lines") || String(INDEX_FIRST),
+        PARSE_RADIX,
+      ) || INDEX_FIRST;
+    const { chars, lines } = AdvancedSearchPreview.getCounts(textarea);
+    if (maxChars && chars > maxChars) {
+      return true;
+    }
+    if (maxLines && lines > maxLines) {
+      return true;
+    }
+    return false;
+  }
+
+  static getCounts(textarea) {
+    const chars = textarea.value.length;
+    const lines = textarea.value
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean).length;
+    return { chars, lines };
+  }
+
+  static getMaxValues(textarea) {
+    const maxChars =
+      parseInt(
+        textarea.getAttribute("maxlength") || String(INDEX_FIRST),
+        PARSE_RADIX,
+      ) || INDEX_FIRST;
+    const maxLines =
+      parseInt(
+        textarea.getAttribute("data-max-lines") || String(INDEX_FIRST),
+        PARSE_RADIX,
+      ) || INDEX_FIRST;
+    return { maxChars, maxLines };
+  }
+
   static addGroup(
     parts,
     terms,
@@ -93,10 +163,6 @@ class AdvancedSearchPreview {
     }
   }
 
-  /**
-   * Build the query
-   * @returns {Array} The query parts
-   */
   buildQuery() {
     const parts = [];
     this.pushAllWords(parts);
@@ -169,9 +235,6 @@ class AdvancedSearchPreview {
     );
   }
 
-  /**
-   * Update the search preview
-   */
   update() {
     const parts = this.buildQuery();
 
@@ -183,12 +246,84 @@ class AdvancedSearchPreview {
     this.searchPreviewQuery.innerHTML = "";
     parts.forEach((part) => this.renderPart(part));
     this.searchPreview.hidden = false;
+    // update counters for monitored textareas
+    [this.exactWords, this.anyWords, this.ignoreWords, this.references].forEach(
+      (ta) => AdvancedSearchPreview.updateCounters(ta),
+    );
   }
 
-  /**
-   * Render a part of the query
-   * @param {Object} part - The part to render
-   */
+  static formatSuffix(maxValue) {
+    if (maxValue) {
+      return `/${maxValue}`;
+    }
+    return "";
+  }
+
+  static setCounterText(counter, { chars, lines, charSuffix, lineSuffix }) {
+    const charEl = counter.querySelector(".char-count");
+    const lineEl = counter.querySelector(".line-count");
+    if (charEl) {
+      charEl.textContent = `${chars}${charSuffix}`;
+    }
+    if (lineEl) {
+      lineEl.textContent = `${lines}${lineSuffix}`;
+    }
+  }
+
+  static buildMessages({ maxChars, maxLines, chars, lines }) {
+    const msgs = [];
+    if (maxChars && chars > maxChars) {
+      msgs.push(`Maximum ${maxChars} characters`);
+    }
+    if (maxLines && lines > maxLines) {
+      msgs.push(`Maximum ${maxLines} lines`);
+    }
+    return msgs;
+  }
+
+  static setErrorState(textarea, errorEl, msgs) {
+    if (msgs.length) {
+      textarea.classList.add("textarea--error");
+      if (errorEl) {
+        errorEl.textContent = msgs.join(". ");
+        errorEl.hidden = false;
+      }
+    } else {
+      textarea.classList.remove("textarea--error");
+      if (errorEl) {
+        errorEl.textContent = "";
+        errorEl.hidden = true;
+      }
+    }
+  }
+
+  static updateCounters(textarea) {
+    if (!textarea) {
+      return;
+    }
+    const { maxChars, maxLines } = AdvancedSearchPreview.getMaxValues(textarea);
+    const { chars, lines } = AdvancedSearchPreview.getCounts(textarea);
+    const counter = document.querySelector(
+      `[data-counter-for="${textarea.id}"]`,
+    );
+    if (counter) {
+      AdvancedSearchPreview.setCounterText(counter, {
+        chars,
+        lines,
+        charSuffix: AdvancedSearchPreview.formatSuffix(maxChars),
+        lineSuffix: AdvancedSearchPreview.formatSuffix(maxLines),
+      });
+    }
+    const errorEl = document.querySelector(`[data-error-for="${textarea.id}"]`);
+    const msgs = AdvancedSearchPreview.buildMessages({
+      maxChars,
+      maxLines,
+      chars,
+      lines,
+    });
+    AdvancedSearchPreview.setErrorState(textarea, errorEl, msgs);
+  }
+
   renderPart(part) {
     const el = document.createElement("span");
     switch (part.type) {
