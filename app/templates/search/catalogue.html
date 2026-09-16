@@ -215,7 +215,6 @@
       {% if form.fields.closure.is_visible %}
         {{ checkboxes_with_submit(request, form.fields.closure) }}
       {% endif %}
-      {# {{ checkboxes_with_submit(request, form.fields.reference_number) }} #}
     {% elif form.fields.group.value==bucket_keys.NON_TNA %}
       {# {{ search_within(request) }} #}
       {% if form.fields.covering_date_from.is_visible or form.fields.covering_date_to.is_visible %}
