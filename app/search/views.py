@@ -57,8 +57,8 @@ from .mixins import SearchDataLayerMixin
 from .models import APISearchResponse
 from .utils import (
     camelcase_to_underscore,
-    underscore_to_camelcase,
     quote_if_needed,
+    underscore_to_camelcase,
 )
 
 logger = logging.getLogger(__name__)
