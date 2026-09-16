@@ -5,13 +5,13 @@
 {% block exact_words_field %}
   {{ tnaTextarea({
     "formItemClasses": "tna-!--margin-top-s",
-    "label": "These exact words or phrases",
-    "hint": "Put each word on a new line, for example: \nmedal\ncard",
+    "label": form.fields.exact_words.label,
+    "hint": form.fields.exact_words.hint | safe,
     "headingLevel": 3,
     "headingSize": "s",
-    "id": "exact_words",
-    "name": "exact_words",
-    "value": "",
+    "id": form.fields.exact_words.id,
+    "name": form.fields.exact_words.name,
+    "value": form.fields.exact_words.value,
     "attributes": {
       "data-js-chip-field": "",
       "data-js-chip-hint": "Add words or phrases separately"
@@ -22,13 +22,13 @@
 {% block any_words_field %}
   {{ tnaTextarea({
     "formItemClasses": "tna-!--margin-top-s",
-    "label": "Any of these words",
-    "hint": "Put each word on a new line, for example: \nmedal\ncard",
+    "label": form.fields.any_words.label,
+    "hint": form.fields.any_words.hint | safe,
     "headingLevel": 3,
     "headingSize": "s",
-    "id": "any_words",
-    "name": "any_words",
-    "value": "",
+    "id": form.fields.any_words.id,
+    "name": form.fields.any_words.name,
+    "value": form.fields.any_words.value,
     "attributes": {
       "data-js-chip-field": "",
       "data-js-chip-hint": "Add words separately"
@@ -39,13 +39,13 @@
 {% block ignore_words_field %}
   {{ tnaTextarea({
     "formItemClasses": "tna-!--margin-top-s",
-    "label": "Ignore these words",
+    "label": form.fields.ignore_words.label,
     "headingLevel": 3,
     "headingSize": "s",
-    "id": "ignore_words",
-    "name": "ignore_words",
-    "value": "",
-    "hint": "Put each word on a new line, for example: \nmedal\ncard",
+    "id": form.fields.ignore_words.id,
+    "name": form.fields.ignore_words.name,
+    "value": form.fields.ignore_words.value,
+    "hint": form.fields.ignore_words.hint | safe,
     "attributes": {
       "data-js-chip-field": "",
       "data-js-chip-hint": "Add words separately"
@@ -56,13 +56,13 @@
 {% block references_field %}
 {{ tnaTextarea({
   "formItemClasses": "tna-!--margin-top-s",
-  "label": "Search for or within any of these references",
-  "hint": "Seperate each reference with a new line",
+  "label": form.fields.references.label,
+  "hint": form.fields.references.hint | safe,
   "headingLevel": 3,
   "headingSize": "s",
-  "id": "references",
-  "name": "references",
-  "value": "",
+  "id": form.fields.references.id,
+  "name": form.fields.references.name,
+  "value": form.fields.references.value,
   "attributes": {
     "data-js-chip-field": "",
     "data-js-chip-hint": "Add catalogue references separately"

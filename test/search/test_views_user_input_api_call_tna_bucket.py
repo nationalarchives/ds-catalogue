@@ -3,9 +3,10 @@ from unittest.mock import patch
 
 import responses
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 
+@override_settings(DEBUG=False)
 class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
     """Tests API calls (url) made by the catalogue search view for tna bucket/group."""
 
@@ -75,6 +76,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "&aggs=collection"
             "&aggs=closure"
             "&aggs=subject"
+            "&aggs=referenceNumber"
             "&q=%2A"
             "&size=20"
             "&from=0"
@@ -90,6 +92,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "&aggs=collection"
             "&aggs=closure"
             "&aggs=subject"
+            "&aggs=referenceNumber"
             "&q=%2A"
             "&size=20"
             "&from=0"
@@ -105,6 +108,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "&aggs=collection"
             "&aggs=closure"
             "&aggs=subject"
+            "&aggs=referenceNumber"
             "&q=%2A"
             "&size=20"
             "&from=0"
@@ -124,6 +128,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "&aggs=collection"
             "&aggs=closure"
             "&aggs=subject"
+            "&aggs=referenceNumber"
             "&q=%2A"
             "&size=20"
             "&from=0"
@@ -149,6 +154,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "&aggs=collection"
             "&aggs=closure"
             "&aggs=subject"
+            "&aggs=referenceNumber"
             "&q=%2A"
             "&size=20"
             "&from=0"
@@ -173,6 +179,7 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "&aggs=level&aggs=collection"
             "&aggs=closure"
             "&aggs=subject"
+            "&aggs=referenceNumber"
             "&q=%2A"
             "&size=20"
             "&from=0"
@@ -226,3 +233,15 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         actual_url = mock_logger.debug.call_args[0][0]
         # digitised parameter should NOT be in the URL
         self.assertNotIn("digitised", actual_url)
+
+        # Test references filter (advanced search redirect query param)
+        response = self.client.get(
+            "/catalogue/search/?group=tna&q=war&reference_number=WO+95&reference_number=ADM+1"
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        actual_url = mock_logger.debug.call_args[0][0]
+        self.assertIn("filter=group%3Atna", actual_url)
+        self.assertIn(
+            "&filter=referenceNumber%3AWO+95&filter=referenceNumber%3AADM+1", actual_url
+        )
+        self.assertIn("&aggs=referenceNumber", actual_url)

@@ -18,11 +18,11 @@ class AdvancedSearchPreview {
       "[data-js-search-preview-query]",
     );
 
-    this.allWordsInput = document.getElementById("all_words");
-    this.exactWords = document.getElementById("exact_words");
-    this.anyWords = document.getElementById("any_words");
-    this.ignoreWords = document.getElementById("ignore_words");
-    this.references = document.getElementById("references");
+    this.allWordsInput = document.getElementById("id_all_words");
+    this.exactWords = document.getElementById("id_exact_words");
+    this.anyWords = document.getElementById("id_any_words");
+    this.ignoreWords = document.getElementById("id_ignore_words");
+    this.references = document.getElementById("id_references");
   }
 
   /**

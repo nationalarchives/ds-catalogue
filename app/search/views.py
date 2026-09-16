@@ -2,10 +2,13 @@ import copy
 import logging
 import math
 from typing import Any
+from urllib.parse import urlencode
 
 from django.core.exceptions import SuspiciousOperation
-from django.http import HttpRequest, HttpResponse, QueryDict
-from django.template import loader
+from django.http import HttpRequest, HttpResponse, JsonResponse, QueryDict
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.views import View
 from django.views.generic import TemplateView
 
 from app.errors import views as errors_view
@@ -43,6 +46,8 @@ from .constants import (
     Sort,
 )
 from .forms import (
+    AdvancedSearchForm,
+    AdvancedSearchQForm,
     CatalogueSearchBaseForm,
     CatalogueSearchNonTnaForm,
     CatalogueSearchTnaForm,
@@ -50,13 +55,20 @@ from .forms import (
 )
 from .mixins import SearchDataLayerMixin
 from .models import APISearchResponse
-from .utils import camelcase_to_underscore, underscore_to_camelcase
+from .utils import (
+    camelcase_to_underscore,
+    quote_if_needed,
+    underscore_to_camelcase,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class PageNotFound(Exception):
     pass
+
+
+_quote_if_needed = quote_if_needed
 
 
 class APIMixin:
@@ -910,29 +922,151 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             self.form.fields[FieldsConstant.HELD_BY].is_visible = True
 
 
-def advanced_search(request):
-    """View for the advanced search page."""
+class AdvancedSearchView(TemplateView):
+    template_name = "search/advanced_search_js.html"
 
-    template = loader.get_template("search/advanced_search.html")
-    notifications = fetch_global_notifications()
-    context = {
-        "global_alert": notifications.get("global_alert") if notifications else None,
-        "mourning_notice": notifications.get("mourning_notice")
-        if notifications
-        else None,
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(self._base_context())
+        context["request"] = self.request
+        context["bucket_keys"] = BucketKeys
+        return context
+
+    def _base_context(self) -> dict:
+        notifications = fetch_global_notifications() or {}
+        return {
+            "mourning_notice": notifications.get("mourning_notice")
+            if notifications
+            else None,
+            "global_alert": notifications,
+        }
+
+    def get(self, request, *args, **kwargs):
+        # If query parameters present, treat as form submission (GET-based search)
+        form = AdvancedSearchForm(data=request.GET)
+        context = self.get_context_data()
+        context["form"] = form
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+
+        form_data = request.POST.copy()
+
+        form_data.setdefault(FieldsConstant.GROUP, BucketKeys.TNA)
+
+        form = AdvancedSearchForm(data=form_data)
+
+        context = self.get_context_data()
+        context["form"] = form
+
+        if not form.is_valid():
+            return self.render_to_response(context)
+
+        redirect_qs, errors = _build_advanced_search_query(form)
+        if errors:
+            # attach build-time errors to the form so template can render them
+            form.add_non_field_error(errors)
+            return self.render_to_response(context)
+
+        search_url = reverse("search:catalogue")
+        return redirect(f"{search_url}?{redirect_qs}")
+
+
+def _cleaned_list(form: AdvancedSearchForm, field_name: str) -> list[str]:
+    """Returns a list of non-empty, stripped lines from the specified form field."""
+
+    return [
+        line.strip()
+        for line in (form.fields[field_name].cleaned or "").splitlines()
+        if line.strip()
+    ]
+
+
+def _build_q(form: AdvancedSearchForm | AdvancedSearchQForm) -> str:
+    """Builds the main query string from form data.
+
+    Quoting and escaping behaviour
+    ------------------------------
+    - Server-side: `_quote_if_needed` escapes backslashes and double quotes
+      (so an input like `He said "hi"` becomes `"He said \"hi\""`) and
+      wraps values containing spaces in double quotes. This ensures API
+      query parts are well-formed and avoids injection of unbalanced quotes.
+    - Client-side preview: the preview rendered by `src/scripts/advanced-search-query.js`
+      is a local representation and does not perform the same escape sequence
+      transformations; it displays terms as entered.
+    """
+
+    all_words = (form.fields[FieldsConstant.ALL_WORDS].cleaned or "").strip()
+    exact_words = _cleaned_list(form, FieldsConstant.EXACT_WORDS)
+    any_words = _cleaned_list(form, FieldsConstant.ANY_WORDS)
+    ignore_words = _cleaned_list(form, FieldsConstant.IGNORE_WORDS)
+
+    query_arr = []
+    if all_words:
+        query_arr.append(all_words)
+
+    for word in exact_words:
+        query_arr.append(f'AND "{word}"' if query_arr else f'"{word}"')
+
+    if any_words:
+        quoted_any = [_quote_if_needed(w) for w in any_words]
+        words = f"({' OR '.join(quoted_any)})" if len(quoted_any) > 1 else quoted_any[0]
+        query_arr.append(f"AND {words}" if query_arr else words)
+
+    for word in ignore_words:
+        query_arr.append(f'NOT "{word}"')
+
+    return " ".join(query_arr) if query_arr else ""
+
+
+def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
+    """Builds the advanced search query from the form data and returns a tuple containing
+    the URL-encoded query string and a list of errors.
+    Note: `references` are sent as a dedicated query param for Rosetta filter
+    """
+
+    group = form.fields[FieldsConstant.GROUP].cleaned
+    params: dict[str, str] = {
+        FieldsConstant.GROUP: group or BucketKeys.TNA,
     }
-    return HttpResponse(template.render(context, request))
+
+    params[FieldsConstant.Q] = _build_q(form)
+
+    if references := _cleaned_list(form, FieldsConstant.REFERENCES):
+        params[FieldsConstant.REFERENCE_NUMBER] = references
+
+    # set the covering date from and to parameters for the query
+    if form.fields[FieldsConstant.COVERING_DATE_FROM].cleaned:
+        params[
+            FieldsConstant.COVERING_DATE_FROM + DATE_YMD_SEPARATOR + DateKeys.YEAR
+        ] = form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(DateKeys.YEAR)
+        params[
+            FieldsConstant.COVERING_DATE_FROM + DATE_YMD_SEPARATOR + DateKeys.MONTH
+        ] = form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(DateKeys.MONTH)
+        params[
+            FieldsConstant.COVERING_DATE_FROM + DATE_YMD_SEPARATOR + DateKeys.DAY
+        ] = form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(DateKeys.DAY)
+
+    if form.fields[FieldsConstant.COVERING_DATE_TO].cleaned:
+        params[FieldsConstant.COVERING_DATE_TO + DATE_YMD_SEPARATOR + DateKeys.YEAR] = (
+            form.fields[FieldsConstant.COVERING_DATE_TO].value.get(DateKeys.YEAR)
+        )
+        params[
+            FieldsConstant.COVERING_DATE_TO + DATE_YMD_SEPARATOR + DateKeys.MONTH
+        ] = form.fields[FieldsConstant.COVERING_DATE_TO].value.get(DateKeys.MONTH)
+        params[FieldsConstant.COVERING_DATE_TO + DATE_YMD_SEPARATOR + DateKeys.DAY] = (
+            form.fields[FieldsConstant.COVERING_DATE_TO].value.get(DateKeys.DAY)
+        )
+    return urlencode(params, doseq=True), []
 
 
-def advanced_search_js(request):
-    """JS-enhanced version of the advanced search page for testing."""
+class AdvancedSearchBuildQView(View):
+    """Build an advanced search query for q param and return it as JSON for the query preview."""
 
-    template = loader.get_template("search/advanced_search_js.html")
-    notifications = fetch_global_notifications()
-    context = {
-        "global_alert": notifications.get("global_alert") if notifications else None,
-        "mourning_notice": notifications.get("mourning_notice")
-        if notifications
-        else None,
-    }
-    return HttpResponse(template.render(context, request))
+    def post(self, request, *args, **kwargs):
+        form = AdvancedSearchQForm(request.POST)
+        if form.is_valid():
+            q = _build_q(form)
+            return JsonResponse({"q": q})
+        # return empty JSON response if the form is not valid
+        return JsonResponse({})

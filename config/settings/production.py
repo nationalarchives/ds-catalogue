@@ -283,3 +283,7 @@ CACHES = {
 }
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    "CSRF_TRUSTED_ORIGINS", "https://beta.nationalarchives.gov.uk/"
+).split(",")

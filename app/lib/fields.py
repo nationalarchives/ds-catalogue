@@ -432,6 +432,10 @@ class MultiPartDateField(BaseField):
         day_int = self._validate_day_only(DateKeys.DAY.value, value)
         if year_int and month_int and day_int:
             self._validate_full_date(year_int, month_int, day_int)
+        if self.progressive and (not year_int and month_int and day_int):
+            raise ValidationError(
+                "Entered date must be a real date, for example Year 2017, Month 9, Day 23"
+            )
 
     def _validate_required(self, value):
         """Validates required field."""

@@ -12,11 +12,126 @@ from app.records.constants import TnaLevels
 from .buckets import CATALOGUE_BUCKETS, Aggregation
 from .collection_names import COLLECTION_CHOICES
 from .constants import (
+    ADV_SEARCH_TEXTAREA_MAX_CHARS,
+    ADV_SEARCH_TEXTAREA_MAX_LINES,
     DATE_DISPLAY_FORMAT,
     Display,
     FieldsConstant,
     Sort,
 )
+
+
+class AdvancedSearchQForm(BaseForm):
+    """Fields that build the search term part i.e. q param of the advanced search form."""
+
+    def add_fields(self):
+        return {
+            FieldsConstant.ALL_WORDS: CharField(
+                required=False,
+                label="All of these words",
+                hint="Include the important words, for example: medal card UK",
+            ),
+            FieldsConstant.EXACT_WORDS: CharField(
+                required=False,
+                label="These exact words or phrases",
+                hint="Put each word on a new line, for example:<br>medal<br>card",
+            ),
+            FieldsConstant.ANY_WORDS: CharField(
+                required=False,
+                label="Any of these words",
+                hint="Put each word on a new line, for example:<br>medal<br>card",
+            ),
+            FieldsConstant.IGNORE_WORDS: CharField(
+                required=False,
+                label="Ignore these words",
+                hint="Put each word on a new line, for example:<br>medal<br>card",
+            ),
+        }
+
+
+class AdvancedSearchForm(AdvancedSearchQForm):
+    def add_fields(self):
+
+        fields = super().add_fields()
+
+        return fields | {
+            FieldsConstant.REFERENCES: CharField(
+                required=False,
+                label="Search for or within any of these references",
+                hint="Put each catalogue reference on a new line, for example: <br>WO 95<br>WO 96",
+            ),
+            FieldsConstant.COVERING_DATE_FROM: FromDateField(
+                label="From",
+                required=False,
+                progressive=True,
+                date_ymd_separator=DATE_YMD_SEPARATOR,
+                hint="For example: 1997, 1999 and 1, or 1997 1 and 31",
+            ),
+            FieldsConstant.COVERING_DATE_TO: ToDateField(
+                label="To",
+                required=False,
+                progressive=True,
+                date_ymd_separator=DATE_YMD_SEPARATOR,
+                hint="For example: 1997, 1999 and 1, or 1997 1 and 31",
+            ),
+            FieldsConstant.GROUP: ChoiceField(
+                choices=CATALOGUE_BUCKETS.as_choices(),
+            ),
+        }
+
+    def cross_validate(self) -> list[str]:
+        errors = []
+        date_from = self.fields[FieldsConstant.COVERING_DATE_FROM]
+        date_to = self.fields[FieldsConstant.COVERING_DATE_TO]
+
+        if (
+            date_from.cleaned
+            and date_to.cleaned
+            and date_from.cleaned > date_to.cleaned
+        ):
+            from_date = date_from.cleaned.strftime(DATE_DISPLAY_FORMAT)
+            to_date = date_to.cleaned.strftime(DATE_DISPLAY_FORMAT)
+
+            date_from.add_error(
+                "This date must be earlier than or equal to the 'to' date."
+            )
+            errors.append(
+                f"Record dates: 'from' date ({from_date}) cannot be after 'to' date ({to_date})."
+            )
+
+        # Limit textarea inputs to reasonable sizes to avoid excessively long
+        # requests and potential abuse. Add field errors when limits exceeded.
+        textarea_fields = (
+            FieldsConstant.EXACT_WORDS,
+            FieldsConstant.ANY_WORDS,
+            FieldsConstant.IGNORE_WORDS,
+            FieldsConstant.REFERENCES,
+        )
+
+        for field_name in textarea_fields:
+            field = self.fields.get(field_name)
+            if not field:
+                continue
+            value = field.cleaned or ""
+
+            if len(value) > ADV_SEARCH_TEXTAREA_MAX_CHARS:
+                field.add_error(
+                    f"This field must be {ADV_SEARCH_TEXTAREA_MAX_CHARS} characters or fewer."
+                )
+                errors.append(
+                    f"{field_name}: input too long (max {ADV_SEARCH_TEXTAREA_MAX_CHARS} chars)."
+                )
+
+            lines = value.splitlines()
+            if len(lines) > ADV_SEARCH_TEXTAREA_MAX_LINES:
+                field.add_error(
+                    f"This field must have no more than {ADV_SEARCH_TEXTAREA_MAX_LINES} lines."
+                )
+                errors.append(
+                    f"{field_name}: too many lines (max {ADV_SEARCH_TEXTAREA_MAX_LINES})."
+                )
+
+        return errors
 
 
 class CatalogueSearchBaseForm(BaseForm):
@@ -171,6 +286,12 @@ class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
                     progressive=True,  # interfaces with FE component for progressive date entry
                     date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
                 ),
+                FieldsConstant.REFERENCE_NUMBER: DynamicMultipleChoiceField(
+                    label="Reference numbers",
+                    choices=[],
+                    validate_input=False,
+                    active_filter_label="Reference number",
+                ),
             }
         )
 
@@ -210,6 +331,12 @@ class CatalogueSearchNonTnaForm(CatalogueSearchCommonForm):
                     choices=[],  # no initial choices as they are set dynamically
                     active_filter_label="Held by",
                     more_filter_choices_text="See more held by",
+                ),
+                FieldsConstant.REFERENCE_NUMBER: DynamicMultipleChoiceField(
+                    label="Reference numbers",
+                    choices=[],
+                    validate_input=False,
+                    active_filter_label="Reference number",
                 ),
             }
         )

@@ -32,11 +32,17 @@ class FieldsConstant:
     HELD_BY = "held_by"
     CLOSURE = "closure"
     FILTER_LIST = "filter_list"
+    ALL_WORDS = "all_words"
+    EXACT_WORDS = "exact_words"
+    ANY_WORDS = "any_words"
+    IGNORE_WORDS = "ignore_words"
+    REFERENCES = "references"
     COVERING_DATE_FROM = "covering_date_from"
     COVERING_DATE_TO = "covering_date_to"
     OPENING_DATE_FROM = "opening_date_from"
     OPENING_DATE_TO = "opening_date_to"
     DISPLAY = "display"
+    REFERENCE_NUMBER = "reference_number"
 
 
 FILTER_FIELDS = [
@@ -50,6 +56,7 @@ FILTER_FIELDS = [
     FieldsConstant.COVERING_DATE_TO,
     FieldsConstant.OPENING_DATE_FROM,
     FieldsConstant.OPENING_DATE_TO,
+    FieldsConstant.REFERENCE_NUMBER,
 ]
 
 
@@ -58,3 +65,8 @@ class Display(StrEnum):
 
     LIST = "list"
     GRID = "grid"
+
+
+# Advanced search input limits
+ADV_SEARCH_TEXTAREA_MAX_CHARS = 2000
+ADV_SEARCH_TEXTAREA_MAX_LINES = 200
