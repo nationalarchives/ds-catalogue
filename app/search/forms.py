@@ -16,6 +16,8 @@ from .constants import (
     Display,
     FieldsConstant,
     Sort,
+    ADV_SEARCH_TEXTAREA_MAX_CHARS,
+    ADV_SEARCH_TEXTAREA_MAX_LINES,
 )
 
 
@@ -96,6 +98,39 @@ class AdvancedSearchForm(AdvancedSearchQForm):
             errors.append(
                 f"Record dates: 'from' date ({from_date}) cannot be after 'to' date ({to_date})."
             )
+
+        # Limit textarea inputs to reasonable sizes to avoid excessively long
+        # requests and potential abuse. Add field errors when limits exceeded.
+        textarea_fields = (
+            FieldsConstant.EXACT_WORDS,
+            FieldsConstant.ANY_WORDS,
+            FieldsConstant.IGNORE_WORDS,
+            FieldsConstant.REFERENCES,
+        )
+
+        for field_name in textarea_fields:
+            field = self.fields.get(field_name)
+            if not field:
+                continue
+            value = field.cleaned or ""
+
+            if len(value) > ADV_SEARCH_TEXTAREA_MAX_CHARS:
+                field.add_error(
+                    f"This field must be {ADV_SEARCH_TEXTAREA_MAX_CHARS} characters or fewer."
+                )
+                errors.append(
+                    f"{field_name}: input too long (max {ADV_SEARCH_TEXTAREA_MAX_CHARS} chars)."
+                )
+
+            lines = value.splitlines()
+            if len(lines) > ADV_SEARCH_TEXTAREA_MAX_LINES:
+                field.add_error(
+                    f"This field must have no more than {ADV_SEARCH_TEXTAREA_MAX_LINES} lines."
+                )
+                errors.append(
+                    f"{field_name}: too many lines (max {ADV_SEARCH_TEXTAREA_MAX_LINES})."
+                )
+
         return errors
 
 

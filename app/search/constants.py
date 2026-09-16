@@ -65,3 +65,8 @@ class Display(StrEnum):
 
     LIST = "list"
     GRID = "grid"
+
+
+# Advanced search input limits
+ADV_SEARCH_TEXTAREA_MAX_CHARS = 2000
+ADV_SEARCH_TEXTAREA_MAX_LINES = 200
