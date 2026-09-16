@@ -36,8 +36,6 @@ from .buckets import (
     BucketList,
 )
 from .constants import (
-    ADV_SEARCH_TEXTAREA_MAX_CHARS,
-    ADV_SEARCH_TEXTAREA_MAX_LINES,
     DATE_DISPLAY_FORMAT,
     FILTER_DATATYPE_RECORD,
     FILTER_FIELDS,
@@ -59,8 +57,8 @@ from .mixins import SearchDataLayerMixin
 from .models import APISearchResponse
 from .utils import (
     camelcase_to_underscore,
-    quote_if_needed,
     underscore_to_camelcase,
+    quote_if_needed,
 )
 
 logger = logging.getLogger(__name__)
@@ -932,9 +930,6 @@ class AdvancedSearchView(TemplateView):
         context.update(self._base_context())
         context["request"] = self.request
         context["bucket_keys"] = BucketKeys
-        # expose advanced search limits to templates for client-side enforcement
-        context["adv_search_max_chars"] = ADV_SEARCH_TEXTAREA_MAX_CHARS
-        context["adv_search_max_lines"] = ADV_SEARCH_TEXTAREA_MAX_LINES
         return context
 
     def _base_context(self) -> dict:

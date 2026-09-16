@@ -6,10 +6,6 @@ LONG_FILTER_SUBJECT_PARAMS = {"filter": ["group:tna"], "aggs": "longSubject"}
 PAGE_LIMIT = 500  # max page number that can be queried
 FILTER_DATATYPE_RECORD = "datatype:record"  # filter for records in search results
 
-# Advanced search textarea limits (client + server)
-ADV_SEARCH_TEXTAREA_MAX_CHARS = 2000
-ADV_SEARCH_TEXTAREA_MAX_LINES = 200
-
 
 class Sort(StrEnum):
     """Options for sorting /search results by a given field."""
@@ -69,3 +65,8 @@ class Display(StrEnum):
 
     LIST = "list"
     GRID = "grid"
+
+
+# Advanced search input limits
+ADV_SEARCH_TEXTAREA_MAX_CHARS = 2000
+ADV_SEARCH_TEXTAREA_MAX_LINES = 200
