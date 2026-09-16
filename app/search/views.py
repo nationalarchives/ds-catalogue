@@ -68,7 +68,18 @@ def _quote_if_needed(value: str) -> str:
     # wrap the value in double-quotes if it contains spaces
     if not isinstance(value, str) or not value:
         return value
-    return f'"{value}"' if " " in value else value
+
+    # Escape backslashes and double quotes to avoid producing malformed
+    # query parts. Do the replacement in this order so backslashes are
+    # escaped first, then double quotes.
+    safe = value.replace("\\", "\\\\").replace('"', '\\"')
+
+    # If the original value contained spaces, return as a quoted string
+    # using the escaped content. Otherwise return the escaped value
+    # (if escaping changed it) or the original value.
+    if " " in safe:
+        return f'"{safe}"'
+    return safe if safe != value else value
 
 
 class APIMixin:
