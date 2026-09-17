@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
 
@@ -11,7 +12,6 @@ from app.main.cache import (
 from app.main.constants import (
     GLOBAL_NOTIFICATIONS_CACHE_KEY,
     LANDING_PAGE_CACHE_KEY,
-    WAGTAIL_API_CACHE_TIMEOUT,
 )
 
 
@@ -47,7 +47,7 @@ class TestFetchGlobalNotifications(TestCase):
         cache.set(
             GLOBAL_NOTIFICATIONS_CACHE_KEY,
             cached_data,
-            timeout=WAGTAIL_API_CACHE_TIMEOUT,
+            timeout=settings.WAGTAIL_API_CACHE_TIMEOUT,
         )
 
         result = fetch_global_notifications()
@@ -197,7 +197,7 @@ class TestFetchLandingPageData(TestCase):
         cache.set(
             LANDING_PAGE_CACHE_KEY,
             cached_data,
-            timeout=WAGTAIL_API_CACHE_TIMEOUT,
+            timeout=settings.WAGTAIL_API_CACHE_TIMEOUT,
         )
 
         result = fetch_landing_page_data()
@@ -268,7 +268,7 @@ class TestFetchLandingPageData(TestCase):
         cache.set(
             GLOBAL_NOTIFICATIONS_CACHE_KEY,
             existing_notifications,
-            timeout=WAGTAIL_API_CACHE_TIMEOUT,
+            timeout=settings.WAGTAIL_API_CACHE_TIMEOUT,
         )
         mock_handler.return_value = {
             "global_alert": {"title": "Landing alert"},

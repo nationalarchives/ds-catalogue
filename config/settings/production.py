@@ -186,11 +186,6 @@ SECURE_CSP = {
 
 GA4_ID = os.environ.get("GA4_ID", "")
 
-# Wagtail environment
-WAGTAIL_HOME_PAGE_ID: int = 3
-WAGTAIL_EXPLORE_THE_COLLECTION_PAGE_ID: int = 5
-WAGTAIL_EXPLORE_THE_COLLECTION_STORIES_PAGE_ID: int = 55
-
 # API urls
 ROSETTA_API_URL: str = os.getenv("ROSETTA_API_URL", "")
 DELIVERY_OPTIONS_API_URL: str = os.getenv("DELIVERY_OPTIONS_API_URL", "")
@@ -205,6 +200,12 @@ DELIVERY_OPTIONS_API_TIMEOUT: int = get_int_env("DELIVERY_OPTIONS_API_TIMEOUT", 
 # API behaviour
 ENABLE_PARALLEL_API_CALLS: bool = get_bool_env("ENABLE_PARALLEL_API_CALLS", False)
 ENRICHMENT_TIMING_ENABLED: bool = get_bool_env("ENRICHMENT_TIMING_ENABLED", False)
+WAGTAIL_API_CACHE_TIMEOUT: int = get_int_env(
+    "WAGTAIL_API_CACHE_TIMEOUT", 60 * 15
+)  # 15 minutes
+SUBJECTS_CACHE_TIMEOUT: int = get_int_env(
+    "SUBJECTS_CACHE_TIMEOUT", 60 * 60 * 24 * 7
+)  # 1 week
 
 # Maximum number of subject/article_tags returned from Wagtail
 MAX_SUBJECTS_PER_RECORD: int = get_int_env("MAX_SUBJECTS_PER_RECORD", 20)
