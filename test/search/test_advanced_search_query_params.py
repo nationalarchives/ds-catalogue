@@ -34,6 +34,10 @@ class AdvancedSearchQueryParamsTests(SimpleTestCase):
         self.assertEqual(parsed.get(FieldsConstant.REFERENCE_NUMBER), ["REF1", "REF2"])
 
         # date parts should be present as separate params
-        self.assertEqual(parsed.get(f"{FieldsConstant.COVERING_DATE_FROM}-year"), ["1990"])
-        self.assertEqual(parsed.get(f"{FieldsConstant.COVERING_DATE_FROM}-month"), ["1"])
+        self.assertEqual(
+            parsed.get(f"{FieldsConstant.COVERING_DATE_FROM}-year"), ["1990"]
+        )
+        self.assertEqual(
+            parsed.get(f"{FieldsConstant.COVERING_DATE_FROM}-month"), ["1"]
+        )
         self.assertEqual(parsed.get(f"{FieldsConstant.COVERING_DATE_FROM}-day"), ["2"])
