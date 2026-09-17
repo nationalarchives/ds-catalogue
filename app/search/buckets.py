@@ -45,6 +45,7 @@ class Aggregation(MultiValueForAggregation):
     HELD_BY = (FieldsConstant.HELD_BY, ("heldBy", "longHeldBy"))
     CLOSURE = (FieldsConstant.CLOSURE, ("closure", ""))
     SUBJECT = (FieldsConstant.SUBJECT, ("subject", "longSubject"))
+    REFERENCE_NUMBER = (FieldsConstant.REFERENCE_NUMBER, ("referenceNumber", ""))
 
     @staticmethod
     def as_input_choices_for_long_aggs() -> list[tuple[str, str]]:
@@ -191,6 +192,7 @@ CATALOGUE_BUCKETS = BucketList(
                 Aggregation.COLLECTION.aggs,
                 Aggregation.CLOSURE.aggs,
                 Aggregation.SUBJECT.aggs,
+                Aggregation.REFERENCE_NUMBER.aggs,
             ],
         ),
         Bucket(
@@ -199,6 +201,7 @@ CATALOGUE_BUCKETS = BucketList(
             description="Results for records held at other archives in the UK (and not at The National Archives) that match your search term.",
             aggregations=[
                 Aggregation.HELD_BY.aggs,
+                Aggregation.REFERENCE_NUMBER.aggs,
             ],
         ),
     ]

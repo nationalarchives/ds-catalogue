@@ -1,0 +1,92 @@
+{% extends "search/advanced_search.html" %}
+
+{%- from "components/textarea/macro.html" import tnaTextarea -%}
+
+{% block exact_words_field %}
+  {{ tnaTextarea({
+    "formItemClasses": "tna-!--margin-top-s",
+    "label": form.fields.exact_words.label,
+    "hint": form.fields.exact_words.hint | safe,
+    "headingLevel": 3,
+    "headingSize": "s",
+    "id": form.fields.exact_words.id,
+    "name": form.fields.exact_words.name,
+    "value": form.fields.exact_words.value,
+    "attributes": {
+      "data-js-chip-field": "",
+      "data-js-chip-hint": "Add words or phrases separately"
+    }
+  }) }}
+{% endblock exact_words_field %}
+
+{% block any_words_field %}
+  {{ tnaTextarea({
+    "formItemClasses": "tna-!--margin-top-s",
+    "label": form.fields.any_words.label,
+    "hint": form.fields.any_words.hint | safe,
+    "headingLevel": 3,
+    "headingSize": "s",
+    "id": form.fields.any_words.id,
+    "name": form.fields.any_words.name,
+    "value": form.fields.any_words.value,
+    "attributes": {
+      "data-js-chip-field": "",
+      "data-js-chip-hint": "Add words separately"
+    }
+  }) }}
+{% endblock any_words_field %}
+
+{% block ignore_words_field %}
+  {{ tnaTextarea({
+    "formItemClasses": "tna-!--margin-top-s",
+    "label": form.fields.ignore_words.label,
+    "headingLevel": 3,
+    "headingSize": "s",
+    "id": form.fields.ignore_words.id,
+    "name": form.fields.ignore_words.name,
+    "value": form.fields.ignore_words.value,
+    "hint": form.fields.ignore_words.hint | safe,
+    "attributes": {
+      "data-js-chip-field": "",
+      "data-js-chip-hint": "Add words separately"
+    }
+  }) }}
+{% endblock ignore_words_field %}
+
+{% block references_field %}
+{{ tnaTextarea({
+  "formItemClasses": "tna-!--margin-top-s",
+  "label": form.fields.references.label,
+  "hint": form.fields.references.hint | safe,
+  "headingLevel": 3,
+  "headingSize": "s",
+  "id": form.fields.references.id,
+  "name": form.fields.references.name,
+  "value": form.fields.references.value,
+  "attributes": {
+    "data-js-chip-field": "",
+    "data-js-chip-hint": "Add catalogue references separately"
+  }
+}) }}
+{% endblock references_field %}
+
+{% block stylesheets %}
+{{ super() }}
+    <link rel="stylesheet" href="{{ static('advanced-search-query.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
+{% endblock stylesheets %}
+
+{% block search_preview %}
+  <div class="search-preview tna-!--margin-top-l" data-js-search-preview hidden>
+    <p>
+      <strong>Your search:</strong>
+      <span>Find</span>
+      <span data-js-search-preview-query></span>
+    </p>
+  </div>
+{% endblock search_preview %}
+
+{% block bodyEnd %}
+  {{ super() }}
+  <script src="{{ static('chip-field.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+  <script src="{{ static('advanced-search-query.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+{% endblock bodyEnd %}

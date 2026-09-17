@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{%- from "components/breadcrumbs/macro.html" import tnaBreadcrumbs -%}
+{%- from "macros/global_alert_banners.html" import global_alert_banners -%}
+{%- from "components/text-input/macro.html" import tnaTextInput -%}
+{%- from "components/textarea/macro.html" import tnaTextarea -%}
+{%- from "components/button/macro.html" import tnaButton -%}
+{%- from "components/fieldset/macro.html" import tnaFieldset -%}
+{%- from "components/date-input/macro.html" import tnaDateInput -%}
+{%- set pageTitle = "Advanced search" -%}
+
+{% block stylesheets %}
+{{ super() }}
+    <link rel="stylesheet" href="{{ static('landing.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
+{% endblock stylesheets %}
+
+{% block beforeContent %}
+<div class="tna-background-accent-light">
+  <div class="tna-container">
+    <div class="tna-column tna-column--full">
+      {{ tnaBreadcrumbs({
+        'items': [
+          {
+            'text': 'Home',
+            'href': '/'
+          },
+          {
+            'text': 'Catalogue',
+            'href': url('main:catalogue')
+          },
+          {
+            'text': 'Search',
+            'href': url('search:catalogue')
+          }
+        ],
+        'structuredData': True,
+        'classes': 'tna-!--margin-vertical-s'
+      }) }}
+    </div>
+  </div>
+</div>
+{% endblock beforeContent %}
+
+{% block content %}
+  <div class="tna-background-accent-light">
+    {{ global_alert_banners(request, global_alert.global_alert, global_alert.mourning_notice) }}
+  </div>
+  {% if form.errors or form.non_field_errors %}
+    <div class="tna-container tna-!--margin-top-m">
+      <div class="tna-column tna-column--full">
+        <div class="tna-message tna-message--error">
+          <h2 class="tna-message__heading">There is a problem</h2>
+          <dl class="tna-dl">
+            <dt>Param/ErrorName</dt>
+            <dd>Value</dd>
+            {% for field, error in form.errors.items() %}
+              <dt>{{ field }}</dt>
+              <dd>{{ error.text }}</dd>
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+              <dt>NONFIELDERROR</dt>
+              <dd>{{ error.text }}</dd>
+            {% endfor %}
+          </dl>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  <div class="tna-background-accent-light tna-!--padding-top-s tna-!--padding-bottom-m">
+    <div class="tna-container">
+      <div class="tna-column tna-column--full">
+        <h1 class="tna-heading-l">{{ pageTitle }}</h1>
+        <p>Use advanced search to ger more specific results from our catalogue.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tna-container">
+    <div class="tna-column tna-column--width-2-3 tna-column--full-medium tna-column--full-small tna-column--full-tiny">
+      <form id="advanced-search-form" action="" method="post" novalidate class="tna-!--margin-top-m">
+        {{ csrf_input }}
+
+        {% call tnaFieldset({
+          "legend": "Find records that contain",
+          "headingLevel": 2,
+          "headingSize": "l",
+          "id": "find_fieldset"
+        }) %}
+
+            {{ tnaTextInput({
+            "formItemClasses": "tna-!--margin-top-s",
+            "label": form.fields.all_words.label,
+            "headingLevel": 3,
+            "headingSize": "s",
+            "id": form.fields.all_words.id,
+            "name": form.fields.all_words.name,
+            "value": form.fields.all_words.value,
+            "hint":form.fields.all_words.hint,
+          }) }}
+
+          {% block exact_words_field %}
+            {{ tnaTextarea({
+              "formItemClasses": "tna-!--margin-top-s",
+              "label": form.fields.exact_words.label,
+              "headingLevel": 3,
+              "headingSize": "s",
+              "id": form.fields.exact_words.id,
+              "name": form.fields.exact_words.name,
+              "value": form.fields.exact_words.value,
+              "hint": form.fields.exact_words.hint | safe
+            }) }}
+          {% endblock exact_words_field %}
+
+          {% block any_words_field %}
+            {{ tnaTextarea({
+              "formItemClasses": "tna-!--margin-top-s",
+              "label": form.fields.any_words.label,
+              "headingLevel": 3,
+              "headingSize": "s",
+              "id": form.fields.any_words.id,
+              "name": form.fields.any_words.name,
+              "value": form.fields.any_words.value,
+              "hint": form.fields.any_words.hint | safe
+            }) }}
+          {% endblock any_words_field %}
+
+          {% block ignore_words_field %}
+            {{ tnaTextarea({
+              "formItemClasses": "tna-!--margin-top-s",
+              "label": form.fields.ignore_words.label,
+              "headingLevel": 3,
+              "headingSize": "s",
+              "id": form.fields.ignore_words.id,
+              "name": form.fields.ignore_words.name,
+              "value": form.fields.ignore_words.value,
+              "hint": form.fields.ignore_words.hint | safe
+            }) }}
+          {% endblock ignore_words_field %}
+
+        {% endcall %}
+
+        {% call tnaFieldset({
+          "legend": "Narrow your results by",
+          "headingLevel": 2,
+          "headingSize": "l",
+          "id": "narrow_fieldset"
+        }) %}
+
+          {% block references_field %}
+            {{ tnaTextarea({
+              "formItemClasses": "tna-!--margin-top-s",
+              "label": form.fields.references.label,
+              "hint": form.fields.references.hint | safe,
+              "headingLevel": 3,
+              "headingSize": "s",
+              "id": form.fields.references.id,
+              "name": form.fields.references.name,
+              "value": form.fields.references.value
+            }) }}
+          {% endblock references_field %}
+
+          <h3 class="tna-heading-s">Search within a date range</h3>
+
+          <div class="tna-container tna-container--nested">
+            <div class="tna-column tna-column--width-1-2 tna-column--full-medium tna-column--full-small tna-column--full-tiny">
+              {{ tnaDateInput({
+                "label": form.fields.covering_date_from.label,
+                "headingLevel": 3,
+                "headingSize": "s",
+                "id": form.fields.covering_date_from.id,
+                "name": form.fields.covering_date_from.name,
+                "value": form.fields.covering_date_from.value,
+                "hint": form.fields.covering_date_from.hint,
+                "fields": ["y", "m", "d"],
+                "progressive": true
+              }) }}
+            </div>
+            <div class="tna-column tna-column--width-1-2 tna-column--full-medium tna-column--full-small tna-column--full-tiny">
+              {{ tnaDateInput({
+                "label": form.fields.covering_date_to.label,
+                "headingLevel": 3,
+                "headingSize": "s",
+                "id": form.fields.covering_date_to.id,
+                "name": form.fields.covering_date_to.name,
+                "value": form.fields.covering_date_to.value,
+                "hint": form.fields.covering_date_to.hint,
+                "fields": ["y", "m", "d"],
+                "progressive": true
+              }) }}
+            </div>
+          </div>
+        {% endcall %}
+
+        {% block search_preview %}{% endblock search_preview %}
+
+        <div class="tna-button-group tna-!--margin-top-xl">
+          <input type="hidden" name="group" value="{{ form.fields.group.value or bucket_keys.TNA }}">
+          {{ tnaButton({
+            "text": "Search",
+            "buttonElement": true,
+            "buttonType": "submit"
+          }) }}
+          {{ tnaButton({
+            "text": "Reset",
+            "buttonElement": true,
+            "buttonType": "reset",
+            "plain": true
+          }) }}
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+{% endblock content %}
