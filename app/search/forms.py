@@ -43,7 +43,7 @@ class AdvancedSearchQForm(BaseForm):
             ),
             FieldsConstant.IGNORE_WORDS: CharField(
                 required=False,
-                label="Ignore these words",
+                label="None of these words",
                 hint="Put each word on a new line, for example:<br>medal<br>card",
             ),
         }
