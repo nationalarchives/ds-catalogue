@@ -1,4 +1,5 @@
 from django.http import QueryDict
+from django.test import SimpleTestCase
 
 from app.search.constants import (
     ADV_SEARCH_TEXTAREA_MAX_CHARS,
@@ -8,23 +9,23 @@ from app.search.constants import (
 from app.search.forms import AdvancedSearchForm
 
 
-def test_textarea_char_limit_exceeded():
-    long_value = "a" * (ADV_SEARCH_TEXTAREA_MAX_CHARS + 1)
-    qd = QueryDict("", mutable=True)
-    qd[FieldsConstant.EXACT_WORDS] = long_value
+class AdvancedSearchInputLimitsTests(SimpleTestCase):
+    def test_textarea_char_limit_exceeded(self):
+        long_value = "a" * (ADV_SEARCH_TEXTAREA_MAX_CHARS + 1)
+        qd = QueryDict("", mutable=True)
+        qd[FieldsConstant.EXACT_WORDS] = long_value
 
-    form = AdvancedSearchForm(data=qd)
-    assert not form.is_valid()
-    errors = form.errors
-    assert FieldsConstant.EXACT_WORDS in errors
+        form = AdvancedSearchForm(data=qd)
+        self.assertFalse(form.is_valid())
+        errors = form.errors
+        self.assertIn(FieldsConstant.EXACT_WORDS, errors)
 
+    def test_textarea_line_limit_exceeded(self):
+        many_lines = "\n".join(["line"] * (ADV_SEARCH_TEXTAREA_MAX_LINES + 1))
+        qd = QueryDict("", mutable=True)
+        qd[FieldsConstant.REFERENCES] = many_lines
 
-def test_textarea_line_limit_exceeded():
-    many_lines = "\n".join(["line"] * (ADV_SEARCH_TEXTAREA_MAX_LINES + 1))
-    qd = QueryDict("", mutable=True)
-    qd[FieldsConstant.REFERENCES] = many_lines
-
-    form = AdvancedSearchForm(data=qd)
-    assert not form.is_valid()
-    errors = form.errors
-    assert FieldsConstant.REFERENCES in errors
+        form = AdvancedSearchForm(data=qd)
+        self.assertFalse(form.is_valid())
+        errors = form.errors
+        self.assertIn(FieldsConstant.REFERENCES, errors)
