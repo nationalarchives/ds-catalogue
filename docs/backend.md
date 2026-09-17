@@ -4,6 +4,10 @@
 
 Template variables availale from the views are listed [here](backend/template_variables.md).
 
+## Search
+
+- [Pagination Limitations](backend/search-limitations.md) - Elasticsearch constraints and implementation details
+
 ## Backend resources
 
 - [The National Archives base Docker images](https://github.com/nationalarchives/docker)
