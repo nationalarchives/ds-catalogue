@@ -13,6 +13,7 @@ services:
       - NPM_DEVELOP_COMMAND=dev
       - DJANGO_SUPERUSER_PASSWORD=admin
       - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SETTINGS_MODULE=config.settings.test
       - COOKIE_DOMAIN=localhost
       - CSP_IMG_SRC='self',*.nationalarchives.gov.uk,http://localhost:65501
       - CSP_STYLE_SRC='self',fonts.googleapis.com,p.typekit.net,use.typekit.net
