@@ -33,6 +33,14 @@ def test_any_words_with_spaces_and_grouping():
     assert _build_q(form) == 'start AND (foo OR "bar baz")'
 
 
+def test_any_words_grouping_has_no_extra_parenthesis_spacing():
+    form = DummyForm(all_words="updated", any_words="armament\nRailway Company")
+    query = _build_q(form)
+
+    assert query == 'updated AND (armament OR "Railway Company")'
+    assert '( armament OR "Railway Company" )' not in query
+
+
 def test_ignore_words_multiple():
     form = DummyForm(ignore_words="bad\nworse")
     assert _build_q(form) == 'NOT "bad" NOT "worse"'
