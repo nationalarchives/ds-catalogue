@@ -1003,31 +1003,24 @@ def _build_q(form: AdvancedSearchForm | AdvancedSearchQForm) -> str:
       wraps values containing spaces in double quotes. This ensures API
       query parts are well-formed and avoids injection of unbalanced quotes.
     - Client-side preview: `AdvancedSearchBuildQView` uses this same builder
-            and returns structured parts for `src/scripts/advanced-search-query.js`
-            to render.
+      and returns structured parts for `src/scripts/advanced-search-query.js`
+      to render.
     """
 
-    all_words = (form.fields[FieldsConstant.ALL_WORDS].cleaned or "").strip()
-    exact_words = _cleaned_list(form, FieldsConstant.EXACT_WORDS)
-    any_words = _cleaned_list(form, FieldsConstant.ANY_WORDS)
-    ignore_words = _cleaned_list(form, FieldsConstant.IGNORE_WORDS)
+    query = ""
+    for part in _build_q_parts(form):
+        value = part["value"]
 
-    query_arr = []
-    if all_words:
-        query_arr.append(all_words)
+        if not query:
+            query = value
+        elif part["type"] == "paren" and value == ")":
+            query = f"{query})"
+        elif query.endswith("("):
+            query = f"{query}{value}"
+        else:
+            query = f"{query} {value}"
 
-    for word in exact_words:
-        query_arr.append(f'AND "{word}"' if query_arr else f'"{word}"')
-
-    if any_words:
-        quoted_any = [_quote_if_needed(w) for w in any_words]
-        words = f"({' OR '.join(quoted_any)})" if len(quoted_any) > 1 else quoted_any[0]
-        query_arr.append(f"AND {words}" if query_arr else words)
-
-    for word in ignore_words:
-        query_arr.append(f'NOT "{word}"')
-
-    return " ".join(query_arr) if query_arr else ""
+    return query
 
 
 def _build_q_parts(

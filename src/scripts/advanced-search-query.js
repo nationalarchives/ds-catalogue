@@ -106,11 +106,7 @@ class AdvancedSearchPreview {
         break;
       case "paren":
         el.className = "search-preview__paren";
-        if (value === "(") {
-          el.textContent = " ( ";
-        } else {
-          el.textContent = " ) ";
-        }
+        el.textContent = value;
         break;
       default:
         el.textContent = String(value || "");
