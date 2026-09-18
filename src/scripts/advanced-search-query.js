@@ -32,7 +32,7 @@ class AdvancedSearchPreview {
   }
 
   /**
-    * Bind updates to field changes, chip changes and form resets.
+   * Bind updates to field changes, chip changes and form resets.
    */
   bindEvents() {
     [this.allWordsInput, this.exactWords, this.anyWords, this.ignoreWords]
@@ -89,7 +89,7 @@ class AdvancedSearchPreview {
   }
 
   /**
-    * Render one query part with the existing preview styling classes.
+   * Render one query part with the existing preview styling classes.
    * @param {Object} part - The part to render
    */
   renderPart(part) {
@@ -120,7 +120,7 @@ class AdvancedSearchPreview {
   }
 
   /**
-    * Start a fresh preview request and ignore failures for stale requests.
+   * Start a fresh preview request and ignore failures for stale requests.
    */
   async update() {
     const currentRequestId = this.nextRequestId();
