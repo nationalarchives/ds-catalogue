@@ -41,7 +41,7 @@ class AdvancedSearchPreview {
         input.addEventListener("input", () => this.scheduleUpdate());
       });
 
-    document.addEventListener("chipchange", () => this.scheduleUpdate());
+    this.form.addEventListener("chipchange", () => this.scheduleUpdate());
 
     this.form.addEventListener("reset", () => {
       requestAnimationFrame(() => this.update());
