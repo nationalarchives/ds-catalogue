@@ -1,181 +1,84 @@
-const INDEX_FIRST = 0;
-const MIN_PARENS_LENGTH = 2;
+const DEBOUNCE_DELAY_MS = 150;
 
 class AdvancedSearchPreview {
   constructor() {
     this.initElements();
-    if (!this.searchPreview || !this.searchPreviewQuery) {
+    if (!this.searchPreview || !this.searchPreviewQuery || !this.form) {
       return;
     }
+
+    this.debounceTimeout = null;
+    this.requestId = 0;
 
     this.bindEvents();
     this.update();
   }
 
+  /**
+   * Cache the preview, form, endpoint and query-building form fields.
+   */
   initElements() {
     this.searchPreview = document.querySelector("[data-js-search-preview]");
     this.searchPreviewQuery = document.querySelector(
       "[data-js-search-preview-query]",
     );
+    this.form = this.searchPreview?.closest("form");
+    this.previewUrl = this.searchPreview?.dataset.jsSearchPreviewUrl;
 
     this.allWordsInput = document.getElementById("id_all_words");
     this.exactWords = document.getElementById("id_exact_words");
     this.anyWords = document.getElementById("id_any_words");
     this.ignoreWords = document.getElementById("id_ignore_words");
-    this.references = document.getElementById("id_references");
   }
 
   /**
-   * Get the values from the textarea
-   * @param {HTMLTextAreaElement} textarea - The textarea element
-   * @returns {string[]} The values from the textarea
-   */
-  static getChipValues(textarea) {
-    if (!textarea) {
-      return [];
-    }
-    return textarea.value
-      .split("\n")
-      .map((value) => value.trim())
-      .filter(Boolean);
-  }
-
-  /**
-   * Bind the events to the elements
+   * Bind updates to field changes, chip changes and form resets.
    */
   bindEvents() {
-    if (this.allWordsInput) {
-      this.allWordsInput.addEventListener("input", () => this.update());
-    }
-
-    document.addEventListener("chipchange", () => this.update());
-
-    const form = this.searchPreview.closest("form");
-    if (form) {
-      form.addEventListener("reset", () => {
-        requestAnimationFrame(() => this.update());
+    [this.allWordsInput, this.exactWords, this.anyWords, this.ignoreWords]
+      .filter(Boolean)
+      .forEach((input) => {
+        input.addEventListener("input", () => this.scheduleUpdate());
       });
-    }
-  }
 
-  /**
-   * Append a group of terms to the query parts array.
-   * @param {Array} parts - The parts array to append to
-   * @param {string[]} terms - The terms to add
-   * @param {Object} options
-   * @param {string|null} options.prefix - Operator to prepend (e.g. "AND", "NOT", "IN")
-   * @param {string} options.joiner - Operator between terms (default "OR")
-   * @param {boolean} options.wrap - Whether to wrap in parentheses (default true)
-   */
-  static addGroup(
-    parts,
-    terms,
-    { prefix = null, joiner = "OR", wrap = true } = {},
-  ) {
-    if (terms.length === INDEX_FIRST) {
-      return;
-    }
-    const showParens = wrap && terms.length >= MIN_PARENS_LENGTH;
-    if (prefix) {
-      parts.push({ type: "operator", value: prefix });
-    }
-    if (showParens) {
-      parts.push({ type: "paren", value: "(" });
-    }
-    terms.forEach((term, index) => {
-      if (index > INDEX_FIRST) {
-        parts.push({ type: "operator", value: joiner });
-      }
-      parts.push({ type: "term", value: term });
+    this.form.addEventListener("chipchange", () => this.scheduleUpdate());
+
+    this.form.addEventListener("reset", () => {
+      requestAnimationFrame(() => this.update());
     });
-    if (showParens) {
-      parts.push({ type: "paren", value: ")" });
-    }
   }
 
   /**
-   * Build the query
-   * @returns {Array} The query parts
+   * Debounce preview updates so typing does not call the API on every keypress.
    */
-  buildQuery() {
-    const parts = [];
-    this.pushAllWords(parts);
-    this.pushExactWords(parts);
-    this.pushAnyWords(parts);
-    this.pushIgnoreWords(parts);
-    this.pushReferenceWords(parts);
-    return parts;
-  }
-  pushAllWords(parts) {
-    const allWords = this.allWordsInput?.value.trim();
-    if (allWords) {
-      parts.push({ type: "term", value: allWords });
-    }
-  }
-
-  pushExactWords(parts) {
-    let prefixForExact = null;
-    if (parts.length > INDEX_FIRST) {
-      prefixForExact = "AND";
-    }
-    AdvancedSearchPreview.addGroup(
-      parts,
-      AdvancedSearchPreview.getChipValues(this.exactWords),
-      {
-        prefix: prefixForExact,
-        joiner: "AND",
-        wrap: false,
-      },
-    );
-  }
-
-  pushAnyWords(parts) {
-    let prefixForAny = null;
-    if (parts.length > INDEX_FIRST) {
-      prefixForAny = "AND";
-    }
-    AdvancedSearchPreview.addGroup(
-      parts,
-      AdvancedSearchPreview.getChipValues(this.anyWords),
-      {
-        prefix: prefixForAny,
-        joiner: "OR",
-        wrap: true,
-      },
-    );
-  }
-
-  pushIgnoreWords(parts) {
-    AdvancedSearchPreview.addGroup(
-      parts,
-      AdvancedSearchPreview.getChipValues(this.ignoreWords),
-      {
-        prefix: "NOT",
-        joiner: "OR",
-        wrap: true,
-      },
-    );
-  }
-
-  pushReferenceWords(parts) {
-    AdvancedSearchPreview.addGroup(
-      parts,
-      AdvancedSearchPreview.getChipValues(this.references),
-      {
-        prefix: "IN",
-        joiner: "OR",
-        wrap: true,
-      },
-    );
+  scheduleUpdate() {
+    clearTimeout(this.debounceTimeout);
+    this.debounceTimeout = setTimeout(() => this.update(), DEBOUNCE_DELAY_MS);
   }
 
   /**
-   * Update the search preview
+   * Build the POST payload using the current form values.
    */
-  update() {
-    const parts = this.buildQuery();
+  buildFormData() {
+    const formData = new FormData(this.form);
 
-    if (parts.length === INDEX_FIRST) {
+    if (this.allWordsInput) {
+      formData.set(this.allWordsInput.name, this.allWordsInput.value);
+    }
+    [this.exactWords, this.anyWords, this.ignoreWords].forEach((input) => {
+      if (input) {
+        formData.set(input.name, input.value);
+      }
+    });
+
+    return formData;
+  }
+
+  /**
+   * Render the structured query parts returned by the backend.
+   */
+  renderQuery(parts) {
+    if (!parts.length) {
       this.searchPreview.hidden = true;
       return;
     }
@@ -186,35 +89,73 @@ class AdvancedSearchPreview {
   }
 
   /**
-   * Render a part of the query
+   * Render one query part with the existing preview styling classes.
    * @param {Object} part - The part to render
    */
   renderPart(part) {
+    const { type, value } = part;
     const el = document.createElement("span");
-    switch (part.type) {
+    switch (type) {
       case "term":
         el.className = "search-preview__term";
-        el.textContent = part.value;
+        el.textContent = value;
         break;
       case "operator":
         el.className = "search-preview__operator";
-        el.textContent = ` ${part.value} `;
+        el.textContent = ` ${value} `;
         break;
       case "paren":
         el.className = "search-preview__paren";
-        if (part.value === "(") {
-          el.textContent = " ( ";
-        } else {
-          el.textContent = " ) ";
-        }
+        el.textContent = value;
         break;
       default:
-        // Unknown part type; render as plain text to avoid breaking the preview.
-        el.className = "search-preview__unknown";
-        el.textContent = String(part.value || "");
+        el.textContent = String(value || "");
         break;
     }
     this.searchPreviewQuery.appendChild(el);
+  }
+
+  /**
+   * Start a fresh preview request and ignore failures for stale requests.
+   */
+  async update() {
+    const currentRequestId = this.nextRequestId();
+
+    try {
+      await this.renderResponse(currentRequestId);
+    } catch {
+      if (currentRequestId === this.requestId) {
+        this.searchPreview.hidden = true;
+      }
+    }
+  }
+
+  /**
+   * Return the ID for the latest preview request.
+   */
+  nextRequestId() {
+    this.requestId += 1;
+    return this.requestId;
+  }
+
+  /**
+   * Fetch the backend-built query preview and render it if it is still current.
+   */
+  async renderResponse(currentRequestId) {
+    const response = await fetch(this.previewUrl, {
+      method: "POST",
+      body: this.buildFormData(),
+      credentials: "same-origin",
+    });
+
+    if (!response.ok || currentRequestId !== this.requestId) {
+      return;
+    }
+
+    const data = await response.json();
+    if (currentRequestId === this.requestId) {
+      this.renderQuery(data.parts || []);
+    }
   }
 }
 
