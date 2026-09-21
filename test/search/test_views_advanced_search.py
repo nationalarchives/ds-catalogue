@@ -89,6 +89,23 @@ class AdvancedSearchBuildQViewTests(TestCase):
         self.assertEqual(
             response.json(),
             {
-                "q": 'world war AND "official use only" AND "Navy" AND (armament OR "Railway Company") NOT "arranged numerically" NOT "allocated"'
+                "q": 'world war AND "official use only" AND "Navy" AND (armament OR "Railway Company") NOT "arranged numerically" NOT "allocated"',
+                "parts": [
+                    {"type": "term", "value": "world war"},
+                    {"type": "operator", "value": "AND"},
+                    {"type": "term", "value": '"official use only"'},
+                    {"type": "operator", "value": "AND"},
+                    {"type": "term", "value": '"Navy"'},
+                    {"type": "operator", "value": "AND"},
+                    {"type": "paren", "value": "("},
+                    {"type": "term", "value": "armament"},
+                    {"type": "operator", "value": "OR"},
+                    {"type": "term", "value": '"Railway Company"'},
+                    {"type": "paren", "value": ")"},
+                    {"type": "operator", "value": "NOT"},
+                    {"type": "term", "value": '"arranged numerically"'},
+                    {"type": "operator", "value": "NOT"},
+                    {"type": "term", "value": '"allocated"'},
+                ],
             },
         )

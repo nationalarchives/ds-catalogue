@@ -1002,32 +1002,63 @@ def _build_q(form: AdvancedSearchForm | AdvancedSearchQForm) -> str:
       (so an input like `He said "hi"` becomes `"He said \"hi\""`) and
       wraps values containing spaces in double quotes. This ensures API
       query parts are well-formed and avoids injection of unbalanced quotes.
-    - Client-side preview: the preview rendered by `src/scripts/advanced-search-query.js`
-      is a local representation and does not perform the same escape sequence
-      transformations; it displays terms as entered.
+    - Client-side preview: `AdvancedSearchBuildQView` uses this same builder
+      and returns structured parts for `src/scripts/advanced-search-query.js`
+      to render.
     """
+
+    query = ""
+    for part in _build_q_parts(form):
+        value = part["value"]
+
+        if not query:
+            query = value
+        elif part["type"] == "paren" and value == ")":
+            query = f"{query})"
+        elif query.endswith("("):
+            query = f"{query}{value}"
+        else:
+            query = f"{query} {value}"
+
+    return query
+
+
+def _build_q_parts(
+    form: AdvancedSearchForm | AdvancedSearchQForm,
+) -> list[dict[str, str]]:
+    """Build structured preview parts for the main query string."""
 
     all_words = (form.fields[FieldsConstant.ALL_WORDS].cleaned or "").strip()
     exact_words = _cleaned_list(form, FieldsConstant.EXACT_WORDS)
     any_words = _cleaned_list(form, FieldsConstant.ANY_WORDS)
     ignore_words = _cleaned_list(form, FieldsConstant.IGNORE_WORDS)
 
-    query_arr = []
+    parts: list[dict[str, str]] = []
     if all_words:
-        query_arr.append(all_words)
+        parts.append({"type": "term", "value": all_words})
 
     for word in exact_words:
-        query_arr.append(f'AND "{word}"' if query_arr else f'"{word}"')
+        if parts:
+            parts.append({"type": "operator", "value": "AND"})
+        parts.append({"type": "term", "value": f'"{word}"'})
 
     if any_words:
-        quoted_any = [_quote_if_needed(w) for w in any_words]
-        words = f"({' OR '.join(quoted_any)})" if len(quoted_any) > 1 else quoted_any[0]
-        query_arr.append(f"AND {words}" if query_arr else words)
+        if parts:
+            parts.append({"type": "operator", "value": "AND"})
+        if len(any_words) > 1:
+            parts.append({"type": "paren", "value": "("})
+        for index, word in enumerate(any_words):
+            if index:
+                parts.append({"type": "operator", "value": "OR"})
+            parts.append({"type": "term", "value": _quote_if_needed(word)})
+        if len(any_words) > 1:
+            parts.append({"type": "paren", "value": ")"})
 
     for word in ignore_words:
-        query_arr.append(f'NOT "{word}"')
+        parts.append({"type": "operator", "value": "NOT"})
+        parts.append({"type": "term", "value": f'"{word}"'})
 
-    return " ".join(query_arr) if query_arr else ""
+    return parts
 
 
 def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
@@ -1077,7 +1108,6 @@ class AdvancedSearchBuildQView(View):
     def post(self, request, *args, **kwargs):
         form = AdvancedSearchQForm(request.POST)
         if form.is_valid():
-            q = _build_q(form)
-            return JsonResponse({"q": q})
+            return JsonResponse({"q": _build_q(form), "parts": _build_q_parts(form)})
         # return empty JSON response if the form is not valid
         return JsonResponse({})
