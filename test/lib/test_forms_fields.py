@@ -252,7 +252,9 @@ class NewFieldWithRaiseValidationTest(TestCase):
                     try:
                         datetime.strptime(value, "%Y-%m-%d")
                     except ValueError:
-                        raise ValidationError("Value is not in format YYYY-MM-DD")
+                        raise ValidationError(
+                            "Value is not in format YYYY-MM-DD"
+                        ) from None
                     super().validate(value)
 
             def add_fields(self):
