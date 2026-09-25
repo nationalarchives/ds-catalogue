@@ -1,0 +1,52 @@
+{% macro view_options(record, do_availability_group=None) %}
+  <div class="tna-column tna-column--width-1-2 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
+    <div class="tna-aside tna-aside--tight tna-background-accent-light full-height-aside">
+      <h2 class="tna-heading-m">View options</h2>
+      {# do_availability_group has only been implemented for TNA records, except for CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE #}
+      {% if record.is_held_by_tna %}
+        {# Available online with us only #}
+        {% if do_availability_group == "AVAILABLE_ONLINE_TNA_ONLY" %}
+          <p>This record is available online and can be downloaded. <a href="#record-extended-details-heading-1">How to
+            view it</a>.</p>
+        {% endif %}
+        {# Available online with a third party only #}
+        {% if do_availability_group == "AVAILABLE_ONLINE_THIRD_PARTY_ONLY" %}
+          <p>This record is available from a third party. <a href="#record-extended-details-heading-1">How to view
+            it</a>.</p>
+        {% endif %}
+        {# Available in person at TNA only (record copying is NOT available) #}
+        {% if do_availability_group == "AVAILABLE_IN_PERSON_NO_COPYING" %}
+          <p>This record is held at The National Archives and is available to see in person. <a
+            href="#record-extended-details-heading-1">How to view it</a>.</p>
+        {% endif %}
+        {# Available in person at TNA only and record copying IS available #}
+        {% if do_availability_group == "AVAILABLE_IN_PERSON_WITH_COPYING" %}
+          <p>This record is held at The National Archives and is available to see in person or you can order a copy
+            online. <a href="#record-extended-details-heading-1">Find out more</a>.</p>
+        {% endif %}
+        {# Not available at all #}
+        {% if do_availability_group == "NOT_AVAILABLE" %}
+          <p>This record is not available online or in person at The National Archives. <a
+            href="#record-extended-details-heading-1">Find out more</a>.</p>
+        {% endif %}
+        {# Records held by other archives #}
+        {% if do_availability_group == "RECORDS_AT_OTHER_ARCHIVES" %}
+          <p>This record is held at {{ record.held_by }}. You may be able to view this record in person or online. <a
+            href="#record-extended-details-heading-1">Find out more</a>.</p>
+        {% endif %}
+        {# Closed records #}
+        {% if do_availability_group == "CLOSED_TNA_OR_PA" %}
+          <p>This record is closed and not currently available online or in person at The National Archives. <a
+            href="#record-extended-details-heading-1">Find out more about how you might access this record</a>.</p>
+        {% endif %}
+      {% else %}
+        {# Closed and retained records #}
+        {% if do_availability_group == "CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE" %}
+          <p>This record is closed and retained by {{ record.held_by }}. <a href="https://www.gov.uk/make-a-freedom-of-information-request">Visit GOV.UK for more information</a>.</p>
+        {% else %}
+          <p>This record is held at {{ record.held_by }}. You may be able to view it in person or online.{% if record.held_by_url %} <a href="{{ record.held_by_url }}">How to view it</a>.{% endif %}</p>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+{% endmacro %}

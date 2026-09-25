@@ -359,7 +359,7 @@ class TestNonTNARecordAvailability(TestCase):
 
     @responses.activate
     def test_non_tna_record_shows_availability_boxes(self):
-        """Test that non-TNA records show the 'Is it available online?' and 'Can I see it in person?' boxes."""
+        """Test that non-TNA records show the consolidated 'View options' box."""
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/get?id=C123456",
@@ -386,18 +386,13 @@ class TestNonTNARecordAvailability(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        # Should show both availability boxes
-        self.assertContains(response, "Is it available online?")
-        self.assertContains(response, "Can I see it in person?")
+        # Should show the consolidated "View options" box
+        self.assertContains(response, "View options")
 
-        # Should show the correct messages for non-TNA records
+        # Should show the correct message for non-TNA records
         self.assertContains(
             response,
-            "Maybe, but not on The National Archives website. This record is held at British Library.",
-        )
-        self.assertContains(
-            response,
-            "Not at The National Archives, but you may be able to view it in person at British Library.",
+            "This record is held at British Library. You may be able to view it in person or online.",
         )
 
         # Should NOT show the "Access information is unavailable" message
@@ -467,9 +462,8 @@ class TestNonTNARecordAvailability(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        # Should show the availability boxes
-        self.assertContains(response, "Is it available online?")
-        self.assertContains(response, "Can I see it in person?")
+        # Should show the consolidated "View options" box
+        self.assertContains(response, "View options")
 
         # Should show the archive name
         self.assertContains(response, "Some Other Archive")
