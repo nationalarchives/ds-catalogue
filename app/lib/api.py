@@ -81,13 +81,13 @@ class JSONAPIClient:
             )
         except ConnectionError:
             logger.error("JSON API connection error")
-            raise APIConnectionError("A connection error occurred")
+            raise APIConnectionError("A connection error occurred") from None
         except Timeout:
             logger.error("JSON API timeout")
-            raise APITimeoutError("The request timed out")
+            raise APITimeoutError("The request timed out") from None
         except TooManyRedirects:
             logger.error("JSON API had too many redirects")
-            raise APIRedirectError("Too many redirects")
+            raise APIRedirectError("Too many redirects") from None
         except Exception as e:
             logger.error(f"Unknown JSON API exception: {e}")
             raise APIError(str(e)) from e
@@ -108,7 +108,7 @@ class JSONAPIClient:
                 )
                 logger.error(f"Non-JSON response: {truncated_text}{suffix}")
 
-                raise APINonJSONResponseError("Non-JSON response provided")
+                raise APINonJSONResponseError("Non-JSON response provided") from None
 
         if response.status_code == HTTPStatus.BAD_REQUEST:
             logger.error(f"Bad request: {response.url}")
