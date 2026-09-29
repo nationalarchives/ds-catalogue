@@ -71,16 +71,17 @@ def _validate_search_results(results, page):
             "Search API response missing required 'buckets' field"
         )
 
-    if "data" not in results and page == 1:
+    if (
+        ("data" in results and len(results["data"]) == 0) or "data" not in results
+    ) and page == 1:
         """
         Raises error when "data" is not found and when all "buckets"
         counts are zero.
 
-        "data" is empty, possible reasons:
+        "data" is empty or missing, possible reasons:
         1. when search api is queried on "q" results in no matches.
         2. when search api is queried other than "q" e.g. "collection",
         "level", "held_by", etc. results in no matches.
-        3. when data is queried with size=0 for long filters.
         In both cases, "buckets" cound have counts or not.
         Bucket counts depend on the "q" param.
         """

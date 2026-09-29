@@ -67,7 +67,39 @@ class SearchRecordsTests(SimpleTestCase):
             _ = search_records(query="")
 
     @responses.activate
-    def test_raise_no_results_found(self):
+    def test_raise_no_results_found_when_data_is_empty(self):
+        """data is empty and Catalogue "buckets" entries are empty. This with PA implementation"""
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [],
+                "stats": {
+                    "total": 0,
+                    "results": 0,
+                },
+                # "buckets"->"entries" key is not included in the response when
+                # there are no matches for the search query term, as per Rosetta API.
+                "buckets": [
+                    {
+                        "name": "group",
+                    }
+                ],
+            },
+        )
+
+        with self.assertRaisesMessage(NoResultsFound, "No results found"):
+            # search query term is not relevant to any record, so that "data" is empty
+            # and "buckets"->"entries" is also empty.
+            _ = search_records(
+                query="qwert",
+                params={
+                    "filter": ["group:tna"],  # default filter
+                },
+            )
+
+    @responses.activate
+    def test_raise_no_results_found_when_data_is_missing(self):
         """data is missing and Catalogue "buckets" entries are empty."""
         responses.add(
             responses.GET,

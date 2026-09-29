@@ -69,6 +69,7 @@ class CatalogueSearchViewQueryParamTests(TestCase):
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
             json={
+                "data": [],
                 "aggregations": [
                     {"name": "closure", "total": 0, "other": 0},
                     {"name": "collection", "total": 0, "other": 0},
