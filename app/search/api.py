@@ -65,16 +65,13 @@ def _build_search_params(
 
 
 def _validate_search_results(results, page):
-    if "data" not in results:
-        raise MissingAPIAttributeError(
-            "Search API response missing required 'data' field"
-        )
+
     if "buckets" not in results:
         raise MissingAPIAttributeError(
             "Search API response missing required 'buckets' field"
         )
 
-    if not len(results["data"]) and page == 1:
+    if "data" not in results and page == 1:
         """
         Raises error when "data" is not found and when all "buckets"
         counts are zero.
@@ -83,6 +80,7 @@ def _validate_search_results(results, page):
         1. when search api is queried on "q" results in no matches.
         2. when search api is queried other than "q" e.g. "collection",
         "level", "held_by", etc. results in no matches.
+        3. when data is queried with size=0 for long filters.
         In both cases, "buckets" cound have counts or not.
         Bucket counts depend on the "q" param.
         """
