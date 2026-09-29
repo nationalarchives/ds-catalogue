@@ -72,7 +72,7 @@ def _validate_search_results(results, page):
         )
 
     if (
-        ("data" in results and len(results["data"]) == 0) or "data" not in results
+        ("data" in results and not len(results["data"])) or "data" not in results
     ) and page == 1:
         """
         Raises error when "data" is not found and when all "buckets"
