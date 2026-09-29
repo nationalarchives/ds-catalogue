@@ -460,7 +460,7 @@ class MultiPartDateField(BaseField):
         try:
             int_value = int(input_value)
         except ValueError:
-            raise ValidationError(f"{key.capitalize()} must be an integer.")
+            raise ValidationError(f"{key.capitalize()} must be an integer.") from None
         return int_value
 
     def _validate_year_only(self, key, value) -> int | None:
@@ -504,7 +504,7 @@ class MultiPartDateField(BaseField):
         except ValueError:
             raise ValidationError(
                 "Entered date must be a real date, for example Year 2017, Month 9, Day 23"
-            )
+            ) from None
 
     def _is_complete_date(self, value):
         """Checks if all or none of the date parts are filled."""

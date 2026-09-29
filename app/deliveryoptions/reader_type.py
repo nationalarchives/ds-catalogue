@@ -182,4 +182,4 @@ def is_ip_in_cidr(ip: str, cidr: list[str]) -> bool:
         # If no match is found
         return False
     except ValueError as e:
-        raise ValueError(f"Invalid IP or CIDR: {e}")
+        raise ValueError(f"Invalid IP or CIDR: {e}") from e

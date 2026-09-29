@@ -434,7 +434,7 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             if page > PAGE_LIMIT:
                 raise PageNotFound
         except (ValueError, KeyError):
-            raise PageNotFound
+            raise PageNotFound from None
         return page
 
     def form_valid(self):
