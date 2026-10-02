@@ -21,6 +21,13 @@
     {%- for item in params['items'] %}
       {% if item.is_parent %}
         {{ checkbox(item, params, is_parent=true) }}
+        {% if item.children and item.children | length > 0 %}
+          <div class="tna-checkboxes__children">
+            {%- for child in item.children %}
+              {{ checkbox(child, params, is_child=true, parent_value=item.value) }}
+            {%- endfor %}
+          </div>
+        {% endif %}
       {% else %}
         {{ checkbox(item, params) }}
       {% endif %}
