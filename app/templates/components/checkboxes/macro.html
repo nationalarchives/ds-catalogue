@@ -19,7 +19,11 @@
 {% macro checkboxes(params) %}
   <div class="tna-checkboxes{% if params.small or params.inline %} tna-checkboxes--small{% endif %}{% if params.inline %} tna-checkboxes--inline{% endif %}"{% if params['items'] | length != 1 %} id="{{ params.id }}"{% endif %}>
     {%- for item in params['items'] %}
-      {{ checkbox(item, params) }}
+      {% if item.is_parent %}
+        {{ checkbox(item, params, is_parent=true) }}
+      {% else %}
+        {{ checkbox(item, params) }}
+      {% endif %}
     {%- endfor %}
   </div>
 {% endmacro %}
