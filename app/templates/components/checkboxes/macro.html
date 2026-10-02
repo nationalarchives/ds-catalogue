@@ -1,5 +1,6 @@
 {%- from 'components/fieldset/macro.html' import tnaFieldset -%}
 {%- from 'utilities/forms/form-item.html' import tnaFormItem -%}
+{%- from 'components/button/macro.html' import tnaButton -%}
 
 {% macro checkbox(item, params, is_parent=false, is_child=false, parent_value='') %}
   {% set item_id = item.id or (params.id if (params['items'] | length == 1) else params.id ~ '-' ~ item.value) %}
@@ -26,6 +27,14 @@
             {%- for child in item.children %}
               {{ checkbox(child, params, is_child=true, parent_value=item.value) }}
             {%- endfor %}
+            {% if item.more_filter_choices_available %}
+              {{ tnaButton({
+                'text': item.more_filter_choices_text,
+                'href': item.more_filter_choices_url,
+                'plain': True,
+                'small': True,
+              }) }}
+            {% endif %}
           </div>
         {% endif %}
       {% else %}
