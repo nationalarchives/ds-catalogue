@@ -1,9 +1,9 @@
 {%- from 'components/fieldset/macro.html' import tnaFieldset -%}
 {%- from 'utilities/forms/form-item.html' import tnaFormItem -%}
 
-{% macro checkbox(item, params) %}
+{% macro checkbox(item, params, is_parent=false, is_child=false, parent_value='') %}
   {% set item_id = item.id or (params.id if (params['items'] | length == 1) else params.id ~ '-' ~ item.value) %}
-  <div class="tna-checkboxes__item">
+  <div class="tna-checkboxes__item{% if is_parent %} tna-checkboxes__item--parent{% endif %}{% if is_child %} tna-checkboxes__item--child data-parent='{{ parent_value }}'{% endif %}">
     <input type="checkbox" id="{{ item_id }}"{%- if params.classes %} class="{{ params.classes }}"{% endif %} value="{{ item.value }}" name="{{ params.name }}"
     {%- if item.checked %} checked{% endif %}
     {%- if params.attributes %}{% for attribute, value in params.attributes.items() %} {{ attribute }}{% if value != '' %}="{{ value }}"{% endif %}{% endfor %}{% endif %}>
