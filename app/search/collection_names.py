@@ -451,6 +451,7 @@ COLLECTION_NAMES = {
     "ZPER": "British Transport Historical Records Office library: periodicals",
     "ZSPC": "British Transport Historical Records Office library: publications",
     "ZWEB": "Regularly Archived Government Websites",
+    "parliamentaryArchives": "UK Parliament",
 }
 
 COLLECTION_CHOICES = tuple(
