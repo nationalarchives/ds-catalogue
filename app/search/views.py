@@ -2,9 +2,13 @@ import copy
 import logging
 import math
 from typing import Any
+from urllib.parse import urlencode
 
 from django.core.exceptions import SuspiciousOperation
-from django.http import HttpRequest, HttpResponse, QueryDict
+from django.http import HttpRequest, HttpResponse, JsonResponse, QueryDict
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.views import View
 from django.views.generic import TemplateView
 
 from app.errors import views as errors_view
@@ -37,11 +41,15 @@ from .constants import (
     FILTER_FIELDS,
     LONG_FILTER_RESULTS_PER_PAGE,
     PAGE_LIMIT,
+    PAGE_LIMIT_WARNING_MESSAGE,
+    PAGE_LIMIT_WARNING_THRESHOLD,
     RESULTS_PER_PAGE,
     Display,
     Sort,
 )
 from .forms import (
+    AdvancedSearchForm,
+    AdvancedSearchQForm,
     CatalogueSearchBaseForm,
     CatalogueSearchNonTnaForm,
     CatalogueSearchTnaForm,
@@ -49,13 +57,20 @@ from .forms import (
 )
 from .mixins import SearchDataLayerMixin
 from .models import APISearchResponse
-from .utils import camelcase_to_underscore, underscore_to_camelcase
+from .utils import (
+    camelcase_to_underscore,
+    quote_if_needed,
+    underscore_to_camelcase,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class PageNotFound(Exception):
-    pass
+    """Raised when a requested search results page number is out of range."""
+
+
+_quote_if_needed = quote_if_needed
 
 
 class APIMixin:
@@ -414,8 +429,12 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             page = int(self.request.GET.get("page", 1))
             if page < 1:
                 raise ValueError
+            # raise PageNotFound if page number exceeds PAGE_LIMIT,
+            # before querying the API
+            if page > PAGE_LIMIT:
+                raise PageNotFound
         except (ValueError, KeyError):
-            raise PageNotFound
+            raise PageNotFound from None
         return page
 
     def form_valid(self):
@@ -475,8 +494,11 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
     def paginate_api_result(self) -> tuple | HttpResponse:
 
         pages = math.ceil(self.api_result.stats_total / RESULTS_PER_PAGE)
+        # limit pages to PAGE_LIMIT since Elasticsearch can only return first 10,000 results
         pages = min(pages, PAGE_LIMIT)
 
+        # check if requested page is greater than calculated total pages, raise PageNotFound
+        # e.g. calculated 35 pages, and user requests page=36
         if self.page > pages:
             raise PageNotFound
 
@@ -553,6 +575,8 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
                 "bucket_keys": BucketKeys,
                 "display_options": Display,
                 "fields_constant": FieldsConstant,
+                "page_limit_warning_threshold": PAGE_LIMIT_WARNING_THRESHOLD,
+                "page_limit_warning_message": PAGE_LIMIT_WARNING_MESSAGE,
             }
         )
         # call to set filter fields visibility after context is set
@@ -907,3 +931,183 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         if self.form.fields[FieldsConstant.HELD_BY].items:
             # visible if items set (with api agg values or input values)
             self.form.fields[FieldsConstant.HELD_BY].is_visible = True
+
+
+class AdvancedSearchView(TemplateView):
+    template_name = "search/advanced_search_js.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(self._base_context())
+        context["request"] = self.request
+        context["bucket_keys"] = BucketKeys
+        return context
+
+    def _base_context(self) -> dict:
+        notifications = fetch_global_notifications() or {}
+        return {
+            "mourning_notice": notifications.get("mourning_notice")
+            if notifications
+            else None,
+            "global_alert": notifications,
+        }
+
+    def get(self, request, *args, **kwargs):
+        # If query parameters present, treat as form submission (GET-based search)
+        form = AdvancedSearchForm(data=request.GET)
+        context = self.get_context_data()
+        context["form"] = form
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+
+        form_data = request.POST.copy()
+
+        form_data.setdefault(FieldsConstant.GROUP, BucketKeys.TNA)
+
+        form = AdvancedSearchForm(data=form_data)
+
+        context = self.get_context_data()
+        context["form"] = form
+
+        if not form.is_valid():
+            return self.render_to_response(context)
+
+        redirect_qs, errors = _build_advanced_search_query(form)
+        if errors:
+            # attach build-time errors to the form so template can render them
+            form.add_non_field_error(errors)
+            return self.render_to_response(context)
+
+        search_url = reverse("search:catalogue")
+        return redirect(f"{search_url}?{redirect_qs}")
+
+
+def _cleaned_list(form: AdvancedSearchForm, field_name: str) -> list[str]:
+    """Returns a list of non-empty, stripped lines from the specified form field."""
+
+    return [
+        line.strip()
+        for line in (form.fields[field_name].cleaned or "").splitlines()
+        if line.strip()
+    ]
+
+
+def _build_q(form: AdvancedSearchForm | AdvancedSearchQForm) -> str:
+    """Builds the main query string from form data.
+
+    Quoting and escaping behaviour
+    ------------------------------
+    - Server-side: `_quote_if_needed` escapes backslashes and double quotes
+      (so an input like `He said "hi"` becomes `"He said \"hi\""`) and
+      wraps values containing spaces in double quotes. This ensures API
+      query parts are well-formed and avoids injection of unbalanced quotes.
+    - Client-side preview: `AdvancedSearchBuildQView` uses this same builder
+      and returns structured parts for `src/scripts/advanced-search-query.js`
+      to render.
+    """
+
+    query = ""
+    for part in _build_q_parts(form):
+        value = part["value"]
+
+        if not query:
+            query = value
+        elif part["type"] == "paren" and value == ")":
+            query = f"{query})"
+        elif query.endswith("("):
+            query = f"{query}{value}"
+        else:
+            query = f"{query} {value}"
+
+    return query
+
+
+def _build_q_parts(
+    form: AdvancedSearchForm | AdvancedSearchQForm,
+) -> list[dict[str, str]]:
+    """Build structured preview parts for the main query string."""
+
+    all_words = (form.fields[FieldsConstant.ALL_WORDS].cleaned or "").strip()
+    exact_words = _cleaned_list(form, FieldsConstant.EXACT_WORDS)
+    any_words = _cleaned_list(form, FieldsConstant.ANY_WORDS)
+    ignore_words = _cleaned_list(form, FieldsConstant.IGNORE_WORDS)
+
+    parts: list[dict[str, str]] = []
+    if all_words:
+        parts.append({"type": "term", "value": all_words})
+
+    for word in exact_words:
+        if parts:
+            parts.append({"type": "operator", "value": "AND"})
+        parts.append({"type": "term", "value": f'"{word}"'})
+
+    if any_words:
+        if parts:
+            parts.append({"type": "operator", "value": "AND"})
+        if len(any_words) > 1:
+            parts.append({"type": "paren", "value": "("})
+        for index, word in enumerate(any_words):
+            if index:
+                parts.append({"type": "operator", "value": "OR"})
+            parts.append({"type": "term", "value": _quote_if_needed(word)})
+        if len(any_words) > 1:
+            parts.append({"type": "paren", "value": ")"})
+
+    for word in ignore_words:
+        parts.append({"type": "operator", "value": "NOT"})
+        parts.append({"type": "term", "value": f'"{word}"'})
+
+    return parts
+
+
+def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
+    """Builds the advanced search query from the form data and returns a tuple containing
+    the URL-encoded query string and a list of errors.
+    Note: `references` are sent as a dedicated query param for Rosetta filter
+    """
+
+    group = form.fields[FieldsConstant.GROUP].cleaned
+    params: dict[str, str] = {
+        FieldsConstant.GROUP: group or BucketKeys.TNA,
+    }
+
+    params[FieldsConstant.Q] = _build_q(form)
+
+    if references := _cleaned_list(form, FieldsConstant.REFERENCES):
+        params[FieldsConstant.REFERENCE_NUMBER] = references
+
+    # set the covering date from and to parameters for the query
+    if form.fields[FieldsConstant.COVERING_DATE_FROM].cleaned:
+        params[
+            FieldsConstant.COVERING_DATE_FROM + DATE_YMD_SEPARATOR + DateKeys.YEAR
+        ] = form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(DateKeys.YEAR)
+        params[
+            FieldsConstant.COVERING_DATE_FROM + DATE_YMD_SEPARATOR + DateKeys.MONTH
+        ] = form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(DateKeys.MONTH)
+        params[
+            FieldsConstant.COVERING_DATE_FROM + DATE_YMD_SEPARATOR + DateKeys.DAY
+        ] = form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(DateKeys.DAY)
+
+    if form.fields[FieldsConstant.COVERING_DATE_TO].cleaned:
+        params[FieldsConstant.COVERING_DATE_TO + DATE_YMD_SEPARATOR + DateKeys.YEAR] = (
+            form.fields[FieldsConstant.COVERING_DATE_TO].value.get(DateKeys.YEAR)
+        )
+        params[
+            FieldsConstant.COVERING_DATE_TO + DATE_YMD_SEPARATOR + DateKeys.MONTH
+        ] = form.fields[FieldsConstant.COVERING_DATE_TO].value.get(DateKeys.MONTH)
+        params[FieldsConstant.COVERING_DATE_TO + DATE_YMD_SEPARATOR + DateKeys.DAY] = (
+            form.fields[FieldsConstant.COVERING_DATE_TO].value.get(DateKeys.DAY)
+        )
+    return urlencode(params, doseq=True), []
+
+
+class AdvancedSearchBuildQView(View):
+    """Build an advanced search query for q param and return it as JSON for the query preview."""
+
+    def post(self, request, *args, **kwargs):
+        form = AdvancedSearchQForm(request.POST)
+        if form.is_valid():
+            return JsonResponse({"q": _build_q(form), "parts": _build_q_parts(form)})
+        # return empty JSON response if the form is not valid
+        return JsonResponse({})

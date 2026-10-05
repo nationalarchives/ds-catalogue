@@ -1,9 +1,19 @@
 from enum import StrEnum
 
+# Elasticsearch limitation: can only return first 10,000 results
+# With RESULTS_PER_PAGE=20, PAGE_LIMIT=500 ensures we never request beyond
+# that limit: 500 pages × 20 results/page = 10,000 results.
 RESULTS_PER_PAGE = 20  # max records to show per page
 LONG_FILTER_RESULTS_PER_PAGE = 0  # for long filter, skip pagination to get all options
 LONG_FILTER_SUBJECT_PARAMS = {"filter": ["group:tna"], "aggs": "longSubject"}
 PAGE_LIMIT = 500  # max page number that can be queried
+
+# UI: warn users when approaching page limit
+PAGE_LIMIT_WARNING_THRESHOLD = PAGE_LIMIT - 5  # Show warning at page 495
+PAGE_LIMIT_WARNING_MESSAGE = (
+    "Only the first 10,000 results are shown, apply filters to narrow your search."
+)
+
 FILTER_DATATYPE_RECORD = "datatype:record"  # filter for records in search results
 
 
@@ -32,11 +42,17 @@ class FieldsConstant:
     HELD_BY = "held_by"
     CLOSURE = "closure"
     FILTER_LIST = "filter_list"
+    ALL_WORDS = "all_words"
+    EXACT_WORDS = "exact_words"
+    ANY_WORDS = "any_words"
+    IGNORE_WORDS = "ignore_words"
+    REFERENCES = "references"
     COVERING_DATE_FROM = "covering_date_from"
     COVERING_DATE_TO = "covering_date_to"
     OPENING_DATE_FROM = "opening_date_from"
     OPENING_DATE_TO = "opening_date_to"
     DISPLAY = "display"
+    REFERENCE_NUMBER = "reference_number"
 
 
 FILTER_FIELDS = [
@@ -50,6 +66,7 @@ FILTER_FIELDS = [
     FieldsConstant.COVERING_DATE_TO,
     FieldsConstant.OPENING_DATE_FROM,
     FieldsConstant.OPENING_DATE_TO,
+    FieldsConstant.REFERENCE_NUMBER,
 ]
 
 
@@ -58,3 +75,8 @@ class Display(StrEnum):
 
     LIST = "list"
     GRID = "grid"
+
+
+# Advanced search input limits
+ADV_SEARCH_TEXTAREA_MAX_CHARS = 2000
+ADV_SEARCH_TEXTAREA_MAX_LINES = 200

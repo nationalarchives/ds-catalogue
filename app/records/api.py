@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def record_details_by_id(
     id: str,
-    params: dict | None = None,
+    params: dict[str, str] | None = None,
     timeout=None,
 ) -> Record:
     """
@@ -58,7 +58,7 @@ def record_details_by_id(
     raise RecordNotFound(f"id {id} does not exist")
 
 
-def record_details_by_ref(reference: str, params: dict = {}):
+def record_details_by_ref(reference: str, params: dict[str, str] | None = None):
     """
     Fetches a record by its reference number.
 
@@ -72,7 +72,9 @@ def record_details_by_ref(reference: str, params: dict = {}):
     # TODO: Implement record_details_by_ref once Rosetta has support
 
 
-def wagtail_request_handler(uri: str, params: dict = {}, timeout=None) -> dict:
+def wagtail_request_handler(
+    uri: str, params: dict[str, str] | None = None, timeout=None
+) -> dict:
     """
     Prepares and initiates Wagtail API requests using JSONAPIClient.
 

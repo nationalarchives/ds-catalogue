@@ -57,7 +57,7 @@ class CatalogueSearchViewGroupParamTests(TestCase):
 
         self.assertIsInstance(form, CatalogueSearchNonTnaForm)
         self.assertEqual(form.errors, {})
-        self.assertEqual(len(form.fields), 8)
+        self.assertEqual(len(form.fields), 9)
         non_tna_field_names = [
             FieldsConstant.GROUP,
             FieldsConstant.Q,
@@ -67,6 +67,7 @@ class CatalogueSearchViewGroupParamTests(TestCase):
             FieldsConstant.COVERING_DATE_FROM,
             FieldsConstant.COVERING_DATE_TO,
             FieldsConstant.HELD_BY,
+            FieldsConstant.REFERENCE_NUMBER,
         ]
 
         non_tna_form_field_names = list(form.fields.keys())

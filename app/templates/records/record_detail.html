@@ -4,8 +4,7 @@
 {% from 'records/macros/accordion.html' import etna_accordion %}
 {% from 'records/macros/whats_this_about_sub_sub_series_or_above.html' import whats_this_about_sub_sub_series_or_above %}
 {% from 'records/macros/whats_this_about_piece_or_item.html' import whats_this_about_piece_or_item %}
-{% from 'records/macros/available_online.html' import available_online %}
-{% from 'records/macros/available_in_person.html' import available_in_person %}
+{% from 'records/macros/view_options.html' import view_options %}
 {% from 'records/macros/detail_fields.html' import detail_fields %}
 {% from 'records/macros/hierarchy.html' import hierarchy %}
 {% from 'records/macros/how_to_order.html' import how_to_order %}
@@ -24,7 +23,15 @@
   {% for property in analytics_data %}
     <meta name="tna_root:{{ property }}" content="{{ analytics_data[property] | none_to_empty_string() }}">
   {% endfor %}
-  <link rel="canonical" href="{{ request.build_absolute_uri(url('records:details', kwargs={'id': record.id})) }}">
+  {% set canonical_path = url('records:details', kwargs={'id': record.id}) %}
+  <link rel="canonical" href="{{ request.build_absolute_uri(canonical_path) }}">
+  <meta name="description" content="{{ record.description | striptags | truncate(160) }}">
+  <meta property="og:title" content="{{ pageTitle }}">
+  <meta property="og:description" content="{{ record.description | striptags | truncate(160) }}">
+  <meta property="og:image" content="{{ request.build_absolute_uri('/og' ~ canonical_path) }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/jpeg">
 {% endblock head %}
 
 {% block stylesheets %}
@@ -66,14 +73,12 @@
       {{ whats_this_about_piece_or_item(record) }}
 
       {% if do_availability_group and do_availability_group != 'PENDING_CLASSIFICATION' %}
-        {{ available_online(record, do_availability_group) }}
-        {{ available_in_person(record, do_availability_group) }}
+        {{ view_options(record, do_availability_group) }}
       {% elif not record.is_held_by_tna %}
         {# Records at other archives - we know where they are, just not at TNA #}
-        {{ available_online(record) }}
-        {{ available_in_person(record) }}
+        {{ view_options(record) }}
       {% else %}
-        <div class="tna-column tna-column--width-2-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
+        <div class="tna-column tna-column--width-1-2 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
           <div class="tna-aside tna-aside--tight tna-background-contrast full-height-aside">
             <h2 class="tna-heading-m">Access information is unavailable</h2>
             <p>Sorry, information for accessing this record is currently unavailable online. Please try again later.</p>

@@ -102,5 +102,6 @@ See [Sentry's official guide](https://docs.sentry.io/platforms/python/guides/dja
 | `ENABLE_PARALLEL_API_CALLS`        | True = use parallel code for detail page api calls, False for sequential     |
 | `ENRICHMENT_TIMING_ENABLED`        | True = show api call timings in log (works for both sequential and parallel) |
 | `FEATURE_ENABLE_HELD_BY_DISCOVERY` | True=activates held by link to Discovery, otherwise to Catalogue Archon page |
+| `CSRF_TRUSTED_ORIGINS`             | Comma-separated CSRF trusted origins                                         |
 
 TODO: Find where the IP_ADDRESSES are documented and link to document here
