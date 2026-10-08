@@ -397,6 +397,7 @@ COLLECTION_NAMES = {
     "SD": "Zahid Mubarek Inquiry",
     "SE": "Chemical Regulations Directorate",
     "SF": "Statistics Commission",
+    "SFO": "Serious Fraud Office",
     "SH": "Equal Opportunities Commission",
     "SJ": "Gas and Electricity Consumer Council (Energywatch)",
     "SK": "Consumer Council for Postal Services (PostWatch)",
