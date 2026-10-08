@@ -3,17 +3,17 @@
 {%- from 'components/button/macro.html' import tnaButton -%}
 
 {%- macro checkbox(item, params, is_parent=false, is_child=false, parent_value='', is_single_item=false) %}
-{%- set item_id = item.id | default('', true) %}
 
-{%- if not item_id %}
-  {%- if is_single_item %}
-    {%- set item_id = params.id %}
-  {%- else %}
-    {% set item_id = params.id ~ '-' ~ item.value %}
+  {%- set item_id = item.id | default('', true) %}
+  {%- if not item_id %}
+    {%- if is_single_item %}
+      {%- set item_id = params.id %}
+    {%- else %}
+      {% set item_id = params.id ~ '-' ~ item.value %}
+    {%- endif %}
   {%- endif %}
-{%- endif %}
 
-<div class="tna-checkboxes__item{% if is_parent %} tna-checkboxes__item--parent{% endif %}{% if is_child %} tna-checkboxes__item--child{% endif %}"{% if is_child %} data-parent="{{ parent_value }}"{% endif %}>
+  <div class="tna-checkboxes__item{% if is_parent %} tna-checkboxes__item--parent{% endif %}{% if is_child %} tna-checkboxes__item--child{% endif %}"{% if is_child %} data-parent="{{ parent_value }}"{% endif %}>
     <input type="checkbox" id="{{ item_id }}"{%- if params.classes %} class="{{ params.classes }}"{% endif %} value="{{ item.value }}" name="{{ params.name }}"
     {%- if item.checked %} checked{% endif %}
     {%- if params.attributes %}{% for attribute, value in params.attributes.items() %} {{ attribute }}{% if value != '' %}="{{ value }}"{% endif %}{% endfor %}{% endif %}>
@@ -53,43 +53,43 @@
 {%- endmacro %}
 
 {% macro tnaCheckboxes(params) %}
-{#- Count rendered checkboxes, including children, rather than top-level items. #}
-{%- set ns = namespace(checkbox_count=0) %}
+  
+  {#- Count rendered checkboxes, including children, rather than top-level items. #}
+  {%- set ns = namespace(checkbox_count=0) %}
+  {%- for item in params['items'] %}
+    {%- set ns.checkbox_count = ns.checkbox_count + 1 %}
+    {%- if item.children %}
+      {%- set ns.checkbox_count = ns.checkbox_count + (item.children | length) %}
+    {%- endif %}
+  {%- endfor %}
+  {%- set is_single_item=(ns.checkbox_count == 1) %}
 
-{%- for item in params['items'] %}
-  {%- set ns.checkbox_count = ns.checkbox_count + 1 %}
-  {%- if item.children %}
-    {%- set ns.checkbox_count = ns.checkbox_count + (item.children | length) %}
+  {%- if is_single_item %}
+    {%- call tnaFormItem({
+      'headingLevel': params.headingLevel,
+      'headingSize': params.headingSize,
+      'id': params.id,
+      'label': params.label,
+      'hint': params.hint,
+      'error': params.error,
+      'classes': params.formItemClasses,
+      'attributes': params.formItemAttributes
+    }) %}
+      {{ checkboxes(params, is_single_item=is_single_item) }}
+    {%- endcall %}
+  {%- else %}
+    {%- call tnaFieldset({
+      'headingLevel': params.headingLevel,
+      'headingSize': params.headingSize,
+      'id': params.id,
+      'legend': params.label,
+      'hint': params.hint,
+      'smallerHint': True,
+      'error': params.error,
+      'classes': params.formItemClasses,
+      'attributes': params.formItemAttributes
+    }) %}
+      {{ checkboxes(params, is_single_item=is_single_item) }}
+    {%- endcall %}
   {%- endif %}
-{%- endfor %}
-{%- set is_single_item=(ns.checkbox_count == 1) %}
-
-{%- if is_single_item %}
-  {%- call tnaFormItem({
-    'headingLevel': params.headingLevel,
-    'headingSize': params.headingSize,
-    'id': params.id,
-    'label': params.label,
-    'hint': params.hint,
-    'error': params.error,
-    'classes': params.formItemClasses,
-    'attributes': params.formItemAttributes
-  }) %}
-    {{ checkboxes(params, is_single_item=is_single_item) }}
-  {%- endcall %}
-{%- else %}
-  {%- call tnaFieldset({
-    'headingLevel': params.headingLevel,
-    'headingSize': params.headingSize,
-    'id': params.id,
-    'legend': params.label,
-    'hint': params.hint,
-    'smallerHint': True,
-    'error': params.error,
-    'classes': params.formItemClasses,
-    'attributes': params.formItemAttributes
-  }) %}
-    {{ checkboxes(params, is_single_item=is_single_item) }}
-  {%- endcall %}
-{%- endif %}
 {% endmacro %}
