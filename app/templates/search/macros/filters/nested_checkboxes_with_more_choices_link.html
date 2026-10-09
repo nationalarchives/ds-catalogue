@@ -2,6 +2,9 @@
 {%- from 'utilities/forms/form-item.html' import tnaFormItem -%}
 {%- from 'components/button/macro.html' import tnaButton -%}
 
+{#- Nested checkboxes macro with support for "more choices" link. It is customised from 
+the original tna-frontend-jinja component macro for TNA checkboxes #}
+
 {%- macro checkbox(item, params, is_parent=false, is_child=false, parent_value='', is_single_item=false) %}
 
   {%- set item_id = item.id | default('', true) %}
@@ -52,7 +55,7 @@
   </div>
 {%- endmacro %}
 
-{% macro tnaCheckboxes(params) %}
+{% macro tnaNestedCheckboxesWithMoreChoicesLink(params) %}
   
   {#- Count rendered checkboxes, including children, rather than top-level items. #}
   {%- set ns = namespace(checkbox_count=0) %}

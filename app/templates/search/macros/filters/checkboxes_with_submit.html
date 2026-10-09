@@ -1,20 +1,36 @@
 {% from 'components/button/macro.html' import tnaButton %}
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
+{% from 'search/macros/filters/nested_checkboxes_with_more_choices_link.html' import tnaNestedCheckboxesWithMoreChoicesLink %}
 
 {% macro checkboxes_with_submit(request, field) %}
   <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
-    {{ tnaCheckboxes({
-      'label': field.label,
-      'headingLevel': 3,
-      'headingSize': 'm',
-      'id': field.id,
-      'name': field.name,
-      'items': field.items,
-      'small': True,
-      'attributes': {
-        'form': 'search-form'
-      }
-    }) }}
+    {% if field.name == 'collection'%}
+      {{ tnaNestedCheckboxesWithMoreChoicesLink({
+        'label': field.label,
+        'headingLevel': 3,
+        'headingSize': 'm',
+        'id': field.id,
+        'name': field.name,
+        'items': field.items,
+        'small': True,
+        'attributes': {
+          'form': 'search-form'
+        }
+      }) }}
+    {% else %}
+      {{ tnaCheckboxes({
+        'label': field.label,
+        'headingLevel': 3,
+        'headingSize': 'm',
+        'id': field.id,
+        'name': field.name,
+        'items': field.items,
+        'small': True,
+        'attributes': {
+          'form': 'search-form'
+        }
+      }) }}
+    {% endif %}
     <div class="tna-button-group tna-button-group--small tna-!--margin-top-s">
       {{ tnaButton({
         'text': 'Update',
