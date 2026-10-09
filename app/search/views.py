@@ -478,6 +478,13 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
         if self.is_filter_list_applied(self.form):
             results_per_page = LONG_FILTER_RESULTS_PER_PAGE
+            # add filter_list_applied to the field for nested collection handling
+            if self.form.fields[
+                FieldsConstant.FILTER_LIST
+            ].cleaned == Aggregation.get_long_aggs_name_for_field_name(
+                FieldsConstant.COLLECTION
+            ):
+                self.form.fields[FieldsConstant.COLLECTION].filter_list_applied = True
         else:
             results_per_page = RESULTS_PER_PAGE
 
