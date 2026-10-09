@@ -4,7 +4,7 @@
 
 {% macro checkboxes_with_submit(request, field) %}
   <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
-    {% if field.name == 'collection'%}
+    {% if field.name == 'collection' %}
       {{ tnaNestedCheckboxesWithMoreChoicesLink({
         'label': field.label,
         'headingLevel': 3,
