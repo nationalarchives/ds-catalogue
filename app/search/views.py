@@ -47,6 +47,7 @@ from .constants import (
     Display,
     Sort,
 )
+from .fields import is_parliamentary_archive_child, is_parliamentary_archive_parent
 from .forms import (
     AdvancedSearchForm,
     AdvancedSearchQForm,
@@ -135,6 +136,37 @@ class APIMixin:
             if form.fields[FieldsConstant.ONLINE].cleaned == "true":
                 params["digitised"] = "true"
 
+        # collection filters adjustments
+        params = self._collection_filter_adjustments(params)
+        return params
+
+    def _collection_filter_adjustments(self, params):
+        """Adjusts collection filters to remove parent collection of Parliamentary
+        Archive if child collection is present.
+        E.g., parent "collection:Y" will be removed from filter
+        if child "collection:YHL" is present."""
+
+        if filter_values := params.get("filter", []):
+            aggs_name = Aggregation.COLLECTION.aggs
+            collection_filter_values = [
+                f.split(":", 1)[1]
+                for f in filter_values
+                if f.startswith(f"{aggs_name}:")
+            ]
+
+            # Remove a collection parent if it has at least one child collection
+            params["filter"] = [
+                value
+                for value in filter_values
+                if not (
+                    value.startswith(f"{aggs_name}:")
+                    and is_parliamentary_archive_parent(value.split(":", 1)[1])
+                    and any(
+                        is_parliamentary_archive_child(child)
+                        for child in collection_filter_values
+                    )
+                )
+            ]
         return params
 
     def is_filter_list_applied(self, form) -> bool:
@@ -203,6 +235,9 @@ class APIMixin:
                     form.fields[field_name].update_choices(
                         choice_api_data, form.fields[field_name].value
                     )
+                    # add request to the field for nested collection handling
+                    if field_name == FieldsConstant.COLLECTION:
+                        form.fields[field_name].request = self.request
 
                     self._build_more_filter_options(form, field_name, aggregation)
 
@@ -443,6 +478,13 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
         if self.is_filter_list_applied(self.form):
             results_per_page = LONG_FILTER_RESULTS_PER_PAGE
+            # add filter_list_applied to the field for nested collection handling
+            if self.form.fields[
+                FieldsConstant.FILTER_LIST
+            ].cleaned == Aggregation.get_long_aggs_name_for_field_name(
+                FieldsConstant.COLLECTION
+            ):
+                self.form.fields[FieldsConstant.COLLECTION].filter_list_applied = True
         else:
             results_per_page = RESULTS_PER_PAGE
 

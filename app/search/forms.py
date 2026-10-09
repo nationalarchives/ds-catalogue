@@ -19,6 +19,7 @@ from .constants import (
     FieldsConstant,
     Sort,
 )
+from .fields import NestedCollectionDynamicMultipleChoiceField
 
 
 class AdvancedSearchQForm(BaseForm):
@@ -236,7 +237,7 @@ class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
                     active_filter_label="Level",
                     more_filter_choices_text="See more levels",
                 ),
-                FieldsConstant.COLLECTION: DynamicMultipleChoiceField(
+                FieldsConstant.COLLECTION: NestedCollectionDynamicMultipleChoiceField(
                     label="Collections",
                     choices=COLLECTION_CHOICES,
                     validate_input=False,  # do not validate input COLLECTION_CHOICES fixed or dynamic

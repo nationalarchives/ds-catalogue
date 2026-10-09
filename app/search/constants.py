@@ -80,3 +80,8 @@ class Display(StrEnum):
 # Advanced search input limits
 ADV_SEARCH_TEXTAREA_MAX_CHARS = 2000
 ADV_SEARCH_TEXTAREA_MAX_LINES = 200
+
+PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE = "Y"
+PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_HINT = (
+    "select to show more specific collections"
+)
