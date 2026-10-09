@@ -60,9 +60,15 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
 
         items = super().items
 
-        # return original items if filter_list is applied
+        # return transformed items if filter_list is applied
         if getattr(self, "filter_list_applied", False) is True:
-            return items
+            # remove the parliamentary archive parent collection from the list of items
+            new_items = [
+                item
+                for item in items
+                if item.get("value") != PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE
+            ]
+            return new_items
 
         # transform for nested children in standard filters
         new_items = []  # transformed list of items with nested children
