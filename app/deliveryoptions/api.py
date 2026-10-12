@@ -1,63 +1,73 @@
 import logging
 from typing import Any
-from typing import Any
+from urllib.parse import quote
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
-from .api import JSONAPIClient
-from .exceptions import APIResourceNotFound
+from app.lib.api import JSONAPIClient
+from app.lib.exceptions import APIResourceNotFound
 
 logger = logging.getLogger(__name__)
 
 
 def delivery_options_request_handler(
     iaid: str,
-    reader_type: str | None = None,
     timeout: int = None,
 ) -> dict[str, Any] | None:
     """
-    Makes an API call to DOAPI (the new delivery-options service) to
-    fetch delivery options for a given iaid.
+    Makes an API call to the delivery options service (DOAPI) to fetch the
+    delivery options for a given iaid.
 
-    Not a drop-in replacement for delivery_options_request_handler
-    (api.py) — genuinely different response shapes. That one talks to
-    the old service (a JSON list, "options"/"surrogateLinks" keys);
-    this one talks to DOAPI (a single JSON object, snake_case:
-    "delivery_option"/"surrogate_links"/etc).
+    Returns DOAPI's JSON exactly as received — no reshaping. It is passed
+    straight through to the templates as `delivery_options`. The fields
+    are: "delivery_option" (the condition number), "delivery_option_name",
+    "group" (the availability group), "label" (display text), "flags" (a
+    dict of booleans), "surrogate_links", "advanced_order_url_parameters"
+    ({"url_params": ...} or null) and "reader_type".
+
+    No reader type is sent. DOAPI works that out itself (currently it
+    treats every request as OffSite) and reports the one it used in the
+    response's "reader_type".
 
     Args:
         iaid: The item archive ID to retrieve delivery options for
-        reader_type: StaffIn | OnSitePublic | OffSite | Subscription.
-            Omit to let DOAPI default to OffSite.
+        timeout: Request timeout in seconds
 
     Returns:
-        The delivery options dict for the specified item, or None if
-        the record has no delivery options (404)
+        DOAPI's response as a dict, or None if the service has no
+        delivery options for this record (404)
 
     Raises:
-        ImproperlyConfigured: If DOAPI_URL is not configured
-        Exception: If DOAPI is unavailable or returns invalid data.
-            NOTE: JSONAPIClient.get() only distinguishes 400/403/404
-            specifically — DOAPI's 401 (bad key), 422 (unsupported
-            level/no delivery option), 429 (rate limited), and 503
-            (Rosetta/DORIS down) all collapse into the same generic
-            APIRequestFailedError here. If any of those need telling
-            apart later, that's a JSONAPIClient change, not something
-            fixable in this function alone.
+        ImproperlyConfigured: If DELIVERY_OPTIONS_API_URL or
+            DELIVERY_OPTIONS_API_KEY is not configured
+        Exception: If the delivery options service is unavailable or
+            returns invalid data. JSONAPIClient.get() only treats
+            400/403/404 specially, so DOAPI's 401 (bad key), 422
+            (unsupported catalogue level), 429 (rate limited) and 503
+            (its own upstreams down) all arrive here as the same generic
+            failure and can't be told apart from this function.
     """
-    api_url = settings.DOAPI_URL
+    api_url = settings.DELIVERY_OPTIONS_API_URL
 
     if not api_url:
-        raise ImproperlyConfigured("DOAPI_URL not set")
+        raise ImproperlyConfigured("DELIVERY_OPTIONS_API_URL not set")
+
+    api_key = settings.DELIVERY_OPTIONS_API_KEY
+
+    if not api_key:
+        raise ImproperlyConfigured("DELIVERY_OPTIONS_API_KEY not set")
 
     try:
-        client = JSONAPIClient(api_url)
-        client.add_headers({"X-API-Key": settings.DOAPI_API_KEY})
-        if reader_type:
-            client.add_parameters({"reader_type": reader_type})
+        # DELIVERY_OPTIONS_API_URL is the DOAPI base, including its version
+        # prefix (e.g. http://host/api/v1). rstrip so a trailing slash in
+        # the setting can't produce a double slash, which DOAPI 404s on.
+        client = JSONAPIClient(api_url.rstrip("/"))
+        client.add_header("X-API-Key", api_key)
 
-        data = client.get(f"delivery-options/rosetta/{iaid}", timeout=timeout)
+        data = client.get(
+            f"delivery-options/rosetta/{quote(iaid, safe='')}", timeout=timeout
+        )
 
         if not data or not isinstance(data, dict):
             raise ValueError("Invalid API response format: expected a JSON object")
@@ -68,10 +78,11 @@ def delivery_options_request_handler(
         return data
 
     except APIResourceNotFound:
-        # 404 - no delivery options for this record, which is normal
+        # 404 - this record doesn't have delivery options, which is normal
         logger.info(f"No delivery options found for iaid {iaid}")
         return None
 
     except Exception as e:
-        logger.error(f"DOAPI delivery options request error: {e!s}")
-        raise Exception("DOAPI delivery options service is currently unavailable")
+        # Log the original exception for debugging
+        logger.error(f"Delivery options request error: {e!s}")
+        raise Exception("Delivery Options database is currently unavailable")

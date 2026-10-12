@@ -4,6 +4,8 @@ import logging
 
 from django.views.generic import TemplateView
 
+from app.deliveryoptions.constants import AvailabilityCondition
+from app.lib.constants import BASE_TNA_DISCOVERY_URL
 from app.main.cache import fetch_global_notifications
 from app.records.enrichment import RecordEnrichmentHelper
 from app.records.labels import FIELD_LABELS
@@ -12,6 +14,40 @@ from app.records.mixins import RecordContextMixin
 from .constants import RecordTypes
 
 logger = logging.getLogger(__name__)
+
+
+def _temporary_delivery_display_context(record) -> dict:
+    """
+    Temporary display text for the "How to order it" panel.
+
+    TODO: an alternative whilst we wait on decisions on how we are going to
+    present delivery options. Lives here, rather than in enrichment, so the
+    DOAPI response stays exactly as received.
+    """
+    return {
+        "delivery_options_heading": "How to order it",
+        "delivery_instructions": [
+            "View this record page in our current catalogue",
+            "Check viewing and downloading options",
+            "Select an option and follow instructions",
+        ],
+        "tna_discovery_link": f"{BASE_TNA_DISCOVERY_URL}/details/r/{record.id}",
+    }
+
+
+def _delivery_option_name(delivery_options: dict) -> str:
+    """
+    The AvailabilityCondition name (e.g. "OrderOriginal") for the analytics
+    data layer, or "" if there isn't a recognised one.
+
+    Deliberately not DOAPI's own "delivery_option_name" (UPPER_SNAKE, e.g.
+    "ORDER_ORIGINAL"): analytics has always carried the CamelCase name, and
+    switching would change the values it receives.
+    """
+    try:
+        return AvailabilityCondition(delivery_options.get("delivery_option")).name
+    except ValueError:
+        return ""
 
 
 class RecordDetailView(RecordContextMixin, TemplateView):
@@ -58,7 +94,10 @@ class RecordDetailView(RecordContextMixin, TemplateView):
         context["distressing_content"] = enrichment_helper.fetch_distressing()
 
         if enrichment["delivery_options"]:
-            context.update(enrichment["delivery_options"])
+            # DOAPI's JSON exactly as received, for the templates to read:
+            # delivery_options.group, .label, .flags, .surrogate_links ...
+            context["delivery_options"] = enrichment["delivery_options"]
+            context.update(_temporary_delivery_display_context(record))
 
         # Add field labels and analytics
         context["field_labels"] = FIELD_LABELS
@@ -122,8 +161,9 @@ class RecordDetailView(RecordContextMixin, TemplateView):
             data["catalogue_reference"] = record.reference_number
 
         data["catalogue_datasource"] = record.source
-        data["delivery_option_category"] = context.get("do_availability_group", "")
-        data["delivery_option"] = context.get("delivery_option", "")
+        delivery_options = context.get("delivery_options") or {}
+        data["delivery_option_category"] = delivery_options.get("group", "")
+        data["delivery_option"] = _delivery_option_name(delivery_options)
 
         context["analytics_data"] = data
 

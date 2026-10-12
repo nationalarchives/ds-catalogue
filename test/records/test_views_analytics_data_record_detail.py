@@ -1,4 +1,4 @@
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import responses
 from django.conf import settings
@@ -10,10 +10,7 @@ from app.deliveryoptions.constants import AvailabilityCondition
 class TestAnalyticsDataInRecordDetailsView(TestCase):
     @responses.activate
     @patch("app.records.enrichment.delivery_options_request_handler")
-    @patch("app.records.enrichment.get_availability_group")
-    def test_analytics_record_details(
-        self, mock_get_availability_group, mock_delivery_handler
-    ):
+    def test_analytics_record_details(self, mock_delivery_handler):
 
         responses.add(
             responses.GET,
@@ -96,18 +93,17 @@ class TestAnalyticsDataInRecordDetailsView(TestCase):
             status=200,
         )
 
-        # Mock delivery options API response
-        mock_delivery_handler.return_value = [
-            {
-                "options": AvailabilityCondition.OrderOriginal.value,
-                "surrogateLinks": [],
-                "advancedOrderUrlParameters": "",
-            }
-        ]
-
-        mock_availability_group = Mock()
-        mock_availability_group.name = "AVAILABLE_IN_PERSON_WITH_COPYING"
-        mock_get_availability_group.return_value = mock_availability_group
+        # Mock DOAPI's response
+        mock_delivery_handler.return_value = {
+            "delivery_option": AvailabilityCondition.OrderOriginal.value,
+            "delivery_option_name": "ORDER_ORIGINAL",
+            "group": "AVAILABLE_IN_PERSON_WITH_COPYING",
+            "reader_type": "OffSite",
+            "flags": {},
+            "surrogate_links": [],
+            "advanced_order_url_parameters": None,
+            "label": "Order original",
+        }
 
         response = self.client.get("/catalogue/id/C1731303/")
 

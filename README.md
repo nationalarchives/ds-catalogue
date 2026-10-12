@@ -91,7 +91,9 @@ See [Sentry's official guide](https://docs.sentry.io/platforms/python/guides/dja
 |                                    | and other security-related data.                                             |
 | `ROSETTA_API_URL`                  | The base API URL for Rosetta, including the `/rosetta/data` path             |
 | `WAGTAIL_API_URL`                  | The base API URL for Wagtail                                                 |
-| `DELIVERY_OPTIONS_API_URL`         | The base API URL for Delivery options                                        |
+| `DELIVERY_OPTIONS_API_URL`         | The base API URL for the Delivery Options API (DOAPI), including its version |
+|                                    | prefix, e.g. `http://host/api/v1`                                            |
+| `DELIVERY_OPTIONS_API_KEY`         | API key sent to DOAPI as `X-API-Key` (DOAPI's `DO_API_KEY`)                  |
 | `WAGTAIL_API_TIMEOUT`              | Maximum timeout of Wagtail api (seconds)                                     |
 | `DELIVERY_OPTIONS_API_TIMEOUT`     | Maximum timeout of Delivery Options api (seconds)                            |
 | `ROSETTA_ENRICHMENT_API_TIMEOUT`   | Maximum timeout of Rosetta api (only for data enrichment)                    |

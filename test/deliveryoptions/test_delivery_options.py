@@ -1,350 +1,40 @@
-import inspect
-import json
-from copy import deepcopy
+"""
+Tests for how DOAPI's delivery options reach the record page.
+
+DOAPI's JSON goes to the templates exactly as received, as
+`delivery_options`. These cover the view context, the analytics values
+derived from it, and — through a full page render — each branch of the
+template that reads it.
+"""
+
 from unittest.mock import Mock, patch
 
+import responses
 from django.conf import settings
 from django.test import RequestFactory, TestCase
 
-from app.deliveryoptions.constants import (
-    DELIVERY_OPTIONS_CONFIG,
-    AvailabilityGroup,
-    delivery_option_tags,
+from app.deliveryoptions.constants import AvailabilityCondition
+from app.records.views import (
+    RecordDetailView,
+    _delivery_option_name,
+    _temporary_delivery_display_context,
 )
-from app.deliveryoptions.delivery_options import (
-    html_replacer,
-    surrogate_link_builder,
-)
-from app.deliveryoptions.helpers import (
-    get_access_condition_text,
-    get_added_to_basket_text,
-    get_advance_order_information,
-    get_advanced_orders_email_address,
-    get_dept,
-)
-from app.records.models import APIResponse
-from app.records.views import RecordDetailView
 
 
-class TestDeliveryOptionTags(TestCase):
-    def setUp(self):
-        self.delivery_option_tags = delivery_option_tags
-        self.json_file_path = DELIVERY_OPTIONS_CONFIG
-
-    def extract_tags(self, data):
-        """Extract all markup tags in the form {TagName} from the JSON structure."""
-        import re
-
-        def find_tags(value):
-            """Helper function to find tags within strings."""
-            if isinstance(value, str):
-                return re.findall(r"{(.*?)}", value)
-            return []
-
-        tags = set()
-
-        def recurse(value):
-            if isinstance(value, dict):
-                for k, v in value.items():
-                    if isinstance(v, (str, list, dict)):
-                        tags.update(find_tags(v))
-                        recurse(v)
-            elif isinstance(value, list):
-                for item in value:
-                    recurse(item)
-
-        recurse(data)
-        return tags
-
-    def test_all_markup_keys_have_corresponding_delivery_option_tags(self):
-        with open(self.json_file_path, "r") as file:
-            delivery_options_json = json.load(file)
-
-        extracted_tags = self.extract_tags(delivery_options_json)
-
-        for tag in extracted_tags:
-            with self.subTest(tag=tag):
-                self.assertIn(
-                    f"{{{tag}}}",
-                    self.delivery_option_tags,
-                    f"Tag {tag} is missing in delivery_option_tags dictionary.",
-                )
-
-
-class TestDeliveryOptionSubstitution(TestCase):
-    def setUp(self):
-        fixture_path = (
-            f"{settings.BASE_DIR}/test/deliveryoptions/fixtures/response_C18281.json"
-        )
-        with open(fixture_path, "r") as f:
-            fixture_contents = json.loads(f.read())
-
-        self.response = APIResponse(deepcopy(fixture_contents["data"][0]))
-        self.record = self.response.record
-
-        self.surrogate = [
-            '<a target="_blank" href="https://www.thegenealogist.co.uk/non-conformist-records">The Genealogist</a>',
-            '<a target="_blank" href="https://www.thegenealogist.co.uk/other-records">The Genealogist</a>',
-        ]
-
-    @patch(
-        "app.deliveryoptions.helpers.BASE_TNA_HOME_URL",
-        "https://tnabase.test.url",
-    )
-    @patch("app.deliveryoptions.helpers.MAX_BASKET_ITEMS", "5")
-    @patch(
-        "app.deliveryoptions.helpers.BASE_TNA_DISCOVERY_URL",
-        "https://discovery.test.url",
-    )
-    def test_delivery_options_tags(self):
-        test_cases = {
-            "{AccessConditionText}": "Subject to 30 year closure",
-            "{AddedToBasketText}": "Add to basket",
-            "{AdvancedOrdersEmailAddress}": settings.ADVANCED_DOCUMENT_ORDER_EMAIL,
-            "{AdvanceOrderInformationUrl}": "https://tnabase.test.url/about/visit-us/",
-            "{ArchiveLink}": "/catalogue/id/A13530124/",
-            "{ArchiveName}": "The National Archives, Kew",
-            "{BasketType}": "Digital Downloads",
-            "{BasketUrl}": "https://tnabase.test.url/basket/",
-            "{BrowseUrl}": "https://tnabase.test.url/browse/tbd/C18281/",
-            "{ContactFormUrlUnfit}": "https://tnabase.test.url/contact-us/document-condition-feedback/?catalogue-reference=FCO 65&conservation-treatment-required=true",
-            "{ContactFormUrlMould}": "https://tnabase.test.url/contact-us/document-condition-feedback/?catalogue-reference=FCO 65&mould-treatment-required=true",
-            "{ContactFormUrl}": "https://tnabase.test.url/contact-us/",
-            "{DataProtectionActUrl}": "https://tnabase.test.url/content/documents/county-durham-home-guard-service-record-subject-access-request-form.pdf",
-            "{DeptName}": "Foreign and Commonwealth Office",
-            "{DeptUrl}": "http://www.fco.gov.uk/en/publications-and-documents/freedom-of-information/",
-            "{DownloadFormat}": "(Unknown download format)",
-            "{DownloadText}": "Download now",
-            "{DownloadUrl}": "details/download",
-            "{FAType}": " ",
-            "{FoiUrl}": "https://tnabase.test.url/foirequest?reference=FCO 65",
-            "{ImageLibraryUrl}": settings.IMAGE_LIBRARY_URL,
-            "{ItemNumOfFilesAndSizeInMB}": "(Unknown number of files and file size)",
-            "{KeepersGalleryUrl}": "https://tnabase.test.url/about/visit-us/whats-on/keepers-gallery/",
-            "{KewBookingSystemUrl}": "https://tnabase.test.url/book-a-reading-room-visit/",
-            "{MaxItems}": "5",
-            "{OpenDateDesc}": "Opening date: ",
-            "{OpeningTimesUrl}": "https://tnabase.test.url/about/visit-us/",
-            "{OrderUrl}": "Order URL not yet available",
-            "{PaidSearchUrl}": "https://tnabase.test.url/paidsearch/foirequest/C18281?type=foirequest",
-            "{Price}": "(Unknown price)",
-            "{ReadersTicketUrl}": "https://tnabase.test.url/about/visit-us/researching-here/do-i-need-a-readers-ticket/",
-            "{RecordCopyingUrl}": "https://discovery.test.url/pagecheck/start/C18281/",
-            "{RecordInformationType}": "(Unknown record information type)",
-            "{RecordOpeningDate}": "26 February 1977",
-            "{RecordUrl}": "https://tnabase.test.url/details/r/C18281/",
-            "{AllWebsiteUrls}": ' <li><a target="_blank" href="https://www.thegenealogist.co.uk/non-conformist-records">The Genealogist</a></li><li><a target="_blank" href="https://www.thegenealogist.co.uk/other-records">The Genealogist</a></li>',
-            "{SubsWebsiteUrls}": ' <li><a target="_blank" href="https://www.thegenealogist.co.uk/other-records">The Genealogist</a></li>',
-            "{FirstWebsiteUrl}": "https://www.thegenealogist.co.uk/non-conformist-records",
-            "{FirstWebsiteUrlFull}": '<a target="_blank" href="https://www.thegenealogist.co.uk/non-conformist-records">The Genealogist</a>',
-            "{WebsiteUrlText}": "The Genealogist",
-            "{YourOrderLink}": "(Unknown order link)",
-        }
-
-        for tag, expected_value in test_cases.items():
-            with self.subTest(tag=tag):
-                func = delivery_option_tags[tag]
-                sig = inspect.signature(func)
-                params = {}
-
-                param_names = set(sig.parameters.keys())
-                if "record" in param_names:
-                    params["record"] = self.record
-
-                if "api_surrogate_list" in param_names:
-                    params["api_surrogate_list"] = self.surrogate
-                elif "surrogate" in param_names:
-                    params["surrogate"] = self.surrogate
-
-                result = func(**params)
-                self.assertEqual(result, expected_value)
-
-    def test_get_dept_existing(self):
-        self.assertEqual(get_dept("ADM 1234", "deptname"), "Ministry of Defence")
-        self.assertEqual(
-            get_dept("CO 5678", "depturl"),
-            "http://www.fco.gov.uk/en/publications-and-documents/freedom-of-information/",
-        )
-
-    def test_get_dept_non_existing(self):
-        self.assertIsNone(get_dept("XYZ 1234", "deptname"))
-
-    def test_get_access_condition_text(self):
-        record = Mock()
-        record.access_condition = "Open access"
-        self.assertEqual(get_access_condition_text(record), "Open access")
-
-        record.access_condition = None
-        self.assertEqual(get_access_condition_text(record), " ")
-
-    def test_get_added_to_basket_text(self):
-        self.assertEqual(get_added_to_basket_text(), "Add to basket")
-
-    def test_get_advanced_orders_email_address(self):
-        self.assertEqual(
-            get_advanced_orders_email_address(),
-            settings.ADVANCED_DOCUMENT_ORDER_EMAIL,
-        )
-
-    @patch("app.deliveryoptions.helpers.BASE_TNA_HOME_URL", "https://example.com")
-    def test_get_advance_order_information(self):
-        self.assertEqual(
-            get_advance_order_information(),
-            "https://example.com/about/visit-us/",
-        )
-
-
-class TestSurrogateLinkBuilder(TestCase):
-    def test_surrogate_link_builder(self):
-        surrogates = [
-            {"xReferenceURL": "http://example.com/1"},
-            {"xReferenceURL": "http://example.com/2"},
-            {"xReferenceURL": ""},
-        ]
-
-        result = surrogate_link_builder(surrogates)
-
-        self.assertEqual(len(result), 2)
-        self.assertIn("http://example.com/1", result)
-        self.assertIn("http://example.com/2", result)
-
-
-class TestHtmlReplacer(TestCase):
-    def test_html_replacer(self):
-        record = Mock()
-        record.reference_number = "TEST 123"
-
-        value = "Reference: {RecordReferenceNumber}, Number: {HeldByCount}"
-        # Mock delivery_option_tags for testing
-        with patch.dict(
-            "app.deliveryoptions.delivery_options.delivery_option_tags",
-            {
-                "{RecordReferenceNumber}": lambda record: record.reference_number,
-                "{HeldByCount}": lambda record: "10",
-            },
-        ):
-            result = html_replacer(value, record, [])
-
-        self.assertIn("TEST 123", result)
-        self.assertIn("10", result)
-
-
-class TestDeliveryOptionsContext(TestCase):
-    """Tests for delivery options context generation in enrichment helper"""
-
-    def setUp(self):
-        self.factory = RequestFactory()
-
-    @patch("app.records.enrichment.delivery_options_request_handler")
-    @patch("app.records.enrichment.get_availability_group")
-    def test_empty_delivery_result(self, mock_get_group, mock_api_handler):
-        """Test handling when API returns empty list."""
-        from app.records.enrichment import RecordEnrichmentHelper
-
-        iaid = "C123456"
-        mock_api_handler.return_value = []
-
-        mock_record = Mock()
-        mock_record.id = iaid
-
-        helper = RecordEnrichmentHelper(mock_record)
-        result = helper._get_delivery_api_data()
-
-        self.assertEqual(result, {})
-        mock_get_group.assert_not_called()
-
-    @patch("app.records.enrichment.delivery_options_request_handler")
-    @patch("app.records.enrichment.get_availability_group")
-    def test_missing_options_value(self, mock_get_group, mock_api_handler):
-        """Test handling when options value is missing from response."""
-        from app.records.enrichment import RecordEnrichmentHelper
-
-        iaid = "C123456"
-        mock_api_handler.return_value = [
-            {"surrogateLinks": [], "advancedOrderUrlParameters": None}
-        ]
-
-        mock_record = Mock()
-        mock_record.id = iaid
-
-        helper = RecordEnrichmentHelper(mock_record)
-        result = helper._get_delivery_api_data()
-
-        self.assertEqual(result, {})
-        mock_get_group.assert_not_called()
-
-    @patch("app.records.enrichment.delivery_options_request_handler")
-    @patch("app.records.enrichment.get_availability_group")
-    def test_invalid_availability_condition(self, mock_get_group, mock_api_handler):
-        """Test handling when options value is not a valid AvailabilityCondition enum value."""
-        from app.records.enrichment import RecordEnrichmentHelper
-
-        iaid = "C123456"
-        mock_api_handler.return_value = [{"options": 999, "surrogateLinks": []}]
-
-        mock_record = Mock()
-        mock_record.id = iaid
-
-        helper = RecordEnrichmentHelper(mock_record)
-        result = helper._get_delivery_api_data()
-
-        self.assertEqual(result, {})
-        mock_get_group.assert_not_called()
-
-    @patch("app.records.enrichment.delivery_options_request_handler")
-    @patch("app.records.enrichment.get_availability_group")
-    def test_multiple_availability_conditions(self, mock_get_group, mock_api_handler):
-        """Test different availability conditions map to correct groups."""
-        from app.records.enrichment import RecordEnrichmentHelper
-
-        test_cases = [
-            (
-                3,
-                "DigitizedDiscovery",
-                AvailabilityGroup.AVAILABLE_ONLINE_TNA_ONLY,
-            ),
-            (
-                4,
-                "DigitizedLia",
-                AvailabilityGroup.AVAILABLE_ONLINE_THIRD_PARTY_ONLY,
-            ),
-            (
-                26,
-                "OrderOriginal",
-                AvailabilityGroup.AVAILABLE_IN_PERSON_WITH_COPYING,
-            ),
-            (14, "ClosedRetainedDeptKnown", AvailabilityGroup.CLOSED_TNA_OR_PA),
-        ]
-
-        for (
-            options_value,
-            expected_delivery_option,
-            expected_group,
-        ) in test_cases:
-            with self.subTest(options_value=options_value):
-                iaid = f"C{options_value}"
-                mock_api_handler.return_value = [
-                    {
-                        "options": options_value,
-                        "surrogateLinks": [],
-                        "advancedOrderUrlParameters": None,
-                    }
-                ]
-                mock_get_group.return_value = expected_group
-
-                mock_record = Mock()
-                mock_record.id = iaid
-
-                helper = RecordEnrichmentHelper(mock_record)
-                result = helper._get_delivery_api_data()
-
-                self.assertEqual(
-                    result,
-                    {
-                        "delivery_option": expected_delivery_option,
-                        "do_availability_group": expected_group.name,
-                    },
-                )
+def doapi_response(delivery_option, group, **overrides):
+    """A response in the shape DOAPI returns."""
+    response = {
+        "delivery_option": int(delivery_option),
+        "delivery_option_name": AvailabilityCondition(delivery_option).name.upper(),
+        "group": group,
+        "reader_type": "OffSite",
+        "flags": {"is_digitised": False},
+        "surrogate_links": [],
+        "advanced_order_url_parameters": None,
+        "label": "A label",
+    }
+    response.update(overrides)
+    return response
 
 
 class TestRecordDetailViewDeliveryOptions(TestCase):
@@ -353,30 +43,13 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    @patch("app.records.enrichment.has_distressing_content")
-    @patch("app.records.enrichment.delivery_options_request_handler")
-    @patch("app.records.mixins.record_details_by_id")
-    @patch("app.records.views.fetch_global_notifications")
-    def test_delivery_options_added_to_context(
-        self,
-        mock_notifications,
-        mock_record_details,
-        mock_delivery,
-        mock_distressing,
-    ):
-        """Test that delivery options are added to context for standard records."""
-        mock_notifications.return_value = {
-            "global_alert": None,
-            "mourning_notice": None,
-        }
-
+    def _mock_record(self, **attrs):
         mock_record = Mock()
         mock_record.id = "C123456"
         mock_record.reference_number = "TEST 123"
         mock_record.custom_record_type = "CAT"
         mock_record.subjects = []
-        mock_record_details.return_value = mock_record
-        # for Non-TNA record, series level, do delivery options should be included
+        # for a non-TNA record, series level, delivery options are included
         mock_record.is_tna = False
         mock_record.level_code = 3  # Sub-sub-fonds
         mock_record.level = "Series"
@@ -384,55 +57,127 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
         mock_record.hierarchy_series.reference_number = ""
         mock_record.hierarchy_series.summary_title = ""
         mock_record.summary_title = ""
+        for name, value in attrs.items():
+            setattr(mock_record, name, value)
+        return mock_record
 
-        mock_delivery.return_value = [{"options": 25}]
+    @patch("app.records.enrichment.has_distressing_content")
+    @patch("app.records.enrichment.delivery_options_request_handler")
+    @patch("app.records.mixins.record_details_by_id")
+    @patch("app.records.views.fetch_global_notifications")
+    def test_doapi_response_is_added_to_context_untouched(
+        self, mock_notifications, mock_record_details, mock_delivery, mock_distressing
+    ):
+        """The DOAPI JSON reaches the context exactly as received — no
+        reshaping, no flattening into the context's own keys."""
+        mock_notifications.return_value = {
+            "global_alert": None,
+            "mourning_notice": None,
+        }
+        mock_record_details.return_value = self._mock_record()
+        doapi = doapi_response(
+            AvailabilityCondition.LocalArchive,
+            "RECORDS_AT_OTHER_ARCHIVES",
+            surrogate_links=[{"url": "<a href='x'>x</a>", "type": "larchive"}],
+            advanced_order_url_parameters={"url_params": "requestthis=A 1/2"},
+        )
+        mock_delivery.return_value = doapi
         mock_distressing.return_value = False
 
-        request = self.factory.get("/test/")
-        view = RecordDetailView.as_view()
-        response = view(request, id="C123456")
+        response = RecordDetailView.as_view()(self.factory.get("/test/"), id="C123456")
 
-        self.assertIn("delivery_option", response.context_data)
+        self.assertEqual(response.context_data["delivery_options"], doapi)
+        # DOAPI's own field names must not leak into the context's top level
+        # (a flat merge would collide: "delivery_option" is also an int here).
+        for key in (
+            "delivery_option",
+            "group",
+            "label",
+            "flags",
+            "do_availability_group",
+        ):
+            self.assertNotIn(key, response.context_data)
+
+    @patch("app.records.enrichment.has_distressing_content")
+    @patch("app.records.enrichment.delivery_options_request_handler")
+    @patch("app.records.mixins.record_details_by_id")
+    @patch("app.records.views.fetch_global_notifications")
+    def test_temporary_display_context_is_added_alongside(
+        self, mock_notifications, mock_record_details, mock_delivery, mock_distressing
+    ):
+        mock_notifications.return_value = {
+            "global_alert": None,
+            "mourning_notice": None,
+        }
+        mock_record_details.return_value = self._mock_record()
+        mock_delivery.return_value = doapi_response(
+            AvailabilityCondition.OrderOriginal, "AVAILABLE_IN_PERSON_WITH_COPYING"
+        )
+        mock_distressing.return_value = False
+
+        response = RecordDetailView.as_view()(self.factory.get("/test/"), id="C123456")
+
+        self.assertEqual(
+            response.context_data["delivery_options_heading"], "How to order it"
+        )
+        self.assertEqual(len(response.context_data["delivery_instructions"]), 3)
+        self.assertTrue(
+            response.context_data["tna_discovery_link"].endswith("/details/r/C123456")
+        )
+        # and it is NOT mixed into the DOAPI JSON itself
+        self.assertNotIn(
+            "delivery_options_heading", response.context_data["delivery_options"]
+        )
+
+    @patch("app.records.enrichment.has_distressing_content")
+    @patch("app.records.enrichment.delivery_options_request_handler")
+    @patch("app.records.mixins.record_details_by_id")
+    @patch("app.records.views.fetch_global_notifications")
+    def test_nothing_is_added_when_there_are_no_delivery_options(
+        self, mock_notifications, mock_record_details, mock_delivery, mock_distressing
+    ):
+        """A 404 from DOAPI (the handler returns None) means no delivery
+        options and no temporary panel text either."""
+        mock_notifications.return_value = {
+            "global_alert": None,
+            "mourning_notice": None,
+        }
+        mock_record_details.return_value = self._mock_record()
+        mock_delivery.return_value = None
+        mock_distressing.return_value = False
+
+        response = RecordDetailView.as_view()(self.factory.get("/test/"), id="C123456")
+
+        for key in (
+            "delivery_options",
+            "delivery_options_heading",
+            "delivery_instructions",
+            "tna_discovery_link",
+        ):
+            self.assertNotIn(key, response.context_data)
 
     @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.enrichment.delivery_options_request_handler")
     @patch("app.records.mixins.record_details_by_id")
     @patch("app.records.views.fetch_global_notifications")
     def test_no_delivery_options_for_archon_records(
-        self,
-        mock_notifications,
-        mock_record_details,
-        mock_delivery,
-        mock_distressing,
+        self, mock_notifications, mock_record_details, mock_delivery, mock_distressing
     ):
         """Test that delivery options are not fetched for ARCHON records."""
         mock_notifications.return_value = {
             "global_alert": None,
             "mourning_notice": None,
         }
-
-        mock_record = Mock()
-        mock_record.id = "C123456"
-        mock_record.reference_number = "TEST 123"
-        mock_record.custom_record_type = "ARCHON"
-        mock_record.subjects = []
-        mock_record_details.return_value = mock_record
-        mock_record.level_code = 3
-        mock_record.level = "Series"
-        mock_record.hierarchy_series = Mock()
-        mock_record.hierarchy_series.reference_number = ""
-        mock_record.hierarchy_series.summary_title = ""
-        mock_record.summary_title = ""
-
+        mock_record_details.return_value = self._mock_record(
+            custom_record_type="ARCHON"
+        )
         mock_distressing.return_value = False
 
-        request = self.factory.get("/test/")
-        view = RecordDetailView.as_view()
-        response = view(request, id="C123456")
+        response = RecordDetailView.as_view()(self.factory.get("/test/"), id="C123456")
 
         # Should not call delivery options handler for ARCHON records
         mock_delivery.assert_not_called()
-        self.assertNotIn("do_availability_group", response.context_data)
+        self.assertNotIn("delivery_options", response.context_data)
 
     @patch("app.records.enrichment.has_distressing_content")
     @patch("app.records.mixins.record_details_by_id")
@@ -445,26 +190,176 @@ class TestRecordDetailViewDeliveryOptions(TestCase):
             "global_alert": None,
             "mourning_notice": None,
         }
-
-        mock_record = Mock()
-        mock_record.id = "C123456"
-        mock_record.reference_number = "HO 616/123"
-        mock_record.custom_record_type = None
-        mock_record.subjects = []
-        mock_record_details.return_value = mock_record
-        mock_record.level_code = 3
-        mock_record.level = "Series"
-        mock_record.hierarchy_series = Mock()
-        mock_record.hierarchy_series.reference_number = ""
-        mock_record.hierarchy_series.summary_title = ""
-        mock_record.summary_title = ""
-
+        mock_record_details.return_value = self._mock_record(
+            reference_number="HO 616/123", custom_record_type=None
+        )
         mock_distressing.return_value = True
 
-        request = self.factory.get("/test/")
-        view = RecordDetailView.as_view()
-        response = view(request, id="C123456")
+        response = RecordDetailView.as_view()(self.factory.get("/test/"), id="C123456")
 
         self.assertIn("distressing_content", response.context_data)
         self.assertTrue(response.context_data["distressing_content"])
         mock_distressing.assert_called_once_with("HO 616/123")
+
+
+class TestDeliveryOptionName(TestCase):
+    """The analytics data layer carries the CamelCase AvailabilityCondition
+    name, not DOAPI's UPPER_SNAKE delivery_option_name — so its values
+    don't change."""
+
+    def test_known_condition(self):
+        self.assertEqual(
+            _delivery_option_name({"delivery_option": 26}), "OrderOriginal"
+        )
+
+    def test_condition_zero_is_not_treated_as_missing(self):
+        self.assertEqual(
+            _delivery_option_name({"delivery_option": 0}), "InvigilationSafeRoom"
+        )
+
+    def test_unrecognised_condition_gives_empty_string(self):
+        self.assertEqual(_delivery_option_name({"delivery_option": 999}), "")
+
+    def test_missing_or_null_condition_gives_empty_string(self):
+        self.assertEqual(_delivery_option_name({}), "")
+        self.assertEqual(_delivery_option_name({"delivery_option": None}), "")
+
+    def test_ignores_doapis_own_name_field(self):
+        self.assertEqual(
+            _delivery_option_name(
+                {"delivery_option": 26, "delivery_option_name": "SOMETHING_ELSE"}
+            ),
+            "OrderOriginal",
+        )
+
+
+class TestTemporaryDisplayContext(TestCase):
+    def test_link_points_at_the_records_discovery_page(self):
+        record = Mock()
+        record.id = "C999"
+        context = _temporary_delivery_display_context(record)
+        self.assertTrue(context["tna_discovery_link"].endswith("/details/r/C999"))
+        self.assertEqual(context["delivery_options_heading"], "How to order it")
+
+
+class TestRecordPageRendersDeliveryOptions(TestCase):
+    """Full page renders: each branch of record_detail.html that reads
+    `delivery_options`."""
+
+    ACCESS_UNAVAILABLE = "Access information is unavailable"
+    HOW_TO_ORDER = "How to order it"
+
+    def _tna_piece(self, record_id="C1731303"):
+        """A TNA-held Piece, so delivery options are fetched."""
+        return {
+            "data": [
+                {
+                    "@template": {
+                        "details": {
+                            "id": record_id,
+                            "referenceNumber": "CO 166/2",
+                            "source": "CAT",
+                            "groupArray": [{"value": "record"}, {"value": "tna"}],
+                            "heldBy": "The National Archives, Kew",
+                            "level": {"code": 6, "value": "Piece"},
+                            "summaryTitle": "Military and Naval",
+                            "@hierarchy": [
+                                {
+                                    "@admin": {"id": record_id},
+                                    "identifier": [{"reference_number": "CO 166/2"}],
+                                    "level": {"code": 6},
+                                    "source": {"value": "CAT"},
+                                    "summary": {"title": "Military and Naval"},
+                                }
+                            ],
+                        }
+                    }
+                }
+            ]
+        }
+
+    def _render(self, delivery_response, record_id="C1731303"):
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id={record_id}",
+            json=self._tna_piece(record_id),
+            status=200,
+        )
+        with patch(
+            "app.records.enrichment.delivery_options_request_handler",
+            return_value=delivery_response,
+        ):
+            response = self.client.get(f"/catalogue/id/{record_id}/")
+        self.assertEqual(response.status_code, 200)
+        return response
+
+    @responses.activate
+    def test_group_drives_the_view_options_box(self):
+        response = self._render(
+            doapi_response(
+                AvailabilityCondition.DigitizedDiscovery, "AVAILABLE_ONLINE_TNA_ONLY"
+            )
+        )
+
+        self.assertContains(
+            response, "This record is available online and can be downloaded."
+        )
+        self.assertContains(response, self.HOW_TO_ORDER)
+        self.assertNotContains(response, self.ACCESS_UNAVAILABLE)
+
+    @responses.activate
+    def test_condition_zero_still_shows_the_panel_and_view_options(self):
+        """InvigilationSafeRoom is the integer 0, which is falsy. The
+        template must test the dict, not delivery_options.delivery_option,
+        or this condition would silently lose its panel."""
+        response = self._render(
+            doapi_response(
+                AvailabilityCondition.InvigilationSafeRoom,
+                "AVAILABLE_IN_PERSON_WITH_COPYING",
+            )
+        )
+
+        self.assertContains(
+            response, "available to see in person or you can order a copy"
+        )
+        self.assertContains(response, self.HOW_TO_ORDER)
+
+    @responses.activate
+    def test_pending_classification_falls_through_to_access_unavailable(self):
+        """PENDING_CLASSIFICATION isn't shown as a view option; for a record
+        TNA holds that means the 'unavailable' message — but the panel still
+        shows, since there are delivery options."""
+        response = self._render(
+            doapi_response(
+                AvailabilityCondition.DigitizedAvailableButNotDownloadableAtPieceLevel,
+                "PENDING_CLASSIFICATION",
+            )
+        )
+
+        self.assertContains(response, self.ACCESS_UNAVAILABLE)
+        self.assertContains(response, self.HOW_TO_ORDER)
+
+    @responses.activate
+    def test_no_delivery_options_shows_unavailable_and_no_panel(self):
+        response = self._render(None)
+
+        self.assertContains(response, self.ACCESS_UNAVAILABLE)
+        self.assertNotContains(response, self.HOW_TO_ORDER)
+
+    @responses.activate
+    def test_a_failing_service_does_not_break_the_page(self):
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id=C1731303",
+            json=self._tna_piece(),
+            status=200,
+        )
+        with patch(
+            "app.records.enrichment.delivery_options_request_handler",
+            side_effect=Exception("Delivery Options database is currently unavailable"),
+        ):
+            response = self.client.get("/catalogue/id/C1731303/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.ACCESS_UNAVAILABLE)
+        self.assertNotContains(response, self.HOW_TO_ORDER)

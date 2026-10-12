@@ -66,14 +66,17 @@
     </div>
   </div>
 
+  <p>DO Group: </p>
+  {{ delivery_options.group }}
+
   {% if record.is_tna and record.level in ["Series", "Division", "Department", "Sub-series", "Sub-sub-series"] %}
     {{ whats_this_about_sub_sub_series_or_above(record) }}
   {% else %}
     <div class="tna-container">
       {{ whats_this_about_piece_or_item(record) }}
 
-      {% if do_availability_group and do_availability_group != 'PENDING_CLASSIFICATION' %}
-        {{ view_options(record, do_availability_group) }}
+      {% if delivery_options and delivery_options.group and delivery_options.group != 'PENDING_CLASSIFICATION' %}
+        {{ view_options(record, delivery_options.group) }}
       {% elif not record.is_held_by_tna %}
         {# Records at other archives - we know where they are, just not at TNA #}
         {{ view_options(record) }}
@@ -94,7 +97,8 @@
     <div class="tna-column tna-column--full tna-margin-top-m">
       {% set accordion_items = [] %}
 
-      {% if delivery_option %}
+      {# Test the dict, not delivery_options.delivery_option: condition 0 (InvigilationSafeRoom) is falsy #}
+      {% if delivery_options %}
         {% set accordion_items = accordion_items + [{
           'title': delivery_options_heading,
           'body': how_to_order(delivery_instructions, tna_discovery_link)

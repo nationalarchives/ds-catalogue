@@ -29,27 +29,22 @@ class TestClosedRetainedAvailability(TestCase):
             details["heldBy"] = held_by
         return {"data": [{"@template": {"details": details}}]}
 
-    def _setup_closed_retained_mocks(
-        self, mock_get_availability_group, mock_delivery_handler
-    ):
-        """Configure mocks for a ClosedRetainedDeptKnown record."""
-        mock_delivery_handler.return_value = [
-            {
-                "options": AvailabilityCondition.ClosedRetainedDeptKnown.value,
-                "surrogateLinks": [],
-                "advancedOrderUrlParameters": "",
-            }
-        ]
-        mock_get_availability_group.return_value.name = (
-            "CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE"
-        )
+    def _setup_closed_retained_mocks(self, mock_delivery_handler):
+        """Configure the DOAPI response for a ClosedRetainedDeptKnown record."""
+        mock_delivery_handler.return_value = {
+            "delivery_option": AvailabilityCondition.ClosedRetainedDeptKnown.value,
+            "delivery_option_name": "CLOSED_RETAINED_DEPT_KNOWN",
+            "group": "CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE",
+            "reader_type": "OffSite",
+            "flags": {},
+            "surrogate_links": [],
+            "advanced_order_url_parameters": None,
+            "label": "Closed - retained by department (known)",
+        }
 
     @responses.activate
     @patch("app.records.enrichment.delivery_options_request_handler")
-    @patch("app.records.enrichment.get_availability_group")
-    def test_closed_retained_display(
-        self, mock_get_availability_group, mock_delivery_handler
-    ):
+    def test_closed_retained_display(self, mock_delivery_handler):
         """
         Test that a CLOSED_RETAINED_REGISTERED_TNA_HELD_ELSEWHERE non-TNA record
         shows the correct online/in-person availability messages and GOV.UK FOI link,
@@ -63,9 +58,7 @@ class TestClosedRetainedAvailability(TestCase):
             ),
             status=200,
         )
-        self._setup_closed_retained_mocks(
-            mock_get_availability_group, mock_delivery_handler
-        )
+        self._setup_closed_retained_mocks(mock_delivery_handler)
 
         response = self.client.get("/catalogue/id/C123456/")
 

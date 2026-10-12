@@ -28,7 +28,8 @@ STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 ENVIRONMENT_NAME = "test"
 SENTRY_SAMPLE_RATE = 0
 
-DELIVERY_OPTIONS_API_URL = "https://delivery-options.test/data"
+DELIVERY_OPTIONS_API_URL = "https://delivery-options.test/api/v1"
+DELIVERY_OPTIONS_API_KEY = "test-delivery-options-key"
 ROSETTA_API_URL = "https://rosetta.test/data"
 WAGTAIL_API_URL = "https://wagtail.test/api/v2"
 ROSETTA_ENRICHMENT_API_TIMEOUT = 5

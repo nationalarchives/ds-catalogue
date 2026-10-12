@@ -4,6 +4,7 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from typing import Any
 from unittest.mock import Mock, patch
 
+from django.conf import settings
 from django.test import TestCase, override_settings
 
 from app.deliveryoptions.delivery_options import _get_dcs_prefix_variants
@@ -142,29 +143,49 @@ class TestRecordEnrichmentHelper(TestCase):
         self.assertFalse(result)
 
     @patch("app.records.enrichment.delivery_options_request_handler")
-    @patch("app.records.enrichment.get_availability_group")
-    def test_fetch_delivery_success(
-        self, mock_get_group: Mock, mock_api_handler: Mock
-    ) -> None:
-        """Test successful delivery options fetch"""
+    def test_fetch_delivery_success(self, mock_api_handler: Mock) -> None:
+        """Successful fetch returns DOAPI's JSON exactly as received"""
         from app.deliveryoptions.constants import AvailabilityCondition
 
-        mock_api_handler.return_value = [
-            {"options": AvailabilityCondition.OrderOriginal.value}
-        ]
-
-        mock_group = Mock()
-        mock_group.name = "AVAILABLE_IN_PERSON"
-        mock_get_group.return_value = mock_group
+        doapi_response = {
+            "delivery_option": AvailabilityCondition.OrderOriginal.value,
+            "delivery_option_name": "ORDER_ORIGINAL",
+            "group": "AVAILABLE_IN_PERSON_WITH_COPYING",
+            "reader_type": "OffSite",
+            "flags": {"is_digitised": False},
+            "surrogate_links": [],
+            "advanced_order_url_parameters": {"url_params": "requestthis=A 1/2"},
+            "label": "Order original",
+        }
+        mock_api_handler.return_value = doapi_response
 
         helper = RecordEnrichmentHelper(self.test_record)
         result = helper._fetch_delivery_options()
 
-        self.assertIn("delivery_option", result)
-        self.assertEqual(result["delivery_option"], "OrderOriginal")
-        self.assertIn("do_availability_group", result)
-        self.assertIn("delivery_options_heading", result)
-        self.assertIn("tna_discovery_link", result)
+        self.assertEqual(result, doapi_response)
+
+    @patch("app.records.enrichment.delivery_options_request_handler")
+    def test_fetch_delivery_returns_empty_dict_when_there_are_no_options(
+        self, mock_api_handler: Mock
+    ) -> None:
+        """A 404 from DOAPI reaches here as None: no delivery options"""
+        mock_api_handler.return_value = None
+
+        helper = RecordEnrichmentHelper(self.test_record)
+
+        self.assertEqual(helper._fetch_delivery_options(), {})
+
+    @patch("app.records.enrichment.delivery_options_request_handler")
+    def test_fetch_delivery_passes_the_configured_timeout(
+        self, mock_api_handler: Mock
+    ) -> None:
+        mock_api_handler.return_value = None
+
+        RecordEnrichmentHelper(self.test_record)._fetch_delivery_options()
+
+        mock_api_handler.assert_called_once_with(
+            self.test_record.id, timeout=settings.DELIVERY_OPTIONS_API_TIMEOUT
+        )
 
     @patch("app.records.enrichment.delivery_options_request_handler")
     def test_fetch_delivery_handles_errors(self, mock_api_handler: Mock) -> None:

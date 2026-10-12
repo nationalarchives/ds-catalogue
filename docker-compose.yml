@@ -23,6 +23,7 @@ services:
       - WAGTAIL_API_URL=http://host.docker.internal:8000/api/v2
       - WAGTAIL_API_KEY
       - DELIVERY_OPTIONS_API_URL
+      - DELIVERY_OPTIONS_API_KEY
       - DCS_PREFIXES=LEV
       - STAFFIN_IP_ADDRESSES
       - ONSITE_IP_ADDRESSES
@@ -53,3 +54,4 @@ services:
       - .:/docs
     ports:
       - 65532:8000
+  

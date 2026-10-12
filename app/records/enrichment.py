@@ -12,13 +12,8 @@ from app.deliveryoptions.api import delivery_options_request_handler
 from app.deliveryoptions.constants import (
     DELIVERY_OPTIONS_NON_TNA_LEVELS,
     DELIVERY_OPTIONS_TNA_LEVELS,
-    AvailabilityCondition,
 )
-from app.deliveryoptions.delivery_options import (
-    get_availability_group,
-    has_distressing_content,
-)
-from app.lib.constants import BASE_TNA_DISCOVERY_URL
+from app.deliveryoptions.delivery_options import has_distressing_content
 from app.records.api import get_subjects_enrichment
 from app.records.constants import (
     API_TIMEOUTS,
@@ -199,37 +194,24 @@ class RecordEnrichmentHelper:
 
     def _fetch_delivery_options(self) -> dict:
         """
-        Fetch delivery options and add temporary display context.
+        Fetch the delivery options for this record from DOAPI.
 
-        Combines API data (availability conditions/groups) with hardcoded
-        display text and Discovery link. The temporary context is a placeholder
-        pending UX decisions on final presentation.
+        Returns DOAPI's JSON exactly as received (see
+        delivery_options_request_handler for its fields), to be passed
+        straight to the templates. No reshaping happens here.
 
         Returns:
-            Dictionary with delivery_option, do_availability_group, display
-            heading, instructions, and Discovery link. Empty dict on any error.
+            DOAPI's response, or an empty dict if the record has no
+            delivery options or the request failed (logged, never raised —
+            a failure here mustn't break the record page).
         """
         try:
-            # Get API data
-            api_context = self._get_delivery_api_data()
-
-            # TODO: This is an alternative action on delivery options whilst we wait on decisions on how we are going to present it.
-
-            # Add temporary display context
-            temp_context = {
-                "delivery_options_heading": "How to order it",
-                "delivery_instructions": [
-                    "View this record page in our current catalogue",
-                    "Check viewing and downloading options",
-                    "Select an option and follow instructions",
-                ],
-                "tna_discovery_link": (
-                    f"{BASE_TNA_DISCOVERY_URL}/details/r/{self.record.id}"
-                ),
-            }
-
-            api_context.update(temp_context)
-            return api_context
+            return (
+                delivery_options_request_handler(
+                    self.record.id, timeout=settings.DELIVERY_OPTIONS_API_TIMEOUT
+                )
+                or {}
+            )
 
         # TODO: is this the right place for a try/except
         # TODO: do we need to log to sentry
@@ -238,56 +220,6 @@ class RecordEnrichmentHelper:
                 f"Failed to fetch delivery options for {self.record.id}: {e}"
             )
             return {}
-
-    def _get_delivery_api_data(self) -> dict:
-        """
-        Fetch and process delivery options data from the API.
-
-        Queries the delivery options API and extracts the availability condition
-        and availability group for the record. Handles various error cases gracefully
-        by returning an empty dict.
-
-        Returns:
-            Dictionary with delivery option data:
-            - 'delivery_option': Name of the AvailabilityCondition enum
-            - 'do_availability_group': Name of the availability group enum, if applicable
-
-            Returns empty dict if:
-            - API returns non-list or empty result
-            - First result has no 'options' field
-            - Delivery option value is not a valid AvailabilityCondition
-        """
-
-        delivery_result = delivery_options_request_handler(
-            self.record.id, timeout=settings.DELIVERY_OPTIONS_API_TIMEOUT
-        )
-
-        if not isinstance(delivery_result, list) or not delivery_result:
-            return {}
-
-        first_result = delivery_result[0]
-        delivery_option_value = first_result.get("options")
-
-        if delivery_option_value is None:
-            return {}
-
-        try:
-            delivery_option_enum = AvailabilityCondition(delivery_option_value)
-            delivery_option_name = delivery_option_enum.name
-        except ValueError:
-            logger.warning(
-                f"Unknown delivery option value {delivery_option_value} "
-                f"for iaid {self.record.id}"
-            )
-            return {}
-
-        data = {"delivery_option": delivery_option_name}
-
-        do_availability_group = get_availability_group(delivery_option_value)
-        if do_availability_group is not None:
-            data["do_availability_group"] = do_availability_group.name
-
-        return data
 
     def fetch_distressing(self) -> bool:
         try:

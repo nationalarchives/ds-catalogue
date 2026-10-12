@@ -2,9 +2,8 @@ from unittest.mock import Mock, patch
 
 import responses
 from django.conf import settings
-from django.test import RequestFactory, TestCase
+from django.test import TestCase
 
-from app.deliveryoptions.constants import AvailabilityCondition
 from app.records.models import Record
 
 
@@ -238,95 +237,21 @@ class TestSubjectLinks(TestCase):
             self.assertNotIn('href="#"', subjects_section)
 
 
-class DoAvailabilityGroupTestCase(TestCase):
-    """Tests for delivery options functionality"""
-
-    def setUp(self):
-        self.factory = RequestFactory()
+class FetchDeliveryOptionsTestCase(TestCase):
+    """The enrichment helper hands DOAPI's response on exactly as received;
+    anything unusable becomes an empty dict, never an exception."""
 
     @patch("app.records.enrichment.delivery_options_request_handler")
-    @patch("app.records.enrichment.get_availability_group")
-    def test_do_availability_group_present_when_found(
-        self, mock_get_availability_group, mock_delivery_handler
-    ):
-        """Test that do_availability_group is included when get_availability_group returns a value."""
+    def test_handles_errors_gracefully(self, mock_delivery_handler):
         from app.records.enrichment import RecordEnrichmentHelper
 
-        # Use DigitizedDiscovery which is in AVAILABLE_ONLINE_TNA_ONLY group
-        mock_delivery_handler.return_value = [
-            {
-                "options": AvailabilityCondition.DigitizedDiscovery.value,
-                "surrogateLinks": [],
-                "advancedOrderUrlParameters": "",
-            }
-        ]
-
-        mock_availability_group = Mock()
-        mock_availability_group.name = "AVAILABLE_ONLINE_TNA_ONLY"
-        mock_get_availability_group.return_value = mock_availability_group
-
-        mock_record = Mock()
-        mock_record.id = "TEST123"
-
-        helper = RecordEnrichmentHelper(mock_record)
-        context = helper._get_delivery_api_data()
-
-        self.assertIn("delivery_option", context)
-        self.assertEqual(context["delivery_option"], "DigitizedDiscovery")
-        self.assertIn("do_availability_group", context)
-        self.assertEqual(context["do_availability_group"], "AVAILABLE_ONLINE_TNA_ONLY")
-
-    @patch("app.records.enrichment.delivery_options_request_handler")
-    @patch("app.records.enrichment.get_availability_group")
-    def test_do_availability_group_absent_when_not_found(
-        self, mock_get_availability_group, mock_delivery_handler
-    ):
-        """Test that do_availability_group is excluded when get_availability_group returns None."""
-        from app.records.enrichment import RecordEnrichmentHelper
-
-        # Use OrderException
-        mock_delivery_handler.return_value = [
-            {
-                "options": AvailabilityCondition.OrderException.value,
-                "surrogateLinks": [],
-                "advancedOrderUrlParameters": "",
-            }
-        ]
-
-        mock_get_availability_group.return_value = None
-
-        mock_record = Mock()
-        mock_record.id = "TEST123"
-
-        helper = RecordEnrichmentHelper(mock_record)
-        context = helper._get_delivery_api_data()
-
-        self.assertIn("delivery_option", context)
-        self.assertEqual(context["delivery_option"], "OrderException")
-        self.assertNotIn("do_availability_group", context)
-
-    @patch("app.records.enrichment.delivery_options_request_handler")
-    def test_get_delivery_options_handles_errors_gracefully(
-        self, mock_delivery_handler
-    ):
-        """Test that errors are handled gracefully."""
-        from app.records.enrichment import RecordEnrichmentHelper
-
-        # Test various error conditions
         test_cases = [
-            # API exceptions - caught by outer try/except, returns {}
-            (Exception("API Error"), "API exception", {}),
-            # API returns bad data - handled by _get_delivery_api_data, returns {}, but temp context added
-            ([{"no_options_key": "value"}], "Missing options key", True),
-            ([], "Empty response", True),
-            (None, "None response", True),
-            ([{"options": 999999}], "Invalid enum value", True),
+            (Exception("API Error"), "API exception"),
+            (None, "No delivery options (404)"),
+            ({}, "Empty response"),
         ]
 
-        for mock_response, description, *has_temp in test_cases:
-            # has_temp will be [True] or [] depending on if it was provided
-            expect_temp_context = has_temp[0] if has_temp else False
-
+        for mock_response, description in test_cases:
             with self.subTest(description=description):
                 if isinstance(mock_response, Exception):
                     mock_delivery_handler.side_effect = mock_response
@@ -337,21 +262,9 @@ class DoAvailabilityGroupTestCase(TestCase):
                 mock_record = Mock()
                 mock_record.id = "TEST123"
 
-                helper = RecordEnrichmentHelper(mock_record)
-                context = helper._fetch_delivery_options()
+                context = RecordEnrichmentHelper(mock_record)._fetch_delivery_options()
 
-                # Should NOT get API-specific keys
-                self.assertNotIn("delivery_option", context)
-                self.assertNotIn("do_availability_group", context)
-
-                if expect_temp_context:
-                    # When API returns bad data (not exception), temp context is still added
-                    self.assertIn("delivery_options_heading", context)
-                    self.assertIn("delivery_instructions", context)
-                    self.assertIn("tna_discovery_link", context)
-                else:
-                    # When API raises exception, returns completely empty dict
-                    self.assertEqual(context, {})
+                self.assertEqual(context, {})
 
 
 class TestNonTNARecordAvailability(TestCase):
