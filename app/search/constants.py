@@ -80,3 +80,8 @@ class Display(StrEnum):
 # Advanced search input limits
 ADV_SEARCH_TEXTAREA_MAX_CHARS = 2000
 ADV_SEARCH_TEXTAREA_MAX_LINES = 200
+
+
+MAX_FILTER_CHOICES = (
+    10  # max number of filter choices to display before showing "more" option
+)

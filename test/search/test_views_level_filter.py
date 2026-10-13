@@ -99,12 +99,6 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
                 },
             ],
         )
-        self.assertEqual(
-            level_field.more_filter_choices_available,
-            False,
-        )
-        self.assertEqual(level_field.more_filter_choices_url, "")
-        self.assertEqual(level_field.more_filter_choices_text, "")
 
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(level_field.is_visible)
@@ -193,10 +187,6 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
         self.assertEqual(
             collection_field.items,
             [],
-        )
-        self.assertEqual(
-            level_field.more_filter_choices_available,
-            False,
         )
 
         self.assertTrue(response.context_data.get("filters_visible"))

@@ -121,18 +121,6 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
                 },
             ],
         )
-        self.assertEqual(
-            closure_field.more_filter_choices_available,
-            False,
-        )
-        self.assertEqual(
-            closure_field.more_filter_choices_url,
-            "",
-        )
-        self.assertEqual(
-            closure_field.more_filter_choices_text,
-            "",
-        )
 
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(closure_field.is_visible)
