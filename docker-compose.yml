@@ -54,4 +54,3 @@ services:
       - .:/docs
     ports:
       - 65532:8000
-  
