@@ -1,11 +1,39 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/rosetta/data?.*iaid=C13187129.*"
+    "urlPath": "/api/v1/delivery-options/rosetta/C13187129"
   },
   "response": {
     "status": 200,
-    "body": "[{\"options\": 20, \"surrogateLinks\": [], \"advancedOrderUrlParameters\": \"requestthis=BT 43/422&CATID=-7935423&CATLN=7&Itemref=BT 43/422/83039&ItemScope=&linkback=\"}]",
+    "jsonBody": {
+      "delivery_option": 20,
+      "delivery_option_name": "MOULD_TREATMENT",
+      "group": "NOT_AVAILABLE",
+      "flags": {
+        "is_digitised": false,
+        "is_digitised_discovery": false,
+        "is_digitised_lia": false,
+        "is_digitised_other": false,
+        "has_replica": false,
+        "is_viewable": false,
+        "is_under_repair": false,
+        "is_lost": false,
+        "is_in_use": false,
+        "is_on_loan": false,
+        "is_paid_search": false,
+        "is_file_authority": false,
+        "is_local_archive": false,
+        "is_web_archive": false,
+        "is_av_media": false,
+        "is_academic_subscription": false
+      },
+      "surrogate_links": [],
+      "advanced_order_url_parameters": {
+        "url_params": "requestthis=BT 43/422&CATID=-7935423&CATLN=7&Itemref=BT 43/422/83039&ItemScope=&linkback="
+      },
+      "label": "Undergoing mould treatment",
+      "reader_type": "OffSite"
+    },
     "headers": {
       "Content-Type": "application/json"
     }

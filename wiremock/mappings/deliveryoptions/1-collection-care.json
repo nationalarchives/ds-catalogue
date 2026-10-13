@@ -1,11 +1,39 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/rosetta/data?.*iaid=C763346.*"
+    "urlPath": "/api/v1/delivery-options/rosetta/C763346"
   },
   "response": {
     "status": 200,
-    "body": "[{\"options\": 1, \"surrogateLinks\": [], \"advancedOrderUrlParameters\": \"requestthis=CHES 24/107/4&linkback=\"}]",
+    "jsonBody": {
+      "delivery_option": 1,
+      "delivery_option_name": "COLLECTION_CARE",
+      "group": "AVAILABLE_IN_PERSON_NO_COPYING",
+      "flags": {
+        "is_digitised": false,
+        "is_digitised_discovery": false,
+        "is_digitised_lia": false,
+        "is_digitised_other": false,
+        "has_replica": false,
+        "is_viewable": false,
+        "is_under_repair": false,
+        "is_lost": false,
+        "is_in_use": false,
+        "is_on_loan": false,
+        "is_paid_search": false,
+        "is_file_authority": false,
+        "is_local_archive": false,
+        "is_web_archive": false,
+        "is_av_media": false,
+        "is_academic_subscription": false
+      },
+      "surrogate_links": [],
+      "advanced_order_url_parameters": {
+        "url_params": "requestthis=CHES 24/107/4&linkback="
+      },
+      "label": "In collection care",
+      "reader_type": "OffSite"
+    },
     "headers": {
       "Content-Type": "application/json"
     }

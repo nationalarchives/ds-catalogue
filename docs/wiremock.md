@@ -30,11 +30,14 @@ The `urlPattern` field uses regular expressions to define flexible URL matching.
 
 You can see the API responses in your browser using http://localhost:65501/rosetta/data (plus the endpoint you require)
 
-To use the mocked endpoints during local development, you'll need to update your `.env` file to use the Wiremock server URL, rather than the real API endpoint. For example, to use the Wiremock server for the delivery options API, you would set the following environment variable:
+To use the mocked endpoints during local development, you'll need to update your `.env` file to use the Wiremock server URL, rather than the real API endpoint. For example, to use the Wiremock server for the delivery options API, you would set the following environment variables:
 
 ```
-DELIVERY_OPTIONS_API_URL=http://mock-delivery-options-api:8080/rosetta/data
+DELIVERY_OPTIONS_API_URL=http://mock-delivery-options-api:8080/api/v1
+DELIVERY_OPTIONS_API_KEY=any-value
 ```
+
+The delivery options mappings in `wiremock/mappings/deliveryoptions/` mimic the real service, `ds-delivery-options-api`: each answers `GET /api/v1/delivery-options/rosetta/{iaid}` with that service's JSON (`delivery_option`, `delivery_option_name`, `group`, `label`, `flags`, `surrogate_links`, `advanced_order_url_parameters`, `reader_type`). The mock does not check the key, but ds-catalogue refuses to call the API without one, so any non-empty value will do.
 
 You will then need to rebuild your Docker containers to apply the changes:
 

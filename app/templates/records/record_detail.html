@@ -66,9 +66,6 @@
     </div>
   </div>
 
-  <p>DO Group: </p>
-  {{ delivery_options.group }}
-
   {% if record.is_tna and record.level in ["Series", "Division", "Department", "Sub-series", "Sub-sub-series"] %}
     {{ whats_this_about_sub_sub_series_or_above(record) }}
   {% else %}

@@ -1,11 +1,37 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/rosetta/data?.*iaid=C16665.*"
+    "urlPath": "/api/v1/delivery-options/rosetta/C16665"
   },
   "response": {
     "status": 200,
-    "body": "[{\"options\": 24, \"surrogateLinks\": [], \"advancedOrderUrlParameters\": null}]",
+    "jsonBody": {
+      "delivery_option": 24,
+      "delivery_option_name": "GOV_WEB_ARCHIVE",
+      "group": "RECORDS_AT_OTHER_ARCHIVES",
+      "flags": {
+        "is_digitised": false,
+        "is_digitised_discovery": false,
+        "is_digitised_lia": false,
+        "is_digitised_other": false,
+        "has_replica": false,
+        "is_viewable": false,
+        "is_under_repair": false,
+        "is_lost": false,
+        "is_in_use": false,
+        "is_on_loan": false,
+        "is_paid_search": false,
+        "is_file_authority": false,
+        "is_local_archive": false,
+        "is_web_archive": true,
+        "is_av_media": false,
+        "is_academic_subscription": false
+      },
+      "surrogate_links": [],
+      "advanced_order_url_parameters": null,
+      "label": "Held by the UK Government Web Archive",
+      "reader_type": "OffSite"
+    },
     "headers": {
       "Content-Type": "application/json"
     }

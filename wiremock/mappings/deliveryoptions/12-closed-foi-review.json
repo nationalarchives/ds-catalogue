@@ -1,11 +1,37 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/rosetta/data?.*iaid=C11209680.*"
+    "urlPath": "/api/v1/delivery-options/rosetta/C11209680"
   },
   "response": {
     "status": 200,
-    "body": "[{\"options\": 12, \"surrogateLinks\": [], \"advancedOrderUrlParameters\": null}]",
+    "jsonBody": {
+      "delivery_option": 12,
+      "delivery_option_name": "CLOSED_FOI_REVIEW",
+      "group": "CLOSED_TNA_OR_PA",
+      "flags": {
+        "is_digitised": false,
+        "is_digitised_discovery": false,
+        "is_digitised_lia": false,
+        "is_digitised_other": false,
+        "has_replica": false,
+        "is_viewable": false,
+        "is_under_repair": false,
+        "is_lost": false,
+        "is_in_use": false,
+        "is_on_loan": false,
+        "is_paid_search": false,
+        "is_file_authority": false,
+        "is_local_archive": false,
+        "is_web_archive": false,
+        "is_av_media": false,
+        "is_academic_subscription": false
+      },
+      "surrogate_links": [],
+      "advanced_order_url_parameters": null,
+      "label": "Closed — FOI review",
+      "reader_type": "OffSite"
+    },
     "headers": {
       "Content-Type": "application/json"
     }

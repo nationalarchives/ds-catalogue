@@ -1,11 +1,47 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/rosetta/data?.*iaid=C1847980.*"
+    "urlPath": "/api/v1/delivery-options/rosetta/C1847980"
   },
   "response": {
     "status": 200,
-    "body": "[{\"options\": 5, \"surrogateLinks\": [{\"xReferenceId\": null, \"xReferenceCode\": null, \"xReferenceName\": null, \"xReferenceType\": \"DIGITIZED_OTHER\", \"xReferenceURL\": \"<a target=\\\"_blank\\\" href=\\\"https://search.findmypast.co.uk/search-world-Records/kindertransport \\\">Findmypast</a>\", \"xReferenceDescription\": null, \"xReferenceSortWord\": null}], \"advancedOrderUrlParameters\": null}]",
+    "jsonBody": {
+      "delivery_option": 5,
+      "delivery_option_name": "DIGITIZED_OTHER",
+      "group": "AVAILABLE_ONLINE_THIRD_PARTY_ONLY",
+      "flags": {
+        "is_digitised": false,
+        "is_digitised_discovery": false,
+        "is_digitised_lia": false,
+        "is_digitised_other": true,
+        "has_replica": false,
+        "is_viewable": false,
+        "is_under_repair": false,
+        "is_lost": false,
+        "is_in_use": false,
+        "is_on_loan": false,
+        "is_paid_search": false,
+        "is_file_authority": false,
+        "is_local_archive": false,
+        "is_web_archive": false,
+        "is_av_media": false,
+        "is_academic_subscription": false
+      },
+      "surrogate_links": [
+        {
+          "url": "<a target=\"_blank\" href=\"https://search.findmypast.co.uk/search-world-Records/kindertransport \">Findmypast</a>",
+          "label": null,
+          "type": "digitized_other",
+          "description": null,
+          "sort_word": null,
+          "id": null,
+          "code": null
+        }
+      ],
+      "advanced_order_url_parameters": null,
+      "label": "Available online (other)",
+      "reader_type": "OffSite"
+    },
     "headers": {
       "Content-Type": "application/json"
     }

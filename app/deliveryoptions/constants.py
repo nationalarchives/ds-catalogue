@@ -61,9 +61,6 @@ class AvailabilityCondition(IntEnum):
     Relocation = 34  # Record is being relocated
 
 
-# TODO: This is a temporary constant and will be removed when the templating solution is implemented
-DELIVERY_OPTIONS_CONFIG = "app/deliveryoptions/delivery_options.json"
-
 # TODO: Refactor to use Enums throughout the codebase
 DELIVERY_OPTIONS_TNA_LEVELS = [6, 7]  # Piece and Item
 DELIVERY_OPTIONS_NON_TNA_LEVELS = [3]  # Sub-sub-fonds

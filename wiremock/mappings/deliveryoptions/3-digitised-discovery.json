@@ -1,11 +1,37 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/rosetta/data?.*iaid=C5067736.*"
+    "urlPath": "/api/v1/delivery-options/rosetta/C5067736"
   },
   "response": {
     "status": 200,
-    "body": "[{\"options\": 3, \"surrogateLinks\": [], \"advancedOrderUrlParameters\": null}]",
+    "jsonBody": {
+      "delivery_option": 3,
+      "delivery_option_name": "DIGITIZED_DISCOVERY",
+      "group": "AVAILABLE_ONLINE_TNA_ONLY",
+      "flags": {
+        "is_digitised": true,
+        "is_digitised_discovery": false,
+        "is_digitised_lia": false,
+        "is_digitised_other": false,
+        "has_replica": true,
+        "is_viewable": true,
+        "is_under_repair": false,
+        "is_lost": false,
+        "is_in_use": false,
+        "is_on_loan": false,
+        "is_paid_search": false,
+        "is_file_authority": false,
+        "is_local_archive": false,
+        "is_web_archive": false,
+        "is_av_media": false,
+        "is_academic_subscription": false
+      },
+      "surrogate_links": [],
+      "advanced_order_url_parameters": null,
+      "label": "Available online",
+      "reader_type": "OffSite"
+    },
     "headers": {
       "Content-Type": "application/json"
     }
