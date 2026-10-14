@@ -147,11 +147,11 @@ class APIMixin:
         if child "collection:YHL" is present."""
 
         if filter_values := params.get("filter", []):
-            aggs_name = Aggregation.COLLECTION.aggs
+            filter_name = FieldsConstant.COLLECTION
             collection_filter_values = [
                 f.split(":", 1)[1]
                 for f in filter_values
-                if f.startswith(f"{aggs_name}:")
+                if f.startswith(f"{filter_name}:")
             ]
 
             # Remove a collection parent if it has at least one child collection
@@ -159,7 +159,7 @@ class APIMixin:
                 value
                 for value in filter_values
                 if not (
-                    value.startswith(f"{aggs_name}:")
+                    value.startswith(f"{filter_name}:")
                     and is_parliamentary_archive_parent(value.split(":", 1)[1])
                     and any(
                         is_parliamentary_archive_child(child)
