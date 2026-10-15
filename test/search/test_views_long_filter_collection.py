@@ -456,3 +456,88 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         self.assertNotIn(
             """<input type="hidden" name="covering_date_from-day" """, html
         )
+
+    @responses.activate
+    def test_search_for_filter_list_param_with_collection_param(
+        self,
+    ):
+        """Tests search for filter list param with collection param"""
+
+        # 0 results for long filter
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [],
+                "aggregations": [
+                    {
+                        "name": "longCollection",
+                        "entries": [
+                            {"value": "BT", "doc_count": 50},
+                        ],
+                        "total": 28083703,
+                        "other": 0,
+                    }
+                ],
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "tna", "count": 1},
+                        ],
+                    }
+                ],
+                "stats": {
+                    "total": 10000,
+                    "results": 0,
+                },
+            },
+            status=HTTPStatus.OK,
+        )
+
+        response = self.client.get(
+            "/catalogue/search/?filter_list=longCollection&collection=BT"
+        )
+
+        context_data = response.context_data
+        form = context_data.get("form")
+        html = force_str(response.content)
+        # more filter choice field - i.e. collection - used in template
+        mfc_field = context_data.get("mfc_field")
+
+        self.assertEqual(len(context_data.get("results")), 0)
+        self.assertTrue(form.is_valid())
+
+        self.assertEqual(
+            context_data.get("mfc_cancel_and_return_to_search_url"),
+            ("?collection=BT"),
+        )
+        self.assertIsInstance(
+            mfc_field,
+            DynamicMultipleChoiceField,
+        )
+        self.assertEqual(
+            mfc_field.name,
+            FieldsConstant.COLLECTION,
+        )
+        self.assertEqual(
+            mfc_field.items,
+            [
+                {
+                    "text": "BT - Board of Trade and successors (50)",
+                    "value": "BT",
+                    "checked": True,
+                },
+            ],
+        )
+        self.assertEqual(
+            mfc_field.more_filter_choices_available,
+            False,
+        )
+        self.assertEqual(
+            mfc_field.more_filter_choices_url,
+            "",
+        )
+
+        # test hidden inputs
+        self.assertNotIn("""<input type="hidden" name="collection" """, html)
