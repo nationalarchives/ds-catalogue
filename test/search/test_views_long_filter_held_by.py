@@ -13,7 +13,7 @@ class CatalogueSearchViewHeldByMoreFilterChoicesTests(TestCase):
     """HeldBy filter is only available for Non Tna group."""
 
     @responses.activate
-    def test_search_for_more_filter_choices_attributes_without_filters(
+    def test_search_for_more_filter_choices_available_above_limit(
         self,
     ):
         """Tests more filter choices attributes are correctly set in context"""
@@ -39,9 +39,18 @@ class CatalogueSearchViewHeldByMoreFilterChoicesTests(TestCase):
                         "entries": [
                             {"value": "Lancashire Archives", "doc_count": 50},
                             {"value": "Freud Museum", "doc_count": 35},
+                            {"value": "some value-1", "doc_count": 5},
+                            {"value": "some value-2", "doc_count": 5},
+                            {"value": "some value-3", "doc_count": 5},
+                            {"value": "some value-4", "doc_count": 5},
+                            {"value": "some value-5", "doc_count": 5},
+                            {"value": "some value-6", "doc_count": 5},
+                            {"value": "some value-7", "doc_count": 5},
+                            {"value": "some value-8", "doc_count": 5},
+                            {"value": "some value-9", "doc_count": 5},
                         ],
                         "total": 100,
-                        "other": 50,
+                        "other": 0,
                     }
                 ],
                 "buckets": [

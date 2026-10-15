@@ -234,7 +234,6 @@ class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
                     choices=[(m.level, m.level) for m in TnaLevels],
                     validate_input=True,  # validate input with choices before querying the API
                     active_filter_label="Level",
-                    more_filter_choices_text="See more levels",
                 ),
                 FieldsConstant.COLLECTION: DynamicMultipleChoiceField(
                     label="Collections",

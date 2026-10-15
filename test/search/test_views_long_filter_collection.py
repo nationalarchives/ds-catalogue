@@ -5,7 +5,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.utils.encoding import force_str
 
-from app.search.constants import FieldsConstant
+from app.search.constants import MAX_FILTER_CHOICES, FieldsConstant
 from app.search.forms import DynamicMultipleChoiceField
 
 
@@ -13,7 +13,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
     """Collection filter is only available for tna group."""
 
     @responses.activate
-    def test_search_for_more_filter_choices_attributes_without_filters(
+    def test_search_for_more_filter_choices_available_above_limit(
         self,
     ):
         """Tests more filter choices attributes are correctly set in context"""
@@ -39,9 +39,18 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
+                            {"value": "ADM", "doc_count": 5},
+                            {"value": "HO", "doc_count": 5},
+                            {"value": "C", "doc_count": 5},
+                            {"value": "AIR", "doc_count": 5},
+                            {"value": "FO", "doc_count": 5},
+                            {"value": "GTI", "doc_count": 5},
+                            {"value": "E", "doc_count": 5},
+                            {"value": "VC", "doc_count": 5},
+                            {"value": "ZJ", "doc_count": 5},
                         ],
                         "total": 100,
-                        "other": 50,
+                        "other": 0,
                     }
                 ],
                 "buckets": [
@@ -69,6 +78,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         # more filter choice field - i.e. collection - used in template
 
         self.assertEqual(len(context_data.get("results")), 1)
+        self.assertEqual(MAX_FILTER_CHOICES, 10)
         self.assertEqual(
             collection_field.more_filter_choices_available,
             True,
@@ -79,6 +89,157 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         self.assertEqual(
             collection_field.more_filter_choices_url,
             "?filter_list=longCollection",
+        )
+
+    @responses.activate
+    def test_search_for_more_filter_choices_unavailable_at_limit(
+        self,
+    ):
+        """Tests more filter choices attributes are correctly set in context when below limit"""
+
+        # data present for input collections
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "id": "C123456",
+                                "source": "CAT",
+                            }
+                        }
+                    }
+                ],
+                "aggregations": [
+                    {
+                        "name": "collection",
+                        "entries": [
+                            {"value": "BT", "doc_count": 50},
+                            {"value": "WO", "doc_count": 35},
+                            {"value": "ADM", "doc_count": 5},
+                            {"value": "HO", "doc_count": 5},
+                            {"value": "C", "doc_count": 5},
+                            {"value": "AIR", "doc_count": 5},
+                            {"value": "FO", "doc_count": 5},
+                            {"value": "GTI", "doc_count": 5},
+                            {"value": "E", "doc_count": 5},
+                            {"value": "VC", "doc_count": 5},
+                        ],
+                        "total": 100,
+                        "other": 0,
+                    }
+                ],
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "tna", "count": 1},
+                        ],
+                    }
+                ],
+                "stats": {
+                    "total": 26008838,
+                    "results": 20,
+                },
+            },
+            status=HTTPStatus.OK,
+        )
+
+        response = self.client.get("/catalogue/search/")
+
+        context_data = response.context_data
+        form = context_data.get("form")
+        collection_field = form.fields[FieldsConstant.COLLECTION]
+
+        # more filter choice field - i.e. collection - used in template
+
+        self.assertEqual(len(context_data.get("results")), 1)
+        self.assertEqual(MAX_FILTER_CHOICES, 10)
+        self.assertEqual(
+            collection_field.more_filter_choices_available,
+            False,
+        )
+        self.assertEqual(collection_field.more_filter_choices_text, "")
+        self.assertEqual(
+            collection_field.more_filter_choices_url,
+            "",
+        )
+
+    @responses.activate
+    def test_search_for_more_filter_choices_unavailable_below_limit(
+        self,
+    ):
+        """Tests more filter choices attributes are correctly set in context when below limit"""
+
+        # data present for input collections
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "id": "C123456",
+                                "source": "CAT",
+                            }
+                        }
+                    }
+                ],
+                "aggregations": [
+                    {
+                        "name": "collection",
+                        "entries": [
+                            {"value": "BT", "doc_count": 50},
+                            {"value": "WO", "doc_count": 35},
+                            {"value": "ADM", "doc_count": 5},
+                            {"value": "HO", "doc_count": 5},
+                            {"value": "C", "doc_count": 5},
+                            {"value": "AIR", "doc_count": 5},
+                            {"value": "FO", "doc_count": 5},
+                            {"value": "GTI", "doc_count": 5},
+                            {"value": "E", "doc_count": 5},
+                        ],
+                        "total": 100,
+                        "other": 0,
+                    }
+                ],
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "tna", "count": 1},
+                        ],
+                    }
+                ],
+                "stats": {
+                    "total": 26008838,
+                    "results": 20,
+                },
+            },
+            status=HTTPStatus.OK,
+        )
+
+        response = self.client.get("/catalogue/search/")
+
+        context_data = response.context_data
+        form = context_data.get("form")
+        collection_field = form.fields[FieldsConstant.COLLECTION]
+
+        # more filter choice field - i.e. collection - used in template
+
+        self.assertEqual(len(context_data.get("results")), 1)
+        self.assertEqual(MAX_FILTER_CHOICES, 10)
+        self.assertEqual(
+            collection_field.more_filter_choices_available,
+            False,
+        )
+        self.assertEqual(collection_field.more_filter_choices_text, "")
+        self.assertEqual(
+            collection_field.more_filter_choices_url,
+            "",
         )
 
     @responses.activate

@@ -3,13 +3,16 @@
 
 {% macro checkboxes_with_submit(request, field) %}
   <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
+    {#- Hardcoded limit: Limit the number of filter choices displayed for certain fields 
+    as long filters will be handled differently in the future #}
+    {%- set field_items = field.items[:10] if field.name in ['subject', 'held_by', 'collection'] else field.items %}
     {{ tnaCheckboxes({
       'label': field.label,
       'headingLevel': 3,
       'headingSize': 'm',
       'id': field.id,
       'name': field.name,
-      'items': field.items,
+      'items': field_items,
       'small': True,
       'attributes': {
         'form': 'search-form'
@@ -25,6 +28,7 @@
           'form': 'search-form'
         }
       }) }}
+      {#- will be removed in the future when long filters are handled differently #}
       {% if field.more_filter_choices_available %}
         {{ tnaButton({
           'text': field.more_filter_choices_text,
