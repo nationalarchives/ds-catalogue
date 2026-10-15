@@ -13,7 +13,7 @@ class CatalogueSearchViewHeldByMoreFilterChoicesTests(TestCase):
     """HeldBy filter is only available for Non Tna group."""
 
     @responses.activate
-    def test_search_for_more_filter_choices_attributes_without_filters(
+    def test_search_for_more_filter_choices_available_above_limit(
         self,
     ):
         """Tests more filter choices attributes are correctly set in context"""
@@ -39,9 +39,18 @@ class CatalogueSearchViewHeldByMoreFilterChoicesTests(TestCase):
                         "entries": [
                             {"value": "Lancashire Archives", "doc_count": 50},
                             {"value": "Freud Museum", "doc_count": 35},
+                            {"value": "some value-1", "doc_count": 5},
+                            {"value": "some value-2", "doc_count": 5},
+                            {"value": "some value-3", "doc_count": 5},
+                            {"value": "some value-4", "doc_count": 5},
+                            {"value": "some value-5", "doc_count": 5},
+                            {"value": "some value-6", "doc_count": 5},
+                            {"value": "some value-7", "doc_count": 5},
+                            {"value": "some value-8", "doc_count": 5},
+                            {"value": "some value-9", "doc_count": 5},
                         ],
                         "total": 100,
-                        "other": 50,
+                        "other": 0,
                     }
                 ],
                 "buckets": [
@@ -278,3 +287,87 @@ class CatalogueSearchViewHeldByMoreFilterChoicesTests(TestCase):
         self.assertNotIn(
             """<input type="hidden" name="covering_date_from-day" """, html
         )
+
+    @responses.activate
+    def test_search_for_filter_list_param_with_held_by_param(
+        self,
+    ):
+        """Tests search for filter list param with held by param"""
+
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [],
+                "aggregations": [
+                    {
+                        "name": "heldBy",
+                        "entries": [
+                            {"value": "Lancashire Archives", "doc_count": 50},
+                        ],
+                        "total": 100,
+                        "other": 0,
+                    }
+                ],
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "nonTna", "count": 1},
+                        ],
+                    }
+                ],
+                "stats": {
+                    "total": 26008838,
+                    "results": 20,
+                },
+            },
+            status=HTTPStatus.OK,
+        )
+
+        response = self.client.get(
+            "/catalogue/search/?group=nonTna&filter_list=longHeldBy&held_by=Lancashire+Archives"
+        )
+
+        context_data = response.context_data
+        form = context_data.get("form")
+        html = force_str(response.content)
+        # more filter choice field - i.e. held_by - used in template
+        mfc_field = context_data.get("mfc_field")
+
+        self.assertEqual(len(context_data.get("results")), 0)
+        self.assertTrue(form.is_valid())
+
+        self.assertEqual(
+            context_data.get("mfc_cancel_and_return_to_search_url"),
+            ("?group=nonTna&held_by=Lancashire+Archives"),
+        )
+        self.assertIsInstance(
+            mfc_field,
+            DynamicMultipleChoiceField,
+        )
+        self.assertEqual(
+            mfc_field.name,
+            FieldsConstant.HELD_BY,
+        )
+        self.assertEqual(
+            mfc_field.items,
+            [
+                {
+                    "text": "Lancashire Archives (50)",
+                    "value": "Lancashire Archives",
+                    "checked": True,
+                },
+            ],
+        )
+        self.assertEqual(
+            mfc_field.more_filter_choices_available,
+            False,
+        )
+        self.assertEqual(
+            mfc_field.more_filter_choices_url,
+            "",
+        )
+
+        # test hidden inputs
+        self.assertNotIn("""<input type="hidden" name="held_by" """, html)

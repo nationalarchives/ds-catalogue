@@ -85,3 +85,7 @@ PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE = "Y"
 PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_HINT = (
     "select to show more specific collections"
 )
+
+MAX_FILTER_CHOICES = (
+    10  # max number of filter choices to display before showing "more" option
+)

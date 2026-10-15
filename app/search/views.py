@@ -40,6 +40,7 @@ from .constants import (
     FILTER_DATATYPE_RECORD,
     FILTER_FIELDS,
     LONG_FILTER_RESULTS_PER_PAGE,
+    MAX_FILTER_CHOICES,
     PAGE_LIMIT,
     PAGE_LIMIT_WARNING_MESSAGE,
     PAGE_LIMIT_WARNING_THRESHOLD,
@@ -239,7 +240,12 @@ class APIMixin:
                     if field_name == FieldsConstant.COLLECTION:
                         form.fields[field_name].request = self.request
 
-                    self._build_more_filter_options(form, field_name, aggregation)
+                    if field_name in [
+                        FieldsConstant.COLLECTION,
+                        FieldsConstant.SUBJECT,
+                        FieldsConstant.HELD_BY,
+                    ]:
+                        self._build_more_filter_options(form, field_name)
 
     def _get_field_name_from_api_aggregation(self, aggregation: dict) -> str:
         """Get field name from aggregation name, considering long filters.
@@ -259,28 +265,24 @@ class APIMixin:
         self,
         form: CatalogueSearchTnaForm | CatalogueSearchNonTnaForm,
         field_name: str,
-        aggregation: dict,
     ):
         """Builds more filter options. These options allow user to explore
         more filter choices in a separate page.
 
-        The API is configured to return 10 aggregation entries by default
-        for aggs param. So if there are more than 10 entries, the API
-        response will include an  "other" count in the aggregation data.
+        When using longfilters, the API may return additional entries beyond max filter choices
+        for display in the UI, we need to indicate if more filter choices are available.
 
         i.e.
         more_filter_choices_available:more choice availability,
         more_filter_choices_text: text for more choices link/button,
         more_filter_choices_url: url for dynamic multiple choice fields
         from api aggregation data.
-
-        Examples:
-        {"other": 1} -> more choices available
-        {"other": 0} -> no more choices available
         """
 
         # determine if more filter choices are available
-        more_filter_choices_available = bool(aggregation.get("other", 0))
+        more_filter_choices_available = bool(
+            len(form.fields[field_name].choices) > MAX_FILTER_CHOICES
+        )
         form.fields[
             field_name
         ].more_filter_choices_available = more_filter_choices_available

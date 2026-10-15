@@ -34,17 +34,17 @@ class Aggregation(MultiValueForAggregation):
     Supported by /search endpoint.
 
     Example:
-        HELD_BY = ("held_by", ("heldBy", "longHeldBy"))
+        HELD_BY = ("held_by", ("", "longHeldBy"))
         means HELD_BY aggregation uses "held_by" as forms field name,
-        "heldBy" as aggs value, "longHeldBy" as long_aggs value.
+        "" as aggs value, "longHeldBy" as long_aggs value.
 
     """
 
     LEVEL = (FieldsConstant.LEVEL, ("level", ""))
-    COLLECTION = (FieldsConstant.COLLECTION, ("collection", "longCollection"))
-    HELD_BY = (FieldsConstant.HELD_BY, ("heldBy", "longHeldBy"))
+    COLLECTION = (FieldsConstant.COLLECTION, ("", "longCollection"))
+    HELD_BY = (FieldsConstant.HELD_BY, ("", "longHeldBy"))
     CLOSURE = (FieldsConstant.CLOSURE, ("closure", ""))
-    SUBJECT = (FieldsConstant.SUBJECT, ("subject", "longSubject"))
+    SUBJECT = (FieldsConstant.SUBJECT, ("", "longSubject"))
     REFERENCE_NUMBER = (FieldsConstant.REFERENCE_NUMBER, ("referenceNumber", ""))
 
     @staticmethod
@@ -189,9 +189,9 @@ CATALOGUE_BUCKETS = BucketList(
             description="Results for records held at The National Archives that match your search term.",
             aggregations=[
                 Aggregation.LEVEL.aggs,
-                Aggregation.COLLECTION.aggs,
+                Aggregation.COLLECTION.long_aggs,
                 Aggregation.CLOSURE.aggs,
-                Aggregation.SUBJECT.aggs,
+                Aggregation.SUBJECT.long_aggs,
                 Aggregation.REFERENCE_NUMBER.aggs,
             ],
         ),
@@ -200,7 +200,7 @@ CATALOGUE_BUCKETS = BucketList(
             label="Records at other UK archives",
             description="Results for records held at other archives in the UK (and not at The National Archives) that match your search term.",
             aggregations=[
-                Aggregation.HELD_BY.aggs,
+                Aggregation.HELD_BY.long_aggs,
                 Aggregation.REFERENCE_NUMBER.aggs,
             ],
         ),
