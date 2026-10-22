@@ -4,7 +4,7 @@ Using the app container should give you access to commands to update poetry whic
 
 **Note**
 
-o provide a cooling-off period for newly published dependencies, Poetry is configured with solver.min-release-age in pyproject.toml, set to 7 days.
+- To provide a cooling-off period for newly published dependencies, Poetry is configured with solver.min-release-age in pyproject.toml, set to 7 days.
 
 The default value is the recommended setting and should only be changed following discussion and approval. Reducing this value increases the likelihood of consuming very recent package releases.
 
