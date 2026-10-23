@@ -47,7 +47,9 @@ urlpatterns = [
 if apps.is_installed("debug_toolbar"):
     from debug_toolbar.toolbar import debug_toolbar_urls
 
-    urlpatterns = urlpatterns + debug_toolbar_urls()
+    urlpatterns = [
+        *urlpatterns,
+    ] + debug_toolbar_urls()
 
 if settings.DEBUG:
     urlpatterns += [
