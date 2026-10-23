@@ -1,8 +1,3 @@
 [solver]
 min-release-age = 7
-min-release-age-exclude = [
-    "tna-utilities",
-    "tna-ruff-config",
-    "tna-frontend-jinja",
-    "certifi"
-]
+min-release-age-exclude = ["certifi", "tna-ruff-config", "tna-frontend-jinja", "tna-utilities"]
