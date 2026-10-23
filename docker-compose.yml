@@ -32,6 +32,9 @@ services:
       - WAGTAIL_API_TIMEOUT
       - DELIVERY_OPTIONS_API_TIMEOUT
       - MAX_SUBJECTS_PER_RECORD
+      - COOLDOWN_PERIOD=7
+      - POETRY_SOLVER_MIN_RELEASE_AGE=7
+      - POETRY_SOLVER_MIN_RELEASE_AGE_EXCLUDE="tna-frontend-jinja,tna-utilities,tna-ruff-config"
     ports:
       - 65533:8080
     volumes:
