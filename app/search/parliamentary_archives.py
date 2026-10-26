@@ -36,6 +36,29 @@ def is_collection_filter_list_applied(form):
     return False
 
 
+def build_choice_api_data_for_collections_filter(
+    field_name, form, choice_api_data, request
+) -> list[dict[str, str | int | list[dict]]]:
+    """Builds choice API data for the collection field, handling both direct and nested choices."""
+
+    if is_collection_filter_list_applied(form):
+        # set to direct updating choices, items for long filters page that
+        # do not have nested choices
+        form.fields[field_name].collection_filter_list_applied = True
+        choice_api_data = prepare_api_filter_list_entries_for_parliament_archives(
+            choice_api_data, form.fields[field_name].value
+        )
+    else:
+        # set request for nested choice more options link handling
+        form.fields[field_name].request = request
+        nested_choice_api_data = (
+            prepare_api_parent_child_entries_for_parliamentay_archives(choice_api_data)
+        )
+        choice_api_data = nested_choice_api_data
+
+    return choice_api_data
+
+
 def prepare_api_parent_child_entries_for_parliamentay_archives(
     api_entries: list[dict[str, str | int]],
 ) -> list[dict[str, str | int | list[dict]]]:
