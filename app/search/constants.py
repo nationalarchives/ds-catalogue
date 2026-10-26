@@ -89,3 +89,7 @@ PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_HINT = (
 MAX_FILTER_CHOICES = (
     10  # max number of filter choices to display before showing "more" option
 )
+NESTED_CHILDREN_KEY = "children"
+NESTED_IS_PARENT_KEY = "is_parent"
+NESTED_IS_CHILD_KEY = "is_child"
+HINT_KEY = "hint"
