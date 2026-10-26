@@ -6,7 +6,8 @@
   <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
     {#- Hardcoded limit: Limit the number of filter choices displayed for certain fields 
     as long filters will be handled differently in the future #}
-    {%- set field_items = field.items[:10] if field.name in ['subject', 'held_by', 'collection'] else field.items %}
+    {%- set max_filter_choices = 10 %}
+    {%- set field_items = field.items[:max_filter_choices] if field.name in ['subject', 'held_by', 'collection'] else field.items %}
     {% if field.name == 'collection' %}
       {{ tnaNestedCheckboxesWithMoreChoicesLink({
         'label': field.label,
@@ -18,7 +19,8 @@
         'small': True,
         'attributes': {
           'form': 'search-form'
-        }
+        },
+        'max_nested_child_choices': max_filter_choices
       }) }}
     {% else %}
       {{ tnaCheckboxes({

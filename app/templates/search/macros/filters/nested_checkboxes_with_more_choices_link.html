@@ -35,7 +35,7 @@ the original tna-frontend-jinja component macro for TNA checkboxes #}
       {%- if item.is_parent %}
         {{- checkbox(item, params, is_parent=true, is_single_item=is_single_item) }}
         {%- if item.children %}
-          {%- for child in item.children %}
+          {%- for child in item.children[:params.max_nested_child_choices] %}
             {{- checkbox(child, params, is_child=true, parent_value=item.value, is_single_item=is_single_item) }}
           {%- endfor %}
           {%- if item.more_filter_choices_available %}
