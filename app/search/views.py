@@ -48,7 +48,6 @@ from .constants import (
     Display,
     Sort,
 )
-from .fields import is_parliamentary_archive_child, is_parliamentary_archive_parent
 from .forms import (
     AdvancedSearchForm,
     AdvancedSearchQForm,
@@ -59,6 +58,10 @@ from .forms import (
 )
 from .mixins import SearchDataLayerMixin
 from .models import APISearchResponse
+from .parliamentary_archives import (
+    build_choice_api_data_for_collections_filter,
+    remove_parliamentary_archives_parent_filter,
+)
 from .utils import (
     camelcase_to_underscore,
     quote_if_needed,
@@ -137,37 +140,9 @@ class APIMixin:
             if form.fields[FieldsConstant.ONLINE].cleaned == "true":
                 params["digitised"] = "true"
 
-        # collection filters adjustments
-        params = self._collection_filter_adjustments(params)
-        return params
+        # parliamentary archives filter adjustments
+        params = remove_parliamentary_archives_parent_filter(params)
 
-    def _collection_filter_adjustments(self, params):
-        """Adjusts collection filters to remove parent collection of Parliamentary
-        Archive if child collection is present.
-        E.g., parent "collection:Y" will be removed from filter
-        if child "collection:YHL" is present."""
-
-        if filter_values := params.get("filter", []):
-            filter_name = FieldsConstant.COLLECTION
-            collection_filter_values = [
-                f.split(":", 1)[1]
-                for f in filter_values
-                if f.startswith(f"{filter_name}:")
-            ]
-
-            # Remove a collection parent if it has at least one child collection
-            params["filter"] = [
-                value
-                for value in filter_values
-                if not (
-                    value.startswith(f"{filter_name}:")
-                    and is_parliamentary_archive_parent(value.split(":", 1)[1])
-                    and any(
-                        is_parliamentary_archive_child(child)
-                        for child in collection_filter_values
-                    )
-                )
-            ]
         return params
 
     def is_filter_list_applied(self, form) -> bool:
@@ -233,12 +208,16 @@ class APIMixin:
                 if isinstance(form.fields[field_name], DynamicMultipleChoiceField):
                     choice_api_data = aggregation.get("entries", ())
                     self.replace_api_data(field_name, choice_api_data)
+
+                    # prepare choice api data for parliamentary archives
+                    if field_name == FieldsConstant.COLLECTION:
+                        choice_api_data = build_choice_api_data_for_collections_filter(
+                            field_name, form, choice_api_data, self.request
+                        )
+
                     form.fields[field_name].update_choices(
                         choice_api_data, form.fields[field_name].value
                     )
-                    # add request to the field for nested collection handling
-                    if field_name == FieldsConstant.COLLECTION:
-                        form.fields[field_name].request = self.request
 
                     if field_name in [
                         FieldsConstant.COLLECTION,
@@ -480,13 +459,6 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
 
         if self.is_filter_list_applied(self.form):
             results_per_page = LONG_FILTER_RESULTS_PER_PAGE
-            # add filter_list_applied to the field for nested collection handling
-            if self.form.fields[
-                FieldsConstant.FILTER_LIST
-            ].cleaned == Aggregation.get_long_aggs_name_for_field_name(
-                FieldsConstant.COLLECTION
-            ):
-                self.form.fields[FieldsConstant.COLLECTION].filter_list_applied = True
         else:
             results_per_page = RESULTS_PER_PAGE
 
