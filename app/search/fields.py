@@ -4,114 +4,231 @@ from app.lib.fields import DynamicMultipleChoiceField
 from config.utils.query_string import qs_replace_value
 
 from .buckets import Aggregation
+from .collection_names import COLLECTION_NAMES
 from .constants import (
+    HINT_KEY,
+    MAX_FILTER_CHOICES,
+    NESTED_CHILDREN_KEY,
+    NESTED_IS_CHILD_KEY,
+    NESTED_IS_PARENT_KEY,
     PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_HINT,
     PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE,
     FieldsConstant,
 )
-
-
-def is_parliamentary_archive_parent(value):
-    """Returns True if the value represents a parliamentary archive parent collection."""
-
-    return value == PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE
-
-
-def is_parliamentary_archive_child(value):
-    """Returns True if the value represents a parliamentary archive child collection."""
-
-    return value.startswith(
-        PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE
-    ) and not is_parliamentary_archive_parent(value)
+from .parliamentary_archives import (
+    is_parliamentary_archive_child,
+    is_parliamentary_archive_parent,
+)
 
 
 class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
-    """A dynamic multiple choice field that includes nested parliamentary archive collections."""
+    """A dynamic multiple choice field that includes nested parliamentary archive collections.
+    parent collection - the top-level parliamentary archive collection.
+                        Y is the value representing the parent collection.
+    child collections - sub-level parliamentary archive collections.
+                        value begins with the parent collection value.]
+                        E.g.: YHL, YHC.
+    The field handles the display and selection of both parent and child collections in the UI.
+    """
 
-    def _get_more_filter_options(self):
-        """Builds more filter options for the nested collection field."""
+    def __init__(self, choices: list[tuple[str, str]], **kwargs):
+        super().__init__(choices, **kwargs)
+        # additional arributes for long filter and nested choices link handling.
+        self.collection_filter_list_applied = False
+        self.request = None
 
-        # TODO: Determine dynamically if more filter choices are available
-        more_filter_choices_available = False
-        more_filter_choices_text = more_filter_choices_url = ""
+    def _build_more_filter_options_for_parliamentary_archives(
+        self, item: dict[str, str | int]
+    ):
+        """Returns the text and URL for more filter options related to nested parliamentary
+        archive collections.
+        """
 
-        if more_filter_choices_available:
-            # adds filter_list=<Aggregation long_aggs value> to existing query string
+        # adds filter_list=<Aggregation long_aggs value> to existing query string.
+        long_aggs = Aggregation.get_long_aggs_name_for_field_name(self.name)
 
-            long_aggs = Aggregation.get_long_aggs_name_for_field_name(self.name)
+        # add the parent collection parameter to the query string.
+        parent_collection_param = f"&{FieldsConstant.COLLECTION}={PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE}"
 
-            more_filter_choices_url = "?" + qs_replace_value(
+        # check if parent collection parameter is already present in the query string.
+        if parent_collection_param in self.request.GET.urlencode():
+            parent_collection_param = ""
+
+        more_filter_choices_url = (
+            "?"
+            + qs_replace_value(
                 existing_qs=self.request.GET,
                 filter=FieldsConstant.FILTER_LIST,
                 by=long_aggs,
             )
-
-            more_filter_choices_text = "See more UK Parliamentary collections"
-
-        return (
-            more_filter_choices_available,
-            more_filter_choices_text,
-            more_filter_choices_url,
+            + parent_collection_param
         )
 
-    @cached_property
-    def items(self) -> list[dict[str, str | bool | list[dict[str, str | bool]]]]:
-        """Returns a transformed list of items with nested children for parliamentary archive collections."""
+        more_filter_choices_text = f"See more {COLLECTION_NAMES[PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE]} collections"
 
-        items = super().items
+        item["more_filter_choices_available"] = True
+        item["more_filter_choices_text"] = more_filter_choices_text
+        item["more_filter_choices_url"] = more_filter_choices_url
 
-        # return transformed items if filter_list is applied
-        if getattr(self, "filter_list_applied", False) is True:
-            # remove the parliamentary archive parent collection from the list of items
-            new_items = [
-                item
-                for item in items
-                if item.get("value") != PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE
-            ]
-            return new_items
+    def update_choices(
+        self,
+        choice_api_data: list[dict[str, str | int | list[dict]]],
+        selected_values,
+    ):
+        """
+        Handles choice field data for nested and long filters selections.
+        Updates this fields `choices` list using aggregation data from the most recent
+        API result. If `selected_values` is provided, options with values matching items
+        in that list will be preserved in the new `choices` list, even if they are not
+        present in `choice_api_data`.
 
-        # transform for nested children in standard filters
-        new_items = []  # transformed list of items with nested children
-        children = []
+        Updated choice formats:
+        1) Regular choices:
+        [("Value", "Display", None)] - None indicates no children
+        2) Nested choices with children:
+        [("Value", "Display", [("ChildValue", "ChildDisplay", None)]),]
 
-        # create new list of items except those starting with "Y" as children
-        for item in items:
-            if is_parliamentary_archive_child(item["value"]):
-                children.append(
-                    {
-                        "text": item["text"],
-                        "value": item["value"],
-                        "checked": True,
-                        "is_child": True,
-                    }
-                    if (item["value"] in self.value)
-                    else {
-                        "text": item["text"],
-                        "value": item["value"],
-                        "is_child": True,
-                    }
+        Examples:
+        1) api: [{"value": "BT","doc_count": 10},]
+           updated: [("BT", "BT - Board of Trade and successors (10)", None)]
+        2) api: [{"value": "Y","doc_count": 15,"children": [{"value": "YHC", "doc_count": 10},]},]
+           updated:[("Y", "Y - UK Parliament (15)'", [("YHC", "YHC - Records of the House of Commons (10)", None)]),]
+        3) missing:[("PIZZA", "PIZZA (0)", None)]
+        """
+
+        # If there is no API data and no selected values, clear choices and return early.
+        if not choice_api_data and not selected_values:
+            self.choices = []
+            self.choices_updated = True
+            return
+
+        # Long filter pages do show nested choices, so fall back to the default implementation.
+        if self.collection_filter_list_applied:
+            super().update_choices(choice_api_data, selected_values)
+            return
+
+        # Generate a new list of choices.
+        choices = []  # List of choices to be used for the field.
+        choice_vals_with_hits = set()  # Track values that have hits in the API data.
+
+        for item in choice_api_data:
+            # initialize the list of choices for children of the current item.
+            choices_of_children = []
+
+            if NESTED_CHILDREN_KEY in item:
+                children = item[NESTED_CHILDREN_KEY]
+                # Process children of the current item.
+                for child in children:
+                    choices_of_children.append(
+                        (child["value"], self.choice_label_from_api_data(child), None)
+                    )
+                    choice_vals_with_hits.add(child["value"])
+
+                # Append the parent item with its children choices.
+                choices.append(
+                    (
+                        item["value"],
+                        self.choice_label_from_api_data(item),
+                        choices_of_children,
+                    )
                 )
             else:
-                new_items.append(item)
+                # Not a parent, regular entry.
+                choices.append(
+                    (item["value"], self.choice_label_from_api_data(item), None)
+                )
+            choice_vals_with_hits.add(item["value"])
 
-        # identify and modify the parent item for the nested children
-        for new_item in new_items:
-            if new_item["value"] == PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE:
-                new_item["is_parent"] = True
-                new_item["hint"] = PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_HINT
-                (
-                    new_item["more_filter_choices_available"],
-                    new_item["more_filter_choices_text"],
-                    new_item["more_filter_choices_url"],
-                ) = self._get_more_filter_options()
+        # Add missing values that were selected but not present in the API data.
+        for missing_value in [
+            v for v in selected_values if v not in choice_vals_with_hits
+        ]:
+            try:
+                label_base = self.configured_choice_labels[missing_value]
+            except KeyError:
+                label_base = missing_value
 
-                if children:
-                    # child is present, attach children to the parent
-                    new_item["children"] = children
-                    # reinitialize the parent's checked status to True
-                    # in case where the url does not include the parent
-                    if not new_item.get("checked"):
-                        new_item["checked"] = True
-                    break
+            choices.append((missing_value, f"{label_base} (0)", None))
 
-        return new_items
+        # Replace the field's attribute value.
+        self.choices = choices
+        self.choices_updated = True
+
+    @cached_property
+    def items(self):
+
+        def is_parent_choice(children_choices: list | None):
+            """Return True if the choice represents a parent, even without children.
+            children_choices is the third element of the choice tuple.
+            None, [...] - possible values for the third element of the choice tuple
+            E.g.:
+            1) [("value", "label", None)] - parent choice without children
+               None is not a parent choice
+            2) [("value", "label", [...])] - parent choice with children
+               [...] i.e. [("value", "label", None)] is a child choice without its children
+               currently there is only one level of parent-child relationships.
+            """
+            return children_choices is not None
+
+        def selection_contains_parent_or_child(selected_values):
+            """Returns True if the selection contains any parliamentary archive parent or child."""
+
+            return any(
+                is_parliamentary_archive_parent(value)
+                or is_parliamentary_archive_child(value)
+                for value in selected_values
+            )
+
+        # Long filter pages do show nested choices, so fall back to the default implementation
+        if self.collection_filter_list_applied:
+            return super().items
+
+        if self.error:
+            if self.configured_choices:
+                # remove choices that have been updated
+                # with configured choices by coercing with empty data
+                self.update_choices([], [])
+        else:
+            # check choices not updated i.e. api did not return any choice data
+            if not self.choices_updated:
+                # remove choices that have been updated
+                # with configured choices by coercing with empty data
+                # and coerce 0 counts for input not in api data
+                self.update_choices([], self.value)
+
+        items = []
+        for value, display_value, children_choices in self.choices:
+            item = {}
+            if value in self.value:
+                item = {"text": display_value, "value": value, "checked": True}
+            else:
+                item = {"text": display_value, "value": value}
+
+            display_children_items = []
+
+            if is_parent_choice(children_choices):
+                item[NESTED_IS_PARENT_KEY] = True
+
+                # when choice data includes more children choices than the maximum allowed, add a hint
+                if len(children_choices) > MAX_FILTER_CHOICES:
+                    item[HINT_KEY] = PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_HINT
+
+                # add children choices to display only if the selection contains any parent or child
+                if selection_contains_parent_or_child(self.value):
+                    for child_value, child_display_value, _ in children_choices:
+                        child_item = {"text": child_display_value, "value": child_value}
+                        if child_value in self.value:
+                            child_item["checked"] = True
+                        child_item[NESTED_IS_CHILD_KEY] = True
+                        display_children_items.append(child_item)
+
+                    item[NESTED_CHILDREN_KEY] = display_children_items
+
+                # build more filter options for parliamentary archives if the number of
+                # display children items exceeds the maximum allowed
+                if len(display_children_items) > MAX_FILTER_CHOICES:
+                    self._build_more_filter_options_for_parliamentary_archives(item)
+
+            items.append(item)
+
+        return items
