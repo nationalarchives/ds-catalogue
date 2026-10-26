@@ -44,7 +44,7 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "heldBy",
+                        "name": "longHeldBy",
                         "entries": [
                             {
                                 "value": "Devon Archives and Local Studies Service (South West Heritage Trust)",
@@ -167,7 +167,7 @@ class CatalogueSearchViewHeldByFilterTests(TestCase):
             f"{settings.ROSETTA_API_URL}/search",
             json={
                 "data": [],
-                "aggregations": [{"name": "heldBy", "total": 0, "other": 0}],
+                "aggregations": [{"name": "longHeldBy", "total": 0, "other": 0}],
                 "buckets": [
                     {
                         "name": "group",

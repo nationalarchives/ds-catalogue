@@ -32,7 +32,7 @@ class CatalogueSearchViewAnalyticsNonTnaTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "heldBy",
+                        "name": "longHeldBy",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
@@ -124,7 +124,7 @@ class CatalogueSearchViewAnalyticsNonTnaTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "heldBy",
+                        "name": "longHeldBy",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
@@ -207,7 +207,7 @@ class CatalogueSearchViewAnalyticsNonTnaTests(TestCase):
                 "data": [],
                 "aggregations": [
                     {
-                        "name": "heldBy",
+                        "name": "longHeldBy",
                     }
                 ],
                 "buckets": [

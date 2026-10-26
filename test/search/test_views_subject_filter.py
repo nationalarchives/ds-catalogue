@@ -30,7 +30,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "subject",
+                        "name": "longSubject",
                         "entries": [
                             {"value": "Army", "doc_count": 150},
                             {"value": "Air Force", "doc_count": 75},
@@ -148,7 +148,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "subject",
+                        "name": "longSubject",
                         "entries": [
                             {"value": "Army", "doc_count": 100},
                         ],
@@ -263,7 +263,7 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "subject",
+                        "name": "longSubject",
                         "entries": [
                             {"value": "Army", "doc_count": 100},
                             {"value": "Navy", "doc_count": 50},

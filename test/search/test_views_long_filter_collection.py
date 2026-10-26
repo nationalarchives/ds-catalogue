@@ -35,7 +35,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
@@ -114,7 +114,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
@@ -190,7 +190,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},

@@ -41,7 +41,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
@@ -154,7 +154,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {
                                 "value": "VALUE-DOES-NOT-MATCH-CONFIG",
@@ -244,7 +244,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
                 "data": [],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                     }
                 ],
                 "buckets": [
@@ -340,7 +340,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                         ],
@@ -449,6 +449,15 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
                     "total": 26008838,
                     "results": 20,
                 },
+                "aggregations": [
+                    {
+                        "name": "longCollection",
+                        "total": 0,
+                        "other": 0,
+                        "entries": [{"value": "Y", "doc_count": 0}],
+                        "Y": {"name": "Y", "total": 0},
+                    }
+                ],
             },
             status=HTTPStatus.OK,
         )
