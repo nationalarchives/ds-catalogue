@@ -253,13 +253,29 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
             json={
-                "data": [],
                 "aggregations": [
                     {
                         "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
+                            {"value": "ADM", "doc_count": 20},
+                            {"value": "CO", "doc_count": 15},
+                            {"value": "Y", "doc_count": 15},
+                            {"value": "YHC", "doc_count": 1},
+                            {"value": "YHL", "doc_count": 1},
+                            {"value": "YBBK", "doc_count": 1},
+                            {"value": "YHNN", "doc_count": 1},
+                            {"value": "YFLS", "doc_count": 1},
+                            {"value": "YHEA", "doc_count": 1},
+                            {"value": "YWAR", "doc_count": 1},
+                            {"value": "YBAL", "doc_count": 1},
+                            {"value": "YBLU", "doc_count": 1},
+                            {"value": "YOWE", "doc_count": 1},
+                            {"value": "YLG", "doc_count": 1},
+                            {"value": "YBLK", "doc_count": 1},
+                            {"value": "CSPR", "doc_count": 10},
+                            {"value": "J", "doc_count": 5},
                         ],
                         "total": 28083703,
                         "other": 0,
@@ -308,14 +324,28 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         self.assertEqual(
             mfc_field.items,
             [
-                {
-                    "text": "BT - Board of Trade and successors (50)",
-                    "value": "BT",
-                },
+                {"text": "BT - Board of Trade and successors (50)", "value": "BT"},
                 {
                     "text": "WO - War Office, Armed Forces, Judge Advocate General, and related bodies (35)",
                     "value": "WO",
                 },
+                {
+                    "text": "ADM - Admiralty, Navy, Royal Marines, and Coastguard (20)",
+                    "value": "ADM",
+                },
+                {
+                    "text": "CO - Colonial Office, Commonwealth and Foreign and Commonwealth Offices (15)",
+                    "value": "CO",
+                },
+                {
+                    "text": "Y - UK Parliament (15)",
+                    "value": "Y",
+                },
+                {
+                    "text": "CSPR - Civil Service Pay Research Unit (10)",
+                    "value": "CSPR",
+                },
+                {"text": "J - Supreme Court of Judicature (5)", "value": "J"},
             ],
         )
         self.assertEqual(
@@ -333,6 +363,14 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         self.assertNotIn("""<input type="hidden" name="sort" """, html)
         self.assertIn("""<input type="hidden" name="display" value="list">""", html)
         self.assertNotIn("""<input type="hidden" name="online" """, html)
+        self.assertNotIn("""<input type="hidden" name="collection" """, html)
+        self.assertNotIn(
+            """<div class="tna-checkboxes__item tna-checkboxes__item--parent">""", html
+        )
+        self.assertIn(
+            """<input type="checkbox" id="id_collection-Y" value="Y" name="collection">""",
+            html,
+        )
 
     @responses.activate
     def test_search_for_filter_list_param_with_other_params(
