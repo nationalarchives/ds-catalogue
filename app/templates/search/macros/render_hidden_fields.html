@@ -2,6 +2,7 @@
 {% from 'search/macros/as_hidden_for_single_value.html' import as_hidden_for_single_value %}
 {% from 'search/macros/as_hidden_for_date_input.html' import as_hidden_for_date_input %}
 {% from 'search/macros/as_hidden_for_checkboxes.html' import as_hidden_for_checkboxes %}
+{% from 'search/macros/as_hidden_for_multiple_values.html' import as_hidden_for_multiple_values %}
 
 {% macro render_hidden_fields(request, form, bucket_keys, mfc_field, aggregation) %}
   {%- set ns = namespace(found_y=false) %}
@@ -26,7 +27,7 @@
     {% endif %}
     {#- parent collection filter for parliamentary archives is not visible for selection, show it as hidden if applicable #}
     {%- if ns.found_y %}
-      <input type="hidden" name="collection" value="Y">
+      {{ as_hidden_for_multiple_values(mfc_field.name, ['Y']) }}
     {%- endif %}
     {# Avoid duplicate subject field #}
     {% if mfc_field.name != aggregation.SUBJECT.field_name %}
