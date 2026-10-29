@@ -252,8 +252,8 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
             if is_parent_choice(children_choices):
                 item[NESTED_IS_PARENT_KEY] = True
 
-                # when choice data includes more children choices than the maximum allowed, add a hint
-                if len(children_choices) > MAX_FILTER_CHOICES:
+                # show hint for parent choice when it has children choices
+                if len(children_choices) > 0:
                     item[HINT_KEY] = PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_HINT
 
                 # add children choices to display only if the selection contains any parent or child
