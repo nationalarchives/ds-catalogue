@@ -59,8 +59,10 @@ from .forms import (
 from .mixins import SearchDataLayerMixin
 from .models import APISearchResponse
 from .parliamentary_archives import (
-    build_choice_api_data_for_collections_filter,
-    remove_parliamentary_archives_parent_filter,
+    add_child_collection_values_to_first_n,
+    build_choice_api_data_for_collection_filter,
+    build_collection_active_filters,
+    remove_parliamentary_archives_parent_collection_filter,
 )
 from .utils import (
     camelcase_to_underscore,
@@ -140,8 +142,8 @@ class APIMixin:
             if form.fields[FieldsConstant.ONLINE].cleaned == "true":
                 params["digitised"] = "true"
 
-        # parliamentary archives filter adjustments
-        params = remove_parliamentary_archives_parent_filter(params)
+        # parliamentary archives collection filter adjustments
+        params = remove_parliamentary_archives_parent_collection_filter(params)
 
         return params
 
@@ -211,7 +213,7 @@ class APIMixin:
 
                     # prepare choice api data for parliamentary archives
                     if field_name == FieldsConstant.COLLECTION:
-                        choice_api_data = build_choice_api_data_for_collections_filter(
+                        choice_api_data = build_choice_api_data_for_collection_filter(
                             field_name, form, choice_api_data, self.request
                         )
 
@@ -575,6 +577,11 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
 
         self.selected_filters = self.build_selected_filters_list()
 
+        # hidden values that are preserved for selected filters not in the first n items
+        self.hidden_selected_filters = []
+        if not self.is_filter_list_applied(self.form):
+            self.hidden_selected_filters = self.build_hidden_selected_filter_values()
+
         notifications = fetch_global_notifications()
         context["global_alert"] = (
             notifications.get("global_alert") if notifications else None
@@ -587,6 +594,8 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             {
                 "bucket_list": self.bucket_list,
                 "selected_filters": self.selected_filters,
+                "hidden_selected_filters": self.hidden_selected_filters,
+                "max_filter_choices": MAX_FILTER_CHOICES,
                 "analytics_data": self.get_datalayer_data(self.request),
                 "bucket_keys": BucketKeys,
                 "display_options": Display,
@@ -717,6 +726,16 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
                     choice_labels = self.form.fields[
                         field_name
                     ].configured_choice_labels
+
+                if field_name == FieldsConstant.COLLECTION:
+                    # build collection active filter containing Parliament Archive collections separately
+                    build_collection_active_filters(
+                        choice_labels,
+                        field,
+                        self.request,
+                        existing_filters,
+                    )
+                    continue
 
                 for item in field.value:
                     existing_filters.append(
@@ -947,6 +966,61 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         if self.form.fields[FieldsConstant.HELD_BY].items:
             # visible if items set (with api agg values or input values)
             self.form.fields[FieldsConstant.HELD_BY].is_visible = True
+
+    def build_hidden_selected_filter_values(self) -> dict[str, list]:
+        """Builds a dictionary of selected values that are not displayed for each filter.
+        Used when traversing long filter page choices to search results to ensure selected
+        values are preserved even if not displayed in the first n items.
+        """
+
+        def selected_values_not_in_first_n(field, max_items):
+            """Returns the values from input that are not in the first n items."""
+
+            selected_values = field.value
+            items = field.items
+
+            # build a list of the first n items, including child values for collections
+            first_n_items = []
+            for item in items[:max_items]:
+                # add child values to the first_n_items list if present
+                if field.name == FieldsConstant.COLLECTION:
+                    add_child_collection_values_to_first_n(
+                        item, max_items, first_n_items
+                    )
+
+                first_n_items.append(item["value"])
+
+            # remaining contains the selected values that are not in the first n items and are not child collections
+            remaining = [
+                value
+                for value in selected_values
+                # if not is_parliamentary_archive_child(value) and value not in first_n_items
+                if value not in first_n_items
+            ]
+
+            return remaining
+
+        hidden_values = []
+        for field_name in [
+            FieldsConstant.COLLECTION,
+            FieldsConstant.SUBJECT,
+            FieldsConstant.HELD_BY,
+        ]:
+            if field_name in self.form.fields:
+                field = self.form.fields[field_name]
+                if field.value:
+                    selected_but_not_displayed = selected_values_not_in_first_n(
+                        field, MAX_FILTER_CHOICES
+                    )
+                    if selected_but_not_displayed:
+                        hidden_values.append(
+                            {
+                                "name": field_name,
+                                "values": selected_but_not_displayed,
+                            }
+                        )
+
+        return hidden_values
 
 
 class AdvancedSearchView(TemplateView):
