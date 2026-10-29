@@ -4,6 +4,15 @@
 {% from 'search/macros/as_hidden_for_checkboxes.html' import as_hidden_for_checkboxes %}
 
 {% macro render_hidden_fields(request, form, bucket_keys, mfc_field, aggregation) %}
+  {%- set ns = namespace(found_y=false) %}
+  {#- Check whether any collection query parameter starts with 'Y'. #}
+  {%- if mfc_field.name == aggregation.COLLECTION.field_name %}
+    {%- for c in request.GET.getlist('collection') %}
+        {%- if c.startswith('Y') %}
+            {%- set ns.found_y = true %}
+        {%- endif %}
+    {%- endfor %}
+  {%- endif %}
   {{ as_hidden_for_single_value(form.fields.group) }}
   {{ as_hidden_for_single_value(form.fields.q) }}
   <input type="hidden" name="display" value="{{ request.GET.get('display') or 'list' }}">
@@ -15,6 +24,10 @@
     {% if mfc_field.name != aggregation.COLLECTION.field_name %}
       {{ as_hidden_for_checkboxes(form.fields.collection) }}
     {% endif %}
+    {#- parent collection filter for parliamentary archives is not visible for selection, show it as hidden if applicable #}
+    {%- if ns.found_y %}
+      <input type="hidden" name="collection" value="Y">
+    {%- endif %}
     {# Avoid duplicate subject field #}
     {% if mfc_field.name != aggregation.SUBJECT.field_name %}
       {{ as_hidden_for_checkboxes(form.fields.subject) }}

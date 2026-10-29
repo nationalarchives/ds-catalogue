@@ -24,6 +24,7 @@
 {% from 'search/macros/filters_not_applied_banner.html' import filters_not_applied_banner %}
 {% from 'macros/feedback_banner.html' import feedback %}
 {% from 'search/macros/as_hidden_for_checkboxes.html' import as_hidden_for_checkboxes %}
+{% from 'search/macros/as_hidden_for_multiple_values.html' import as_hidden_for_multiple_values %}
 
 {%- set pageTitle = 'Catalogue search ' ~ ((' for "' ~ request.GET.q ~ '"') if request.GET.q else '') -%}
 {%- set encodedQuery = request.GET.urlencode() | base64_encode -%}
@@ -116,7 +117,11 @@
             <input type="hidden" name="level" value="{{ value }}">
           {% endfor %}
         {% endif %}
-      {% endif %}
+      {%- endif %}
+      {#- hidden values that are preserved for selected filters not in the first n items #}
+      {%- for field in hidden_selected_filters %}
+        {{ as_hidden_for_multiple_values(field.name, field["values"]) }}
+      {%- endfor %}
     </form>
     <div class="tna-column tna-column-full">
       <a href="{{ url('search:catalogue') }}">Start new search</a>
@@ -201,10 +206,10 @@
         {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
       {% endif %}
       {% if form.fields.collection.is_visible %}
-        {{ checkboxes_with_submit(request, form.fields.collection) }}
+        {{ checkboxes_with_submit(request, form.fields.collection, max_filter_choices) }}
       {% endif %}
       {% if form.fields.subject.is_visible %}
-        {{ checkboxes_with_submit(request, form.fields.subject) }}
+        {{ checkboxes_with_submit(request, form.fields.subject, max_filter_choices) }}
       {% endif %}
       {% if form.fields.level.is_visible %}
         {{ checkboxes_with_submit(request, form.fields.level) }}
@@ -221,7 +226,7 @@
         {{ date_input(form.fields.covering_date_from, form.fields.covering_date_to, 'Filter by record date') }}
       {% endif %}
       {% if form.fields.held_by.is_visible %}
-        {{ checkboxes_with_submit(request, form.fields.held_by) }}
+        {{ checkboxes_with_submit(request, form.fields.held_by, max_filter_choices) }}
       {% endif %}
     {% endif %}
 

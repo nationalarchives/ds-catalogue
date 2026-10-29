@@ -1,0 +1,5 @@
+{%- macro as_hidden_for_multiple_values(field_name, values) %}
+  {%- for value in values %}
+    <input type="hidden" name="{{ field_name }}" value="{{ value }}">
+  {%- endfor %}
+{%- endmacro %}
