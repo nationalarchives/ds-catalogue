@@ -48,11 +48,13 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
         long_aggs = Aggregation.get_long_aggs_name_for_field_name(self.name)
 
         # add the parent collection parameter to the query string.
-        parent_collection_param = f"&{FieldsConstant.COLLECTION}={PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE}"
+        parent_collection_param = f"{FieldsConstant.COLLECTION}={PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE}"
 
         # check if parent collection parameter is already present in the query string.
         if parent_collection_param in self.request.GET.urlencode():
             parent_collection_param = ""
+        else:
+            parent_collection_param = "&" + parent_collection_param
 
         more_filter_choices_url = (
             "?"

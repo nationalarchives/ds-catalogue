@@ -694,7 +694,7 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
                     "hint": "select to show more specific collections",
                     "more_filter_choices_available": True,
                     "more_filter_choices_text": "See more UK Parliament collections",
-                    "more_filter_choices_url": "?collection=Y&filter_list=longCollection&collection=Y",
+                    "more_filter_choices_url": "?collection=Y&filter_list=longCollection",
                     "children": [
                         {
                             "text": "YHL - Records of the House of Commons; Records of the House of Lords (10)",
