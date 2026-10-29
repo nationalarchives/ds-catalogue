@@ -450,6 +450,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
                 },
                 "aggregations": [
                     {
+                        # Special case: api returns single entry for parent "Y" with zero doc_count as dict instead of list
                         "name": "longCollection",
                         "total": 0,
                         "other": 0,

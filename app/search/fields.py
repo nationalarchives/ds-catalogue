@@ -267,8 +267,8 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
 
                     item[NESTED_CHILDREN_KEY] = display_children_items
 
-                    # special case: manually mark the parent as checked if any of its children
-                    # exist and the parent itself is not checked
+                    # Special case: manually mark the parent as checked if any of its children
+                    # exist but the parent itself is not checked or absence from url is not flagged
                     if (
                         len(children_choices) > 0
                         and getattr(item, "checked", None) is None

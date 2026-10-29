@@ -466,7 +466,7 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
                         "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
-                            # api returns parent collection with 0 hits
+                            # Special case: api returns parent entry "Y" with zero doc_count
                             {"value": "Y", "doc_count": 0},
                         ],
                         "total": 100,
@@ -507,7 +507,7 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
         )
         self.assertEqual(collection_field.choices_updated, True)
 
-        # parent choice "Y" is not included because it has 0 hits
+        # Special case: parent choice "Y" is not included because it has zero doc_count
         self.assertEqual(
             collection_field.choices,
             [("BT", "BT - Board of Trade and successors (50)", None)],
@@ -1061,7 +1061,8 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
             ],
         )
 
-        # parent "Y" is automatically checked because its children are selected
+        # Special case: parent "Y" is automatically checked because its children are selected,
+        # but the parent itself is not checked or absence from url is not flagged
         self.assertEqual(
             collection_field.items,
             [

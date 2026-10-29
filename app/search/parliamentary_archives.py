@@ -92,8 +92,7 @@ def prepare_api_parent_child_entries_for_parliamentay_archives(
     list containing that entry to ensure bucket counts visibility.
     """
 
-    # special case:
-    # api returns single entry for parent "Y" with zero doc_count as dict.
+    # Special case: api returns single entry for parent "Y" with zero doc_count as dict instead of list
     # e.g. when an invalid collection is queried ?collection=PIZZA
     # coearse it into a list for consistent handling
     single_entry = {"value": "Y", "doc_count": 0}
@@ -114,7 +113,8 @@ def prepare_api_parent_child_entries_for_parliamentay_archives(
         value = entry["value"]
 
         if is_parliamentary_archive_parent(value):
-            # special case: api returns parent entry with zero doc_count
+            # Special case:  api returns parent entry "Y" with zero doc_count,
+            # skip it and continue processing the remaining entries
             if entry["doc_count"] == 0:
                 continue
             # keep only parents with non-zero doc_count
