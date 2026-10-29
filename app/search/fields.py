@@ -70,6 +70,36 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
         item["more_filter_choices_text"] = more_filter_choices_text
         item["more_filter_choices_url"] = more_filter_choices_url
 
+    def remove_parent_from_selected_values(self, selected_values):
+        """Removes the parent collection from the selected values if the long filter is applied."""
+        selected_values = [
+            value
+            for value in selected_values
+            if not is_parliamentary_archive_parent(value)
+        ]
+        return selected_values
+
+    def get_missing_choices(
+        self,
+        selected_values,
+        choice_vals_with_hits: set,
+    ):
+        if self.collection_filter_list_applied:
+            selected_values = self.remove_parent_from_selected_values(selected_values)
+            return super().get_missing_choices(selected_values, choice_vals_with_hits)
+
+        missing_choices = []
+        for missing_value in [
+            v for v in selected_values if v not in choice_vals_with_hits
+        ]:
+            try:
+                label_base = self.configured_choice_labels[missing_value]
+            except KeyError:
+                label_base = missing_value
+            missing_choices.append((missing_value, f"{label_base} (0)", None))
+
+        return missing_choices
+
     def update_choices(
         self,
         choice_api_data: list[dict[str, str | int | list[dict]]],
@@ -104,6 +134,25 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
 
         # Long filter pages do show nested choices, so fall back to the default implementation.
         if self.collection_filter_list_applied:
+            # remove parent from choice_api_data for long filter pages
+            # when parent only, or child without parent, remove the parent from API data
+            has_parent = False
+            has_child = False
+            for value in selected_values:
+                if is_parliamentary_archive_child(value):
+                    has_child = True
+                if is_parliamentary_archive_parent(value):
+                    has_parent = True
+            if (
+                (has_parent and not has_child)
+                or (has_child and not has_parent)
+                or (has_parent and has_child)
+            ):
+                choice_api_data = [
+                    item
+                    for item in choice_api_data
+                    if not is_parliamentary_archive_parent(item["value"])
+                ]
             super().update_choices(choice_api_data, selected_values)
             return
 
@@ -139,16 +188,10 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
                 )
             choice_vals_with_hits.add(item["value"])
 
-        # Add missing values that were selected but not present in the API data.
-        for missing_value in [
-            v for v in selected_values if v not in choice_vals_with_hits
-        ]:
-            try:
-                label_base = self.configured_choice_labels[missing_value]
-            except KeyError:
-                label_base = missing_value
-
-            choices.append((missing_value, f"{label_base} (0)", None))
+        missing_choices = self.get_missing_choices(
+            selected_values, choice_vals_with_hits
+        )
+        choices.extend(missing_choices)
 
         # Replace the field's attribute value.
         self.choices = choices
@@ -223,6 +266,16 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
                         display_children_items.append(child_item)
 
                     item[NESTED_CHILDREN_KEY] = display_children_items
+
+                    # special case: manually mark the parent as checked if any of its children
+                    # exist and the parent itself is not checked
+                    if (
+                        len(children_choices) > 0
+                        and getattr(item, "checked", None) is None
+                        and PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE
+                        not in self.value
+                    ):
+                        item["checked"] = True
 
                 # build more filter options for parliamentary archives if the number of
                 # display children items exceeds the maximum allowed
