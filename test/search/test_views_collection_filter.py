@@ -436,7 +436,6 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
             json={
-                "data": [],
                 "buckets": [
                     {
                         "name": "group",
@@ -454,7 +453,7 @@ class CatalogueSearchViewCollectionFilterTests(TestCase):
                         "name": "longCollection",
                         "total": 0,
                         "other": 0,
-                        "entries": [{"value": "Y", "doc_count": 0}],
+                        "entries": {"value": "Y", "doc_count": 0},
                         "Y": {"name": "Y", "total": 0},
                     }
                 ],
