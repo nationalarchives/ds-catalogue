@@ -32,7 +32,7 @@ class CatalogueSearchFiltersNotAppliedTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
@@ -98,7 +98,7 @@ class CatalogueSearchFiltersNotAppliedTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "heldBy",
+                        "name": "longHeldBy",
                         "entries": [
                             {"value": "Lancashire Archives", "doc_count": 1},
                         ],

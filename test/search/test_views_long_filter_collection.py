@@ -35,7 +35,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
@@ -114,7 +114,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
@@ -190,7 +190,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
@@ -253,13 +253,29 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
             json={
-                "data": [],
                 "aggregations": [
                     {
                         "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
+                            {"value": "ADM", "doc_count": 20},
+                            {"value": "CO", "doc_count": 15},
+                            {"value": "Y", "doc_count": 15},
+                            {"value": "YHC", "doc_count": 1},
+                            {"value": "YHL", "doc_count": 1},
+                            {"value": "YBBK", "doc_count": 1},
+                            {"value": "YHNN", "doc_count": 1},
+                            {"value": "YFLS", "doc_count": 1},
+                            {"value": "YHEA", "doc_count": 1},
+                            {"value": "YWAR", "doc_count": 1},
+                            {"value": "YBAL", "doc_count": 1},
+                            {"value": "YBLU", "doc_count": 1},
+                            {"value": "YOWE", "doc_count": 1},
+                            {"value": "YLG", "doc_count": 1},
+                            {"value": "YBLK", "doc_count": 1},
+                            {"value": "CSPR", "doc_count": 10},
+                            {"value": "J", "doc_count": 5},
                         ],
                         "total": 28083703,
                         "other": 0,
@@ -308,14 +324,28 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         self.assertEqual(
             mfc_field.items,
             [
-                {
-                    "text": "BT - Board of Trade and successors (50)",
-                    "value": "BT",
-                },
+                {"text": "BT - Board of Trade and successors (50)", "value": "BT"},
                 {
                     "text": "WO - War Office, Armed Forces, Judge Advocate General, and related bodies (35)",
                     "value": "WO",
                 },
+                {
+                    "text": "ADM - Admiralty, Navy, Royal Marines, and Coastguard (20)",
+                    "value": "ADM",
+                },
+                {
+                    "text": "CO - Colonial Office, Commonwealth and Foreign and Commonwealth Offices (15)",
+                    "value": "CO",
+                },
+                {
+                    "text": "Y - UK Parliament (15)",
+                    "value": "Y",
+                },
+                {
+                    "text": "CSPR - Civil Service Pay Research Unit (10)",
+                    "value": "CSPR",
+                },
+                {"text": "J - Supreme Court of Judicature (5)", "value": "J"},
             ],
         )
         self.assertEqual(
@@ -333,6 +363,14 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         self.assertNotIn("""<input type="hidden" name="sort" """, html)
         self.assertIn("""<input type="hidden" name="display" value="list">""", html)
         self.assertNotIn("""<input type="hidden" name="online" """, html)
+        self.assertNotIn("""<input type="hidden" name="collection" """, html)
+        self.assertNotIn(
+            """<div class="tna-checkboxes__item tna-checkboxes__item--parent">""", html
+        )
+        self.assertIn(
+            """<input type="checkbox" id="id_collection-Y" value="Y" name="collection">""",
+            html,
+        )
 
     @responses.activate
     def test_search_for_filter_list_param_with_other_params(
@@ -474,6 +512,8 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                         "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
+                            # Special case: api returns parent entry "Y" with zero doc_count
+                            {"value": "Y", "doc_count": 0},
                         ],
                         "total": 28083703,
                         "other": 0,
@@ -520,6 +560,8 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
             mfc_field.name,
             FieldsConstant.COLLECTION,
         )
+
+        # Special case: api response that includes parent with doc_count 0 is removed
         self.assertEqual(
             mfc_field.items,
             [
@@ -541,3 +583,183 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
 
         # test hidden inputs
         self.assertNotIn("""<input type="hidden" name="collection" """, html)
+
+    @responses.activate
+    def test_search_for_filter_list_param_with_parent_parliament_archive(
+        self,
+    ):
+        """Test search for filter list param with parent parliament archive 'Y'"""
+
+        # 0 results for long filter
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "aggregations": [
+                    {
+                        "name": "longCollection",
+                        "entries": [
+                            {"value": "Y", "doc_count": 100},
+                            {"value": "YHC", "doc_count": 50},
+                            {"value": "YHL", "doc_count": 50},
+                        ],
+                        "total": 28083703,
+                        "other": 0,
+                    }
+                ],
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "tna", "count": 1},
+                        ],
+                    }
+                ],
+                "stats": {
+                    "total": 10000,
+                    "results": 0,
+                },
+            },
+            status=HTTPStatus.OK,
+        )
+
+        response = self.client.get(
+            "/catalogue/search/?filter_list=longCollection&collection=Y"
+        )
+
+        context_data = response.context_data
+        form = context_data.get("form")
+        html = force_str(response.content)
+        # more filter choice field - i.e. collection - used in template
+        mfc_field = context_data.get("mfc_field")
+
+        self.assertEqual(len(context_data.get("results")), 0)
+        self.assertTrue(form.is_valid())
+
+        self.assertEqual(
+            context_data.get("mfc_cancel_and_return_to_search_url"),
+            ("?collection=Y"),
+        )
+        self.assertIsInstance(
+            mfc_field,
+            DynamicMultipleChoiceField,
+        )
+        self.assertEqual(
+            mfc_field.name,
+            FieldsConstant.COLLECTION,
+        )
+
+        self.assertEqual(
+            mfc_field.items,
+            [
+                {"text": "YHC - Records of the House of Commons (50)", "value": "YHC"},
+                {
+                    "text": "YHL - Records of the House of Commons; Records of the House of Lords (50)",
+                    "value": "YHL",
+                },
+            ],
+        )
+        self.assertEqual(
+            mfc_field.more_filter_choices_available,
+            False,
+        )
+        self.assertEqual(
+            mfc_field.more_filter_choices_url,
+            "",
+        )
+
+        # test hidden inputs
+        # parent collection filter for parliamentary archives is not visible for selection, show it as hidden
+        self.assertIn("""<input type="hidden" name="collection" value="Y">""", html)
+
+    @responses.activate
+    def test_search_for_filter_list_param_with_child_parliament_archive_without_parent(
+        self,
+    ):
+        """Test search for filter list param with child parliament archive without parent"""
+
+        # 0 results for long filter
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "aggregations": [
+                    {
+                        "name": "longCollection",
+                        "entries": [
+                            {"value": "Y", "doc_count": 100},
+                            {"value": "YHC", "doc_count": 50},
+                            {"value": "YHL", "doc_count": 50},
+                        ],
+                        "total": 28083703,
+                        "other": 0,
+                    }
+                ],
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "tna", "count": 1},
+                        ],
+                    }
+                ],
+                "stats": {
+                    "total": 10000,
+                    "results": 0,
+                },
+            },
+            status=HTTPStatus.OK,
+        )
+
+        response = self.client.get(
+            "/catalogue/search/?filter_list=longCollection&collection=YHC&collection=YHL"
+        )
+
+        context_data = response.context_data
+        form = context_data.get("form")
+        html = force_str(response.content)
+        # more filter choice field - i.e. collection - used in template
+        mfc_field = context_data.get("mfc_field")
+
+        self.assertEqual(len(context_data.get("results")), 0)
+        self.assertTrue(form.is_valid())
+
+        self.assertEqual(
+            context_data.get("mfc_cancel_and_return_to_search_url"),
+            ("?collection=YHC&collection=YHL"),
+        )
+        self.assertIsInstance(
+            mfc_field,
+            DynamicMultipleChoiceField,
+        )
+        self.assertEqual(
+            mfc_field.name,
+            FieldsConstant.COLLECTION,
+        )
+        self.assertEqual(
+            mfc_field.items,
+            [
+                {
+                    "text": "YHC - Records of the House of Commons (50)",
+                    "value": "YHC",
+                    "checked": True,
+                },
+                {
+                    "text": "YHL - Records of the House of Commons; Records of the House of Lords (50)",
+                    "value": "YHL",
+                    "checked": True,
+                },
+            ],
+        )
+        self.assertEqual(
+            mfc_field.more_filter_choices_available,
+            False,
+        )
+        self.assertEqual(
+            mfc_field.more_filter_choices_url,
+            "",
+        )
+
+        # test hidden inputs
+        # parent collection filter for parliamentary archives is not visible for selection, show it as hidden
+        self.assertIn("""<input type="hidden" name="collection" value="Y">""", html)

@@ -42,7 +42,7 @@ class CatalogueSearchViewDefaultTests(TestCase):
                         ],
                     },
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
@@ -58,7 +58,7 @@ class CatalogueSearchViewDefaultTests(TestCase):
                         ],
                     },
                     {
-                        "name": "subject",
+                        "name": "longSubject",
                         "entries": [
                             {"value": "Army", "doc_count": 25},
                             {"value": "Navy", "doc_count": 15},

@@ -35,7 +35,7 @@ class CatalogueSearchViewHeldByMoreFilterChoicesTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "heldBy",
+                        "name": "longHeldBy",
                         "entries": [
                             {"value": "Lancashire Archives", "doc_count": 50},
                             {"value": "Freud Museum", "doc_count": 35},
@@ -301,7 +301,7 @@ class CatalogueSearchViewHeldByMoreFilterChoicesTests(TestCase):
                 "data": [],
                 "aggregations": [
                     {
-                        "name": "heldBy",
+                        "name": "longHeldBy",
                         "entries": [
                             {"value": "Lancashire Archives", "doc_count": 50},
                         ],

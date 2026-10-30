@@ -69,6 +69,12 @@ FILTER_FIELDS = [
     FieldsConstant.REFERENCE_NUMBER,
 ]
 
+SEE_MORE_CHOICES_FIELDS = [
+    FieldsConstant.COLLECTION,
+    FieldsConstant.SUBJECT,
+    FieldsConstant.HELD_BY,
+]
+
 
 class Display(StrEnum):
     """Options for displaying /search results."""
@@ -81,7 +87,15 @@ class Display(StrEnum):
 ADV_SEARCH_TEXTAREA_MAX_CHARS = 2000
 ADV_SEARCH_TEXTAREA_MAX_LINES = 200
 
+PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE = "Y"
+PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_HINT = (
+    "select to show more specific collections"
+)
 
 MAX_FILTER_CHOICES = (
     10  # max number of filter choices to display before showing "more" option
 )
+NESTED_CHILDREN_KEY = "children"
+NESTED_IS_PARENT_KEY = "is_parent"
+NESTED_IS_CHILD_KEY = "is_child"
+HINT_KEY = "hint"
