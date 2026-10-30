@@ -512,7 +512,7 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                         "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
-                            # Special case: api response includes parent with doc_count 0
+                            # Special case: api returns parent entry "Y" with zero doc_count
                             {"value": "Y", "doc_count": 0},
                         ],
                         "total": 28083703,

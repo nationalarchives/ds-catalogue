@@ -63,6 +63,7 @@ from .parliamentary_archives import (
     add_parliamentary_archives_child_values_to_first_n,
     build_choice_api_data_for_collection_filter,
     build_collection_active_filters,
+    filter_api_entries,
     remove_parliamentary_archives_parent_collection_filter,
 )
 from .utils import (
@@ -214,8 +215,9 @@ class APIMixin:
 
                     # prepare choice api data for parliamentary archives
                     if field_name == FieldsConstant.COLLECTION:
+                        api_entries_filtered = filter_api_entries(choice_api_data)
                         choice_api_data = build_choice_api_data_for_collection_filter(
-                            field_name, form, choice_api_data, self.request
+                            field_name, form, api_entries_filtered, self.request
                         )
 
                     form.fields[field_name].update_choices(

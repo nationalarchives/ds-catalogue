@@ -49,6 +49,30 @@ def is_collection_filter_list_applied(form):
     return False
 
 
+def filter_api_entries(
+    api_entries: list[dict[str, str | int]] | dict[str, str | int],
+) -> list[dict[str, str | int]]:
+    """Filter out API entries for parliamentary archives where the parent has doc_count 0.
+    This ensures that the parent entry with doc_count 0 is not included in the choices.
+    Note: Call this at start of processing API entries to minimise conditional logic later
+    in the processing pipeline. Also ensures consistency in the data format returned.
+    """
+
+    if isinstance(api_entries, dict) and api_entries == {"value": "Y", "doc_count": 0}:
+        # Special case: api returns single entry for parent "Y" with zero doc_count as dict
+        # remove the empty parent and return list for consistency
+        # e.g. when an invalid collection is queried ?collection=PIZZA
+        return []
+
+    # Special case: api returns parent entry "Y" with zero doc_count
+    # remove empty parent entry with doc_count 0 and retain all other entries
+    return [
+        entry
+        for entry in api_entries
+        if not (entry.get("value") == "Y" and entry.get("doc_count") == 0)
+    ]
+
+
 def build_choice_api_data_for_collection_filter(
     field_name: str,
     form,
@@ -78,7 +102,7 @@ def build_choice_api_data_for_collection_filter(
 
 
 def prepare_api_parent_child_entries_for_parliamentay_archives(
-    api_entries: list[dict[str, str | int]] | dict[str, str | int],
+    api_entries: list[dict[str, str | int]],
 ) -> list[dict[str, str | int | list[dict]]]:
     """Returns transformed entries with parent positioned correctly and children nested appropriately.
 
@@ -104,14 +128,7 @@ def prepare_api_parent_child_entries_for_parliamentay_archives(
     2. Remove empty parent entry: { "value": "Y", "doc_count": 0 }
     3. Preserve original order of entries and adjust position of parent "Y" if it appears after
     MAX_FILTER_CHOICES (e.g. 10 entries) if necessary so that it remains visible (subject to FE constraints)
-    4. special case: single entry for parent "Y" with zero doc_count is returned as empty list.
     """
-
-    # Special case: api returns single entry for parent "Y" with zero doc_count as dict
-    # remove the empty parent and return list for consistency
-    # e.g. when an invalid collection is queried ?collection=PIZZA
-    if isinstance(api_entries, dict) and api_entries == {"value": "Y", "doc_count": 0}:
-        return []
 
     parent = None
     children = []
@@ -123,11 +140,6 @@ def prepare_api_parent_child_entries_for_parliamentay_archives(
         value = entry["value"]
 
         if is_parliamentary_archive_parent(value):
-            # Special case:  api returns parent entry "Y" with zero doc_count,
-            # skip it and continue processing the remaining entries
-            if entry["doc_count"] == 0:
-                continue
-            # keep only parents with non-zero doc_count
             parent = entry.copy()
             original_parent_index = index
         elif is_parliamentary_archive_child(value):
@@ -186,18 +198,16 @@ def prepare_api_long_filter_list_entries_for_parliamentary_archives(
 
     def prepare_entries_parent_without_children(
         api_entries: list[dict[str, str | int]],
-    ):
+    ) -> list[dict[str, str | int]]:
         """This is usually for entries related to the "See more collections" link.
         Keep parent entries and other entries, discarding child entries.
         Preserves the original order of entries. Adjusts parent's position if necessary."""
 
-        # Remove child entries and entries with a doc_count of 0
-        # Special case: api response includes parent with doc_count 0
+        # Remove child entries
         remaining = [
             entry.copy()
             for entry in api_entries
             if not is_parliamentary_archive_child(entry["value"])
-            and entry["doc_count"] != 0
         ]
 
         # Find the current index of the parent in the remaining entries
