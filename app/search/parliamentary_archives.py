@@ -165,14 +165,6 @@ def prepare_api_parent_child_entries_for_parliamentay_archives(
     # Insert the parent back into the remaining entries at its adjusted index
     remaining.insert(adjusted_index, parent)
 
-    # Move Y to the 10th position if it is outside the first 10
-    # and none of its children appeared in the original first 10
-    original_first_upto_max = api_entries[:MAX_FILTER_CHOICES]
-    has_child_in_first_upto_max = any(
-        is_parliamentary_archive_child(entry["value"])
-        for entry in original_first_upto_max
-    )
-
     # Find the current index of the parent in the remaining entries
     parent_index = next(
         (
@@ -183,8 +175,8 @@ def prepare_api_parent_child_entries_for_parliamentay_archives(
         None,
     )
 
-    # Move the parent to the 10th position if it is outside the first 10 and none of its children appeared in the original first 10
-    if parent_index >= MAX_FILTER_CHOICES and not has_child_in_first_upto_max:
+    # Keep the parent visible after its children have been nested.
+    if parent_index >= MAX_FILTER_CHOICES:
         remaining.insert(MAX_FILTER_CHOICES - 1, remaining.pop(parent_index))
 
     return remaining
