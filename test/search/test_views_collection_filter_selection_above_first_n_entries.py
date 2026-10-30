@@ -454,7 +454,7 @@ class CatalogueSearchViewAboveNEntriesCollectionFilterTests(TestCase):
                         # Y parent+child (1+11) = 12
                         # Non-Y entries = 10
                         # TOTAL entries = 12 + 10 = 22
-                        # Y is outside the first 10 entries
+                        # Y is outside the first 10 entries, but not last
                         "entries": [
                             {"value": "YHL", "doc_count": 3},
                             {"value": "BT", "doc_count": 200},
@@ -470,7 +470,7 @@ class CatalogueSearchViewAboveNEntriesCollectionFilterTests(TestCase):
                             {
                                 "value": "Y",
                                 "doc_count": 500,
-                            },  # Y is the outside the first 10 entries, but not last
+                            },  # Y is outside the first 10 entries, but not last
                             {"value": "YBBK", "doc_count": 1},
                             {"value": "YHNN", "doc_count": 1},
                             {"value": "YFLS", "doc_count": 1},
@@ -866,7 +866,7 @@ class CatalogueSearchViewAboveNEntriesCollectionFilterTests(TestCase):
                         # Y parent+child (1+11) = 12
                         # Non-Y entries = 10
                         # TOTAL entries = 12 + 10 = 22
-                        # Y is outside the first 10 entries
+                        # Y is outside the first 10 entries, and is last
                         "entries": [
                             {"value": "YHL", "doc_count": 3},
                             {"value": "BT", "doc_count": 200},
