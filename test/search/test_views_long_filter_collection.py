@@ -512,6 +512,8 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                         "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
+                            # Special case: api response includes parent with doc_count 0
+                            {"value": "Y", "doc_count": 0},
                         ],
                         "total": 28083703,
                         "other": 0,
@@ -558,6 +560,8 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
             mfc_field.name,
             FieldsConstant.COLLECTION,
         )
+
+        # Special case: api response that includes parent with doc_count 0 is removed
         self.assertEqual(
             mfc_field.items,
             [

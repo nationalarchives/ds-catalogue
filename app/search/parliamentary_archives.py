@@ -1,5 +1,7 @@
 """Parliamentary archives related search utilities."""
 
+from django.http import HttpRequest
+
 from config.utils.query_string import qs_toggle_value
 
 from .buckets import Aggregation
@@ -11,18 +13,27 @@ from .constants import (
 )
 
 
-def is_parliamentary_archive_parent(value):
+def is_parliamentary_archive_parent(value: str):
     """Returns True if the value represents a parliamentary archive parent collection. False otherwise."""
 
     return value == PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE
 
 
-def is_parliamentary_archive_child(value):
+def is_parliamentary_archive_child(value: str):
     """Returns True if the value represents a parliamentary archive child collection. False otherwise."""
 
     return value.startswith(
         PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE
     ) and not is_parliamentary_archive_parent(value)
+
+
+def is_parent_or_child_selected(selected_values: list[str]) -> bool:
+    """Returns True if the selection contains any parliamentary archive parent or child."""
+
+    return any(
+        is_parliamentary_archive_parent(value) or is_parliamentary_archive_child(value)
+        for value in selected_values
+    )
 
 
 def is_collection_filter_list_applied(form):
@@ -39,16 +50,21 @@ def is_collection_filter_list_applied(form):
 
 
 def build_choice_api_data_for_collection_filter(
-    field_name, form, choice_api_data, request
-) -> list[dict[str, str | int | list[dict]]]:
+    field_name: str,
+    form,
+    choice_api_data: list[dict[str, str | int]],
+    request: HttpRequest,
+) -> list[dict[str, str | int | list[dict[str, str | int]]]]:
     """Builds choice API data for the collection field, handling both direct and nested choices."""
 
     if is_collection_filter_list_applied(form):
         # set to direct updating choices, items for long filters page that
         # do not have nested choices
         form.fields[field_name].collection_filter_list_applied = True
-        choice_api_data = prepare_api_long_filter_list_entries_for_parliament_archives(
-            choice_api_data, form.fields[field_name].value
+        choice_api_data = (
+            prepare_api_long_filter_list_entries_for_parliamentary_archives(
+                choice_api_data, form.fields[field_name].value
+            )
         )
     else:
         # set request for nested choice more options link handling
@@ -88,19 +104,13 @@ def prepare_api_parent_child_entries_for_parliamentay_archives(
     2. Remove empty parent entry: { "value": "Y", "doc_count": 0 }
     3. Preserve original order of entries and adjust position of parent "Y" if it appears after
     MAX_FILTER_CHOICES (e.g. 10 entries) if necessary so that it remains visible (subject to FE constraints)
-    4. special case: single entry for parent "Y" with zero doc_count should be returned as a
-    list containing that entry to ensure bucket counts visibility.
+    4. special case: single entry for parent "Y" with zero doc_count is returned as empty list.
     """
 
-    # Special case: api returns single entry for parent "Y" with zero doc_count as dict instead of list
+    # Special case: api returns single entry for parent "Y" with zero doc_count as dict
+    # remove the empty parent and return list for consistency
     # e.g. when an invalid collection is queried ?collection=PIZZA
-    # coearse it into a list for consistent handling
-    single_entry = {"value": "Y", "doc_count": 0}
-    if (
-        isinstance(api_entries, dict)
-        and len(api_entries) == 2
-        and api_entries == single_entry
-    ):
+    if isinstance(api_entries, dict) and api_entries == {"value": "Y", "doc_count": 0}:
         return []
 
     parent = None
@@ -168,30 +178,24 @@ def prepare_api_parent_child_entries_for_parliamentay_archives(
     return remaining
 
 
-def prepare_api_long_filter_list_entries_for_parliament_archives(
-    entries, selected_values
+def prepare_api_long_filter_list_entries_for_parliamentary_archives(
+    api_entries: list[dict[str, str | int]], selected_values: list[str]
 ):
     """Returns transformed entries that are used for long filter lists. Preserves the original
     order of entries and adjusts the position of parliamentary archive parent if necessary."""
 
-    def selection_contains_parent_or_child(selected_values):
-        """Returns True if the selection contains any parliamentary archive parent or child."""
-
-        return any(
-            is_parliamentary_archive_parent(value)
-            or is_parliamentary_archive_child(value)
-            for value in selected_values
-        )
-
-    def prepare_entries_parent_without_children(entries):
+    def prepare_entries_parent_without_children(
+        api_entries: list[dict[str, str | int]],
+    ):
         """This is usually for entries related to the "See more collections" link.
         Keep parent entries and other entries, discarding child entries.
         Preserves the original order of entries. Adjusts parent's position if necessary."""
 
         # Remove child entries and entries with a doc_count of 0
+        # Special case: api response includes parent with doc_count 0
         remaining = [
             entry.copy()
-            for entry in entries
+            for entry in api_entries
             if not is_parliamentary_archive_child(entry["value"])
             and entry["doc_count"] != 0
         ]
@@ -216,19 +220,19 @@ def prepare_api_long_filter_list_entries_for_parliament_archives(
 
         return remaining
 
-    if selection_contains_parent_or_child(selected_values):
-        # This usually applies to the specific link e.g. "See more UK Parliamentary collections" link.
-        parent_child_entries = [
-            entry.copy() for entry in entries if entry["doc_count"] != 0
-        ]
-        return parent_child_entries
+    if is_parent_or_child_selected(selected_values):
+        # Return all API entries as-is when a parent or child is selected.
+        # This usually applies to the "see more" links for a Parliamentary Archives parent collection.
+        return api_entries
     else:
-        # If neither parent nor child is selected, prepare entries normally.
+        # If neither parent nor child is selected, prepare the entries without children.
         # This usually applies to the generic link e.g. "See more collections" link.
-        return prepare_entries_parent_without_children(entries)
+        return prepare_entries_parent_without_children(api_entries)
 
 
-def remove_parliamentary_archives_parent_collection_filter(params: dict) -> dict:
+def remove_parliamentary_archives_parent_collection_filter(
+    params: dict[str, str | list[str]],
+) -> dict[str, str | list[str]]:
     """Remove the Parliamentary Archives parent filter if any child collection filter is present.
     E.g.
     before adjustment params: {'filter': ['group:tna', 'collection:Y', 'collection:YHC']}
@@ -260,8 +264,12 @@ def remove_parliamentary_archives_parent_collection_filter(params: dict) -> dict
 
 
 def build_collection_active_filters(
-    choice_labels, collection_field, request, existing_filters
+    choice_labels: dict[str, str],
+    collection_field,
+    request: HttpRequest,
+    existing_filters: list[dict[str, str]],
 ):
+    """Build active filters for the Parliamentary Archives collection field."""
 
     # Note: copy the input values to avoid modifying the original field value directly
     input_values = collection_field.value.copy()
@@ -303,9 +311,27 @@ def build_collection_active_filters(
         )
 
 
-def add_child_collection_values_to_first_n(item, max_items, first_n_items):
-    """Add child values of the given item to the first_n_items list."""
+def add_parliamentary_archives_child_values_to_first_n(
+    item: dict[str, str | int | list[dict]], first_n_values_displayed: list[str]
+):
+    """Add child values of the given item to the first_n_values_displayed list."""
 
     if item.get(NESTED_CHILDREN_KEY):
-        for child in item[NESTED_CHILDREN_KEY][:max_items]:
-            first_n_items.append(child["value"])
+        for child in item[NESTED_CHILDREN_KEY][:MAX_FILTER_CHOICES]:
+            first_n_values_displayed.append(child["value"])
+
+
+def remove_parliamentary_archives_parent_from_api_data(
+    api_entries: list[dict[str, str | int]],
+) -> list[dict[str, str | int]]:
+    """Removes items from the API data that are parliamentary archive parent.
+    E.g.
+    "Y" is aparliamentary archive parent.
+    [{"value": "Y","doc_count": 10},] -> []
+    """
+
+    return [
+        item
+        for item in api_entries
+        if not is_parliamentary_archive_parent(item["value"])
+    ]

@@ -16,8 +16,9 @@ from .constants import (
     FieldsConstant,
 )
 from .parliamentary_archives import (
-    is_parliamentary_archive_child,
+    is_parent_or_child_selected,
     is_parliamentary_archive_parent,
+    remove_parliamentary_archives_parent_from_api_data,
 )
 
 
@@ -38,10 +39,10 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
         self.request = None
 
     def _build_more_filter_options_for_parliamentary_archives(
-        self, item: dict[str, str | int]
+        self, item: dict[str, str | int | bool | list[dict[str, str | int | bool]]]
     ):
         """Returns the text and URL for more filter options related to nested parliamentary
-        archive collections.
+        archive collection.
         """
 
         # adds filter_list=<Aggregation long_aggs value> to existing query string.
@@ -72,7 +73,9 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
         item["more_filter_choices_text"] = more_filter_choices_text
         item["more_filter_choices_url"] = more_filter_choices_url
 
-    def remove_parent_from_selected_values(self, selected_values):
+    def remove_parent_from_selected_values(
+        self, selected_values: list[str]
+    ) -> list[str]:
         """Removes the parent collection from the selected values if the long filter is applied."""
         selected_values = [
             value
@@ -83,9 +86,10 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
 
     def get_missing_choices(
         self,
-        selected_values,
-        choice_vals_with_hits: set,
-    ):
+        selected_values: list[str],
+        choice_vals_with_hits: set[str],
+    ) -> list[tuple[str, str, None]]:
+
         if self.collection_filter_list_applied:
             selected_values = self.remove_parent_from_selected_values(selected_values)
             return super().get_missing_choices(selected_values, choice_vals_with_hits)
@@ -104,8 +108,8 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
 
     def update_choices(
         self,
-        choice_api_data: list[dict[str, str | int | list[dict]]],
-        selected_values,
+        choice_api_data: list[dict[str, str | int | list[dict[str, str | int]]]],
+        selected_values: list[str],
     ):
         """
         Handles choice field data for nested and long filters selections.
@@ -134,27 +138,14 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
             self.choices_updated = True
             return
 
-        # Long filter pages do show nested choices, so fall back to the default implementation.
+        # Long filter pages do not show nested choices, so fall back to the default implementation.
         if self.collection_filter_list_applied:
-            # remove parent from choice_api_data for long filter pages
-            # when parent only, or child without parent, remove the parent from API data
-            has_parent = False
-            has_child = False
-            for value in selected_values:
-                if is_parliamentary_archive_child(value):
-                    has_child = True
-                if is_parliamentary_archive_parent(value):
-                    has_parent = True
-            if (
-                (has_parent and not has_child)
-                or (has_child and not has_parent)
-                or (has_parent and has_child)
-            ):
-                choice_api_data = [
-                    item
-                    for item in choice_api_data
-                    if not is_parliamentary_archive_parent(item["value"])
-                ]
+            # When parent or child is selected, remove the parent from API data
+            if is_parent_or_child_selected(selected_values):
+                choice_api_data = remove_parliamentary_archives_parent_from_api_data(
+                    choice_api_data
+                )
+
             super().update_choices(choice_api_data, selected_values)
             return
 
@@ -202,27 +193,21 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
     @cached_property
     def items(self):
 
-        def is_parent_choice(children_choices: list | None):
+        def is_parent_choice(children_choices: list[str, str, None] | None):
             """Return True if the choice represents a parent, even without children.
             children_choices is the third element of the choice tuple.
             None, [...] - possible values for the third element of the choice tuple
             E.g.:
-            1) [("value", "label", None)] - parent choice without children
-               None is not a parent choice
-            2) [("value", "label", [...])] - parent choice with children
-               [...] i.e. [("value", "label", None)] is a child choice without its children
-               currently there is only one level of parent-child relationships.
+            1) [("value", "label", None)]
+               - parent choice without children choices, when it is not expanded
+               - None indicates no children choices
+            2) [("value", "label", [...])]
+               - parent choice with children choices when it is expanded
+               - [...] i.e. [("value", "label", None)] are children choices without their
+                 own children
+               Note: Only one level of parent-child relationship.
             """
             return children_choices is not None
-
-        def selection_contains_parent_or_child(selected_values):
-            """Returns True if the selection contains any parliamentary archive parent or child."""
-
-            return any(
-                is_parliamentary_archive_parent(value)
-                or is_parliamentary_archive_child(value)
-                for value in selected_values
-            )
 
         # Long filter pages do show nested choices, so fall back to the default implementation
         if self.collection_filter_list_applied:
@@ -259,7 +244,7 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
                     item[HINT_KEY] = PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_HINT
 
                 # add children choices to display only if the selection contains any parent or child
-                if selection_contains_parent_or_child(self.value):
+                if is_parent_or_child_selected(selected_values=self.value):
                     for child_value, child_display_value, _ in children_choices:
                         child_item = {"text": child_display_value, "value": child_value}
                         if child_value in self.value:

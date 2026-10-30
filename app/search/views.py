@@ -45,6 +45,7 @@ from .constants import (
     PAGE_LIMIT_WARNING_MESSAGE,
     PAGE_LIMIT_WARNING_THRESHOLD,
     RESULTS_PER_PAGE,
+    SEE_MORE_CHOICES_FIELDS,
     Display,
     Sort,
 )
@@ -59,7 +60,7 @@ from .forms import (
 from .mixins import SearchDataLayerMixin
 from .models import APISearchResponse
 from .parliamentary_archives import (
-    add_child_collection_values_to_first_n,
+    add_parliamentary_archives_child_values_to_first_n,
     build_choice_api_data_for_collection_filter,
     build_collection_active_filters,
     remove_parliamentary_archives_parent_collection_filter,
@@ -221,11 +222,8 @@ class APIMixin:
                         choice_api_data, form.fields[field_name].value
                     )
 
-                    if field_name in [
-                        FieldsConstant.COLLECTION,
-                        FieldsConstant.SUBJECT,
-                        FieldsConstant.HELD_BY,
-                    ]:
+                    # build more filter options for fields that support "see more" functionality
+                    if field_name in SEE_MORE_CHOICES_FIELDS:
                         self._build_more_filter_options(form, field_name)
 
     def _get_field_name_from_api_aggregation(self, aggregation: dict) -> str:
@@ -580,7 +578,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         # hidden values that are preserved for selected filters not in the first n items
         self.hidden_selected_filters = []
         if not self.is_filter_list_applied(self.form):
-            self.hidden_selected_filters = self.build_hidden_selected_filter_values()
+            self.hidden_selected_filters = self.build_hidden_selected_filters()
 
         notifications = fetch_global_notifications()
         context["global_alert"] = (
@@ -967,51 +965,52 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             # visible if items set (with api agg values or input values)
             self.form.fields[FieldsConstant.HELD_BY].is_visible = True
 
-    def build_hidden_selected_filter_values(self) -> dict[str, list]:
+    def build_hidden_selected_filters(self) -> dict[str, list]:
         """Builds a dictionary of selected values that are not displayed for each filter.
         Used when traversing long filter page choices to search results to ensure selected
         values are preserved even if not displayed in the first n items.
+        E.g.
+        BT is the 11th collection value not displayed in the first n items.
+        Army is the 11th subject value not displayed in the first n items.
+        {
+            "collection": ["BT"],
+            "subject": ["Army"],
+        }
         """
 
-        def selected_values_not_in_first_n(field, max_items):
-            """Returns the values from input that are not in the first n items."""
+        def selected_values_not_in_first_n(field):
+            """Returns the input values that are not in the first n items."""
 
             selected_values = field.value
-            items = field.items
 
-            # build a list of the first n items, including child values for collections
-            first_n_items = []
-            for item in items[:max_items]:
-                # add child values to the first_n_items list if present
+            # build a list of the first n values for display, including child values for collections
+            first_n_values_displayed = []
+            for item in field.items[:MAX_FILTER_CHOICES]:
+                # add child values to the first_n_values_displayed list if present
                 if field.name == FieldsConstant.COLLECTION:
-                    add_child_collection_values_to_first_n(
-                        item, max_items, first_n_items
+                    add_parliamentary_archives_child_values_to_first_n(
+                        item, first_n_values_displayed
                     )
 
-                first_n_items.append(item["value"])
+                first_n_values_displayed.append(item["value"])
 
-            # remaining contains the selected values that are not in the first n items and are not child collections
+            # remaining contains the selected values that are not in the first n
             remaining = [
                 value
                 for value in selected_values
-                # if not is_parliamentary_archive_child(value) and value not in first_n_items
-                if value not in first_n_items
+                if value not in first_n_values_displayed
             ]
 
             return remaining
 
         hidden_values = []
-        for field_name in [
-            FieldsConstant.COLLECTION,
-            FieldsConstant.SUBJECT,
-            FieldsConstant.HELD_BY,
-        ]:
+        # build hidden selected filter values for fields that support "see more" functionality
+        for field_name in SEE_MORE_CHOICES_FIELDS:
             if field_name in self.form.fields:
                 field = self.form.fields[field_name]
                 if field.value:
-                    selected_but_not_displayed = selected_values_not_in_first_n(
-                        field, MAX_FILTER_CHOICES
-                    )
+                    # candidate values for hidden fields
+                    selected_but_not_displayed = selected_values_not_in_first_n(field)
                     if selected_but_not_displayed:
                         hidden_values.append(
                             {

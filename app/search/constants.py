@@ -69,6 +69,12 @@ FILTER_FIELDS = [
     FieldsConstant.REFERENCE_NUMBER,
 ]
 
+SEE_MORE_CHOICES_FIELDS = [
+    FieldsConstant.COLLECTION,
+    FieldsConstant.SUBJECT,
+    FieldsConstant.HELD_BY,
+]
+
 
 class Display(StrEnum):
     """Options for displaying /search results."""
