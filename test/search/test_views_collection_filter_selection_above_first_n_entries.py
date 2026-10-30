@@ -8,7 +8,7 @@ from django.utils.encoding import force_str
 from app.search.constants import MAX_FILTER_CHOICES, FieldsConstant
 
 
-class CatalogueSearchViewAboveNEntriesCollectionFilterTests(TestCase):
+class CatalogueSearchViewAboveNEntriesNestedCollectionFilterTests(TestCase):
     """Tests selections above the first N entries."""
 
     @responses.activate
