@@ -470,7 +470,7 @@ class CatalogueSearchViewAboveNEntriesCollectionFilterTests(TestCase):
                             {
                                 "value": "Y",
                                 "doc_count": 500,
-                            },  # Y is within the outside the first 10 entries, but not last
+                            },  # Y is the outside the first 10 entries, but not last
                             {"value": "YBBK", "doc_count": 1},
                             {"value": "YHNN", "doc_count": 1},
                             {"value": "YFLS", "doc_count": 1},
@@ -892,7 +892,7 @@ class CatalogueSearchViewAboveNEntriesCollectionFilterTests(TestCase):
                             {
                                 "value": "Y",
                                 "doc_count": 500,
-                            },  # Y is within the first 10 entries, and is last
+                            },  # Y is outside the first 10 entries, and is last
                         ],
                         "total": 100,
                         "other": 0,
