@@ -71,6 +71,13 @@ MISSING_COUNT_TEXT = "Unknown number of"
 
 RELATED_RECORDS_FETCH_LIMIT = 10
 
+# api group value for record creators e.g. manors
+CREATOR_GROUP = "creator"
+
+# collections (records) created by a record creator e.g. a manor
+CREATOR_COLLECTIONS_FILTER = "creator"  # api filter, ex "creator:F238687"
+CREATOR_COLLECTIONS_PER_PAGE = 20
+
 TNA_HELD_BY_VALUES = [
     "The National Archives",
     "The National Archives, Kew",
@@ -90,6 +97,12 @@ class RecordTypes(StrEnum):
 
     ARCHON = "ARCHON"
     CREATORS = "CREATORS"
+
+
+# record creator types, mapped from the api groupArray value to display label
+CREATOR_TYPES = {
+    "manor": "Manor",
+}
 
 
 TNA_ARCHON_CODE = "66"

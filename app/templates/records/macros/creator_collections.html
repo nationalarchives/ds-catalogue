@@ -1,0 +1,52 @@
+{% from 'components/pagination/macro.html' import tnaPagination %}
+{% from 'components/warning/macro.html' import tnaWarning %}
+
+{% macro creator_collections(collections, collections_total, collections_range, collections_pagination) %}
+  <div class="tna-container">
+    <div class="tna-column tna-column--full tna-!--margin-top-l">
+      <h2 class="tna-heading-l" id="collections">Collections ({{ collections_total | format_number }})</h2>
+      {% if collections %}
+        <p>Showing {{ collections_range.from | format_number }}–{{ collections_range.to | format_number }} of {{ collections_total | format_number }}</p>
+        <ul class="etna-results etna-results--list">
+          {% for collection in collections %}
+            {% set title = (collection.clean_title_or_summary_title or '[No title]') | striptags %}
+            {# the api returns the catalogue reference as 'reference' in the creator's collections #}
+            {% set reference = collection.reference_number or collection.get('reference', '') %}
+            <li id="record-{{ collection.id }}">
+              <h3 class="tna-heading-s tna-!--no-margin-top tna-!--no-padding-top"><a href="{{ collection.url }}">{{ (collection.date_covering ~ ': ' ~ title) if collection.date_covering else title }}</a></h3>
+              {% if collection.date_covering or collection.held_by or reference %}
+              <dl class="etna-result-attributes etna-result-attributes--list etna-result-attributes--auto-rows">
+                {% if collection.date_covering %}
+                <dt>Date</dt>
+                <dd>{{ collection.date_covering }}</dd>
+                {% endif %}
+                {% if collection.held_by %}
+                <dt>Held by</dt>
+                <dd>{{ collection.held_by }}</dd>
+                {% endif %}
+                {% if reference %}
+                <dt>Catalogue reference</dt>
+                <dd>{{ reference }}</dd>
+                {% endif %}
+              </dl>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        {{ tnaWarning({
+          'headingLevel': 3,
+          'body': '<strong>No records known to survive</strong>',
+          'classes': 'tna-!--margin-top-s'
+        }) }}
+      {% endif %}
+    </div>
+  </div>
+  {% if collections %}
+    <div class="tna-container">
+      <div class="tna-column tna-column--full tna-!--margin-top-l">
+        {{ tnaPagination(collections_pagination) }}
+      </div>
+    </div>
+  {% endif %}
+{% endmacro %}

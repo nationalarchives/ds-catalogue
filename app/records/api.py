@@ -9,9 +9,17 @@ from app.lib.exceptions import (
     APIResourceNotFound,
     MissingAPIAttributeError,
     MultipleRecordsError,
+    NoResultsFound,
     RecordNotFound,
 )
+from app.records.constants import (
+    CREATOR_COLLECTIONS_FILTER,
+    CREATOR_COLLECTIONS_PER_PAGE,
+)
 from app.records.models import APIResponse, Record
+from app.search.api import search_records
+from app.search.constants import Sort
+from app.search.models import APISearchResponse
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +64,40 @@ def record_details_by_id(
         response = APIResponse(record_data)
         return response.record
     raise RecordNotFound(f"id {id} does not exist")
+
+
+def record_creator_collections(
+    creator_id: str,
+    page: int = 1,
+    timeout=None,
+) -> APISearchResponse | None:
+    """
+    Fetches a page of the collections (records) created by a record creator
+    e.g. a manor, ordered by date.
+
+    Args:
+        creator_id: The record creator id
+        page: The page of collections to fetch
+        timeout: Request timeout in seconds
+
+    Returns:
+        APISearchResponse object, or None when the record creator has no
+        collections
+
+    Note:
+        Other errors are handled by a custom middleware in the app.
+    """
+    try:
+        return search_records(
+            query="",
+            results_per_page=CREATOR_COLLECTIONS_PER_PAGE,
+            page=page,
+            sort=Sort.DATE_ASC,
+            params={"filter": [f"{CREATOR_COLLECTIONS_FILTER}:{creator_id}"]},
+            timeout=timeout,
+        )
+    except NoResultsFound:
+        return None
 
 
 def record_details_by_ref(reference: str, params: dict[str, str] | None = None):

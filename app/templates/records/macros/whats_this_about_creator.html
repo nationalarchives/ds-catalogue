@@ -1,0 +1,8 @@
+{% macro whats_this_about_creator(record) %}
+  <div class="tna-column tna-column--full tna-!--margin-top-m">
+    <div class="tna-aside tna-aside--tight tna-background-accent-light">
+      <h2 class="tna-heading-m">What’s it about?</h2>
+      <p>This page is about the record creator <strong>{{ record.clean_title_or_summary_title }}</strong> and includes a brief description of the collection(s) they created (usually including the covering dates of the collection), the name of the archive where they are held, and reference information to help you find the collection.</p>
+    </div>
+  </div>
+{% endmacro %}

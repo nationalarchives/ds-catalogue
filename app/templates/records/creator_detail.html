@@ -1,15 +1,52 @@
 {% extends "base.html" %}
 
-{%- set pageTitle = (record.title or record.summary_title or '[No title]') | striptags -%}
+{%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
+{% from 'records/macros/creator_collections.html' import creator_collections %}
+{% from 'records/macros/creator_detail_fields.html' import creator_detail_fields %}
+{% from 'records/macros/top_navigation.html' import top_navigation %}
+{% from 'records/macros/whats_this_about_creator.html' import whats_this_about_creator %}
+
+{%- set pageTitle = (record.clean_title_or_summary_title or '[No title]') | striptags -%}
+
+{% block head %}
+  {{ super() }}
+  {% set canonical_path = url('records:details', kwargs={'id': record.id}) %}
+  <link rel="canonical" href="{{ request.build_absolute_uri(canonical_path) }}">
+{% endblock head %}
+
+{% block stylesheets %}
+{{ super() }}
+    <link rel="stylesheet" href="{{ static('record-details.css') ~ '?v=' ~ app_config.BUILD_VERSION }}" media="screen,print">
+{% endblock stylesheets %}
+
+{% block beforeContent %}
+{# TODO: link 'Back to search results' and 'Start a new search' to the MDR search once available #}
+{{ top_navigation(record, request) }}
+{% endblock beforeContent %}
 
 {% block content %}
-<div class="tna-section">
+{{ global_alert_banners(request, global_alert, mourning_notice, 'm') }}
+<div class="tna-section tna-!--padding-top-l">
   <div class="tna-container">
-    <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
-      <h1 class="tna-heading-xl">{{ pageTitle }}</h1>
-
-      <p>{{ record.custom_record_type }}</p>
+    <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny tna-!--padding-top-xs">
+      <hgroup class="tna-hgroup-xl">
+        {% if record.creator_type %}
+        <p class="tna-hgroup__supertitle">{{ record.creator_type }}</p>
+        {% endif %}
+        <h1 class="tna-hgroup__title">{{ pageTitle }}</h1>
+      </hgroup>
     </div>
+
+    {{ whats_this_about_creator(record) }}
   </div>
+
+  {{ creator_detail_fields(record, field_labels, request) }}
+
+  {{ creator_collections(collections, collections_total, collections_range, collections_pagination) }}
 </div>
 {% endblock content %}
+
+{% block bodyEnd %}
+{{ super() }}
+    <script src="{{ static('record-details.min.js') ~ '?v=' ~ app_config.BUILD_VERSION }}" defer></script>
+{% endblock bodyEnd %}

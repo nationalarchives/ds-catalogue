@@ -1,0 +1,84 @@
+{% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
+
+{% macro creator_detail_fields(record, field_labels, request) %}
+  <div class="tna-container tna-!--margin-top-m">
+    <div class="tna-column tna-column--flex-1 tna-column--full-small tna-column--full-tiny tna-column--align-centre tna-!--margin-top-s">
+      <h2 class="tna-heading-l" id="record-details">
+        Record creator details
+      </h2>
+    </div>
+    <div class="tna-column tna-column--full-small tna-column--full-tiny tna-column--align-centre tna-!--margin-top-s">
+      {{ tnaCheckboxes({
+        'headingSize': 's',
+        'id': 'field-descriptions',
+        'name': 'field_descriptions',
+        'items': [
+          {
+            'text': 'Hide field descriptions',
+            'value': 'hide',
+            'checked': (request.COOKIES['hide_record_detail_descriptions'] | lower) == 'true'
+          }
+        ],
+        'inline': True,
+        'formItemAttributes': {
+          'hidden': 'true',
+          'id': 'field-descriptions-container'
+        }
+      }) }}
+    </div>
+  </div>
+  <div class="tna-container">
+    <div class="tna-column tna-column--full tna-!--margin-top-s">
+      {% set fields = [
+        'alternative_names',
+        'creator_date_range',
+        'place',
+        'name_authority_reference',
+      ] %}
+      <dl class="tna-dl tna-dl--lined tna-dl--right-weighted record-details" id="record-details-list">
+        {% for field in fields %}
+          {% if record[field] %}
+            <dt>
+              <div class="record-details__label">
+                <span class="record-details__title">
+                  {{ field_labels[field].title }}
+                </span>
+                {% if field_labels[field].description %}
+                  <span class="record-details__description" hidden>
+                    <span class="tna-visually-hidden">(</span>{{ field_labels[field].description }}<span class="tna-visually-hidden">)</span>
+                  </span>
+                {% endif %}
+              </div>
+            </dt>
+            <dd>
+              {% if field == 'alternative_names' %}
+                {# Output list (if more than one item), with the creator type e.g. "West Sheen (Manor)" #}
+                {% set suffix = (' (' ~ record.creator_type ~ ')') if record.creator_type else '' %}
+                {% if record[field] | length > 1 %}
+                  <ul class="tna-ul tna-ul--plain">
+                  {% for item in record[field] %}
+                    <li>{{ item }}{{ suffix }}</li>
+                  {% endfor %}
+                  </ul>
+                {% else %}
+                  {{ record[field][0] }}{{ suffix }}
+                {% endif %}
+              {% elif field == 'name_authority_reference' %}
+                {{ record[field] }}
+                {%- if record.former_name_authority_reference %} (Former ISAAR ref: {{ record.former_name_authority_reference }}){% endif %}
+              {% else %}
+                {{ record[field] }}
+              {% endif %}
+            </dd>
+          {% endif %}
+        {% endfor %}
+        <dt>
+          <div class="record-details__label">Record URL</div>
+        </dt>
+        <dd>
+          <span class="copy-url">https://{{ request.get_host() }}{{ url('records:details', kwargs={'id': record.id}) }}</span>
+        </dd>
+      </dl>
+    </div>
+  </div>
+{% endmacro %}

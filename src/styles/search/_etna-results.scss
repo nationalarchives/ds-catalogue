@@ -1,0 +1,74 @@
+@use "@nationalarchives/frontend/nationalarchives/tools/a11y";
+@use "@nationalarchives/frontend/nationalarchives/tools/borders";
+@use "@nationalarchives/frontend/nationalarchives/tools/colour";
+@use "@nationalarchives/frontend/nationalarchives/tools/spacing";
+@use "@nationalarchives/frontend/nationalarchives/tools/typography";
+
+.etna-results {
+  list-style: none;
+
+  &--grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-columns: 1fr;
+    grid-auto-rows: 1fr;
+    gap: 0 2%;
+
+    @include borders.rounded-border;
+    @include colour.colour-border("base-keyline");
+  }
+
+  &--list {
+    border-radius: 4px;
+  }
+
+  > li {
+    margin-top: spacing.space(0.7);
+    padding: spacing.space(1);
+
+    position: relative;
+    @include borders.rounded-border;
+    @include colour.colour-border("base-keyline", 1px, solid);
+
+    &:hover {
+      outline-offset: spacing.space(0.2);
+      @include colour.colour-outline("base-keyline", 2px, solid);
+    }
+
+    @include a11y.faux-full-outline("a");
+  }
+
+  p {
+    margin-top: spacing.space(0.5);
+  }
+}
+
+.etna-result-attributes {
+  margin-top: spacing.space(0.5);
+
+  &--list {
+    display: grid;
+    grid-template-columns: 1fr 3.5fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 0 2%;
+  }
+
+  &--grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1.5fr 1fr;
+    gap: 15% 2%;
+    @include typography.detail-font-small;
+
+    dt {
+      @include a11y.visually-hidden;
+    }
+  }
+
+  // rows sized to content, for results with fewer attributes e.g. MDR search
+  &--auto-rows {
+    grid-template-rows: none;
+  }
+
+  color: var(--font-light);
+}

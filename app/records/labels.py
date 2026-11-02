@@ -15,6 +15,10 @@ FIELD_LABELS = {
         "title": "Administrative / biographical background",
         "description": "Historical or biographical information about the creator of the record and the context of its creation",
     },
+    "alternative_names": {
+        "title": "Alternative name(s)",
+        "description": "Other names this manor is known by",
+    },
     "appraisal_information": {
         "title": "Selection and destruction information",
         "description": "Information about how the record was selected for archiving",
@@ -38,6 +42,10 @@ FIELD_LABELS = {
     "creator": {
         "title": "Creator(s)",
         "description": "The creator of the record",
+    },
+    "creator_date_range": {
+        "title": "Date",
+        "description": "The date covered by the record",
     },
     "custodial_history": {
         "title": "Custodial history",
@@ -89,6 +97,10 @@ FIELD_LABELS = {
         "title": "Map scale",
         "description": "The scale of a map, plan or drawing",
     },
+    "name_authority_reference": {
+        "title": "Name authority reference",
+        "description": "A unique code used to identify and order the record",
+    },
     "next": {"title": "Next"},
     "note": {
         "title": "Note",
@@ -102,6 +114,10 @@ FIELD_LABELS = {
     "physical_description": {
         "title": "Physical description",
         "description": "The amount and form of the record",
+    },
+    "place": {
+        "title": "Places",
+        "description": "The name(s) of places relevant to or significant to the level of the records under consideration",
     },
     "place_of_deposit": {
         "title": "Place of deposit",
