@@ -216,9 +216,9 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
                     "more_filter_choices_url": "?collection=Y&filter_list=longCollection"
                     }]
         3) long filter items, no nested choices:
-        choices:[("BT", "BT - Board of Trade and successors (2,642,255)"),
+        choices:[("BT", "BT - Board of Trade and successors (10)"),
                 ("YHC", "YHC - Records of the House of Commons (10)")]
-        items -> [{"text": "BT - Board of Trade and successors (2,642,255)", "value": "BT", "checked": True},
+        items -> [{"text": "BT - Board of Trade and successors (10)", "value": "BT", "checked": True},
                   {"text": "YHC - Records of the House of Commons (10)", "value": "YHC"}]
         """
 
