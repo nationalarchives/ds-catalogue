@@ -67,34 +67,41 @@
     </div>
   </div>
 
-  {% if record.is_tna and record.level in ["Series", "Division", "Department", "Sub-series", "Sub-sub-series"] %}
-    {{ whats_this_about_sub_sub_series_or_above(record) }}
-  {% else %}
-    <div class="tna-container">
-      {{ whats_this_about_piece_or_item(record) }}
+  {# Two-column body: hierarchy side panel (left) + main record content (right) #}
+  <div class="tna-container record-detail__columns">
+    {# LEFT: catalogue hierarchy side panel #}
+    <div class="tna-column tna-column--width-1-3 tna-column--full-medium tna-column--full-small tna-column--full-tiny record-detail__hierarchy">
+      {{ hierarchy(record) }}
+    </div>
 
-      {% if do_availability_group and do_availability_group != 'PENDING_CLASSIFICATION' %}
-        {{ available_online(record, do_availability_group) }}
-        {{ available_in_person(record, do_availability_group) }}
-      {% elif not record.is_held_by_tna %}
-        {# Records at other archives - we know where they are, just not at TNA #}
-        {{ available_online(record) }}
-        {{ available_in_person(record) }}
+    {# RIGHT: main record content #}
+    <div class="tna-column tna-column--width-2-3 tna-column--full-medium tna-column--full-small tna-column--full-tiny record-detail__main">
+      {% if record.is_tna and record.level in ["Series", "Division", "Department", "Sub-series", "Sub-sub-series"] %}
+        {{ whats_this_about_sub_sub_series_or_above(record) }}
       {% else %}
-        <div class="tna-column tna-column--width-2-3 tna-column--full-small tna-column--full-tiny tna-!--margin-top-m">
-          <div class="tna-aside tna-aside--tight tna-background-contrast full-height-aside">
-            <h2 class="tna-heading-m">Access information is unavailable</h2>
-            <p>Sorry, information for accessing this record is currently unavailable online. Please try again later.</p>
-          </div>
+        <div class="tna-container tna-container--nested">
+          {{ whats_this_about_piece_or_item(record) }}
+
+          {% if do_availability_group and do_availability_group != 'PENDING_CLASSIFICATION' %}
+            {{ available_online(record, do_availability_group) }}
+            {{ available_in_person(record, do_availability_group) }}
+          {% elif not record.is_held_by_tna %}
+            {# Records at other archives - we know where they are, just not at TNA #}
+            {{ available_online(record) }}
+            {{ available_in_person(record) }}
+          {% else %}
+            <div class="tna-column tna-column--full tna-!--margin-top-m">
+              <div class="tna-aside tna-aside--tight tna-background-contrast full-height-aside">
+                <h2 class="tna-heading-m">Access information is unavailable</h2>
+                <p>Sorry, information for accessing this record is currently unavailable online. Please try again later.</p>
+              </div>
+            </div>
+          {% endif %}
         </div>
       {% endif %}
-    </div>
-  {% endif %}
 
-  {{ detail_fields(record, field_labels, request) }}
+      {{ detail_fields(record, field_labels, request) }}
 
-  <div class="tna-container tna-!--margin-top-m">
-    <div class="tna-column tna-column--full tna-margin-top-m">
       {% set accordion_items = [] %}
 
       {% if delivery_option %}
@@ -111,16 +118,16 @@
         }] %}
       {% endif %}
 
-      {% set accordion_items = accordion_items + [{
-        'title': 'Catalogue hierarchy',
-        'body': hierarchy(record)
-      }] %}
-
-      {{ etna_accordion({
-        'accordionItems': accordion_items,
-        'id': 'record-extended-details',
-      }) }}
-
+      {% if accordion_items %}
+        <div class="tna-container tna-container--nested tna-!--margin-top-m">
+          <div class="tna-column tna-column--full">
+            {{ etna_accordion({
+              'accordionItems': accordion_items,
+              'id': 'record-extended-details',
+            }) }}
+          </div>
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>

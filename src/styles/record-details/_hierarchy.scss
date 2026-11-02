@@ -1,33 +1,187 @@
 @use "@nationalarchives/frontend/nationalarchives/tools/borders";
 @use "@nationalarchives/frontend/nationalarchives/tools/media";
 @use "@nationalarchives/frontend/nationalarchives/tools/spacing";
+@use "@nationalarchives/frontend/nationalarchives/tools/typography";
+@use "@nationalarchives/frontend/nationalarchives/variables/colour";
+
+.record-detail__columns {
+  align-items: flex-start;
+
+  // Aligns the hierarchy column with the main column's first block on desktop
+  .record-detail__hierarchy {
+    margin-top: spacing.space(2);
+  }
+
+  @include media.on-smaller-than-large {
+    .record-detail__main {
+      order: -1;
+    }
+
+    // Extra separation between the stacked main content (ending in the
+    // accordions) and the hierarchy panel below it
+    .record-detail__hierarchy {
+      margin-top: spacing.space(3);
+    }
+  }
+}
 
 .record-hierarchy {
-  padding-top: spacing.space(0.75);
+  &__list {
+    margin: 0;
+    padding: 0;
 
+    list-style: none;
+  }
+
+  &__list--nested {
+    margin-top: spacing.space(0.75);
+    padding-left: spacing.space(1);
+
+    position: relative;
+  }
+
+  &__list--nested::before {
+    content: "";
+
+    position: absolute;
+    top: calc(-1 * #{spacing.space(0.375)});
+    bottom: 0;
+    left: 0;
+
+    border-left: 1px dashed colour.brand-colour("grey");
+  }
+
+  &__row {
+    padding-bottom: spacing.space(1);
+
+    display: flex;
+    align-items: flex-start;
+    gap: spacing.space(0.5);
+  }
+
+  &__marker {
+    width: 25px;
+    height: 25px;
+
+    display: inline-flex;
+    flex-shrink: 0;
+
+    color: colour.brand-colour("grey");
+
+    background-color: var(--background, #f4f4f4);
+
+    border-radius: 50%;
+
+    transition: color 0.5s ease;
+  }
+
+  &__row:has(&__link:hover) &__marker,
+  &__row:has(&__link:focus) &__marker {
+    color: colour.brand-colour("forest");
+  }
+
+  &__marker-icon {
+    width: 100%;
+    height: 100%;
+  }
+
+  &__body {
+    min-width: 0;
+
+    flex: 1 1 auto;
+  }
+
+  &__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: spacing.space(0.25) spacing.space(1);
+  }
+
+  &__link,
+  &__title {
+    min-width: 0;
+    margin: 0;
+
+    flex: 1 1 auto;
+  }
+
+  &__link {
+    transition: transform 0.5s ease;
+  }
+
+  &__link:hover,
+  &__link:focus {
+    transform: translateX(5px);
+  }
+
+  &__level-label {
+    flex-shrink: 0;
+
+    color: var(--font-light, rgb(1 1 1 / 58%));
+
+    @include typography.detail-font-small;
+    text-transform: none;
+  }
+
+  &__reference,
+  &__dates,
   &__count {
-    padding-top: spacing.space(0.125);
-    padding-right: spacing.space(0.5);
-    padding-bottom: spacing.space(0.125);
+    margin-top: spacing.space(0.25);
 
-    text-align: right;
+    color: var(--font-light, rgb(1 1 1 / 58%));
+
+    font-size: 1rem;
+  }
+
+  &__current {
+    padding: spacing.space(0.75) spacing.space(1);
+
+    background-color: colour.brand-colour("light-grey");
 
     @include borders.rounded-border;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
   }
-}
 
-.large-icon {
-  font-size: 2em;
+  &__current-label {
+    margin: 0 0 spacing.space(0.25);
 
-  @include media.on-larger-than-tiny {
-    margin-left: spacing.space(1);
+    @include typography.detail-font-small;
+    text-transform: none;
   }
-}
 
-.hierarchy-pagination {
-  margin-right: spacing.space(1);
-  margin-bottom: spacing.space(1);
-  margin-left: spacing.space(1);
+  // Next / previous record links
+  &__adjacent {
+    margin-top: spacing.space(1);
+
+    display: flex;
+    flex-direction: column;
+    gap: spacing.space(0.5);
+
+    text-align: right;
+  }
+
+  &__adjacent-link {
+    display: block;
+  }
+
+  &__adjacent-label {
+    display: block;
+
+    font-weight: bold;
+
+    &::after {
+      content: " \203A"; // right angle quote (chevron)
+    }
+  }
+
+  &__adjacent-title,
+  &__adjacent-reference {
+    display: block;
+
+    color: var(--font-light, rgb(1 1 1 / 58%));
+
+    // No dedicated small-text class exists (base body is 19px), so pin to the
+    // design's 14px via the design system's font-size utility
+    @include typography.font-size(14);
+  }
 }
