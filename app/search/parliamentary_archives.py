@@ -1,5 +1,7 @@
 """Parliamentary archives related search utilities."""
 
+import logging
+
 from django.http import HttpRequest
 
 from config.utils.query_string import qs_toggle_value
@@ -11,6 +13,8 @@ from .constants import (
     PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE,
     FieldsConstant,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def is_parliamentary_archive_parent(value: str):
@@ -149,6 +153,13 @@ def prepare_api_parent_child_entries_for_parliamentay_archives(
 
     # If no parent exists, return the entries unchanged
     if parent is None:
+        # The API is expected to return parliamentary child collections
+        # (e.g. YHC, YHL) together with their parent collection (Y).
+        # Log unexpected child-only responses rather than synthesising the parent.
+        if children:
+            logger.warning(
+                "Received parliamentary child collections without parent collection Y",
+            )
         return remaining
 
     # Attach children to the parent

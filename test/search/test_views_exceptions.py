@@ -1,5 +1,7 @@
 from http import HTTPStatus
 
+import responses
+from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.test import RequestFactory, TestCase, override_settings
 
@@ -109,3 +111,65 @@ class TestCatalogueSearchViewExceptions(TestCase):
                         "Page not found",
                         response.content.decode("utf-8"),
                     )
+
+    @responses.activate
+    def test_search_unexpected_response_without_parent(
+        self,
+    ):
+        """Test search with unexpected response without parliamentary archives parent."""
+
+        # data present for input collections
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "id": "C123456",
+                                "source": "CAT",
+                            }
+                        }
+                    },
+                ],
+                "aggregations": [
+                    {
+                        "name": "longCollection",
+                        # data returned without the parent "Y" collection
+                        "entries": [
+                            {"value": "BT", "doc_count": 1},
+                            {"value": "YHL", "doc_count": 10},
+                        ],
+                        "total": 100,
+                        "other": 0,
+                    }
+                ],
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "tna", "count": 100},
+                        ],
+                    }
+                ],
+                "stats": {
+                    "total": 26008838,
+                    "results": 20,
+                },
+            },
+            status=HTTPStatus.OK,
+        )
+
+        with self.assertLogs(
+            "app.search.parliamentary_archives", level="WARNING"
+        ) as lc:
+            _ = self.client.get(
+                "/catalogue/search/?collecton=BT&collection=Y&collection=YHL"
+            )
+
+        # test logging
+        self.assertIn(
+            "WARNING:app.search.parliamentary_archives:Received parliamentary child collections without parent collection Y",
+            lc.output,
+        )
