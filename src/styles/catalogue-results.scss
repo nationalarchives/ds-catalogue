@@ -107,6 +107,11 @@
     }
   }
 
+  // rows sized to content, for results with fewer attributes e.g. MDR search
+  &--auto-rows {
+    grid-template-rows: none;
+  }
+
   color: var(--font-light);
 }
 

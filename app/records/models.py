@@ -32,7 +32,12 @@ from app.search.buckets import BucketKeys
 from app.search.constants import FieldsConstant
 from config.utils.number import format_number
 
-from .constants import MISSING_COUNT_TEXT, TNA_ARCHON_CODE, RecordTypes
+from .constants import (
+    CREATOR_TYPES,
+    MISSING_COUNT_TEXT,
+    TNA_ARCHON_CODE,
+    RecordTypes,
+)
 from .tna_archon_constants import (
     DESCRIPTION_XML_FRAGMENT,
     PLACE_DESCRIPTION_XML_FRAGMENT,
@@ -583,6 +588,40 @@ class Record(APIModel):
         return ""
 
     @cached_property
+    def alternative_names(self) -> list[str]:
+        """Returns the alternative names from the api value if found, empty list
+        otherwise. Field appears in CREATORS records.
+        The api value is a dict for one name, or a list of dicts for more than
+        one name. Ex {"value": "West Sheen"}."""
+
+        names = self.get("name", [])
+        if isinstance(names, dict):
+            names = [names]
+        return [
+            name["value"]
+            for name in names
+            if isinstance(name, dict) and name.get("value")
+        ]
+
+    @cached_property
+    def place(self) -> str:
+        """Returns the api value of the attr if found, empty str otherwise.
+        Field appears in CREATORS records. Ex "Richmond, Surrey"."""
+        return self.get("place", "")
+
+    @cached_property
+    def name_authority_reference(self) -> str:
+        """Returns the api value of the attr if found, empty str otherwise.
+        Field appears in CREATORS records. Ex "GB/NNAF/M170870"."""
+        return self.get("authorityReference", "")
+
+    @cached_property
+    def former_name_authority_reference(self) -> str:
+        """Returns the api value of the attr if found, empty str otherwise.
+        Field appears in CREATORS records. Ex "GB/NNAF/M108906"."""
+        return self.get("formerAuthorityReference", "")
+
+    @cached_property
     def archon_website(self) -> str:
         """Returns the transformed api value of the attr if found, empty str otherwise.
         Field is used only in ARCHON records."""
@@ -640,3 +679,49 @@ class Record(APIModel):
                 }
             return f"{BASE_TNA_DISCOVERY_URL}/results/r?{urlencode(params)}"
         return ""
+
+    @cached_property
+    def creator_date_range(self) -> str:
+        """Returns the record creator date range from the api start and end
+        dates if found, empty str otherwise. Ex "1189-1925", or "1905" when
+        the start and end dates are the same."""
+
+        start_date = self.get("startDate", "")
+        end_date = self.get("endDate", "")
+        if start_date and end_date and start_date != end_date:
+            return f"{start_date}-{end_date}"
+        return start_date or end_date
+
+    @cached_property
+    def creator_type(self) -> str:
+        """Returns the record creator type label from the api groupArray if
+        found, empty str otherwise. Ex "Manor"."""
+
+        for item in self.get("groupArray", []):
+            if label := CREATOR_TYPES.get(item.get("value", "")):
+                return label
+        return ""
+
+    # TODO: backend - the record creator properties below read provisional API
+    # keys, the fields are not yet returned by the API.
+
+    @cached_property
+    def places(self) -> list[str]:
+        """Returns the api value of the attr if found, empty list otherwise.
+        Field appears in CREATORS records."""
+        return self.get("places", [])
+
+    @cached_property
+    def collections_count(self) -> int | None:
+        """Returns the number of collections created by the record creator,
+        None when not provided by the api. Field appears in CREATORS records."""
+        count = self.get("collectionsCount", None)
+        return None if count is None else int(count)
+
+    @cached_property
+    def collections_held_by_count(self) -> int | None:
+        """Returns the number of archives holding the record creator's
+        collections, None when not provided by the api. Field appears in
+        CREATORS records."""
+        count = self.get("collectionsHeldByCount", None)
+        return None if count is None else int(count)

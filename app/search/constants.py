@@ -53,6 +53,9 @@ class FieldsConstant:
     OPENING_DATE_TO = "opening_date_to"
     DISPLAY = "display"
     REFERENCE_NUMBER = "reference_number"
+    PARISH = "parish"
+    COUNTY = "county"
+    COUNTRY = "country"
 
 
 FILTER_FIELDS = [
@@ -80,3 +83,77 @@ class Display(StrEnum):
 # Advanced search input limits
 ADV_SEARCH_TEXTAREA_MAX_CHARS = 2000
 ADV_SEARCH_TEXTAREA_MAX_LINES = 200
+
+
+# Manorial Documents Register (MDR) search
+# TODO: backend - confirm the canonical list of historic counties. These values
+# match the options in the Discovery MDR search (/manor-search).
+MDR_HISTORIC_COUNTIES = [
+    "Anglesey",
+    "Bedfordshire",
+    "Berkshire",
+    "Brecknockshire",
+    "Buckinghamshire",
+    "Caernarfonshire",
+    "Cambridgeshire",
+    "Cardiganshire",
+    "Carmarthenshire",
+    "Cheshire",
+    "Cornwall",
+    "Cumberland",
+    "Denbighshire",
+    "Derbyshire",
+    "Devon",
+    "Dorset",
+    "Durham",
+    "Essex",
+    "Flintshire",
+    "Glamorgan",
+    "Gloucestershire",
+    "Hampshire",
+    "Herefordshire",
+    "Hertfordshire",
+    "Huntingdonshire",
+    "Isle of Wight",
+    "Kent",
+    "Lancashire",
+    "Leicestershire",
+    "Lincolnshire",
+    "Merioneth",
+    "Middlesex",
+    "Monmouthshire",
+    "Montgomeryshire",
+    "Norfolk",
+    "Northamptonshire",
+    "Northumberland",
+    "Nottinghamshire",
+    "Oxfordshire",
+    "Pembrokeshire",
+    "Radnorshire",
+    "Rutland",
+    "Shropshire",
+    "Somerset",
+    "Staffordshire",
+    "Suffolk",
+    "Surrey",
+    "Sussex",
+    "Warwickshire",
+    "Westmorland",
+    "Wiltshire",
+    "Worcestershire",
+    "Yorkshire, East Riding",
+    "Yorkshire, North Riding",
+    "Yorkshire, West Riding",
+]
+
+MDR_COUNTRIES = ["England", "Wales"]
+
+# MDR search API filters and aggregations
+MDR_API_FILTERS = ["schema:manor"]  # limits results to manors
+MDR_API_FILTER_COUNTY = "country"  # the country field includes counties
+MDR_API_FILTER_COUNTRY = "country"
+MDR_API_AGGS_COUNTRY = "country"
+MDR_API_FILTER_START_DATE = "startDate"
+MDR_API_FILTER_END_DATE = "endDate"
+# TODO: backend - parish filter is not yet supported by the API
+MDR_API_FILTER_PARISH = "parish"

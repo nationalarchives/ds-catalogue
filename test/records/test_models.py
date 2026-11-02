@@ -1226,3 +1226,73 @@ class CleanTitleOrCleanSummaryTitleTests(SimpleTestCase):
             self.record.clean_title_or_summary_title,
             "This   is   the   clean   title",
         )
+
+
+class RecordCreatorPropertiesTests(SimpleTestCase):
+    """Tests the record creator properties used by the MDR search."""
+
+    def test_empty_for_optional_creator_attributes(self):
+        record = Record({"id": "F238687"})
+
+        self.assertEqual(record.creator_type, "")
+        self.assertEqual(record.creator_date_range, "")
+        self.assertEqual(record.places, [])
+        self.assertIsNone(record.collections_count)
+        self.assertIsNone(record.collections_held_by_count)
+
+    def test_creator_date_range(self):
+        for start_date, end_date, expected in (
+            ("1189", "1925", "1189-1925"),
+            ("1905", "1905", "1905"),
+            ("1611", "", "1611"),
+            ("", "1936", "1936"),
+        ):
+            with self.subTest(start_date=start_date, end_date=end_date):
+                record = Record(
+                    {"id": "F238687", "startDate": start_date, "endDate": end_date}
+                )
+
+                self.assertEqual(record.creator_date_range, expected)
+
+    def test_creator_type_from_group_array(self):
+        record = Record(
+            {
+                "id": "F238687",
+                "groupArray": [
+                    {"value": "manor"},
+                    {"value": "creator"},
+                    {"value": "nonTna"},
+                ],
+            }
+        )
+
+        self.assertEqual(record.creator_type, "Manor")
+
+    def test_creator_type_not_a_creator(self):
+        record = Record(
+            {"id": "C123456", "groupArray": [{"value": "record"}, {"value": "tna"}]}
+        )
+
+        self.assertEqual(record.creator_type, "")
+
+    def test_creator_attributes(self):
+        record = Record(
+            {
+                "id": "F238687",
+                "places": ["Richmond", "Surrey"],
+                "collectionsCount": 61,
+                "collectionsHeldByCount": "9",
+            }
+        )
+
+        self.assertEqual(record.places, ["Richmond", "Surrey"])
+        self.assertEqual(record.collections_count, 61)
+        self.assertEqual(record.collections_held_by_count, 9)
+
+    def test_creator_without_collections(self):
+        record = Record(
+            {"id": "F273224", "collectionsCount": 0, "collectionsHeldByCount": 0}
+        )
+
+        self.assertEqual(record.collections_count, 0)
+        self.assertEqual(record.collections_held_by_count, 0)

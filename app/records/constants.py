@@ -92,4 +92,10 @@ class RecordTypes(StrEnum):
     CREATORS = "CREATORS"
 
 
+# record creator types, mapped from the api groupArray value to display label
+CREATOR_TYPES = {
+    "manor": "Manor",
+}
+
+
 TNA_ARCHON_CODE = "66"

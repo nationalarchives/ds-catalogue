@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{%- from "components/breadcrumbs/macro.html" import tnaBreadcrumbs -%}
+{%- from "components/button/macro.html" import tnaButton -%}
+{%- from "components/error-summary/macro.html" import tnaErrorSummary -%}
+{%- from "components/fieldset/macro.html" import tnaFieldset -%}
+{%- from "components/select/macro.html" import tnaSelect -%}
+{%- from "components/text-input/macro.html" import tnaTextInput -%}
+{%- from "components/warning/macro.html" import tnaWarning -%}
+{%- from "macros/global_alert_banners.html" import global_alert_banners -%}
+
+{%- set pageTitle = ('Error: ' if form.errors else '') ~ 'Manorial Documents Register' -%}
+
+{% block beforeContent %}
+<div class="tna-background-accent-light">
+  <div class="tna-container">
+    <div class="tna-column tna-column--full">
+      {{ tnaBreadcrumbs({
+        'items': [
+          {
+            'text': 'Home',
+            'href': '/'
+          },
+          {
+            'text': 'Catalogue',
+            'href': url('main:catalogue')
+          }
+        ],
+        'structuredData': True,
+        'classes': 'tna-!--margin-vertical-s'
+      }) }}
+    </div>
+  </div>
+</div>
+{% endblock beforeContent %}
+
+{% block content %}
+<div class="tna-background-accent-light">
+  {{ global_alert_banners(request, global_alert, mourning_notice) }}
+</div>
+<div class="tna-background-accent-light tna-!--padding-top-s tna-!--padding-bottom-m">
+  <div class="tna-container">
+    <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
+      <h1 class="tna-heading-xl">Manorial Documents Register</h1>
+      <p>The Manorial Documents Register (MDR) is the official index of records created by manors in England and Wales up until 1926.</p>
+    </div>
+  </div>
+</div>
+
+<div class="tna-section">
+  <div class="tna-container">
+    <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
+      {% if form.errors %}
+        {% set error_items = [] %}
+        {% for field_name, error in form.errors.items() %}
+          {% do error_items.append({'text': error.text, 'href': '#' ~ form.fields[field_name].id}) %}
+        {% endfor %}
+        {{ tnaErrorSummary({
+          'items': error_items,
+          'classes': 'tna-!--margin-bottom-m'
+        }) }}
+      {% endif %}
+
+      <p>You can use the MDR to identify manors (historic landed estates) in each county of England and Wales, and to find out which records survive for these manors. The MDR provides a brief description of each record and details where they are kept.</p>
+
+      <form id="mdr-search-form" action="{{ url('search:mdr') }}" method="get" class="tna-!--margin-top-m">
+        {% call tnaFieldset({
+          'legend': 'Search by manor',
+          'headingLevel': 2,
+          'headingSize': 'l',
+          'id': 'search-by-manor'
+        }) %}
+
+          {{ tnaWarning({
+            'headingLevel': 3,
+            'body': 'This search is still in development. You can still search the MDR, including by document, <a href="https://discovery.nationalarchives.gov.uk/manor-search">on our existing catalogue Discovery.</a>',
+            'classes': 'tna-!--margin-top-s'
+          }) }}
+
+          {{ tnaTextInput({
+            'label': form.fields.q.label,
+            'headingLevel': 3,
+            'headingSize': 's',
+            'id': form.fields.q.id,
+            'name': form.fields.q.name,
+            'value': form.fields.q.value,
+            'hint': form.fields.q.hint,
+            'error': form.fields.q.error,
+            'formItemClasses': 'tna-!--margin-top-m'
+          }) }}
+
+          {{ tnaTextInput({
+            'label': form.fields.parish.label,
+            'headingLevel': 3,
+            'headingSize': 's',
+            'id': form.fields.parish.id,
+            'name': form.fields.parish.name,
+            'value': form.fields.parish.value,
+            'hint': form.fields.parish.hint,
+            'error': form.fields.parish.error,
+            'formItemClasses': 'tna-!--margin-top-m'
+          }) }}
+
+          {{ tnaSelect({
+            'label': form.fields.county.label,
+            'headingLevel': 3,
+            'headingSize': 's',
+            'id': form.fields.county.id,
+            'name': form.fields.county.name,
+            'items': form.fields.county.items,
+            'selected': form.fields.county.value,
+            'hint': form.fields.county.hint,
+            'error': form.fields.county.error,
+            'formItemClasses': 'tna-!--margin-top-m'
+          }) }}
+
+        {% endcall %}
+
+        <div class="tna-button-group tna-!--margin-top-m">
+          {{ tnaButton({
+            'text': 'Search',
+            'buttonElement': True,
+            'buttonType': 'submit'
+          }) }}
+          {{ tnaButton({
+            'text': 'Reset',
+            'href': url('search:mdr'),
+            'plain': True
+          }) }}
+        </div>
+      </form>
+
+      <h2 class="tna-heading-l tna-!--margin-top-l">What are the manorial records?</h2>
+      <p>Manorial records are the administrative documents created by manors. The MDR details those created from the 13th century to the early-20th century in England and Wales.</p>
+      <p>Under the <a href="https://www.nationalarchives.gov.uk/information-management/legislation/other-archival-legislation/manorial-documents/">Manorial Documents Rules</a>, these include</p>
+      <ul class="tna-ul">
+        <li>court rolls: formal record of the manor court, whether in roll-form or on sheets of paper</li>
+        <li>surveys: a written description of a manor consisting of descriptions of boundaries, customs and a rent roll</li>
+        <li>maps and terriers: maps and plans of a manor and a description</li>
+        <li>documents and books of every description relating to the boundaries, franchises, wastes, customs or courts of a manor</li>
+      </ul>
+      <p>With the following exceptions:</p>
+      <ul class="tna-ul">
+        <li>it does not include title deeds (a legal document that proves who owns a specific piece of land or property)</li>
+        <li>it does not include documents created after 1925 (unless the manor court continued to meet after this date)</li>
+      </ul>
+
+      <h2 class="tna-heading-l tna-!--margin-top-l">Find out more</h2>
+      <p><a href="https://www.nationalarchives.gov.uk/archives-sector/finding-records-in-discovery-and-other-databases/manorial-documents-register/">Visit our MDR overview page</a> to find out more about manorial documents or to notify us of a change in document ownership.</p>
+    </div>
+  </div>
+</div>
+{% endblock content %}

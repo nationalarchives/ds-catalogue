@@ -4,7 +4,7 @@
 
 {% set date_hint = 'For example: 1997, 1997 and 1, or 1997 1 and 31' %}
 
-{% macro date_input(date_from, date_to, title) %}
+{% macro date_input(date_from, date_to, title, hint=date_hint) %}
 <div class="tna-aside tna-aside--tight tna-background-tint tna-!--margin-top-s">
   <h3 class="tna-heading-m">{{ title }}</h3>
     {{ tnaDateInput({
@@ -16,7 +16,7 @@
     'value': date_from.value,
     'formGroupClasses': 'tna-!--margin-top-s',
     'progressive': date_from.progressive,
-    'hint': date_hint,
+    'hint': hint,
     'attributes': {
       'form': 'search-form'
     }
@@ -31,7 +31,7 @@
     'value': date_to.value,
     'formGroupClasses': 'tna-!--margin-top-s',
     'progressive': date_to.progressive,
-    'hint': date_hint,
+    'hint': hint,
     'attributes': {
       'form': 'search-form'
     }

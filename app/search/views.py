@@ -40,6 +40,14 @@ from .constants import (
     FILTER_DATATYPE_RECORD,
     FILTER_FIELDS,
     LONG_FILTER_RESULTS_PER_PAGE,
+    MDR_API_AGGS_COUNTRY,
+    MDR_API_FILTER_COUNTRY,
+    MDR_API_FILTER_COUNTY,
+    MDR_API_FILTER_END_DATE,
+    MDR_API_FILTER_PARISH,
+    MDR_API_FILTER_START_DATE,
+    MDR_API_FILTERS,
+    MDR_COUNTRIES,
     PAGE_LIMIT,
     PAGE_LIMIT_WARNING_MESSAGE,
     PAGE_LIMIT_WARNING_THRESHOLD,
@@ -54,6 +62,7 @@ from .forms import (
     CatalogueSearchNonTnaForm,
     CatalogueSearchTnaForm,
     FieldsConstant,
+    MDRSearchForm,
 )
 from .mixins import SearchDataLayerMixin
 from .models import APISearchResponse
@@ -1111,3 +1120,237 @@ class AdvancedSearchBuildQView(View):
             return JsonResponse({"q": _build_q(form), "parts": _build_q_parts(form)})
         # return empty JSON response if the form is not valid
         return JsonResponse({})
+
+
+class MDRSearchView(CatalogueSearchView):
+    """Manorial Documents Register (MDR) search.
+
+    Renders the search form when no search has been submitted, or when the
+    search terms are invalid. Otherwise queries the API and renders the results,
+    reusing the catalogue search buckets, filters and pagination."""
+
+    templates = {
+        "search": "search/mdr_search.html",
+        "default": "search/mdr_results.html",
+    }
+    template_name = templates.get("default")
+
+    # manors are records at other UK archives
+    default_group = BucketKeys.NON_TNA.value
+
+    # params submitted by the MDR search form
+    search_fields = (
+        FieldsConstant.Q,
+        FieldsConstant.PARISH,
+        FieldsConstant.COUNTY,
+    )
+
+    def setup(self, request: HttpRequest, *args, **kwargs) -> None:
+        """Creates the MDR form instance and attributes used by the catalogue
+        search mixins."""
+
+        # skip CatalogueSearchFormMixin.setup() which creates the catalogue forms
+        super(CatalogueSearchFormMixin, self).setup(request, *args, **kwargs)
+        self.form_kwargs = self.get_form_kwargs()
+
+        self.bucket_list: BucketList = copy.deepcopy(CATALOGUE_BUCKETS)
+        self.api_result = None
+        self.query = ""
+
+        self.form = MDRSearchForm(**self.form_kwargs)
+
+        # keep current bucket key for display focus
+        self.current_bucket_key = self.form.fields[FieldsConstant.GROUP].value
+
+        self.validate_suspicious_operation()
+
+    def get(self, request, *args, **kwargs) -> HttpResponse:
+        if self.is_search_submitted():
+            return super().get(request, *args, **kwargs)
+
+        try:
+            return self.render_search_form()
+        except PageNotFound:
+            return errors_view.page_not_found_error_view(request=self.request)
+
+    def is_search_submitted(self) -> bool:
+        """Returns True when any of the MDR search form params are present."""
+        return any(field_name in self.request.GET for field_name in self.search_fields)
+
+    def render_search_form(self) -> HttpResponse:
+        """Renders the search form, with errors when the form has been validated."""
+
+        self.template_name = self.templates.get("search")
+        return super().form_invalid()
+
+    def form_invalid(self) -> HttpResponse:
+        """Renders the search form when the search terms are invalid, otherwise
+        renders the results template with errors or no results."""
+
+        if any(self.form.fields[field_name].error for field_name in self.search_fields):
+            return self.render_search_form()
+        return super().form_invalid()
+
+    def get_api_params(self, form: MDRSearchForm, current_bucket: Bucket) -> dict:
+        """The API params
+        filter: for querying buckets, MDR search terms, country, dates
+        aggs: for checkbox items with counts."""
+
+        filters = [f"group:{current_bucket.key}", *MDR_API_FILTERS]
+
+        if parish := form.fields[FieldsConstant.PARISH].cleaned:
+            filters.append(f"{MDR_API_FILTER_PARISH}:{parish}")
+
+        if county := form.fields[FieldsConstant.COUNTY].cleaned:
+            filters.append(f"{MDR_API_FILTER_COUNTY}:{county}")
+        else:
+            # TODO: backend - county and country use the same API field, and
+            # filters on the same field are OR'd, so the country filter is only
+            # applied without a county (a county is within a single country)
+            filters.extend(
+                f"{MDR_API_FILTER_COUNTRY}:{country}"
+                for country in form.fields[FieldsConstant.COUNTRY].cleaned
+            )
+
+        filters.extend(self._get_mdr_date_api_params(form))
+
+        return {
+            "filter": filters,
+            "aggs": [MDR_API_AGGS_COUNTRY],
+        }
+
+    def _get_mdr_date_api_params(self, form: MDRSearchForm) -> list[str]:
+        """Returns the record date API params. Record creators have start and
+        end dates rather than covering dates. Ex for 'from' 1300 and 'to' 1500,
+        manors with a start date on or after 1300 and an end date on or before 1500."""
+
+        filter_list = []
+        filter_map = {
+            FieldsConstant.COVERING_DATE_FROM: MDR_API_FILTER_START_DATE
+            + ":(>={year}-{month}-{day})",
+            FieldsConstant.COVERING_DATE_TO: MDR_API_FILTER_END_DATE
+            + ":(<={year}-{month}-{day})",
+        }
+        for field_name, filter_format in filter_map.items():
+            if cleaned_date := form.fields[field_name].cleaned:
+                filter_list.append(
+                    filter_format.format(
+                        year=cleaned_date.year,
+                        month=cleaned_date.month,
+                        day=cleaned_date.day,
+                    )
+                )
+        return filter_list
+
+    def process_api_result(self, form: MDRSearchForm, api_result: APISearchResponse):
+        """The country aggregation includes all places e.g. regions and counties,
+        only keep the countries used by the country filter."""
+
+        for aggregation in api_result.aggregations:
+            if aggregation.get("name") == MDR_API_AGGS_COUNTRY:
+                aggregation["entries"] = [
+                    entry
+                    for entry in aggregation.get("entries", [])
+                    if entry.get("value") in MDR_COUNTRIES
+                ]
+                aggregation["other"] = 0
+
+        super().process_api_result(form, api_result)
+
+    def get_context_data(self, **kwargs):
+        context: dict = super().get_context_data(**kwargs)
+
+        # TODO: backend - API bucket counts are not scoped to the MDR search,
+        # show the results total for the current bucket only
+        for bucket in self.bucket_list:
+            bucket.record_count = None
+            if bucket.is_current and self.api_result:
+                bucket.record_count = self.api_result.stats_total
+
+        search_terms = self._get_search_terms()
+
+        # keep the MDR search terms when switching between buckets
+        for bucket in self.bucket_list:
+            bucket.href = "?" + urlencode(
+                {FieldsConstant.GROUP: bucket.key} | search_terms
+            )
+
+        # reset filters keeps the search terms, bucket and display
+        context["reset_filters_href"] = "?" + urlencode(
+            {
+                FieldsConstant.GROUP: self.form.fields[FieldsConstant.GROUP].value,
+                FieldsConstant.DISPLAY: self.form.fields[FieldsConstant.DISPLAY].value,
+            }
+            | search_terms
+        )
+
+        return context
+
+    def _get_search_terms(self) -> dict[str, str]:
+        """Returns the MDR search terms that have a value."""
+
+        return {
+            field_name: self.form.fields[field_name].value
+            for field_name in self.search_fields
+            if self.form.fields[field_name].value
+        }
+
+    def build_selected_filters_list(self):
+        """Builds a list of selected filters for display and removal links.
+        The Manor filter is always applied to the MDR search."""
+
+        selected_filters = [
+            {
+                "label": "Manor",
+                # TODO: confirm with design, removing the manor filter searches
+                # the general catalogue for the manor name
+                "href": f"{reverse('search:catalogue')}?"
+                + urlencode(
+                    {FieldsConstant.Q: self.form.fields[FieldsConstant.Q].value}
+                ),
+                "title": "Remove manor filter",
+            }
+        ]
+
+        selected_filters.extend(
+            selected_filter
+            for selected_filter in super().build_selected_filters_list()
+            # the country filter is not applied with a county
+            if not (
+                self.form.fields[FieldsConstant.COUNTY].cleaned
+                and selected_filter["label"].startswith(
+                    self.form.fields[FieldsConstant.COUNTRY].active_filter_label
+                )
+            )
+        )
+
+        self._build_date_filters(
+            existing_filters=selected_filters,
+            form_kwargs=self.form_kwargs,
+            from_field=self.form.fields.get(FieldsConstant.COVERING_DATE_FROM),
+            to_field=self.form.fields.get(FieldsConstant.COVERING_DATE_TO),
+        )
+
+        return selected_filters
+
+    def _set_filters_visible_attr(self, context):
+        """Sets filter fields visibility based on current form state and api results.
+        Also sets context['filters_visible'] to indicate if any filters are visible."""
+
+        has_results = bool(self.api_result and self.api_result.stats_total > 0)
+
+        context["filters_visible"] = has_results
+
+        # covering date filters, visible if api results or input values are set
+        date_from = self.form.fields[FieldsConstant.COVERING_DATE_FROM]
+        date_to = self.form.fields[FieldsConstant.COVERING_DATE_TO]
+        date_from.is_visible = date_to.is_visible = bool(
+            has_results or date_from.value.get("year") or date_to.value.get("year")
+        )
+
+        # country filter, visible if items set (with api agg values or input values)
+        # and not searching within a county
+        country = self.form.fields[FieldsConstant.COUNTRY]
+        country.is_visible = bool(
+            country.items and not self.form.fields[FieldsConstant.COUNTY].cleaned
+        )

@@ -15,6 +15,8 @@ from .constants import (
     ADV_SEARCH_TEXTAREA_MAX_CHARS,
     ADV_SEARCH_TEXTAREA_MAX_LINES,
     DATE_DISPLAY_FORMAT,
+    MDR_COUNTRIES,
+    MDR_HISTORIC_COUNTIES,
     Display,
     FieldsConstant,
     Sort,
@@ -340,3 +342,72 @@ class CatalogueSearchNonTnaForm(CatalogueSearchCommonForm):
                 ),
             }
         )
+
+
+class MDRSearchForm(CatalogueSearchCommonForm):
+    """Manorial Documents Register (MDR) search form. The q param is used for
+    the manor name. At least one of manor name, parish or county is required,
+    as per the Discovery MDR search."""
+
+    def add_fields(self):
+
+        fields = super().add_fields()
+
+        # long filters are not supported for MDR search
+        fields.pop(FieldsConstant.FILTER_LIST)
+
+        return (
+            fields
+            | {
+                FieldsConstant.Q: CharField(
+                    label="Manor name",
+                    hint="The standard or alternative name of the manor",
+                ),
+                FieldsConstant.PARISH: CharField(
+                    label="Parish name (optional)",
+                    hint="The name of a parish where the manor is located (for England only)",
+                ),
+                FieldsConstant.COUNTY: ChoiceField(
+                    label="Historic county (optional)",
+                    hint="The county where the manor is located",
+                    choices=[("", "Please select...")]
+                    + [(county, county) for county in MDR_HISTORIC_COUNTIES],
+                    required=False,
+                ),
+                FieldsConstant.COUNTRY: DynamicMultipleChoiceField(
+                    label="Country",
+                    choices=[(country, country) for country in MDR_COUNTRIES],
+                    validate_input=True,  # validate input with choices before querying the API
+                    active_filter_label="Country",
+                ),
+                FieldsConstant.COVERING_DATE_FROM: FromDateField(
+                    label="From",
+                    active_filter_label="Record date from",
+                    progressive=True,  # interfaces with FE component for progressive date entry
+                    date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
+                ),
+                FieldsConstant.COVERING_DATE_TO: ToDateField(
+                    label="To",
+                    active_filter_label="Record date to",
+                    progressive=True,  # interfaces with FE component for progressive date entry
+                    date_ymd_separator=DATE_YMD_SEPARATOR,  # FE component uses this value as separator for ymd date entry
+                ),
+            }
+        )
+
+    def cross_validate(self) -> list[str]:
+        error_messages = super().cross_validate()
+
+        if not any(
+            self.fields[field_name].cleaned
+            for field_name in (
+                FieldsConstant.Q,
+                FieldsConstant.PARISH,
+                FieldsConstant.COUNTY,
+            )
+        ):
+            message = "Enter a manor name, parish name or historic county"
+            self.fields[FieldsConstant.Q].add_error(message)
+            error_messages.append(message)
+
+        return error_messages

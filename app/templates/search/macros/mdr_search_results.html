@@ -1,0 +1,34 @@
+{% macro mdr_search_results(display_options, display_mode, results) %}
+  <ul class="etna-results etna-results--{{ display_mode }}">
+    {% for result in results %}
+      <li id="record-{{ result.id }}">
+        {% if result.creator_type %}
+        <dl class="tna-dl-chips">
+          <dt>Record type</dt>
+          <dd>
+            <span class="tna-dl-chips__item">
+              {{ result.creator_type }}
+            </span>
+          </dd>
+        </dl>
+        {% endif %}
+        <h3 class="{{ 'tna-heading-s' if display_mode == display_options.GRID.value else 'tna-heading-m' }} tna-!--no-margin-top tna-!--no-padding-top"><a href="{{ result.url }}">{{ result.summary_title | safe }}</a></h3>
+        {# TODO: backend - collections counts and place are not yet returned by the API #}
+        {% if result.collections_count %}
+          <p>{{ result.collections_count | format_number }} collection(s) held by {{ result.collections_held_by_count | format_number }} archive(s)</p>
+        {% elif result.collections_count == 0 %}
+          <p>No records known to survive</p>
+        {% endif %}
+        <dl class="etna-result-attributes etna-result-attributes--{{ display_mode }} etna-result-attributes--auto-rows">
+          {% if result.place %}
+          <dt>Place</dt>
+          {# Ex "Richmond, Surrey" displays as "Richmond; Surrey" #}
+          <dd>{{ result.place | replace(', ', '; ') }}</dd>
+          {% endif %}
+          <dt>Date</dt>
+          <dd>{{ result.creator_date_range or 'Dates unknown' }}</dd>
+        </dl>
+      </li>
+    {% endfor %}
+  </ul>
+{% endmacro %}

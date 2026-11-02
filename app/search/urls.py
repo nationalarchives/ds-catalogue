@@ -12,4 +12,5 @@ urlpatterns = [
         views.AdvancedSearchBuildQView.as_view(),
         name="advanced_search_build_q",
     ),
+    path("manor-search/", views.MDRSearchView.as_view(), name="mdr"),
 ]
