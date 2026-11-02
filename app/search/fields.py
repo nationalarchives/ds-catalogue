@@ -240,11 +240,7 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
 
         # Long filter pages do show nested choices, so fall back to the default implementation
         if self.collection_filter_list_applied:
-            print(f"self.choices: {self.choices}")
-            # return super().items
-            x = super().items
-            print(f"x: {x}")
-            return x
+            return super().items
 
         if self.error:
             if self.configured_choices:
