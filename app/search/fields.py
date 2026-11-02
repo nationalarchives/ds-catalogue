@@ -192,6 +192,35 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
 
     @cached_property
     def items(self):
+        """Return the items for the field, including handling nested choices for parliamentary archives.
+        Example:
+        - checked when query contains the value of the item
+        1) Regular choices without children:
+        choices -> [("BT", "BT - Board of Trade and successors (10)", None)]
+        items -> [{"text": "BT - Board of Trade and successors (10)", "value": "BT"}]
+        items -> [{"text": "BT - Board of Trade and successors (10)", "value": "BT", "checked": True}]
+        2) Nested parliamentary collections:
+        choices -> [("Y", "Y - UK Parliament (15)"", [("YHC", "YHC - Records of the House of Commons (10)", None)]),]
+        items -> [{"text": "Y - UK Parliament (15)", "value": "Y", "is_parent": True, "hint": "select to show more specific collections"}]
+        items -> [{"text": "Y - UK Parliament (15)",
+                   "value": "Y",
+                   "checked": True,
+                   "is_parent": True,
+                   "hint": "select to show more specific collections",
+                   "children": [{"text": "YHC - Records of the House of Commons (10)",
+                                 "value": "YHC",
+                                 "is_child": True},
+                                 ... more than 10 choices ...],
+                    "more_filter_choices_available": True,
+                    "more_filter_choices_text": "See more UK Parliament collections",
+                    "more_filter_choices_url": "?collection=Y&filter_list=longCollection"
+                    }]
+        3) long filter items, no nested choices:
+        choices:[("BT", "BT - Board of Trade and successors (2,642,255)"),
+                ("YHC", "YHC - Records of the House of Commons (10)")]
+        items -> [{"text": "BT - Board of Trade and successors (2,642,255)", "value": "BT", "checked": True},
+                  {"text": "YHC - Records of the House of Commons (10)", "value": "YHC"}]
+        """
 
         def is_parent_choice(children_choices: list[str, str, None] | None):
             """Return True if the choice represents a parent, even without children.
@@ -211,7 +240,11 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
 
         # Long filter pages do show nested choices, so fall back to the default implementation
         if self.collection_filter_list_applied:
-            return super().items
+            print(f"self.choices: {self.choices}")
+            # return super().items
+            x = super().items
+            print(f"x: {x}")
+            return x
 
         if self.error:
             if self.configured_choices:
