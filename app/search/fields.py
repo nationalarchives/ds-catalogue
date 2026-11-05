@@ -201,12 +201,12 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
         items -> [{"text": "BT - Board of Trade and successors (10)", "value": "BT", "checked": True}]
         2) Nested parliamentary collections:
         choices -> [("Y", "Y - UK Parliament (15)"", [("YHC", "YHC - Records of the House of Commons (10)", None)]),]
-        items -> [{"text": "Y - UK Parliament (15)", "value": "Y", "is_parent": True, "hint": "select to show more specific collections"}]
+        items -> [{"text": "Y - UK Parliament (15)", "value": "Y", "is_parent": True, "hint": "Select to show more specific collections"}]
         items -> [{"text": "Y - UK Parliament (15)",
                    "value": "Y",
                    "checked": True,
                    "is_parent": True,
-                   "hint": "select to show more specific collections",
+                   "hint": "Select to show more specific collections",
                    "children": [{"text": "YHC - Records of the House of Commons (10)",
                                  "value": "YHC",
                                  "is_child": True},

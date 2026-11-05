@@ -174,7 +174,7 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
                     "text": "Y - UK Parliament (15)",
                     "value": "Y",
                     "is_parent": True,
-                    "hint": "select to show more specific collections",
+                    "hint": "Select to show more specific collections",
                 },
             ],
         )
@@ -410,7 +410,7 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
                     "text": "Y - UK Parliament (15)",
                     "value": "Y",
                     "is_parent": True,
-                    "hint": "select to show more specific collections",
+                    "hint": "Select to show more specific collections",
                 },
                 {
                     "text": "RAIL - Pre-nationalisation railway companies, pre-nationalisation canal and related companies (30)",
@@ -691,7 +691,7 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
                     "value": "Y",
                     "checked": True,
                     "is_parent": True,
-                    "hint": "select to show more specific collections",
+                    "hint": "Select to show more specific collections",
                     "more_filter_choices_available": True,
                     "more_filter_choices_text": "See more UK Parliament collections",
                     "more_filter_choices_url": "?collection=Y&filter_list=longCollection",
@@ -900,7 +900,7 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
                     "value": "Y",
                     "checked": True,
                     "is_parent": True,
-                    "hint": "select to show more specific collections",
+                    "hint": "Select to show more specific collections",
                     "children": [
                         {
                             "text": "YHL - Records of the House of Commons; Records of the House of Lords (10)",
@@ -1070,7 +1070,7 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
                     "text": "Y - UK Parliament (15)",
                     "value": "Y",
                     "is_parent": True,
-                    "hint": "select to show more specific collections",
+                    "hint": "Select to show more specific collections",
                     "children": [
                         {
                             "text": "YHL - Records of the House of Commons; Records of the House of Lords (10)",

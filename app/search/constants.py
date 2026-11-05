@@ -89,7 +89,7 @@ ADV_SEARCH_TEXTAREA_MAX_LINES = 200
 
 PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE = "Y"
 PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_HINT = (
-    "select to show more specific collections"
+    "Select to show more specific collections"
 )
 
 MAX_FILTER_CHOICES = (

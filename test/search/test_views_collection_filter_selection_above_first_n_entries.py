@@ -266,7 +266,7 @@ class CatalogueSearchViewAboveNEntriesNestedCollectionFilterTests(TestCase):
                     "value": "Y",
                     "checked": True,
                     "is_parent": True,
-                    "hint": "select to show more specific collections",
+                    "hint": "Select to show more specific collections",
                     "children": [
                         {
                             "text": "YHL - Records of the House of Commons; Records of the House of Lords (3)",
@@ -717,7 +717,7 @@ class CatalogueSearchViewAboveNEntriesNestedCollectionFilterTests(TestCase):
                     "value": "Y",
                     "checked": True,
                     "is_parent": True,
-                    "hint": "select to show more specific collections",
+                    "hint": "Select to show more specific collections",
                     "children": [
                         {
                             "text": "YHL - Records of the House of Commons; Records of the House of Lords (3)",
@@ -1129,7 +1129,7 @@ class CatalogueSearchViewAboveNEntriesNestedCollectionFilterTests(TestCase):
                     "value": "Y",
                     "checked": True,
                     "is_parent": True,
-                    "hint": "select to show more specific collections",
+                    "hint": "Select to show more specific collections",
                     "children": [
                         {
                             "text": "YHL - Records of the House of Commons; Records of the House of Lords (3)",
