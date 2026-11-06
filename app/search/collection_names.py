@@ -445,6 +445,7 @@ COLLECTION_NAMES = {
     "ZPER": "British Transport Historical Records Office library: periodicals",
     "ZSPC": "British Transport Historical Records Office library: publications",
     "ZWEB": "Regularly Archived Government Websites",
+    "Y": "UK Parliament",
     "LITV": "Inquiry into the death of Alexander Litvinenko: Evidence, Correspondence and Report",
     "EDG": "Employment Department, Training Agency",
     "BEIS": "Department for Business, Energy and Industrial Strategy",

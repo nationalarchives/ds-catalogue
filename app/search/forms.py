@@ -9,7 +9,10 @@ from app.lib.fields import (
 from app.lib.forms import BaseForm
 from app.records.constants import TnaLevels
 
-from .buckets import CATALOGUE_BUCKETS, Aggregation
+from .buckets import (
+    CATALOGUE_BUCKETS,
+    get_extended_input_choices_for_long_aggs,
+)
 from .collection_names import COLLECTION_CHOICES
 from .constants import (
     ADV_SEARCH_TEXTAREA_MAX_CHARS,
@@ -19,6 +22,7 @@ from .constants import (
     FieldsConstant,
     Sort,
 )
+from .fields import NestedCollectionDynamicMultipleChoiceField
 
 
 class AdvancedSearchQForm(BaseForm):
@@ -168,7 +172,7 @@ class CatalogueSearchCommonForm(CatalogueSearchBaseForm):
                 ],
             ),
             FieldsConstant.FILTER_LIST: ChoiceField(
-                choices=Aggregation.as_input_choices_for_long_aggs(),
+                choices=get_extended_input_choices_for_long_aggs(),
             ),
             FieldsConstant.DISPLAY: ChoiceField(
                 choices=[
@@ -235,7 +239,7 @@ class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
                     validate_input=True,  # validate input with choices before querying the API
                     active_filter_label="Level",
                 ),
-                FieldsConstant.COLLECTION: DynamicMultipleChoiceField(
+                FieldsConstant.COLLECTION: NestedCollectionDynamicMultipleChoiceField(
                     label="Collections",
                     choices=COLLECTION_CHOICES,
                     validate_input=False,  # do not validate input COLLECTION_CHOICES fixed or dynamic

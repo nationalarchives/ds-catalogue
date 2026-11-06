@@ -296,6 +296,29 @@ class DynamicMultipleChoiceField(BaseField):
             # Fall back to using the key value (which is the same in most cases)
             return f"{data['value']} ({count})"
 
+    def get_missing_choices(
+        self,
+        selected_values,
+        choice_vals_with_hits: set,
+    ):
+        """Returns a list of missing choices with a count of 0 for selected values not present in the API data.
+        E.g.:
+        selected_values = ["A", "B", "C"]
+        choice_vals_with_hits = {"A", "C"}
+        returns [("B", "B (0)")]
+        """
+
+        missing_choices = []
+        for missing_value in [
+            v for v in selected_values if v not in choice_vals_with_hits
+        ]:
+            try:
+                label_base = self.configured_choice_labels[missing_value]
+            except KeyError:
+                label_base = missing_value
+            missing_choices.append((missing_value, f"{label_base} (0)"))
+        return missing_choices
+
     def update_choices(
         self,
         choice_api_data: list[dict[str, str | int]],
@@ -324,14 +347,10 @@ class DynamicMultipleChoiceField(BaseField):
             choices.append((item["value"], self.choice_label_from_api_data(item)))
             choice_vals_with_hits.add(item["value"])
 
-        for missing_value in [
-            v for v in selected_values if v not in choice_vals_with_hits
-        ]:
-            try:
-                label_base = self.configured_choice_labels[missing_value]
-            except KeyError:
-                label_base = missing_value
-            choices.append((missing_value, f"{label_base} (0)"))
+        missing_choices = self.get_missing_choices(
+            selected_values, choice_vals_with_hits
+        )
+        choices.extend(missing_choices)
 
         # Replace the field's attribute value
         self.choices = choices

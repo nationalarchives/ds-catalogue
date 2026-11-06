@@ -4,8 +4,13 @@
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
 {%- from 'macros/global_alert_banners.html' import global_alert_banners -%}
 {% from 'search/macros/render_hidden_fields.html' import render_hidden_fields %}
+{%- from 'search/macros/as_hidden_for_multiple_values.html' import as_hidden_for_multiple_values %}
 
 {%- set pageTitle = 'More filter options' -%}
+{%- set checkbox_label = request.GET.filter_list | replace('long', '') -%}
+{%- if checkbox_label == 'CollectionY' %}
+  {%- set checkbox_label = 'UK Parliament Collections' %}
+{%- endif %}
 
 {% block stylesheets %}
   {{ super() }}
@@ -59,7 +64,7 @@
           }) }}
         </div>
         {{ tnaCheckboxes({
-          'label': request.GET.filter_list | replace('long', ''),
+          'label': checkbox_label,
           'headingSize': "m",
           'id': mfc_field.id,
           'name': mfc_field.name,
@@ -106,6 +111,9 @@
       </div>
     </div>
     {{ render_hidden_fields(request, form, bucket_keys, mfc_field, aggregation) }}
+    {%- if mfc_field.name == 'collection' %}
+      {{ as_hidden_for_multiple_values(mfc_field.name, hidden_collections) }}
+    {%- endif %}
   </form>
 
   <div class="tna-background-accent-light">
