@@ -3,10 +3,10 @@ from functools import cached_property
 from app.lib.fields import DynamicMultipleChoiceField
 from config.utils.query_string import qs_replace_value
 
-from .buckets import Aggregation
 from .collection_names import COLLECTION_NAMES
 from .constants import (
     HINT_KEY,
+    LONG_AGGS_PARLIAMENTARY_ARCHIVE,
     MAX_FILTER_CHOICES,
     NESTED_CHILDREN_KEY,
     NESTED_IS_CHILD_KEY,
@@ -36,6 +36,7 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
         super().__init__(choices, **kwargs)
         # additional arributes for long filter and nested choices link handling.
         self.collection_filter_list_applied = False
+        self.parliamentary_archive_collection_filter_list_applied = False
         self.request = None
 
     def _build_more_filter_options_for_parliamentary_archives(
@@ -44,9 +45,6 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
         """Returns the text and URL for more filter options related to nested parliamentary
         archive collection.
         """
-
-        # adds filter_list=<Aggregation long_aggs value> to existing query string.
-        long_aggs = Aggregation.get_long_aggs_name_for_field_name(self.name)
 
         # add the parent collection parameter to the query string.
         parent_collection_param = f"{FieldsConstant.COLLECTION}={PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE}"
@@ -57,12 +55,13 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
         else:
             parent_collection_param = "&" + parent_collection_param
 
+        # adds filter_list=<Aggregation long_aggs value> to existing query string.
         more_filter_choices_url = (
             "?"
             + qs_replace_value(
                 existing_qs=self.request.GET,
                 filter=FieldsConstant.FILTER_LIST,
-                by=long_aggs,
+                by=LONG_AGGS_PARLIAMENTARY_ARCHIVE,
             )
             + parent_collection_param
         )
@@ -93,6 +92,9 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
         if self.collection_filter_list_applied:
             selected_values = self.remove_parent_from_selected_values(selected_values)
             return super().get_missing_choices(selected_values, choice_vals_with_hits)
+        elif self.parliamentary_archive_collection_filter_list_applied:
+            # return empty as missing choices shown at searh results page
+            return []
 
         missing_choices = []
         for missing_value in [
@@ -213,7 +215,7 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
                                  ... more than 10 choices ...],
                     "more_filter_choices_available": True,
                     "more_filter_choices_text": "See more UK Parliament collections",
-                    "more_filter_choices_url": "?collection=Y&filter_list=longCollection"
+                    "more_filter_choices_url": "?collection=Y&filter_list=longCollectionY"
                     }]
         3) long filter items, no nested choices:
         choices:[("BT", "BT - Board of Trade and successors (10)"),

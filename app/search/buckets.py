@@ -4,7 +4,11 @@ from enum import Enum, StrEnum
 
 from django.contrib.humanize.templatetags.humanize import intcomma
 
-from .constants import FieldsConstant
+from .constants import (
+    LONG_AGGS_PARLIAMENTARY_ARCHIVE,
+    PARLIAMENTARY_ARCHIVE_FILTER_LIST_CHOICE,
+    FieldsConstant,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +101,26 @@ class Aggregation(MultiValueForAggregation):
         # should be never reached, but keep for safety
         logger.warning(f"Long aggregation name not found for field name: {field_name}")
         return None
+
+
+def get_extended_input_choices_for_long_aggs() -> list[tuple[str, str]]:
+    """Extended input is not part of API, used for application-specific purposes."""
+
+    choices = Aggregation.as_input_choices_for_long_aggs()
+    choices.append(PARLIAMENTARY_ARCHIVE_FILTER_LIST_CHOICE)
+    return choices
+
+
+def get_field_name_for_extended_long_aggs_name(agg_name: str) -> str | None:
+    """Extended version of get_field_name_for_long_aggs_name to include application-specific long aggs names."""
+
+    if agg_name == LONG_AGGS_PARLIAMENTARY_ARCHIVE:
+        return FieldsConstant.COLLECTION
+    return Aggregation.get_field_name_for_long_aggs_name(agg_name)
+
+
+# def get_extended_long_aggs_name_for_field_name(field_name: str) -> str | None:
+#     return Aggregation.get_long_aggs_name_for_field_name(field_name)
 
 
 @dataclass

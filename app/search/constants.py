@@ -92,6 +92,13 @@ PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_HINT = (
     "Select to show more specific collections"
 )
 
+# only used at Application level, not part of the API
+LONG_AGGS_PARLIAMENTARY_ARCHIVE = "longCollectionY"
+PARLIAMENTARY_ARCHIVE_FILTER_LIST_CHOICE = (
+    LONG_AGGS_PARLIAMENTARY_ARCHIVE,
+    FieldsConstant.COLLECTION,
+)
+
 MAX_FILTER_CHOICES = (
     10  # max number of filter choices to display before showing "more" option
 )

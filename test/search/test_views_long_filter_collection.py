@@ -585,6 +585,101 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         self.assertNotIn("""<input type="hidden" name="collection" """, html)
 
     @responses.activate
+    def test_search_for_parliament_filter_list_param_with_collection_param(
+        self,
+    ):
+        """Tests search for filter list param with parliament collection param value"""
+
+        # 0 results for long filter
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "data": [],
+                "aggregations": [
+                    {
+                        "name": "longCollection",
+                        "entries": [
+                            {"value": "BT", "doc_count": 50},
+                            {"value": "Y", "doc_count": 10},
+                            {"value": "YHC", "doc_count": 10},
+                        ],
+                        "total": 28083703,
+                        "other": 0,
+                    }
+                ],
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "tna", "count": 1},
+                        ],
+                    }
+                ],
+                "stats": {
+                    "total": 10000,
+                    "results": 0,
+                },
+            },
+            status=HTTPStatus.OK,
+        )
+
+        response = self.client.get(
+            "/catalogue/search/?filter_list=longCollectionY&collection=BT&collection=Y&collection=YHC"
+        )
+
+        context_data = response.context_data
+        form = context_data.get("form")
+        html = force_str(response.content)
+        # more filter choice field - i.e. collection - used in template
+        mfc_field = context_data.get("mfc_field")
+
+        self.assertEqual(len(context_data.get("results")), 0)
+        self.assertTrue(form.is_valid())
+
+        self.assertEqual(
+            context_data.get("mfc_cancel_and_return_to_search_url"),
+            ("?collection=BT&collection=Y&collection=YHC"),
+        )
+        self.assertIsInstance(
+            mfc_field,
+            DynamicMultipleChoiceField,
+        )
+        self.assertTrue(mfc_field.parliamentary_archive_collection_filter_list_applied)
+        self.assertEqual(
+            mfc_field.name,
+            FieldsConstant.COLLECTION,
+        )
+
+        self.assertEqual(
+            mfc_field.choices,
+            [("YHC", "YHC - Records of the House of Commons (10)", None)],
+        )
+
+        self.assertEqual(
+            mfc_field.items,
+            [
+                {
+                    "text": "YHC - Records of the House of Commons (10)",
+                    "value": "YHC",
+                    "checked": True,
+                }
+            ],
+        )
+        self.assertEqual(
+            mfc_field.more_filter_choices_available,
+            False,
+        )
+        self.assertEqual(
+            mfc_field.more_filter_choices_url,
+            "",
+        )
+
+        # test hidden inputs
+        self.assertIn("""<input type="hidden" name="collection" value="Y""", html)
+        self.assertIn("""<input type="hidden" name="collection" value="BT""", html)
+
+    @responses.activate
     def test_search_for_filter_list_param_with_parent_parliament_archive(
         self,
     ):
@@ -623,54 +718,71 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
             status=HTTPStatus.OK,
         )
 
-        response = self.client.get(
-            "/catalogue/search/?filter_list=longCollection&collection=Y"
-        )
+        for filter_list_value, test_name in (
+            ("longCollection", "Filter list longCollection"),
+            ("longCollectionY", "Filter list longCollectionY"),
+        ):
+            with self.subTest(test_name=test_name):
+                response = self.client.get(
+                    f"/catalogue/search/?filter_list={filter_list_value}&collection=Y"
+                )
 
-        context_data = response.context_data
-        form = context_data.get("form")
-        html = force_str(response.content)
-        # more filter choice field - i.e. collection - used in template
-        mfc_field = context_data.get("mfc_field")
+                context_data = response.context_data
+                form = context_data.get("form")
+                html = force_str(response.content)
+                # more filter choice field - i.e. collection - used in template
+                mfc_field = context_data.get("mfc_field")
 
-        self.assertEqual(len(context_data.get("results")), 0)
-        self.assertTrue(form.is_valid())
+                self.assertEqual(len(context_data.get("results")), 0)
+                self.assertTrue(form.is_valid())
 
-        self.assertEqual(
-            context_data.get("mfc_cancel_and_return_to_search_url"),
-            ("?collection=Y"),
-        )
-        self.assertIsInstance(
-            mfc_field,
-            DynamicMultipleChoiceField,
-        )
-        self.assertEqual(
-            mfc_field.name,
-            FieldsConstant.COLLECTION,
-        )
+                self.assertEqual(
+                    context_data.get("mfc_cancel_and_return_to_search_url"),
+                    ("?collection=Y"),
+                )
+                self.assertIsInstance(
+                    mfc_field,
+                    DynamicMultipleChoiceField,
+                )
+                self.assertEqual(
+                    mfc_field.name,
+                    FieldsConstant.COLLECTION,
+                )
 
-        self.assertEqual(
-            mfc_field.items,
-            [
-                {"text": "YHC - Records of the House of Commons (50)", "value": "YHC"},
-                {
-                    "text": "YHL - Records of the House of Commons; Records of the House of Lords (50)",
-                    "value": "YHL",
-                },
-            ],
-        )
-        self.assertEqual(
-            mfc_field.more_filter_choices_available,
-            False,
-        )
-        self.assertEqual(
-            mfc_field.more_filter_choices_url,
-            "",
-        )
+                self.assertEqual(
+                    mfc_field.items,
+                    [
+                        {
+                            "text": "YHC - Records of the House of Commons (50)",
+                            "value": "YHC",
+                        },
+                        {
+                            "text": "YHL - Records of the House of Commons; Records of the House of Lords (50)",
+                            "value": "YHL",
+                        },
+                    ],
+                )
+                self.assertEqual(
+                    mfc_field.more_filter_choices_available,
+                    False,
+                )
+                self.assertEqual(
+                    mfc_field.more_filter_choices_url,
+                    "",
+                )
 
-        # test hidden inputs
-        # parent collection filter for parliamentary archives is not visible for selection, show it as hidden
-        self.assertIn("""<input type="hidden" name="collection" value="Y">""", html)
+                # test hidden inputs
+                # parent collection filter for parliamentary archives is not visible for selection, show it as hidden
+                self.assertIn(
+                    """<input type="hidden" name="collection" value="Y">""", html
+                )
+
+                if filter_list_value == "longCollection":
+                    self.assertTrue(mfc_field.collection_filter_list_applied)
+                elif filter_list_value == "longCollectionY":
+                    self.assertTrue(
+                        mfc_field.parliamentary_archive_collection_filter_list_applied
+                    )
 
     @responses.activate
     def test_search_for_filter_list_param_with_child_parliament_archive_without_parent(
@@ -711,55 +823,68 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
             status=HTTPStatus.OK,
         )
 
-        response = self.client.get(
-            "/catalogue/search/?filter_list=longCollection&collection=YHC&collection=YHL"
-        )
+        for filter_list_value, test_name in (
+            ("longCollection", "Filter list longCollection"),
+            ("longCollectionY", "Filter list longCollectionY"),
+        ):
+            with self.subTest(test_name=test_name):
+                response = self.client.get(
+                    f"/catalogue/search/?filter_list={filter_list_value}&collection=YHC&collection=YHL"
+                )
+                context_data = response.context_data
+                form = context_data.get("form")
+                html = force_str(response.content)
+                # more filter choice field - i.e. collection - used in template
+                mfc_field = context_data.get("mfc_field")
 
-        context_data = response.context_data
-        form = context_data.get("form")
-        html = force_str(response.content)
-        # more filter choice field - i.e. collection - used in template
-        mfc_field = context_data.get("mfc_field")
+                self.assertEqual(len(context_data.get("results")), 0)
+                self.assertTrue(form.is_valid())
 
-        self.assertEqual(len(context_data.get("results")), 0)
-        self.assertTrue(form.is_valid())
+                self.assertEqual(
+                    context_data.get("mfc_cancel_and_return_to_search_url"),
+                    ("?collection=YHC&collection=YHL"),
+                )
+                self.assertIsInstance(
+                    mfc_field,
+                    DynamicMultipleChoiceField,
+                )
+                self.assertEqual(
+                    mfc_field.name,
+                    FieldsConstant.COLLECTION,
+                )
+                self.assertEqual(
+                    mfc_field.items,
+                    [
+                        {
+                            "text": "YHC - Records of the House of Commons (50)",
+                            "value": "YHC",
+                            "checked": True,
+                        },
+                        {
+                            "text": "YHL - Records of the House of Commons; Records of the House of Lords (50)",
+                            "value": "YHL",
+                            "checked": True,
+                        },
+                    ],
+                )
+                self.assertEqual(
+                    mfc_field.more_filter_choices_available,
+                    False,
+                )
+                self.assertEqual(
+                    mfc_field.more_filter_choices_url,
+                    "",
+                )
 
-        self.assertEqual(
-            context_data.get("mfc_cancel_and_return_to_search_url"),
-            ("?collection=YHC&collection=YHL"),
-        )
-        self.assertIsInstance(
-            mfc_field,
-            DynamicMultipleChoiceField,
-        )
-        self.assertEqual(
-            mfc_field.name,
-            FieldsConstant.COLLECTION,
-        )
-        self.assertEqual(
-            mfc_field.items,
-            [
-                {
-                    "text": "YHC - Records of the House of Commons (50)",
-                    "value": "YHC",
-                    "checked": True,
-                },
-                {
-                    "text": "YHL - Records of the House of Commons; Records of the House of Lords (50)",
-                    "value": "YHL",
-                    "checked": True,
-                },
-            ],
-        )
-        self.assertEqual(
-            mfc_field.more_filter_choices_available,
-            False,
-        )
-        self.assertEqual(
-            mfc_field.more_filter_choices_url,
-            "",
-        )
+                # test hidden inputs
+                # parent collection filter for parliamentary archives is not visible for selection, show it as hidden
+                self.assertIn(
+                    """<input type="hidden" name="collection" value="Y">""", html
+                )
 
-        # test hidden inputs
-        # parent collection filter for parliamentary archives is not visible for selection, show it as hidden
-        self.assertIn("""<input type="hidden" name="collection" value="Y">""", html)
+                if filter_list_value == "longCollection":
+                    self.assertTrue(mfc_field.collection_filter_list_applied)
+                elif filter_list_value == "longCollectionY":
+                    self.assertTrue(
+                        mfc_field.parliamentary_archive_collection_filter_list_applied
+                    )

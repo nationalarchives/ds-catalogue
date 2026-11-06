@@ -34,6 +34,7 @@ from .buckets import (
     Bucket,
     BucketKeys,
     BucketList,
+    get_field_name_for_extended_long_aggs_name,
 )
 from .constants import (
     DATE_DISPLAY_FORMAT,
@@ -63,8 +64,10 @@ from .parliamentary_archives import (
     add_parliamentary_archives_child_values_to_first_n,
     build_choice_api_data_for_collection_filter,
     build_collection_active_filters,
+    build_hidden_collections_for_filter_list,
     filter_api_entries,
     remove_parliamentary_archives_parent_collection_filter,
+    reset_long_filter_list_for_parliamentary_archives,
 )
 from .utils import (
     camelcase_to_underscore,
@@ -146,6 +149,9 @@ class APIMixin:
 
         # parliamentary archives collection filter adjustments
         params = remove_parliamentary_archives_parent_collection_filter(params)
+
+        # Long filter adjustment for parliamentary archives
+        params = reset_long_filter_list_for_parliamentary_archives(params)
 
         return params
 
@@ -582,6 +588,15 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         if not self.is_filter_list_applied(self.form):
             self.hidden_selected_filters = self.build_hidden_selected_filters()
 
+        self.hidden_collections = []
+        if isinstance(
+            self.form, CatalogueSearchTnaForm
+        ) and self.is_filter_list_applied(self.form):
+            # build hidden collections for the filter list
+            self.hidden_collections = build_hidden_collections_for_filter_list(
+                self.form, self.is_filter_list_applied(self.form)
+            )
+
         notifications = fetch_global_notifications()
         context["global_alert"] = (
             notifications.get("global_alert") if notifications else None
@@ -595,6 +610,7 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
                 "bucket_list": self.bucket_list,
                 "selected_filters": self.selected_filters,
                 "hidden_selected_filters": self.hidden_selected_filters,
+                "hidden_collections": self.hidden_collections,
                 "max_filter_choices": MAX_FILTER_CHOICES,
                 "analytics_data": self.get_datalayer_data(self.request),
                 "bucket_keys": BucketKeys,
@@ -656,9 +672,8 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
             # get field name from filter_list value
             filter_list_value = self.form.fields[FieldsConstant.FILTER_LIST].cleaned
 
-            field_name = Aggregation.get_field_name_for_long_aggs_name(
-                filter_list_value
-            )
+            field_name = get_field_name_for_extended_long_aggs_name(filter_list_value)
+
             if field_name:
                 filter_context["mfc_field"] = self.form.fields.get(field_name)
                 filter_context["aggregation"] = Aggregation

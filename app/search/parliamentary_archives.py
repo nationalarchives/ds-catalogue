@@ -8,6 +8,7 @@ from config.utils.query_string import qs_toggle_value
 
 from .buckets import Aggregation
 from .constants import (
+    LONG_AGGS_PARLIAMENTARY_ARCHIVE,
     MAX_FILTER_CHOICES,
     NESTED_CHILDREN_KEY,
     PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE,
@@ -53,6 +54,32 @@ def is_collection_filter_list_applied(form):
     return False
 
 
+def is_parliamentary_archive_collection_filter_list_applied(form):
+    """Returns True if the parliamentary archives collection filter list is applied. False otherwise."""
+
+    if (
+        form.fields.get(FieldsConstant.FILTER_LIST)
+        and form.fields[FieldsConstant.FILTER_LIST].cleaned
+        == LONG_AGGS_PARLIAMENTARY_ARCHIVE
+    ):
+        return True
+
+    return False
+
+
+def get_non_parliamentary_archive_selections(selected_values: list[str]) -> list[str]:
+    """Returns the selections that are not parliamentary archive parent or child."""
+
+    return [
+        value
+        for value in selected_values
+        if not (
+            is_parliamentary_archive_parent(value)
+            or is_parliamentary_archive_child(value)
+        )
+    ]
+
+
 def filter_api_entries(
     api_entries: list[dict[str, str | int]] | dict[str, str | int],
 ) -> list[dict[str, str | int]]:
@@ -89,6 +116,15 @@ def build_choice_api_data_for_collection_filter(
         # set to direct updating choices, items for long filters page that
         # do not have nested choices
         form.fields[field_name].collection_filter_list_applied = True
+        choice_api_data = prepare_api_long_filter_list_entries_for_collections(
+            choice_api_data, form.fields[field_name].value
+        )
+    elif is_parliamentary_archive_collection_filter_list_applied(form):
+        # set to direct updating choices, items for long filters page that
+        # do not have nested choices
+        form.fields[
+            field_name
+        ].parliamentary_archive_collection_filter_list_applied = True
         choice_api_data = (
             prepare_api_long_filter_list_entries_for_parliamentary_archives(
                 choice_api_data, form.fields[field_name].value
@@ -193,7 +229,7 @@ def prepare_api_parent_child_entries_for_parliamentay_archives(
     return remaining
 
 
-def prepare_api_long_filter_list_entries_for_parliamentary_archives(
+def prepare_api_long_filter_list_entries_for_collections(
     api_entries: list[dict[str, str | int]], selected_values: list[str]
 ):
     """Returns transformed entries that are used for long filter lists. Preserves the original
@@ -243,6 +279,22 @@ def prepare_api_long_filter_list_entries_for_parliamentary_archives(
         return prepare_entries_parent_without_children(api_entries)
 
 
+def prepare_api_long_filter_list_entries_for_parliamentary_archives(
+    api_entries: list[dict[str, str | int]], selected_values: list[str]
+):
+    """Prepare API entries for long filter lists related to parliamentary archives.
+    Keeps only child entries and preserves their original order."""
+
+    # Consider only child entries for the long filter list
+    child_entries = [
+        entry.copy()
+        for entry in api_entries
+        if is_parliamentary_archive_child(entry["value"])
+    ]
+
+    return child_entries
+
+
 def remove_parliamentary_archives_parent_collection_filter(
     params: dict[str, str | list[str]],
 ) -> dict[str, str | list[str]]:
@@ -272,6 +324,25 @@ def remove_parliamentary_archives_parent_collection_filter(
                 )
             )
         ]
+
+    return params
+
+
+def reset_long_filter_list_for_parliamentary_archives(
+    params: dict[str, str | list[str]],
+) -> dict[str, str | list[str]]:
+    """Reset long filter list for parliamentary archives.
+    E.g.
+    before adjustment params: {'aggs': 'longCollectionY'}
+    after adjustment params: {'aggs': 'longCollection'}
+    """
+
+    # Long filter adjustment for parliamentary archives
+    # Reset long aggs at API level
+    if params.get("aggs") == LONG_AGGS_PARLIAMENTARY_ARCHIVE:
+        params["aggs"] = Aggregation.get_long_aggs_name_for_field_name(
+            FieldsConstant.COLLECTION
+        )
 
     return params
 
@@ -348,3 +419,23 @@ def remove_parliamentary_archives_parent_from_api_data(
         for item in api_entries
         if not is_parliamentary_archive_parent(item["value"])
     ]
+
+
+def build_hidden_collections_for_filter_list(form, is_filter_list_applied) -> list[str]:
+    """Builds a list of hidden collections for the current form."""
+
+    hidden_collections = []
+    if is_filter_list_applied:
+        input_values = form.fields[FieldsConstant.COLLECTION].value
+        # has parent or child
+        if is_parent_or_child_selected(input_values):
+            # parent collection filter for parliamentary archives is not visible for selection, show it as hidden if applicable
+            hidden_collections = [PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE]
+
+        if is_parliamentary_archive_collection_filter_list_applied(form):
+            non_parliamentary_archive_selections = (
+                get_non_parliamentary_archive_selections(input_values)
+            )
+            hidden_collections.extend(non_parliamentary_archive_selections)
+
+    return hidden_collections

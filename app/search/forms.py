@@ -9,7 +9,10 @@ from app.lib.fields import (
 from app.lib.forms import BaseForm
 from app.records.constants import TnaLevels
 
-from .buckets import CATALOGUE_BUCKETS, Aggregation
+from .buckets import (
+    CATALOGUE_BUCKETS,
+    get_extended_input_choices_for_long_aggs,
+)
 from .collection_names import COLLECTION_CHOICES
 from .constants import (
     ADV_SEARCH_TEXTAREA_MAX_CHARS,
@@ -169,7 +172,7 @@ class CatalogueSearchCommonForm(CatalogueSearchBaseForm):
                 ],
             ),
             FieldsConstant.FILTER_LIST: ChoiceField(
-                choices=Aggregation.as_input_choices_for_long_aggs(),
+                choices=get_extended_input_choices_for_long_aggs(),
             ),
             FieldsConstant.DISPLAY: ChoiceField(
                 choices=[

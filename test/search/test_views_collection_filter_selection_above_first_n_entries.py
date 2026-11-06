@@ -340,7 +340,7 @@ class CatalogueSearchViewAboveNEntriesNestedCollectionFilterTests(TestCase):
                     "more_filter_choices_url": "?collection=Y"
                     "&collection=LEV&collection=ADM&collection=BT&collection=WO&collection=HO&collection=E&collection=C&collection=AIR&collection=GTI&collection=RAIL"
                     "&collection=YHL&collection=YBBK&collection=YHNN&collection=YFLS&collection=YHEA&collection=YWAR&collection=YBAL&collection=YBLU&collection=YOWE&collection=YLG&collection=YBLK"
-                    "&filter_list=longCollection",
+                    "&filter_list=longCollectionY",
                 },
                 {
                     "text": "WO - War Office, Armed Forces, Judge Advocate General, and related bodies (300)",
@@ -788,7 +788,7 @@ class CatalogueSearchViewAboveNEntriesNestedCollectionFilterTests(TestCase):
                     ],
                     "more_filter_choices_available": True,
                     "more_filter_choices_text": "See more UK Parliament collections",
-                    "more_filter_choices_url": "?collection=Y&collection=LEV&collection=ADM&collection=BT&collection=WO&collection=HO&collection=E&collection=C&collection=AIR&collection=GTI&collection=RAIL&collection=YHL&collection=YBBK&collection=YHNN&collection=YFLS&collection=YHEA&collection=YWAR&collection=YBAL&collection=YBLU&collection=YOWE&collection=YLG&collection=YBLK&filter_list=longCollection",
+                    "more_filter_choices_url": "?collection=Y&collection=LEV&collection=ADM&collection=BT&collection=WO&collection=HO&collection=E&collection=C&collection=AIR&collection=GTI&collection=RAIL&collection=YHL&collection=YBBK&collection=YHNN&collection=YFLS&collection=YHEA&collection=YWAR&collection=YBAL&collection=YBLU&collection=YOWE&collection=YLG&collection=YBLK&filter_list=longCollectionY",
                 },
                 {
                     "text": "LEV - Inquiry into the Culture, Practices and Ethics of the Press (Leveson Inquiry) (700)",
@@ -1200,7 +1200,7 @@ class CatalogueSearchViewAboveNEntriesNestedCollectionFilterTests(TestCase):
                     ],
                     "more_filter_choices_available": True,
                     "more_filter_choices_text": "See more UK Parliament collections",
-                    "more_filter_choices_url": "?collection=Y&collection=LEV&collection=ADM&collection=BT&collection=WO&collection=HO&collection=E&collection=C&collection=AIR&collection=GTI&collection=RAIL&collection=YHL&collection=YBBK&collection=YHNN&collection=YFLS&collection=YHEA&collection=YWAR&collection=YBAL&collection=YBLU&collection=YOWE&collection=YLG&collection=YBLK&filter_list=longCollection",
+                    "more_filter_choices_url": "?collection=Y&collection=LEV&collection=ADM&collection=BT&collection=WO&collection=HO&collection=E&collection=C&collection=AIR&collection=GTI&collection=RAIL&collection=YHL&collection=YBBK&collection=YHNN&collection=YFLS&collection=YHEA&collection=YWAR&collection=YBAL&collection=YBLU&collection=YOWE&collection=YLG&collection=YBLK&filter_list=longCollectionY",
                 },
                 {
                     "text": "LEV - Inquiry into the Culture, Practices and Ethics of the Press (Leveson Inquiry) (700)",

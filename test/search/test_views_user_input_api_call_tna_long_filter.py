@@ -54,6 +54,17 @@ class CatalogueSearchViewDebugAPILongFilterTnaBucketTests(TestCase):
             "&size=0"
         )
 
+        # Test longCollection filter for Parliamentary Archives
+        response = self.client.get("/catalogue/search/?filter_list=longCollectionY")
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        mock_logger.debug.assert_called_with(
+            "https://rosetta.test/data/search?"
+            "filter=group%3Atna"
+            "&aggs=longCollection"
+            "&q=%2A"
+            "&size=0"
+        )
+
     @patch("app.lib.api.logger")
     @responses.activate
     def test_catalogue_long_filter_subject_debug_api(self, mock_logger):
