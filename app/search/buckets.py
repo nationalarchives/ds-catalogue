@@ -119,10 +119,6 @@ def get_field_name_for_extended_long_aggs_name(agg_name: str) -> str | None:
     return Aggregation.get_field_name_for_long_aggs_name(agg_name)
 
 
-# def get_extended_long_aggs_name_for_field_name(field_name: str) -> str | None:
-#     return Aggregation.get_long_aggs_name_for_field_name(field_name)
-
-
 @dataclass
 class Bucket:
     """
