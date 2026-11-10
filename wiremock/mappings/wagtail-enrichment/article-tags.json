@@ -15,7 +15,6 @@
         "short_title": null,
         "page_path": "/explore-the-collection/stories/an-unusual-royal-gift-to-the-poet-geoffrey-chaucer/",
         "url": "https://localhost/explore-the-collection/stories/an-unusual-royal-gift-to-the-poet-geoffrey-chaucer/",
-        "full_url": "https://localhost/explore-the-collection/stories/an-unusual-royal-gift-to-the-poet-geoffrey-chaucer/",
         "type": "articles.RecordArticlePage",
         "type_label": "Record revealed",
         "teaser_text": "How do you reward a medieval poet? This document granted the author of the Canterbury Tales an unusual royal gift: a daily allowance of wine.",
@@ -26,13 +25,11 @@
           "description": "",
           "jpeg": {
             "url": "http://localhost:65501/images/test-image-961.jpg",
-            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           },
           "webp": {
             "url": "http://localhost:65501/images/test-image-961.jpg",
-            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           }
@@ -47,7 +44,6 @@
         "short_title": null,
         "page_path": "/explore-the-collection/stories/1888-matchgirls-strike/",
         "url": "https://localhost/explore-the-collection/stories/1888-matchgirls-strike/",
-        "full_url": "https://localhost/explore-the-collection/stories/1888-matchgirls-strike/",
         "type": "articles.ArticlePage",
         "type_label": "The story of",
         "teaser_text": "In 1888, the women and girls employed by Bryant & May in the East End of London went out on strike. Why did these workers feel so driven to remove their labour?",
@@ -58,13 +54,11 @@
           "description": "A group of young working class women stand together looking directly at the camera",
           "jpeg": {
             "url": "http://localhost:65501/images/test-image-961.jpg",
-            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           },
           "webp": {
             "url": "http://localhost:65501/images/test-image-961.jpg",
-            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           }
@@ -79,7 +73,6 @@
         "short_title": null,
         "page_path": "/explore-the-collection/stories/how-the-first-women-refuge-enacted-change/",
         "url": "https://localhost/explore-the-collection/stories/how-the-first-women-refuge-enacted-change/",
-        "full_url": "https://localhost/explore-the-collection/stories/how-the-first-women-refuge-enacted-change/",
         "type": "articles.FocusedArticlePage",
         "type_label": "Focus on",
         "teaser_text": "The founding years of Chiswick Women's Aid saw the opening of the world's first women's refuge, disputes with local government, and creating change in the UK.",
@@ -90,13 +83,11 @@
           "description": "",
           "jpeg": {
             "url": "http://localhost:65501/images/test-image-961.jpg",
-            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 517,
             "height": 344
           },
           "webp": {
             "url": "http://localhost:65501/images/test-image-961.jpg",
-            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 517,
             "height": 344
           }
@@ -111,7 +102,6 @@
         "short_title": null,
         "page_path": "/explore-the-collection/stories/section-28-impact-fightback-repeal/",
         "url": "https://localhost/explore-the-collection/stories/section-28-impact-fightback-repeal/",
-        "full_url": "https://localhost/explore-the-collection/stories/section-28-impact-fightback-repeal/",
         "type": "articles.FocusedArticlePage",
         "type_label": "Focus on",
         "teaser_text": "What was the everyday reality for LGBTQ+ people in the 80s and 90s living under the infamous Section 28, and how was it eventually repealed?",
@@ -122,13 +112,11 @@
           "description": "",
           "jpeg": {
             "url": "http://localhost:65501/images/test-image-961.jpg",
-            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           },
           "webp": {
             "url": "http://localhost:65501/images/test-image-961.jpg",
-            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           }
@@ -143,7 +131,6 @@
         "short_title": null,
         "page_path": "/explore-the-collection/stories/origins-section-28/",
         "url": "https://localhost/explore-the-collection/stories/origins-section-28/",
-        "full_url": "https://localhost/explore-the-collection/stories/origins-section-28/",
         "type": "articles.FocusedArticlePage",
         "type_label": "Focus on",
         "teaser_text": "Section 28 of the 1988 Local Government Act negatively affected LGBTQ+ lives for decades. How did such a seismic piece of legislation come about?",
@@ -154,13 +141,11 @@
           "description": "",
           "jpeg": {
             "url": "http://localhost:65501/images/test-image-961.jpg",
-            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           },
           "webp": {
             "url": "http://localhost:65501/images/test-image-961.jpg",
-            "full_url": "http://localhost:65501/images/test-image-961.jpg",
             "width": 600,
             "height": 400
           }

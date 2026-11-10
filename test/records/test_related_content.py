@@ -285,7 +285,7 @@ class SubjectsEnrichmentTests(TestCase):
             many_articles.append(
                 {
                     "title": f"Article {i + 1}",
-                    "full_url": f"https://example.com/article-{i + 1}",
+                    "url": f"https://example.com/article-{i + 1}",
                     "teaser_text": f"Content for article {i + 1}",
                     "is_newly_published": False,
                 }

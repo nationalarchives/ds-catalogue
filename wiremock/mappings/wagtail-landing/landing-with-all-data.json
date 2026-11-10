@@ -28,7 +28,6 @@
             "short_title": null,
             "page_path": "/explore-the-collection/explore-by-topic/",
             "url": "https://www.nationalarchives.gov.uk/explore-the-collection/explore-by-topic/",
-            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/explore-by-topic/",
             "type": "collections.TopicExplorerIndexPage",
             "type_label": null,
             "teaser_text": "Our collection shines a light on many aspects of life, from the stories of states to different people's experiences. Browse these topics for just a taste.",
@@ -36,13 +35,11 @@
               "id": 961,
               "jpeg": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -56,7 +53,6 @@
             "short_title": null,
             "page_path": "/explore-the-collection/explore-by-time-period/",
             "url": "https://www.nationalarchives.gov.uk/explore-the-collection/explore-by-time-period/",
-            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/explore-by-time-period/",
             "type": "collections.TimePeriodExplorerIndexPage",
             "type_label": null,
             "teaser_text": "More than a thousand years of human history live on in the records we care for. Browse collection highlights by the time periods they come from.",
@@ -64,13 +60,11 @@
               "id": 961,
               "jpeg": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -84,7 +78,6 @@
             "short_title": null,
             "page_path": "/explore-the-collection/stories/",
             "url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/",
-            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/",
             "type": "articles.ArticleIndexPage",
             "type_label": null,
             "teaser_text": "Discover the human stories behind the collection. Learn about the people, places and events featured in our records.",
@@ -92,13 +85,11 @@
               "id": 961,
               "jpeg": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -112,7 +103,6 @@
             "short_title": null,
             "page_path": "/explore-the-collection/on-the-record-podcast/",
             "url": "https://www.nationalarchives.gov.uk/explore-the-collection/on-the-record-podcast/",
-            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/on-the-record-podcast/",
             "type": "blog.BlogPage",
             "type_label": null,
             "teaser_text": "The National Archives presents On the Record, a podcast that unearths the real life stories found in our vast collections.",
@@ -120,13 +110,11 @@
               "id": 961,
               "jpeg": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -140,7 +128,6 @@
             "short_title": null,
             "page_path": "/explore-the-collection/the-collection-blog/",
             "url": "https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/",
-            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/",
             "type": "blog.BlogPage",
             "type_label": null,
             "teaser_text": "Learn how the stories hidden in our documents are uncovered by our experts. Find out how we care for our records, and get tips for your own research.",
@@ -148,13 +135,11 @@
               "id": 961,
               "jpeg": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -170,7 +155,6 @@
             "short_title": null,
             "page_path": "/explore-the-collection/stories/the-birth-of-the-travel-guide/",
             "url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/the-birth-of-the-travel-guide/",
-            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/the-birth-of-the-travel-guide/",
             "type": "articles.FocusedArticlePage",
             "type_label": "Focus on",
             "teaser_text": "In the 19th century travel evolved from an aristocratic privilege to middle-class reality. Explore how rail guides made this possible.",
@@ -178,13 +162,11 @@
               "id": 961,
               "jpeg": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -199,7 +181,6 @@
             "short_title": null,
             "page_path": "/explore-the-collection/stories/elizabeth-i-and-robert-dudley-earl-of-leicester/",
             "url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/elizabeth-i-and-robert-dudley-earl-of-leicester/",
-            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/elizabeth-i-and-robert-dudley-earl-of-leicester/",
             "type": "articles.ArticlePage",
             "type_label": "The story of",
             "teaser_text": "The enduring love shared by Elizabeth I (1533\u20131603) and Robert Dudley (1542\u20131588) helps to explain why Elizabeth never married.",
@@ -207,13 +188,11 @@
               "id": 961,
               "jpeg": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
@@ -228,7 +207,6 @@
             "short_title": null,
             "page_path": "/explore-the-collection/stories/queer-classified-adverts-and-love-letters-in-the-1920s/",
             "url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/queer-classified-adverts-and-love-letters-in-the-1920s/",
-            "full_url": "https://www.nationalarchives.gov.uk/explore-the-collection/stories/queer-classified-adverts-and-love-letters-in-the-1920s/",
             "type": "articles.FocusedArticlePage",
             "type_label": "Focus on",
             "teaser_text": "In an era when the law criminalised your love, how was it possible to meet members of the same sex and communicate?",
@@ -236,13 +214,11 @@
               "id": 961,
               "jpeg": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               },
               "webp": {
                 "url": "http://localhost:65501/images/test-image-961.jpg",
-                "full_url": "http://localhost:65501/images/test-image-961.jpg",
                 "width": 600,
                 "height": 400
               }
