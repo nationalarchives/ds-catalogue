@@ -305,11 +305,13 @@ class RecordEnrichmentHelper:
         ]:
             return False
 
-        if self.record.is_tna and self.record.level_code in DELIVERY_OPTIONS_TNA_LEVELS:
-            return True
-        elif (
-            not self.record.is_tna
-            and self.record.level_code in DELIVERY_OPTIONS_NON_TNA_LEVELS
+        if (
+            self.record.is_tna
+            and self.record.level_code in DELIVERY_OPTIONS_TNA_LEVELS
+            or (
+                not self.record.is_tna
+                and self.record.level_code in DELIVERY_OPTIONS_NON_TNA_LEVELS
+            )
         ):
             return True
 

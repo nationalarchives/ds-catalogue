@@ -59,3 +59,11 @@ See the [Poetry docs](https://python-poetry.org/docs/cli/#add) for more options.
 ```sh
 docker compose exec app poetry remove DateTime
 ```
+
+## Updating dependencies for both Poetry, NPM
+
+Connect to app container and run upgrade(https://github.com/nationalarchives/docker/blob/main/docker/tna-python-dev/README.md#upgrade)
+
+```sh
+# upgrade
+```

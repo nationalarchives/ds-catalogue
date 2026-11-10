@@ -252,7 +252,9 @@ class NewFieldWithRaiseValidationTest(TestCase):
                     try:
                         datetime.strptime(value, "%Y-%m-%d")
                     except ValueError:
-                        raise ValidationError("Value is not in format YYYY-MM-DD")
+                        raise ValidationError(
+                            "Value is not in format YYYY-MM-DD"
+                        ) from None
                     super().validate(value)
 
             def add_fields(self):
@@ -279,7 +281,7 @@ class NewFieldWithRaiseValidationTest(TestCase):
                 {"text": "Value is not in format YYYY-MM-DD"},
             )
         except Exception as e:
-            self.fail(f"form.is_valid() raised an exception unexpectedly. {str(e)}")
+            self.fail(f"form.is_valid() raised an exception unexpectedly. {e!s}")
 
 
 class BaseFormWithCrossValidationTest(TestCase):

@@ -1,8 +1,6 @@
 import json
-import re
 
 from django.conf import settings
-from django.http import QueryDict
 from django.templatetags.static import static
 from django.urls import reverse
 from jinja2 import Environment
@@ -32,6 +30,7 @@ from config.utils.string_processing import (
 
 def environment(**options):
     env = Environment(**options)
+    env.add_extension("jinja2.ext.do")
 
     TNA_FRONTEND_VERSION = ""
     try:

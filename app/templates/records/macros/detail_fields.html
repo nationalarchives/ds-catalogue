@@ -1,4 +1,5 @@
 {% from 'components/checkboxes/macro.html' import tnaCheckboxes %}
+{% from 'components/tags/macro.html' import tnaTags %}
 
 {% macro detail_fields(record, field_labels, request) %}
   <div class="tna-container tna-!--margin-top-m">
@@ -131,16 +132,17 @@
                 {{ record[field] | normalise_record_field | safe }}
 
               {% elif field == 'subjects' %}
-                <dl class="tna-dl-chips">
-                  <dt>Topics</dt>
-                  {% for item in record[field] %}
-                    <dd>
-                      <a href="{{ url('search:catalogue') }}?subject={{ item|urlencode }}" class="tna-dl-chips__item">
-                        {{ item }}
-                      </a>
-                    </dd>
-                  {% endfor %}
-                </dl>
+                {% set subject_tags = [] %}
+                {% for item in record[field] %}
+                  {% do subject_tags.append({
+                    'label': item,
+                    'href': url('search:catalogue') ~ '?subject=' ~ (item | urlencode)
+                  }) %}
+                {% endfor %}
+                {{ tnaTags({
+                  'items': subject_tags,
+                  'small': True
+                }) }}
               {% else %}
                 {# Apply apply_generic_xsl for other values #}
                 {% if field in ['location_of_originals'] %}

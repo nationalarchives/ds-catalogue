@@ -3,9 +3,10 @@ from unittest.mock import patch
 
 import responses
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 
+@override_settings(DEBUG=False)
 class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
     """Tests API calls (url) made by the catalogue search view for tna bucket/group."""
 
@@ -72,9 +73,10 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "https://rosetta.test/data/search?"
             "filter=group%3Atna"
             "&aggs=level"
-            "&aggs=collection"
+            "&aggs=longCollection"
             "&aggs=closure"
-            "&aggs=subject"
+            "&aggs=longSubject"
+            "&aggs=referenceNumber"
             "&q=%2A"
             "&size=20"
             "&from=0"
@@ -87,9 +89,10 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "https://rosetta.test/data/search?"
             "filter=group%3Atna"
             "&aggs=level"
-            "&aggs=collection"
+            "&aggs=longCollection"
             "&aggs=closure"
-            "&aggs=subject"
+            "&aggs=longSubject"
+            "&aggs=referenceNumber"
             "&q=%2A"
             "&size=20"
             "&from=0"
@@ -102,9 +105,10 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "https://rosetta.test/data/search?"
             "filter=group%3Atna"
             "&aggs=level"
-            "&aggs=collection"
+            "&aggs=longCollection"
             "&aggs=closure"
-            "&aggs=subject"
+            "&aggs=longSubject"
+            "&aggs=referenceNumber"
             "&q=%2A"
             "&size=20"
             "&from=0"
@@ -121,9 +125,10 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "&filter=subject%3AArmy"
             "&filter=subject%3ANavy"
             "&aggs=level"
-            "&aggs=collection"
+            "&aggs=longCollection"
             "&aggs=closure"
-            "&aggs=subject"
+            "&aggs=longSubject"
+            "&aggs=referenceNumber"
             "&q=%2A"
             "&size=20"
             "&from=0"
@@ -146,9 +151,10 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "&filter=coveringFromDate%3A%28%3E%3D2000-12-1%29"
             "&filter=coveringToDate%3A%28%3C%3D2000-12-31%29"
             "&aggs=level"
-            "&aggs=collection"
+            "&aggs=longCollection"
             "&aggs=closure"
-            "&aggs=subject"
+            "&aggs=longSubject"
+            "&aggs=referenceNumber"
             "&q=%2A"
             "&size=20"
             "&from=0"
@@ -170,9 +176,10 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "filter=group%3Atna"
             "&filter=openingFromDate%3A%28%3E%3D2000-12-1%29"
             "&filter=openingToDate%3A%28%3C%3D2000-12-31%29"
-            "&aggs=level&aggs=collection"
+            "&aggs=level&aggs=longCollection"
             "&aggs=closure"
-            "&aggs=subject"
+            "&aggs=longSubject"
+            "&aggs=referenceNumber"
             "&q=%2A"
             "&size=20"
             "&from=0"
@@ -226,3 +233,15 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
         actual_url = mock_logger.debug.call_args[0][0]
         # digitised parameter should NOT be in the URL
         self.assertNotIn("digitised", actual_url)
+
+        # Test references filter (advanced search redirect query param)
+        response = self.client.get(
+            "/catalogue/search/?group=tna&q=war&reference_number=WO+95&reference_number=ADM+1"
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        actual_url = mock_logger.debug.call_args[0][0]
+        self.assertIn("filter=group%3Atna", actual_url)
+        self.assertIn(
+            "&filter=referenceNumber%3AWO+95&filter=referenceNumber%3AADM+1", actual_url
+        )
+        self.assertIn("&aggs=referenceNumber", actual_url)
