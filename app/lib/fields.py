@@ -159,10 +159,8 @@ class ChoiceField(BaseField):
         valid_choices = [value for value, _ in self.choices]
         if not self._has_match(value, valid_choices):
             raise ValidationError(
-                (
-                    f"Enter a valid choice. [{value or 'Empty param value'}] is not one of the available choices. "
-                    f"Valid choices are [{', '.join(valid_choices)}]"
-                )
+                f"Enter a valid choice. [{value or 'Empty param value'}] is not one of the available choices. "
+                f"Valid choices are [{', '.join(valid_choices)}]"
             )
 
     @property
@@ -249,10 +247,8 @@ class DynamicMultipleChoiceField(BaseField):
             if self.validate_input:
                 if not self._has_match_all(value, self.valid_choices):
                     raise ValidationError(
-                        (
-                            f"Enter a valid choice. Value(s) [{', '.join(value)}] do not belong "
-                            f"to the available choices. Valid choices are [{', '.join(self.valid_choices)}]"
-                        )
+                        f"Enter a valid choice. Value(s) [{', '.join(value)}] do not belong "
+                        f"to the available choices. Valid choices are [{', '.join(self.valid_choices)}]"
                     )
 
         # TODO: FILTER_CHOICES_LIMIT: discuss limit with team
@@ -436,6 +432,10 @@ class MultiPartDateField(BaseField):
         day_int = self._validate_day_only(DateKeys.DAY.value, value)
         if year_int and month_int and day_int:
             self._validate_full_date(year_int, month_int, day_int)
+        if self.progressive and (not year_int and month_int and day_int):
+            raise ValidationError(
+                "Entered date must be a real date, for example Year 2017, Month 9, Day 23"
+            )
 
     def _validate_required(self, value):
         """Validates required field."""
@@ -460,7 +460,7 @@ class MultiPartDateField(BaseField):
         try:
             int_value = int(input_value)
         except ValueError:
-            raise ValidationError(f"{key.capitalize()} must be an integer.")
+            raise ValidationError(f"{key.capitalize()} must be an integer.") from None
         return int_value
 
     def _validate_year_only(self, key, value) -> int | None:
@@ -504,7 +504,7 @@ class MultiPartDateField(BaseField):
         except ValueError:
             raise ValidationError(
                 "Entered date must be a real date, for example Year 2017, Month 9, Day 23"
-            )
+            ) from None
 
     def _is_complete_date(self, value):
         """Checks if all or none of the date parts are filled."""

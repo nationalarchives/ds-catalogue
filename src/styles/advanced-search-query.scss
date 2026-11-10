@@ -1,0 +1,30 @@
+@use "@nationalarchives/frontend/nationalarchives/tools/borders";
+@use "@nationalarchives/frontend/nationalarchives/tools/colour";
+@use "@nationalarchives/frontend/nationalarchives/tools/spacing";
+
+.search-preview {
+  font-size: 1rem;
+
+  @include colour.colour-font("font-base");
+
+  &__term {
+    margin-bottom: spacing.space(0.25);
+    padding: spacing.space(0.25) spacing.space(0.5);
+
+    display: inline-block;
+
+    @include borders.rounded-border;
+    @include colour.colour-background("background-tint");
+    @include colour.colour-border("keyline");
+    @include colour.colour-font("font-base");
+  }
+
+  &__operator {
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  &__paren {
+    font-weight: 700;
+  }
+}

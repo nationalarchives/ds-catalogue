@@ -1,4 +1,4 @@
-import unittest.mock as mock
+from unittest import mock
 
 import responses
 from django.conf import settings
@@ -42,20 +42,24 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             body="",  # no content JSON: Expecting value: line 1 column 1 (char 0)
         )
 
-        with self.assertRaisesMessage(
-            APINonJSONResponseError, "Non-JSON response provided"
+        with (
+            self.assertRaisesMessage(
+                APINonJSONResponseError, "Non-JSON response provided"
+            ),
+            self.assertLogs("app.lib.api", level="ERROR") as lc,
         ):
-            with self.assertLogs("app.lib.api", level="ERROR") as lc:
-                _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
+            _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn(
             "ERROR:app.lib.api:JSON API provided non-JSON response", lc.output
         )
 
-        with self.assertRaisesMessage(
-            APINonJSONResponseError, "Non-JSON response provided"
+        with (
+            self.assertRaisesMessage(
+                APINonJSONResponseError, "Non-JSON response provided"
+            ),
+            self.assertLogs("app.lib.api", level="DEBUG") as lc,
         ):
-            with self.assertLogs("app.lib.api", level="DEBUG") as lc:
-                _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
+            _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn("ERROR:app.lib.api:Non-JSON response: ", lc.output)
 
     @responses.activate
@@ -71,20 +75,24 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
         )
 
-        with self.assertRaisesMessage(
-            APINonJSONResponseError, "Non-JSON response provided"
+        with (
+            self.assertRaisesMessage(
+                APINonJSONResponseError, "Non-JSON response provided"
+            ),
+            self.assertLogs("app.lib.api", level="ERROR") as lc,
         ):
-            with self.assertLogs("app.lib.api", level="ERROR") as lc:
-                _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
+            _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn(
             "ERROR:app.lib.api:JSON API provided non-JSON response", lc.output
         )
 
-        with self.assertRaisesMessage(
-            APINonJSONResponseError, "Non-JSON response provided"
+        with (
+            self.assertRaisesMessage(
+                APINonJSONResponseError, "Non-JSON response provided"
+            ),
+            self.assertLogs("app.lib.api", level="DEBUG") as lc,
         ):
-            with self.assertLogs("app.lib.api", level="DEBUG") as lc:
-                _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
+            _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn(
             "ERROR:app.lib.api:Non-JSON response: "
             "{ invalid json - This is a test response that is not JSON. "
@@ -155,11 +163,11 @@ class TestJSONAPIClientExceptionsGetRequest(SimpleTestCase):
             "http://this-api-url-does-not-exist/pull?id=C123456",
         )
 
-        with self.assertRaisesMessage(
-            APIConnectionError, "A connection error occurred"
+        with (
+            self.assertRaisesMessage(APIConnectionError, "A connection error occurred"),
+            self.assertLogs("app.lib.api", level="ERROR") as lc,
         ):
-            with self.assertLogs("app.lib.api", level="ERROR") as lc:
-                _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
+            _ = rosetta_request_handler(uri="get", params={"id": "C123456"})
         self.assertIn("ERROR:app.lib.api:JSON API connection error", lc.output)
 
     @mock.patch("requests.get", side_effect=Timeout())

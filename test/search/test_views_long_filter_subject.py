@@ -13,7 +13,7 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
     """Subject filter is only available for tna group."""
 
     @responses.activate
-    def test_search_for_more_filter_choices_attributes_without_filters(
+    def test_search_for_more_filter_choices_available_above_limit(
         self,
     ):
         """Tests more filter choices attributes are correctly set in context"""
@@ -39,9 +39,18 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
                         "entries": [
                             {"value": "International", "doc_count": 50},
                             {"value": "Army", "doc_count": 35},
+                            {"value": "some value-1", "doc_count": 35},
+                            {"value": "some value-2", "doc_count": 35},
+                            {"value": "some value-3", "doc_count": 35},
+                            {"value": "some value-4", "doc_count": 35},
+                            {"value": "some value-5", "doc_count": 35},
+                            {"value": "some value-6", "doc_count": 35},
+                            {"value": "some value-7", "doc_count": 35},
+                            {"value": "some value-8", "doc_count": 35},
+                            {"value": "some value-9", "doc_count": 35},
                         ],
                         "total": 100,
-                        "other": 50,
+                        "other": 0,
                     }
                 ],
                 "buckets": [
@@ -221,6 +230,7 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
             "&covering_date_from-year=1940"
             "&filter_list=longSubject"
             "&subject=Army"
+            "&collection=BT"
         )
 
         context_data = response.context_data
@@ -242,6 +252,7 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
                 "&level=Piece"
                 "&covering_date_from-year=1940"
                 "&subject=Army"
+                "&collection=BT"
             ),
         )
         self.assertIsInstance(
@@ -294,3 +305,7 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
             """<input type="hidden" name="covering_date_from-day" """, html
         )
         self.assertNotIn("""<input type="hidden" name="subject" """, html)
+        self.assertIn(
+            """<input type="hidden" name="collection" value="BT">""",
+            html,
+        )

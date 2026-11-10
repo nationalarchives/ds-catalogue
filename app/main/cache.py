@@ -7,11 +7,6 @@ from django.conf import settings
 from django.core.cache import cache
 
 from app.records.api import wagtail_request_handler
-from app.search.api import search_records
-from app.search.constants import (
-    LONG_FILTER_RESULTS_PER_PAGE,
-    LONG_FILTER_SUBJECT_PARAMS,
-)
 
 from .api import fetch_all_subjects
 from .constants import (

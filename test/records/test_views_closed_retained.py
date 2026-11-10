@@ -70,17 +70,11 @@ class TestClosedRetainedAvailability(TestCase):
         response = self.client.get("/catalogue/id/C123456/")
 
         self.assertEqual(response.status_code, 200)
-        # Online availability
-        self.assertContains(response, "Is it available online?")
+        # Consolidated "View options" box
+        self.assertContains(response, "View options")
         self.assertContains(
             response,
-            "Not on The National Archives website. This record is held at Creating government department or its successor.",
-        )
-        # In-person availability
-        self.assertContains(response, "Can I see it in person?")
-        self.assertContains(
-            response,
-            "Not at The National Archives. This record is closed and retained by Ministry of Defence.",
+            "This record is closed and retained by Ministry of Defence.",
         )
         # FOI link
         self.assertContains(
@@ -88,12 +82,8 @@ class TestClosedRetainedAvailability(TestCase):
             'href="https://www.gov.uk/make-a-freedom-of-information-request"',
         )
         self.assertContains(response, "Visit GOV.UK for more information")
-        # Confirm the default non-TNA catch-all messages are not rendered
+        # Confirm the default non-TNA catch-all message is not rendered
         self.assertNotContains(
             response,
-            "Maybe, but not on The National Archives website.",
-        )
-        self.assertNotContains(
-            response,
-            "Not at The National Archives, but you may be able to view it in person",
+            "You may be able to view it in person or online.",
         )

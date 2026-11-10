@@ -2,9 +2,13 @@ import copy
 import logging
 import math
 from typing import Any
+from urllib.parse import urlencode
 
 from django.core.exceptions import SuspiciousOperation
-from django.http import HttpRequest, HttpResponse, QueryDict
+from django.http import HttpRequest, HttpResponse, JsonResponse, QueryDict
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.views import View
 from django.views.generic import TemplateView
 
 from app.errors import views as errors_view
@@ -36,12 +40,17 @@ from .constants import (
     FILTER_DATATYPE_RECORD,
     FILTER_FIELDS,
     LONG_FILTER_RESULTS_PER_PAGE,
+    MAX_FILTER_CHOICES,
     PAGE_LIMIT,
+    PAGE_LIMIT_WARNING_MESSAGE,
+    PAGE_LIMIT_WARNING_THRESHOLD,
     RESULTS_PER_PAGE,
     Display,
     Sort,
 )
 from .forms import (
+    AdvancedSearchForm,
+    AdvancedSearchQForm,
     CatalogueSearchBaseForm,
     CatalogueSearchNonTnaForm,
     CatalogueSearchTnaForm,
@@ -49,13 +58,20 @@ from .forms import (
 )
 from .mixins import SearchDataLayerMixin
 from .models import APISearchResponse
-from .utils import camelcase_to_underscore, underscore_to_camelcase
+from .utils import (
+    camelcase_to_underscore,
+    quote_if_needed,
+    underscore_to_camelcase,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class PageNotFound(Exception):
-    pass
+    """Raised when a requested search results page number is out of range."""
+
+
+_quote_if_needed = quote_if_needed
 
 
 class APIMixin:
@@ -110,7 +126,7 @@ class APIMixin:
                 selected_values = form.fields[field_name].cleaned
                 selected_values = self.replace_input_data(field_name, selected_values)
                 filter_aggregations.extend(
-                    (f"{filter_name}:{value}" for value in selected_values)
+                    f"{filter_name}:{value}" for value in selected_values
                 )
         if filter_aggregations:
             add_filter(params, filter_aggregations)
@@ -189,7 +205,12 @@ class APIMixin:
                         choice_api_data, form.fields[field_name].value
                     )
 
-                    self._build_more_filter_options(form, field_name, aggregation)
+                    if field_name in [
+                        FieldsConstant.COLLECTION,
+                        FieldsConstant.SUBJECT,
+                        FieldsConstant.HELD_BY,
+                    ]:
+                        self._build_more_filter_options(form, field_name)
 
     def _get_field_name_from_api_aggregation(self, aggregation: dict) -> str:
         """Get field name from aggregation name, considering long filters.
@@ -209,28 +230,24 @@ class APIMixin:
         self,
         form: CatalogueSearchTnaForm | CatalogueSearchNonTnaForm,
         field_name: str,
-        aggregation: dict,
     ):
         """Builds more filter options. These options allow user to explore
         more filter choices in a separate page.
 
-        The API is configured to return 10 aggregation entries by default
-        for aggs param. So if there are more than 10 entries, the API
-        response will include an  "other" count in the aggregation data.
+        When using longfilters, the API may return additional entries beyond max filter choices
+        for display in the UI, we need to indicate if more filter choices are available.
 
         i.e.
         more_filter_choices_available:more choice availability,
         more_filter_choices_text: text for more choices link/button,
         more_filter_choices_url: url for dynamic multiple choice fields
         from api aggregation data.
-
-        Examples:
-        {"other": 1} -> more choices available
-        {"other": 0} -> no more choices available
         """
 
         # determine if more filter choices are available
-        more_filter_choices_available = bool(aggregation.get("other", 0))
+        more_filter_choices_available = bool(
+            len(form.fields[field_name].choices) > MAX_FILTER_CHOICES
+        )
         form.fields[
             field_name
         ].more_filter_choices_available = more_filter_choices_available
@@ -414,8 +431,12 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             page = int(self.request.GET.get("page", 1))
             if page < 1:
                 raise ValueError
+            # raise PageNotFound if page number exceeds PAGE_LIMIT,
+            # before querying the API
+            if page > PAGE_LIMIT:
+                raise PageNotFound
         except (ValueError, KeyError):
-            raise PageNotFound
+            raise PageNotFound from None
         return page
 
     def form_valid(self):
@@ -475,9 +496,11 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
     def paginate_api_result(self) -> tuple | HttpResponse:
 
         pages = math.ceil(self.api_result.stats_total / RESULTS_PER_PAGE)
-        if pages > PAGE_LIMIT:
-            pages = PAGE_LIMIT
+        # limit pages to PAGE_LIMIT since Elasticsearch can only return first 10,000 results
+        pages = min(pages, PAGE_LIMIT)
 
+        # check if requested page is greater than calculated total pages, raise PageNotFound
+        # e.g. calculated 35 pages, and user requests page=36
         if self.page > pages:
             raise PageNotFound
 
@@ -554,6 +577,8 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
                 "bucket_keys": BucketKeys,
                 "display_options": Display,
                 "fields_constant": FieldsConstant,
+                "page_limit_warning_threshold": PAGE_LIMIT_WARNING_THRESHOLD,
+                "page_limit_warning_message": PAGE_LIMIT_WARNING_MESSAGE,
             }
         )
         # call to set filter fields visibility after context is set
@@ -791,29 +816,28 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         if group:
             # hide filters - only online field has error and no results
             if (
-                group == BucketKeys.TNA.value
-                and FieldsConstant.ONLINE in self.form.errors
-                and len(self.form.errors) == 1
-            ) and not has_results:
-                pass  # default is False
-            # hide filters - no results, no errors, no selected filters
-            elif (
-                not has_results
-                and len(self.form.errors) == 0
-                and len(self.form.non_field_errors) == 0
-                and self.selected_filters == []
-            ):
-                pass  # default is False
-            # hide filters when using non-filter fields
-            elif (
-                not has_results
-                # using any() since there could be either sort or display
-                # field errors or both
-                and any(
-                    field in self.form.errors
-                    for field in (FieldsConstant.SORT, FieldsConstant.DISPLAY)
+                (
+                    group == BucketKeys.TNA.value
+                    and FieldsConstant.ONLINE in self.form.errors
+                    and len(self.form.errors) == 1
                 )
-                and self.selected_filters == []
+                and not has_results
+                or (
+                    not has_results
+                    and len(self.form.errors) == 0
+                    and len(self.form.non_field_errors) == 0
+                    and self.selected_filters == []
+                )
+                or (
+                    not has_results
+                    # using any() since there could be either sort or display
+                    # field errors or both
+                    and any(
+                        field in self.form.errors
+                        for field in (FieldsConstant.SORT, FieldsConstant.DISPLAY)
+                    )
+                    and self.selected_filters == []
+                )
             ):
                 pass  # default is False
             # everything else, show filters
@@ -909,3 +933,183 @@ class CatalogueSearchView(SearchDataLayerMixin, CatalogueSearchFormMixin):
         if self.form.fields[FieldsConstant.HELD_BY].items:
             # visible if items set (with api agg values or input values)
             self.form.fields[FieldsConstant.HELD_BY].is_visible = True
+
+
+class AdvancedSearchView(TemplateView):
+    template_name = "search/advanced_search_js.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(self._base_context())
+        context["request"] = self.request
+        context["bucket_keys"] = BucketKeys
+        return context
+
+    def _base_context(self) -> dict:
+        notifications = fetch_global_notifications() or {}
+        return {
+            "mourning_notice": notifications.get("mourning_notice")
+            if notifications
+            else None,
+            "global_alert": notifications,
+        }
+
+    def get(self, request, *args, **kwargs):
+        # If query parameters present, treat as form submission (GET-based search)
+        form = AdvancedSearchForm(data=request.GET)
+        context = self.get_context_data()
+        context["form"] = form
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+
+        form_data = request.POST.copy()
+
+        form_data.setdefault(FieldsConstant.GROUP, BucketKeys.TNA)
+
+        form = AdvancedSearchForm(data=form_data)
+
+        context = self.get_context_data()
+        context["form"] = form
+
+        if not form.is_valid():
+            return self.render_to_response(context)
+
+        redirect_qs, errors = _build_advanced_search_query(form)
+        if errors:
+            # attach build-time errors to the form so template can render them
+            form.add_non_field_error(errors)
+            return self.render_to_response(context)
+
+        search_url = reverse("search:catalogue")
+        return redirect(f"{search_url}?{redirect_qs}")
+
+
+def _cleaned_list(form: AdvancedSearchForm, field_name: str) -> list[str]:
+    """Returns a list of non-empty, stripped lines from the specified form field."""
+
+    return [
+        line.strip()
+        for line in (form.fields[field_name].cleaned or "").splitlines()
+        if line.strip()
+    ]
+
+
+def _build_q(form: AdvancedSearchForm | AdvancedSearchQForm) -> str:
+    """Builds the main query string from form data.
+
+    Quoting and escaping behaviour
+    ------------------------------
+    - Server-side: `_quote_if_needed` escapes backslashes and double quotes
+      (so an input like `He said "hi"` becomes `"He said \"hi\""`) and
+      wraps values containing spaces in double quotes. This ensures API
+      query parts are well-formed and avoids injection of unbalanced quotes.
+    - Client-side preview: `AdvancedSearchBuildQView` uses this same builder
+      and returns structured parts for `src/scripts/advanced-search-query.js`
+      to render.
+    """
+
+    query = ""
+    for part in _build_q_parts(form):
+        value = part["value"]
+
+        if not query:
+            query = value
+        elif part["type"] == "paren" and value == ")":
+            query = f"{query})"
+        elif query.endswith("("):
+            query = f"{query}{value}"
+        else:
+            query = f"{query} {value}"
+
+    return query
+
+
+def _build_q_parts(
+    form: AdvancedSearchForm | AdvancedSearchQForm,
+) -> list[dict[str, str]]:
+    """Build structured preview parts for the main query string."""
+
+    all_words = (form.fields[FieldsConstant.ALL_WORDS].cleaned or "").strip()
+    exact_words = _cleaned_list(form, FieldsConstant.EXACT_WORDS)
+    any_words = _cleaned_list(form, FieldsConstant.ANY_WORDS)
+    ignore_words = _cleaned_list(form, FieldsConstant.IGNORE_WORDS)
+
+    parts: list[dict[str, str]] = []
+    if all_words:
+        parts.append({"type": "term", "value": all_words})
+
+    for word in exact_words:
+        if parts:
+            parts.append({"type": "operator", "value": "AND"})
+        parts.append({"type": "term", "value": f'"{word}"'})
+
+    if any_words:
+        if parts:
+            parts.append({"type": "operator", "value": "AND"})
+        if len(any_words) > 1:
+            parts.append({"type": "paren", "value": "("})
+        for index, word in enumerate(any_words):
+            if index:
+                parts.append({"type": "operator", "value": "OR"})
+            parts.append({"type": "term", "value": _quote_if_needed(word)})
+        if len(any_words) > 1:
+            parts.append({"type": "paren", "value": ")"})
+
+    for word in ignore_words:
+        parts.append({"type": "operator", "value": "NOT"})
+        parts.append({"type": "term", "value": f'"{word}"'})
+
+    return parts
+
+
+def _build_advanced_search_query(form: AdvancedSearchForm) -> tuple[str, list[str]]:
+    """Builds the advanced search query from the form data and returns a tuple containing
+    the URL-encoded query string and a list of errors.
+    Note: `references` are sent as a dedicated query param for Rosetta filter
+    """
+
+    group = form.fields[FieldsConstant.GROUP].cleaned
+    params: dict[str, str] = {
+        FieldsConstant.GROUP: group or BucketKeys.TNA,
+    }
+
+    params[FieldsConstant.Q] = _build_q(form)
+
+    if references := _cleaned_list(form, FieldsConstant.REFERENCES):
+        params[FieldsConstant.REFERENCE_NUMBER] = references
+
+    # set the covering date from and to parameters for the query
+    if form.fields[FieldsConstant.COVERING_DATE_FROM].cleaned:
+        params[
+            FieldsConstant.COVERING_DATE_FROM + DATE_YMD_SEPARATOR + DateKeys.YEAR
+        ] = form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(DateKeys.YEAR)
+        params[
+            FieldsConstant.COVERING_DATE_FROM + DATE_YMD_SEPARATOR + DateKeys.MONTH
+        ] = form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(DateKeys.MONTH)
+        params[
+            FieldsConstant.COVERING_DATE_FROM + DATE_YMD_SEPARATOR + DateKeys.DAY
+        ] = form.fields[FieldsConstant.COVERING_DATE_FROM].value.get(DateKeys.DAY)
+
+    if form.fields[FieldsConstant.COVERING_DATE_TO].cleaned:
+        params[FieldsConstant.COVERING_DATE_TO + DATE_YMD_SEPARATOR + DateKeys.YEAR] = (
+            form.fields[FieldsConstant.COVERING_DATE_TO].value.get(DateKeys.YEAR)
+        )
+        params[
+            FieldsConstant.COVERING_DATE_TO + DATE_YMD_SEPARATOR + DateKeys.MONTH
+        ] = form.fields[FieldsConstant.COVERING_DATE_TO].value.get(DateKeys.MONTH)
+        params[FieldsConstant.COVERING_DATE_TO + DATE_YMD_SEPARATOR + DateKeys.DAY] = (
+            form.fields[FieldsConstant.COVERING_DATE_TO].value.get(DateKeys.DAY)
+        )
+    return urlencode(params, doseq=True), []
+
+
+class AdvancedSearchBuildQView(View):
+    """Build an advanced search query for q param and return it as JSON for the query preview."""
+
+    def post(self, request, *args, **kwargs):
+        form = AdvancedSearchQForm(request.POST)
+        if form.is_valid():
+            return JsonResponse({"q": _build_q(form), "parts": _build_q_parts(form)})
+        # return empty JSON response if the form is not valid
+        return JsonResponse({})

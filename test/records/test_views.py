@@ -176,11 +176,10 @@ class TestSubjectLinks(TestCase):
 
         response = self.client.get("/catalogue/id/C123456/")
 
-        # Check that links have the lozenge class
-        self.assertContains(response, 'class="tna-dl-chips__item"')
-        # Ensure subjects are wrapped in proper structure
-        self.assertContains(response, '<dl class="tna-dl-chips">')
-        self.assertContains(response, "<dt>Topics</dt>")
+        # Check that links have the tags component class
+        self.assertContains(response, 'class="tna-tags__link"')
+        # Ensure subjects are wrapped in the tags component structure
+        self.assertContains(response, '<ul class="tna-tags tna-tags--small"')
 
     @responses.activate
     def test_record_with_no_subjects_shows_no_subject_section(self):
@@ -210,8 +209,7 @@ class TestSubjectLinks(TestCase):
         response = self.client.get("/catalogue/id/C456789/")
 
         # Should not show subjects section if no subjects
-        self.assertNotContains(response, "<dt>Topics</dt>")
-        self.assertNotContains(response, 'class="tna-dl-chips"')
+        self.assertNotContains(response, 'class="tna-tags__link"')
 
     @responses.activate
     def test_subject_links_are_not_placeholders(self):
@@ -227,13 +225,13 @@ class TestSubjectLinks(TestCase):
         html = response.content.decode()
 
         # Count actual subject links (should be 5 based on sample data)
-        subject_count = html.count('class="tna-dl-chips__item"')
+        subject_count = html.count('class="tna-tags__link"')
         self.assertEqual(subject_count, 5)
 
         # Extract subjects section and verify no placeholder links
-        if '<dl class="tna-dl-chips">' in html:
-            subjects_section_start = html.find('<dl class="tna-dl-chips">')
-            subjects_section_end = html.find("</dl>", subjects_section_start)
+        if '<ul class="tna-tags tna-tags--small"' in html:
+            subjects_section_start = html.find('<ul class="tna-tags tna-tags--small"')
+            subjects_section_end = html.find("</ul>", subjects_section_start)
             subjects_section = html[subjects_section_start:subjects_section_end]
 
             # Should not contain href="#" in subjects section
@@ -361,7 +359,7 @@ class TestNonTNARecordAvailability(TestCase):
 
     @responses.activate
     def test_non_tna_record_shows_availability_boxes(self):
-        """Test that non-TNA records show the 'Is it available online?' and 'Can I see it in person?' boxes."""
+        """Test that non-TNA records show the consolidated 'View options' box."""
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/get?id=C123456",
@@ -388,18 +386,13 @@ class TestNonTNARecordAvailability(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        # Should show both availability boxes
-        self.assertContains(response, "Is it available online?")
-        self.assertContains(response, "Can I see it in person?")
+        # Should show the consolidated "View options" box
+        self.assertContains(response, "View options")
 
-        # Should show the correct messages for non-TNA records
+        # Should show the correct message for non-TNA records
         self.assertContains(
             response,
-            "Maybe, but not on The National Archives website. This record is held at British Library.",
-        )
-        self.assertContains(
-            response,
-            "Not at The National Archives, but you may be able to view it in person at British Library.",
+            "This record is held at British Library. You may be able to view it in person or online.",
         )
 
         # Should NOT show the "Access information is unavailable" message
@@ -469,9 +462,8 @@ class TestNonTNARecordAvailability(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        # Should show the availability boxes
-        self.assertContains(response, "Is it available online?")
-        self.assertContains(response, "Can I see it in person?")
+        # Should show the consolidated "View options" box
+        self.assertContains(response, "View options")
 
         # Should show the archive name
         self.assertContains(response, "Some Other Archive")

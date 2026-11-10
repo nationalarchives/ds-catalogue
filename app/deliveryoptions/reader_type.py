@@ -1,6 +1,5 @@
 import logging
 from ipaddress import ip_address, ip_network
-from typing import List, Optional
 
 from django.conf import settings
 from django.http import HttpRequest
@@ -81,7 +80,7 @@ def get_reader_type(request: HttpRequest) -> Reader:
     return reader
 
 
-def get_client_ip(request: HttpRequest) -> Optional[str]:
+def get_client_ip(request: HttpRequest) -> str | None:
     """
     Extract the client IP address from the HTTP request.
 
@@ -139,7 +138,7 @@ def get_client_ip(request: HttpRequest) -> Optional[str]:
     return validate_ip(forwarded_ips[0]) if forwarded_ips else validate_ip(remote_addr)
 
 
-def validate_ip(ip_str: str) -> Optional[str]:
+def validate_ip(ip_str: str) -> str | None:
     """
     Validate that the string is a proper IP address.
 
@@ -160,7 +159,7 @@ def validate_ip(ip_str: str) -> Optional[str]:
         return None
 
 
-def is_ip_in_cidr(ip: str, cidr: List[str]) -> bool:
+def is_ip_in_cidr(ip: str, cidr: list[str]) -> bool:
     """
     Check if an IP address is within any of the specified CIDR ranges.
     Args:
@@ -183,4 +182,4 @@ def is_ip_in_cidr(ip: str, cidr: List[str]) -> bool:
         # If no match is found
         return False
     except ValueError as e:
-        raise ValueError(f"Invalid IP or CIDR: {e}")
+        raise ValueError(f"Invalid IP or CIDR: {e}") from e
