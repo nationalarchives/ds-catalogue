@@ -117,6 +117,7 @@ class RecordDetailNegotiationTests(TestCase):
         self.add_record()
         cases = (
             (None, "text/html"),
+            ("", "text/html"),
             ("*/*", "text/html"),
             ("text/*", "text/html"),
             ("text/html", "text/html"),
@@ -125,8 +126,12 @@ class RecordDetailNegotiationTests(TestCase):
             ("text/markdown; charset=utf-8", "text/markdown"),
             ("text/markdown, text/html;q=0.8", "text/markdown"),
             ("text/markdown;q=0.5, text/html;q=0.9", "text/html"),
-            ("text/markdown, text/html", "text/markdown"),
+            ("text/markdown;q=0.8, text/html;q=0.9", "text/html"),
+            ("text/markdown, text/html", "text/html"),
             ("text/html, text/markdown", "text/html"),
+            ("text/markdown, text/html", "text/html"),
+            ("text/markdown;q=0.8, text/html;q=0.8", "text/html"),
+            ("text/html;q=0.8, text/markdown;q=0.8", "text/html"),
             ("text/markdown;q=0, text/html", "text/html"),
             ("text/html;q=0, text/markdown", "text/markdown"),
             ("text/markdown;q=0, */*;q=1", "text/html"),
@@ -161,9 +166,10 @@ class RecordDetailNegotiationTests(TestCase):
 
     def test_unacceptable_formats_return_406_without_fetching_record(self):
         for accept in (
-            "",
             "application/json",
             "text/markdown;q=0",
+            "text/markdown;q=abc",
+            "text/markdown;q=1.1",
             "text/html;q=0, text/markdown;q=0",
             "text/*;q=0, */*;q=1",
             "text/markdown; charset=iso-8859-1",

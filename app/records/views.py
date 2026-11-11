@@ -43,10 +43,18 @@ class RecordDetailView(RecordContextMixin, TemplateView):
     def _get_preferred_type(self, request):
         ranges = [
             MediaType(value)
-            for value in request.headers.get("Accept", "*/*").split(",")
+            for value in (request.headers.get("Accept") or "*/*").split(",")
             if value.strip()
         ]
-        available = []
+        for media_range in ranges:
+            try:
+                quality = float(media_range.params.get("q", 1))
+            except ValueError:
+                return None
+            if not 0 <= quality <= 1:
+                return None
+        preferred_type = None
+        preferred_priority = (0, -1)
         for content_type in (
             "text/html; charset=utf-8",
             "text/markdown; charset=utf-8",
@@ -56,7 +64,7 @@ class RecordDetailView(RecordContextMixin, TemplateView):
                 for media_range in ranges
                 if MediaType(content_type).match(media_range)
             ]
-            # Django drops q=0 ranges before matching wildcards.
+            # Specific q=0 exclusions take precedence over wildcards.
             best_match = max(
                 matches,
                 key=lambda media_range: (
@@ -66,8 +74,11 @@ class RecordDetailView(RecordContextMixin, TemplateView):
                 default=None,
             )
             if best_match is not None and best_match.quality > 0:
-                available.append(content_type)
-        return request.get_preferred_type(available)
+                priority = (best_match.quality, best_match.specificity)
+                if priority > preferred_priority:
+                    preferred_type = content_type
+                    preferred_priority = priority
+        return preferred_type
 
     def _render_markdown(self, response):
         response.content = record_page_to_markdown(
