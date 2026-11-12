@@ -35,7 +35,7 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "subject",
+                        "name": "longSubject",
                         "entries": [
                             {"value": "International", "doc_count": 50},
                             {"value": "Army", "doc_count": 35},
@@ -194,6 +194,14 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
                 "data": [],
                 "aggregations": [
                     {
+                        "name": "longCollection",
+                        "entries": [
+                            {"value": "BT", "doc_count": 50},
+                        ],
+                        "total": 28083703,
+                        "other": 0,
+                    },
+                    {
                         "name": "longSubject",
                         "entries": [
                             {"value": "International", "doc_count": 50},
@@ -201,7 +209,7 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
                         ],
                         "total": 28083703,
                         "other": 0,
-                    }
+                    },
                 ],
                 "buckets": [
                     {

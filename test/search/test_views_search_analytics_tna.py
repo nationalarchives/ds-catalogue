@@ -32,7 +32,7 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
@@ -124,7 +124,7 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
                 ],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {"value": "BT", "doc_count": 50},
                             {"value": "WO", "doc_count": 35},
@@ -209,7 +209,7 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
                 "data": [],
                 "aggregations": [
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                     }
                 ],
                 "buckets": [
@@ -275,7 +275,7 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
     ):
         """Tests analytics metadata, data layer when form has errors"""
 
-        query = "/catalogue/search/?group=tna&q=ufo&collection=BT&level=INVALID"
+        query = "/catalogue/search/?group=tna&q=ufo&level=INVALID"
         response = self.client.get(query)
 
         context_data = response.context_data
@@ -301,7 +301,7 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
         )
         self.assertIn("""<meta name="tna_root:search_term" content="ufo">""", html)
         self.assertIn("""<meta name="tna_root:search_total" content="0">""", html)
-        self.assertIn("""<meta name="tna_root:search_filters" content="2">""", html)
+        self.assertIn("""<meta name="tna_root:search_filters" content="1">""", html)
 
         self.assertEqual(
             context_data.get("analytics_data"),
@@ -312,7 +312,7 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
                 "content_source": "TNA catalogue",
                 "search_type": "Records at The National Archives",
                 "search_term": "ufo",
-                "search_filters": 2,
+                "search_filters": 1,
                 "search_total": 0,
             },
         )
