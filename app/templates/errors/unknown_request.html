@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="tna-section">
+  <div class="tna-container">
+    <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
+      <h1 class="tna-heading-xl">The page you requested cannot be served</h1>
+      <p>You have requested a page that cannot be served. This could be because the web address you entered or the data you posted was incorrect.</p>
+      <br>
+      {% if show_new_search %}
+        <a href="{{ url('search:catalogue') }}">Start new search</a>
+      {% endif %}
+      {% if errors %}
+        <dl class="tna-dl">
+          <dt>URL parameter</dt>
+          <dd>Error</dd>
+          {% for error in errors %}
+              <dt>{{ error.name }}</dt>
+              <dd>
+                  {{ error.error }}
+              </dd>
+          {% endfor %}
+        </dl>
+      {% endif %}
+     <p>Error code: {{ status_code }}</p>
+    </div>
+  </div>
+</div>
+{% endblock content %}
