@@ -1,5 +1,6 @@
 {% from 'components/tags/macro.html' import tnaTags %}
 
+{% if subjects_grouped_by_letter|length > 0 %}
 <div class="tna-!--padding-vertical-s">
   <div class="tna-container">
     <div class="tna-column tna-column--full">
@@ -12,7 +13,7 @@
 
       <div class="subject-picker tna-!--margin-top-s" hidden role="tablist">
         {% for letter in alphabet %}
-          {% if letter not in disabled_letters %}
+          {% if letter in subjects_grouped_by_letter %}
             <button id="tab-{{ letter | lower }}" type="button" aria-controls="subject-picker-{{ letter | lower }}" class="subject-picker__button" role="tab">
               {{ letter }}
             </button>
@@ -23,7 +24,7 @@
       </div>
 
       {% for letter in alphabet %}
-        {% if letter not in disabled_letters %}
+        {% if letter in subjects_grouped_by_letter %}
           <div class="tna-!--margin-top-s subject-picker-content" id="subject-picker-{{ letter | lower }}" tabindex="0" role="tabpanel" aria-labelledby="tab-{{ letter | lower }}">
             <h3>{{ letter }}</h3>
             {% if subjects_grouped_by_letter[letter] %}
@@ -48,3 +49,4 @@
     </div>
   </div>
 </div>
+{% endif %}
