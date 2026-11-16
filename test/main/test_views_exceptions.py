@@ -49,7 +49,7 @@ class CatalogueViewExceptionsTests(TestCase):
         )
         # test that the context contains the expected data
         self.assertEqual(context_data.get("subjects_grouped_by_letter"), {})
-        self.assertNotContains(response, "Find records by subject")
+        self.assertNotContains(response, "subject-picker__button")
 
         # test other error logging for the catalogue view
         with self.assertLogs("app.lib.api", level="ERROR") as lc:
@@ -111,4 +111,4 @@ class CatalogueViewExceptionsTests(TestCase):
         )
         # test that the context contains the expected data
         self.assertEqual(context_data.get("subjects_grouped_by_letter"), {})
-        self.assertNotContains(response, "Find records by subject")
+        self.assertNotContains(response, "subject-picker__button")
