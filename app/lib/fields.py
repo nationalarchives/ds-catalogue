@@ -43,6 +43,7 @@ class BaseField:
         required=False,
         hint="",
         active_filter_label=None,
+        error_messages=None,
     ):
         self.id = None  # set on bind
         self.label = label
@@ -53,6 +54,14 @@ class BaseField:
         self._error = {}
         self.choices = None  # applicable to certain fields ex choice
         self.active_filter_label = active_filter_label
+        self._base_field_error_messages = {"required": "Value is required."}
+        self.error_messages = self._base_field_error_messages.copy()
+        self.set_error_messages(error_messages)
+
+    def set_error_messages(self, error_messages: dict[str, str] | None):
+        """Update error messages for the field."""
+        if error_messages:
+            self.error_messages.update(error_messages)
 
     def bind(self, name, value: list | str | QueryDict | dict) -> None:
         """Binds field name, value to the field. The value is usually from
@@ -90,7 +99,7 @@ class BaseField:
         """Basic validation. For more validation, Subclass and raise ValidationError"""
 
         if self.required and not value:
-            raise ValidationError("Value is required.")
+            raise ValidationError(self.error_messages["required"])
 
     def add_error(self, message):
         """Stores error message in the format of FE component"""
@@ -140,6 +149,14 @@ class ChoiceField(BaseField):
         super().__init__(**kwargs)
         self.choices = choices
 
+        # set the error message but do not add yet to the field's error_messages dictionary
+        self._choice_field_error_messages = {
+            "invalid_choice": (
+                "Enter a valid choice. [{value}] is not one of the available choices. "
+                "Valid choices are [{valid_choices}]"
+            )
+        }
+
     def _has_match(self, value, search_in):
         return value in search_in
 
@@ -158,10 +175,15 @@ class ChoiceField(BaseField):
 
         valid_choices = [value for value, _ in self.choices]
         if not self._has_match(value, valid_choices):
-            raise ValidationError(
-                f"Enter a valid choice. [{value or 'Empty param value'}] is not one of the available choices. "
-                f"Valid choices are [{', '.join(valid_choices)}]"
-            )
+            if "invalid_choice" not in self.error_messages:
+                # since these values are determined at this stage, check and add error message
+                self.error_messages["invalid_choice"] = (
+                    self._choice_field_error_messages["invalid_choice"].format(
+                        value=value or "Empty param value",
+                        valid_choices=", ".join(valid_choices),
+                    )
+                )
+            raise ValidationError(self.error_messages["invalid_choice"])
 
     @property
     def items(self):
@@ -238,6 +260,14 @@ class DynamicMultipleChoiceField(BaseField):
         # have been updated to reflect options from the API.
         self.choices_updated = False
 
+        # set the error message but do not add yet to the field's error_messages dictionary
+        self._dynamic_choice_field_error_messages = {
+            "invalid_choice": (
+                "Enter a valid choice. Value(s) [{value}] do not belong "
+                "to the available choices. Valid choices are [{valid_choices}]"
+            )
+        }
+
     def _has_match_all(self, value, search_in):
         return all(item in search_in for item in value)
 
@@ -246,10 +276,17 @@ class DynamicMultipleChoiceField(BaseField):
             super().validate(value)
             if self.validate_input:
                 if not self._has_match_all(value, self.valid_choices):
-                    raise ValidationError(
-                        f"Enter a valid choice. Value(s) [{', '.join(value)}] do not belong "
-                        f"to the available choices. Valid choices are [{', '.join(self.valid_choices)}]"
-                    )
+                    if "invalid_choice" not in self.error_messages:
+                        # since these values are determined at this stage, check and add error message
+                        self.error_messages["invalid_choice"] = (
+                            self._dynamic_choice_field_error_messages[
+                                "invalid_choice"
+                            ].format(
+                                value=", ".join(value),
+                                valid_choices=", ".join(self.valid_choices),
+                            )
+                        )
+                    raise ValidationError(self.error_messages["invalid_choice"])
 
         # TODO: FILTER_CHOICES_LIMIT: discuss limit with team
         # if (
