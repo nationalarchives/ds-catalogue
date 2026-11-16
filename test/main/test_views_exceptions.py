@@ -48,69 +48,8 @@ class CatalogueViewExceptionsTests(TestCase):
             lc.output,
         )
         # test that the context contains the expected data
-        expected_disabled_letters = [
-            "A",
-            "B",
-            "C",
-            "D",
-            "E",
-            "F",
-            "G",
-            "H",
-            "I",
-            "J",
-            "K",
-            "L",
-            "M",
-            "N",
-            "O",
-            "P",
-            "Q",
-            "R",
-            "S",
-            "T",
-            "U",
-            "V",
-            "W",
-            "X",
-            "Y",
-            "Z",
-        ]
-        expected_subjects_grouped_by_letter = {
-            "A": [],
-            "B": [],
-            "C": [],
-            "D": [],
-            "E": [],
-            "F": [],
-            "G": [],
-            "H": [],
-            "I": [],
-            "J": [],
-            "K": [],
-            "L": [],
-            "M": [],
-            "N": [],
-            "O": [],
-            "P": [],
-            "Q": [],
-            "R": [],
-            "S": [],
-            "T": [],
-            "U": [],
-            "V": [],
-            "W": [],
-            "X": [],
-            "Y": [],
-            "Z": [],
-        }
-        self.assertEqual(
-            context_data.get("subjects_grouped_by_letter"),
-            expected_subjects_grouped_by_letter,
-        )
-        self.assertEqual(
-            context_data.get("disabled_letters"), expected_disabled_letters
-        )
+        self.assertEqual(context_data.get("subjects_grouped_by_letter"), {})
+        self.assertNotContains(response, "Find records by subject")
 
         # test other error logging for the catalogue view
         with self.assertLogs("app.lib.api", level="ERROR") as lc:
@@ -171,66 +110,5 @@ class CatalogueViewExceptionsTests(TestCase):
             lc.output,
         )
         # test that the context contains the expected data
-        expected_disabled_letters = [
-            "A",
-            "B",
-            "C",
-            "D",
-            "E",
-            "F",
-            "G",
-            "H",
-            "I",
-            "J",
-            "K",
-            "L",
-            "M",
-            "N",
-            "O",
-            "P",
-            "Q",
-            "R",
-            "S",
-            "T",
-            "U",
-            "V",
-            "W",
-            "X",
-            "Y",
-            "Z",
-        ]
-        expected_subjects_grouped_by_letter = {
-            "A": [],
-            "B": [],
-            "C": [],
-            "D": [],
-            "E": [],
-            "F": [],
-            "G": [],
-            "H": [],
-            "I": [],
-            "J": [],
-            "K": [],
-            "L": [],
-            "M": [],
-            "N": [],
-            "O": [],
-            "P": [],
-            "Q": [],
-            "R": [],
-            "S": [],
-            "T": [],
-            "U": [],
-            "V": [],
-            "W": [],
-            "X": [],
-            "Y": [],
-            "Z": [],
-        }
-        self.assertEqual(
-            context_data.get("subjects_grouped_by_letter"),
-            expected_subjects_grouped_by_letter,
-        )
-        self.assertEqual(
-            context_data.get("disabled_letters"), expected_disabled_letters
-        )
+        self.assertEqual(context_data.get("subjects_grouped_by_letter"), {})
+        self.assertNotContains(response, "Find records by subject")
