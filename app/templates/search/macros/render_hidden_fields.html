@@ -2,6 +2,7 @@
 {% from 'search/macros/as_hidden_for_single_value.html' import as_hidden_for_single_value %}
 {% from 'search/macros/as_hidden_for_date_input.html' import as_hidden_for_date_input %}
 {% from 'search/macros/as_hidden_for_checkboxes.html' import as_hidden_for_checkboxes %}
+{% from 'search/macros/as_hidden_for_multiple_values.html' import as_hidden_for_multiple_values %}
 
 {% macro render_hidden_fields(request, form, bucket_keys, mfc_field, aggregation) %}
   {{ as_hidden_for_single_value(form.fields.group) }}

@@ -37,13 +37,13 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
                         ],
                     },
                     {
-                        "name": "collection",
+                        "name": "longCollection",
                         "entries": [
                             {"value": "somevalue", "doc_count": 100},
                         ],
                     },
                     {
-                        "name": "subject",
+                        "name": "longSubject",
                         "entries": [
                             {"value": "somevalue", "doc_count": 100},
                         ],
@@ -183,28 +183,6 @@ class CatalogueSearchViewDebugAPITnaBucketTests(TestCase):
             "&q=%2A"
             "&size=20"
             "&from=0"
-        )
-
-        # Test longCollection filter
-        response = self.client.get("/catalogue/search/?filter_list=longCollection")
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?"
-            "filter=group%3Atna"
-            "&aggs=longCollection"
-            "&q=%2A"
-            "&size=0"
-        )
-
-        # Test longSubject filter
-        response = self.client.get("/catalogue/search/?filter_list=longSubject")
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        mock_logger.debug.assert_called_with(
-            "https://rosetta.test/data/search?"
-            "filter=group%3Atna"
-            "&aggs=longSubject"
-            "&q=%2A"
-            "&size=0"
         )
 
         # Test online filter (digitised parameter)

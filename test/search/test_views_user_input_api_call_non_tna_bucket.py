@@ -30,7 +30,7 @@ class CatalogueSearchViewDebugAPINonTnaBucketTests(TestCase):
                 # Note: api response is not checked for these values
                 "aggregations": [
                     {
-                        "name": "heldBy",
+                        "name": "longHeldBy",
                         "entries": [
                             {"value": "somevalue", "doc_count": 100},
                         ],
