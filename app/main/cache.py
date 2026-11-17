@@ -7,8 +7,10 @@ from django.core.cache import cache
 
 from app.records.api import wagtail_request_handler
 
-from .api import fetch_all_subjects
+from .api import fetch_all_collections, fetch_all_subjects
 from .constants import (
+    COLLECTIONS_CACHE_KEY,
+    COLLECTIONS_CACHE_TIMEOUT,
     GLOBAL_NOTIFICATIONS_CACHE_KEY,
     LANDING_PAGE_CACHE_KEY,
     SUBJECTS_CACHE_KEY,
@@ -151,3 +153,23 @@ def get_explore_the_collection() -> dict:
     if data is None:
         return {}
     return data.get("explore_the_collection", {})
+
+
+def get_all_collections() -> list[dict[str, str | int]]:
+    """Fetch and cache all collections."""
+    data = cache.get(COLLECTIONS_CACHE_KEY)
+    if data is None:
+        try:
+            data = fetch_all_collections()
+            cache.set(
+                COLLECTIONS_CACHE_KEY,
+                data,
+                timeout=COLLECTIONS_CACHE_TIMEOUT,
+            )
+        except Exception as e:
+            # Fall back to an empty result if the API request fails,
+            # incorrectly formatted data is returned
+            data = []
+            logger.error(f"Failed to fetch all Collections: {e}")
+
+    return data
