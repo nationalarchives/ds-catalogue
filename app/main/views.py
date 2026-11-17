@@ -32,11 +32,6 @@ class CatalogueView(TemplateView):
 
         # context for the subjects picker
         subjects_grouped_by_letter = get_subjects_grouped_by_letter()
-        disabled_letters = [
-            letter
-            for letter, subjects in subjects_grouped_by_letter.items()
-            if not subjects
-        ]
 
         context.update(
             {
@@ -48,7 +43,6 @@ class CatalogueView(TemplateView):
                 "mourning_notice": (
                     notifications.get("mourning_notice") if notifications else None
                 ),
-                "disabled_letters": disabled_letters,
                 "subjects_grouped_by_letter": subjects_grouped_by_letter,
             }
         )
