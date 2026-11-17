@@ -238,6 +238,9 @@ class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
                     choices=[(m.level, m.level) for m in TnaLevels],
                     validate_input=True,  # validate input with choices before querying the API
                     active_filter_label="Level",
+                    error_messages={
+                        "invalid_choice": "One or more filter values are invalid. Please select a valid option from the available choices."
+                    },
                 ),
                 FieldsConstant.COLLECTION: NestedCollectionDynamicMultipleChoiceField(
                     label="Collections",

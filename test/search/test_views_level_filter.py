@@ -142,10 +142,8 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
             form.errors,
             {
                 "level": {
-                    "text": "Enter a valid choice. Value(s) [Item, Division, invalid] "
-                    "do not belong to the available choices. Valid choices are "
-                    "[Department, Division, Series, Sub-series, Sub-sub-series, "
-                    "Piece, Item]"
+                    "text": "One or more filter values are invalid. Please select a "
+                    "valid option from the available choices."
                 }
             },
         )
