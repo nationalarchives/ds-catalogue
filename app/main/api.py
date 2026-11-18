@@ -26,7 +26,7 @@ def fetch_all_subjects() -> list[dict[str, str]]:
 
 
 def fetch_all_collections() -> list[dict[str, str]]:
-    """Fetch all collections from the search API using longCollection aggregation."""
+    """Fetch all collections entries from the search API using longCollection aggregation."""
 
     api_result = search_records(
         query="",
