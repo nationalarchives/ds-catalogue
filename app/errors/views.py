@@ -5,10 +5,7 @@ from django.http import HttpResponseServerError
 from django.shortcuts import render
 from django.template import TemplateDoesNotExist
 
-from .constants import (
-    PAGE_NOT_FOUND_TEMPLATE,
-    SERVER_ERROR_TEMPLATE,
-)
+from .constants import PAGE_NOT_FOUND_TEMPLATE, SERVER_ERROR_TEMPLATE
 
 logger = logging.getLogger(__name__)
 
