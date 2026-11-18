@@ -7,7 +7,11 @@ from django.test import SimpleTestCase, override_settings
 
 from app.lib.api import JSONAPIClient
 from app.lib.exceptions import MissingAPIAttributeError, RecordNotFound
-from app.records.api import record_details_by_id, wagtail_request_handler
+from app.records.api import (
+    get_research_guide,
+    record_details_by_id,
+    wagtail_request_handler,
+)
 from app.records.models import Record
 
 
@@ -105,6 +109,7 @@ class TestWagtailAPIIntegration(SimpleTestCase):
         mock_client_class.assert_called_once_with(
             "https://test-api.example.com", default_params={"tags": "aviation"}
         )
+        mock_client.add_header.assert_any_call("Accept", "application/json")
         mock_client.get.assert_called_once_with("/article_tags/", timeout=None)
 
         self.assertEqual(result, {"items": [{"title": "Test Article"}]})
@@ -127,3 +132,84 @@ class TestWagtailAPIIntegration(SimpleTestCase):
 
         with self.assertRaisesMessage(Exception, "API Error"):
             wagtail_request_handler("/article_tags/", {"tags": "aviation"})
+
+    @override_settings(
+        WAGTAIL_API_URL="https://test-api.example.com/api/v2",
+        WAGTAIL_API_KEY="test-token",
+    )
+    @responses.activate
+    def test_get_research_guide_sends_repeated_ancestors_and_returns_first(self):
+        responses.add(
+            responses.GET,
+            "https://test-api.example.com/api/v2/research_guides/"
+            "?record=C12345&ancestor=C1234&ancestor=C123",
+            json={
+                "items": [
+                    {"title": "Most relevant"},
+                    {"title": "Less relevant"},
+                ]
+            },
+            status=200,
+        )
+        record = Record(
+            {
+                "id": "C12345",
+                "@hierarchy": [
+                    {"@admin": {"id": "C123"}},
+                    {"@admin": {"id": "C1234"}},
+                    {"@admin": {"id": "C12345"}},
+                ],
+            }
+        )
+
+        result = get_research_guide(record)
+
+        self.assertEqual(result, {"title": "Most relevant"})
+        request = responses.calls[0].request
+        self.assertEqual(
+            request.url,
+            "https://test-api.example.com/api/v2/research_guides/"
+            "?record=C12345&ancestor=C1234&ancestor=C123",
+        )
+        self.assertEqual(request.headers["Accept"], "application/json")
+        self.assertEqual(request.headers["Authorization"], "Token test-token")
+
+    @patch("app.records.api.wagtail_request_handler", return_value={"items": []})
+    def test_get_research_guide_returns_none_when_no_guides_match(self, mock_handler):
+        record = Record({"id": "C12345", "@hierarchy": []})
+
+        self.assertIsNone(get_research_guide(record))
+        mock_handler.assert_called_once_with(
+            "/research_guides/",
+            {"record": "C12345"},
+            timeout=None,
+        )
+
+    @patch(
+        "app.records.api.wagtail_request_handler",
+        return_value={"items": [{"title": "Guide"}]},
+    )
+    def test_get_research_guide_includes_ancestors_without_identifiers(
+        self, mock_handler
+    ):
+        record = Record(
+            {
+                "id": "C12345",
+                "@hierarchy": [
+                    {"@admin": {"id": "C123"}},
+                    {"@admin": {"id": "C1234"}},
+                    {"@admin": {"id": "C12345"}},
+                ],
+            }
+        )
+
+        get_research_guide(record)
+
+        mock_handler.assert_called_once_with(
+            "/research_guides/",
+            {
+                "record": "C12345",
+                "ancestor": ["C1234", "C123"],
+            },
+            timeout=None,
+        )

@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -73,7 +74,7 @@ def record_details_by_ref(reference: str, params: dict[str, str] | None = None):
 
 
 def wagtail_request_handler(
-    uri: str, params: dict[str, str] | None = None, timeout=None
+    uri: str, params: dict[str, Any] | None = None, timeout=None
 ) -> dict:
     """
     Prepares and initiates Wagtail API requests using JSONAPIClient.
@@ -94,9 +95,31 @@ def wagtail_request_handler(
         raise ImproperlyConfigured("WAGTAIL_API_URL not set")
 
     client = JSONAPIClient(api_url, default_params=params)
+    client.add_header("Accept", "application/json")
     if settings.WAGTAIL_API_KEY:
         client.add_header("Authorization", f"Token {settings.WAGTAIL_API_KEY}")
     return client.get(uri, timeout=timeout)
+
+
+def get_research_guide(record: Record, timeout=None) -> dict | None:
+    """Fetch the most relevant research guide for a record and its ancestors."""
+    ancestor_ids = [
+        ancestor_id
+        for hierarchy_item in reversed(record.get("@hierarchy", ()))
+        if (ancestor_id := Record(hierarchy_item).id)
+        and ancestor_id != record.id
+    ]
+    params: dict[str, Any] = {"record": record.id}
+    if ancestor_ids:
+        params["ancestor"] = ancestor_ids
+
+    results = wagtail_request_handler(
+        "/research_guides/",
+        params,
+        timeout=timeout,
+    )
+    items = results.get("items", [])
+    return items[0] if items else None
 
 
 def get_subjects_enrichment(

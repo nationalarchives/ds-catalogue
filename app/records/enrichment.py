@@ -19,7 +19,7 @@ from app.deliveryoptions.delivery_options import (
     has_distressing_content,
 )
 from app.lib.constants import BASE_TNA_DISCOVERY_URL
-from app.records.api import get_subjects_enrichment
+from app.records.api import get_research_guide, get_subjects_enrichment
 from app.records.constants import (
     API_TIMEOUTS,
     THREADPOOL_MAX_WORKERS,
@@ -59,7 +59,7 @@ class RecordEnrichmentHelper:
 
         Returns:
             Dictionary with keys: subjects_enrichment, related_records,
-            delivery_options
+            delivery_options, research_guide
         """
         if settings.ENABLE_PARALLEL_API_CALLS:
             return self._fetch_parallel()
@@ -76,6 +76,12 @@ class RecordEnrichmentHelper:
             futures_map[executor.submit(self._fetch_subjects)] = "subjects"
         except RuntimeError:
             message = f"Failed to submit subjects task for record {self.record.id}"
+            logger.error(message)
+
+        try:
+            futures_map[executor.submit(self._fetch_research_guide)] = "research_guide"
+        except RuntimeError:
+            message = f"Failed to submit research guide task for record {self.record.id}"
             logger.error(message)
 
         # Submit related fetch
@@ -101,6 +107,8 @@ class RecordEnrichmentHelper:
             result = future.result(timeout=timeout)
             if name == "subjects":
                 results["subjects_enrichment"] = result
+            elif name == "research_guide":
+                results["research_guide"] = result
             elif name == "related":
                 results["related_records"] = result
             elif name == "delivery":
@@ -152,6 +160,7 @@ class RecordEnrichmentHelper:
         """Fetch enrichment data sequentially."""
         results = {
             "subjects_enrichment": self._fetch_subjects(),
+            "research_guide": self._fetch_research_guide(),
             "related_records": self._fetch_related(),
             "delivery_options": {},
         }
@@ -165,6 +174,12 @@ class RecordEnrichmentHelper:
         return get_subjects_enrichment(
             self.record.subjects,
             limit=settings.MAX_SUBJECTS_PER_RECORD,
+            timeout=settings.WAGTAIL_API_TIMEOUT,
+        )
+
+    def _fetch_research_guide(self) -> dict | None:
+        return get_research_guide(
+            self.record,
             timeout=settings.WAGTAIL_API_TIMEOUT,
         )
 
@@ -321,6 +336,7 @@ class RecordEnrichmentHelper:
     def _empty_results() -> dict[str, Any]:
         return {
             "subjects_enrichment": {},
+            "research_guide": None,
             "related_records": [],
             "delivery_options": {},
         }

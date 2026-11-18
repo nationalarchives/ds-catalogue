@@ -73,6 +73,79 @@ class TestRecordView(TestCase):
 
         self.assertIsInstance(response.context_data.get("record"), Record)
 
+    @responses.activate
+    @patch("app.records.views.RecordEnrichmentHelper.fetch_all")
+    def test_record_detail_displays_most_relevant_research_guide(self, mock_fetch_all):
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id=C123456",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "id": "C123456",
+                                "title": "Test Title",
+                                "source": "CAT",
+                            }
+                        }
+                    }
+                ]
+            },
+            status=200,
+        )
+        mock_fetch_all.return_value = {
+            "subjects_enrichment": {},
+            "related_records": [],
+            "delivery_options": {},
+            "research_guide": {
+                "title": "Researching this record",
+                "url": "https://example.com/research-guide",
+                "full_url": "https://example.com/research-guide",
+            },
+        }
+
+        response = self.client.get("/catalogue/id/C123456/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<a href="https://example.com/research-guide">Researching this record</a>',
+        )
+
+    @responses.activate
+    @patch("app.records.views.RecordEnrichmentHelper.fetch_all")
+    def test_record_detail_displays_guide_without_url_metadata(self, mock_fetch_all):
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/get?id=C123456",
+            json={
+                "data": [
+                    {
+                        "@template": {
+                            "details": {
+                                "id": "C123456",
+                                "title": "Test Title",
+                                "source": "CAT",
+                            }
+                        }
+                    }
+                ]
+            },
+            status=200,
+        )
+        mock_fetch_all.return_value = {
+            "subjects_enrichment": {},
+            "related_records": [],
+            "delivery_options": {},
+            "research_guide": {"title": "Researching this record"},
+        }
+
+        response = self.client.get("/catalogue/id/C123456/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Researching this record")
+
 
 class TestSubjectLinks(TestCase):
     """Tests for clickable subject lozenges linking to search"""

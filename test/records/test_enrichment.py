@@ -23,6 +23,12 @@ class TestRecordEnrichmentHelper(TestCase):
         self.test_record.is_tna = True
         self.test_record.level_code = 7
         self.test_record.reference_number = "WO 95/1234"
+        research_guide_patcher = patch(
+            "app.records.enrichment.get_research_guide",
+            return_value=None,
+        )
+        self.mock_research_guide = research_guide_patcher.start()
+        self.addCleanup(research_guide_patcher.stop)
 
     @override_settings(
         ENABLE_PARALLEL_API_CALLS=False,
@@ -53,6 +59,7 @@ class TestRecordEnrichmentHelper(TestCase):
 
         # Verify result structure
         self.assertIn("subjects_enrichment", result)
+        self.assertIn("research_guide", result)
         self.assertIn("related_records", result)
         self.assertIn("delivery_options", result)
 
@@ -85,6 +92,7 @@ class TestRecordEnrichmentHelper(TestCase):
 
         # Verify result structure
         self.assertIn("subjects_enrichment", result)
+        self.assertIn("research_guide", result)
         self.assertIn("related_records", result)
         self.assertIn("delivery_options", result)
 
@@ -211,9 +219,10 @@ class TestRecordEnrichmentHelper(TestCase):
             with ThreadPoolExecutor(max_workers=3) as executor:
                 futures_map = helper._submit_fetch_tasks(executor)
 
-            # Should have 3 futures submitted
-            self.assertEqual(len(futures_map), 3)
+            # Should have 4 futures submitted
+            self.assertEqual(len(futures_map), 4)
             self.assertIn("subjects", futures_map.values())
+            self.assertIn("research_guide", futures_map.values())
             self.assertIn("related", futures_map.values())
             self.assertIn("delivery", futures_map.values())
 
@@ -275,8 +284,9 @@ class TestRecordEnrichmentHelper(TestCase):
             with ThreadPoolExecutor(max_workers=3) as executor:
                 futures_map = helper._submit_fetch_tasks(executor)
 
-            # Should only have 2 futures (no delivery)
-            self.assertEqual(len(futures_map), 2)
+            # Should have 3 futures (including the research guide, but no delivery)
+            self.assertEqual(len(futures_map), 3)
+            self.assertIn("research_guide", futures_map.values())
             self.assertNotIn("delivery", futures_map.values())
 
     @patch("app.records.enrichment.sentry_sdk")
@@ -292,6 +302,19 @@ class TestRecordEnrichmentHelper(TestCase):
         helper._process_future_result(mock_future, "subjects", 10, results)
 
         self.assertEqual(results["subjects_enrichment"], {"test": "data"})
+        mock_sentry.capture_exception.assert_not_called()
+
+    @patch("app.records.enrichment.sentry_sdk")
+    def test_process_future_result_stores_research_guide(self, mock_sentry: Mock) -> None:
+        helper = RecordEnrichmentHelper(self.test_record)
+        results = helper._empty_results()
+        guide = {"title": "Research guide"}
+        future = Mock(spec=Future)
+        future.result.return_value = guide
+
+        helper._process_future_result(future, "research_guide", 5, results)
+
+        self.assertEqual(results["research_guide"], guide)
         mock_sentry.capture_exception.assert_not_called()
 
     @patch("app.records.enrichment.sentry_sdk")
@@ -460,7 +483,7 @@ class TestRecordEnrichmentHelper(TestCase):
     @override_settings(ENABLE_PARALLEL_API_CALLS=True)
     @patch(
         "app.records.enrichment.API_TIMEOUTS",
-        {"subjects": 5, "related": 10, "delivery": 15},
+        {"subjects": 5, "research_guide": 5, "related": 10, "delivery": 15},
     )
     @patch("app.records.enrichment.get_subjects_enrichment")
     @patch("app.records.enrichment.get_tna_related_records_by_subjects")

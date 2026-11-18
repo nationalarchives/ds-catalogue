@@ -126,6 +126,23 @@
   {{ related_content_block(record) }}
 {% endif %}
 
+{% if research_guide %}
+  {% set research_guide_meta = research_guide.get('meta') or {} %}
+  {% set research_guide_url = research_guide.get('url') or research_guide.get('full_url') or research_guide_meta.get('html_url') %}
+  <div class="tna-container">
+    <div class="tna-column tna-column--full tna-!--margin-top-l">
+      <h2 class="tna-heading-l">Research guide</h2>
+      <p>
+        {% if research_guide_url %}
+          <a href="{{ research_guide_url }}">{{ research_guide.title }}</a>
+        {% else %}
+          {{ research_guide.title }}
+        {% endif %}
+      </p>
+    </div>
+  </div>
+{% endif %}
+
 {{ related_records_block(record, related_records) }}
 
 {{ feedback() }}

@@ -26,6 +26,8 @@ Markdown uses `Content-Type: text/markdown; charset=utf-8` and is converted from
 
 Links are made absolute. Archive and creator details also support Markdown; related-record and help pages remain HTML-only.
 
+Record detail pages request matching Wagtail research guides once, using the record IAID and its available ancestors. Ancestors are sent as repeated parameters from nearest parent to root; the first returned guide is displayed.
+
 ## Backend resources
 
 - [The National Archives base Docker images](https://github.com/nationalarchives/docker)

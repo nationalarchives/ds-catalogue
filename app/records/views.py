@@ -121,6 +121,7 @@ class RecordDetailView(RecordContextMixin, TemplateView):
 
         # Add enrichment to context
         record._subjects_enrichment = enrichment["subjects_enrichment"]
+        context["research_guide"] = enrichment["research_guide"]
         context["related_records"] = enrichment["related_records"]
         context["distressing_content"] = enrichment_helper.fetch_distressing()
 
