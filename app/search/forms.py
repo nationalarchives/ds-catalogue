@@ -242,7 +242,7 @@ class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
                 FieldsConstant.COLLECTION: NestedCollectionDynamicMultipleChoiceField(
                     label="Collections",
                     choices=get_all_collection_choices(),
-                    validate_input=False,  # do not validate input COLLECTION_CHOICES fixed or dynamic
+                    validate_input=True,
                     active_filter_label="Collection",
                     more_filter_choices_text="See more collections",
                 ),

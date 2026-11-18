@@ -1,7 +1,6 @@
-from http import HTTPStatus
+from unittest.mock import patch
 
-import responses
-from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 
 
@@ -9,43 +8,22 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
     """Mainly tests the context.
     Collection filter is only available for tna group."""
 
-    @responses.activate
-    def test_search_with_unknown_filter_returns_no_results_no_aggs(
-        self,
-    ):
-        """Tests configure choices do not appear when no data is returned
-        and also no aggregations returned for the input filter value."""
+    def setUp(self):
+        print("Setting up test case")
+        cache.clear()
 
-        # no data for input collection, no aggregations returned
-        responses.add(
-            responses.GET,
-            f"{settings.ROSETTA_API_URL}/search",
-            json={
-                "buckets": [
-                    {
-                        "name": "group",
-                        "entries": [
-                            {"value": "tna", "count": 1},
-                        ],
-                    }
-                ],
-                "stats": {
-                    "total": 26008838,
-                    "results": 20,
-                },
-                "aggregations": [
-                    {
-                        # Special case: api returns single entry for parent "Y" with zero doc_count as dict
-                        "name": "longCollection",
-                        "total": 0,
-                        "other": 0,
-                        "entries": {"value": "Y", "doc_count": 0},
-                        "Y": {"name": "Y", "total": 0},
-                    }
-                ],
-            },
-            status=HTTPStatus.OK,
-        )
+    def tearDown(self):
+        print("Tearing down test case")
+        cache.clear()
+
+    @patch(
+        "app.search.forms.get_all_collection_choices",
+        return_value=(("AMD", "AMD Collection"),),
+    )
+    def test_search_with_unknown_filter_returns_error(
+        self, mock_get_all_collection_choices
+    ):
+        """Tests search with an unknown collection filter."""
 
         response = self.client.get(
             "/catalogue/search/?collection=DOESNOTEXIST",
@@ -54,9 +32,6 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
         context_data = response.context_data
         form = context_data.get("form")
         collection_field = form.fields["collection"]
-        level_field = form.fields["level"]
-
-        self.assertEqual(len(context_data.get("results")), 0)
 
         self.assertEqual(
             collection_field.value,
@@ -64,17 +39,24 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
         )
         self.assertEqual(
             collection_field.cleaned,
-            ["DOESNOTEXIST"],
+            None,
         )
 
         self.assertEqual(collection_field.choices_updated, True)
         self.assertEqual(
             collection_field.choices,
-            [("DOESNOTEXIST", "DOESNOTEXIST (0)", None)],
+            [],
+        )
+
+        self.assertEqual(
+            collection_field.error,
+            {
+                "text": "Enter a valid choice. Value(s) [DOESNOTEXIST] do not belong to the available choices. Valid choices are [AMD]"
+            },
         )
 
         # should not reflect configured choices
-        self.assertEqual(len(collection_field.items), 1)
+        self.assertEqual(len(collection_field.items), 0)
         self.assertEqual(
             context_data.get("selected_filters"),
             [
@@ -86,16 +68,8 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
             ],
         )
 
-        self.assertEqual(level_field.choices_updated, True)
-        # should not reflect configured choices
-        self.assertEqual(len(level_field.items), 0)
-        self.assertEqual(
-            collection_field.more_filter_choices_available,
-            False,
-        )
-
         self.assertTrue(response.context_data.get("filters_visible"))
-        self.assertTrue(collection_field.is_visible)
+        self.assertFalse(collection_field.is_visible)
 
     # TODO: FILTER_CHOICES_LIMIT: discuss limit with team
     # @responses.activate

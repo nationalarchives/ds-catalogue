@@ -5,7 +5,12 @@ from typing import Any
 from urllib.parse import urlencode
 
 from django.core.exceptions import SuspiciousOperation
-from django.http import HttpRequest, HttpResponse, JsonResponse, QueryDict
+from django.http import (
+    HttpRequest,
+    HttpResponse,
+    JsonResponse,
+    QueryDict,
+)
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
