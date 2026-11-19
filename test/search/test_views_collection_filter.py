@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from unittest.mock import patch
 
 from django.core.cache import cache
@@ -5,8 +6,7 @@ from django.test import TestCase
 
 
 class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
-    """Mainly tests the context.
-    Collection filter is only available for tna group."""
+    """Tests for the catalogue search view with nested collection filters."""
 
     def setUp(self):
         print("Setting up test case")
@@ -20,7 +20,7 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
         "app.search.forms.get_all_collection_choices",
         return_value=(("AMD", "AMD Collection"),),
     )
-    def test_search_with_unknown_filter_returns_error(
+    def test_search_with_unknown_filter_returns_400(
         self, mock_get_all_collection_choices
     ):
         """Tests search with an unknown collection filter."""
@@ -29,47 +29,9 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
             "/catalogue/search/?collection=DOESNOTEXIST",
         )
 
-        context_data = response.context_data
-        form = context_data.get("form")
-        collection_field = form.fields["collection"]
-
-        self.assertEqual(
-            collection_field.value,
-            ["DOESNOTEXIST"],
-        )
-        self.assertEqual(
-            collection_field.cleaned,
-            None,
-        )
-
-        self.assertEqual(collection_field.choices_updated, True)
-        self.assertEqual(
-            collection_field.choices,
-            [],
-        )
-
-        self.assertEqual(
-            collection_field.error,
-            {
-                "text": "Enter a valid choice. Value(s) [DOESNOTEXIST] do not belong to the available choices. Valid choices are [AMD]"
-            },
-        )
-
-        # should not reflect configured choices
-        self.assertEqual(len(collection_field.items), 0)
-        self.assertEqual(
-            context_data.get("selected_filters"),
-            [
-                {
-                    "label": "Collection: DOESNOTEXIST",
-                    "href": "?",
-                    "title": "Remove DOESNOTEXIST collection",
-                },
-            ],
-        )
-
-        self.assertTrue(response.context_data.get("filters_visible"))
-        self.assertFalse(collection_field.is_visible)
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        # Leave error page rendering to Nginx; do not return response details.
+        self.assertEqual(response.content, b"")
 
     # TODO: FILTER_CHOICES_LIMIT: discuss limit with team
     # @responses.activate

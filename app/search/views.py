@@ -8,6 +8,7 @@ from django.core.exceptions import SuspiciousOperation
 from django.http import (
     HttpRequest,
     HttpResponse,
+    HttpResponseBadRequest,
     JsonResponse,
     QueryDict,
 )
@@ -496,6 +497,15 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
         )
 
         context = self.get_context_data(form=self.form)
+
+        # Check if any of the specified fields have errors
+        # and return a 400 response if so.
+        for field_name in [FieldsConstant.COLLECTION]:
+            if field_name in self.form.errors:
+                # Return only the 400 status code;
+                # Nginx serves the corresponding error page.
+                return HttpResponseBadRequest()
+
         return self.render_to_response(context=context)
 
     def get_context_data(self, **kwargs):
