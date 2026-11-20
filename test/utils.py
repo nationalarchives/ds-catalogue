@@ -1,6 +1,7 @@
 """Utils used to support running Tests"""
 
 import logging
+from unittest.mock import patch
 
 
 def prevent_request_warnings(original_function):
@@ -24,3 +25,13 @@ def prevent_request_warnings(original_function):
         logger.setLevel(previous_logging_level)
 
     return new_function
+
+
+def patch_collection_choices(return_value=(("VALUE1", "VALUE1 Collection"),)):
+    """Mock collection choices to avoid unintended reuse of test API responses.
+    Overrides the default collection choices for testing purposes.
+    """
+    return patch(
+        "app.search.forms.get_all_collection_choices",
+        return_value=return_value,
+    )
