@@ -2,18 +2,27 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 from django.utils.encoding import force_str
 
 from app.search.constants import Display, FieldsConstant
 from app.search.forms import CatalogueSearchCommonForm
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewDisplayTests(TestCase):
     """Mainly tests the context."""
 
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
-    def test_search_with_default_display(self):
+    def test_search_with_default_display(self, mock_collection_choices):
         """Test filter with default display param value (LIST)."""
 
         responses.add(
@@ -68,8 +77,9 @@ class CatalogueSearchViewDisplayTests(TestCase):
 
         self.assertEqual(response.context_data.get("selected_filters"), [])
 
+    @patch_collection_choices()
     @responses.activate
-    def test_search_with_grid_display(self):
+    def test_search_with_grid_display(self, mock_collection_choices):
         """Test filter with display param value (GRID)."""
 
         responses.add(
@@ -125,7 +135,8 @@ class CatalogueSearchViewDisplayTests(TestCase):
         self.assertEqual(response.context_data.get("selected_filters"), [])
         self.assertTrue(response.context_data.get("filters_visible"))
 
-    def test_search_with_invalid_display(self):
+    @patch_collection_choices()
+    def test_search_with_invalid_display(self, mock_collection_choices):
         """Tests that an invalid display param returns the form with errors."""
 
         response = self.client.get("/catalogue/search/?display=INVALID")
