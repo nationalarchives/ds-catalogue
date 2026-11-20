@@ -9,11 +9,9 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
     """Tests for the catalogue search view with nested collection filters."""
 
     def setUp(self):
-        print("Setting up test case")
         cache.clear()
 
     def tearDown(self):
-        print("Tearing down test case")
         cache.clear()
 
     @patch(
