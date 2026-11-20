@@ -1,6 +1,8 @@
 from http import HTTPStatus
 from unittest.mock import patch
 
+import responses
+from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
 
@@ -16,7 +18,7 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
 
     @patch(
         "app.search.forms.get_all_collection_choices",
-        return_value=(("AMD", "AMD Collection"),),
+        return_value=(("ADM", "ADM Collection"),),
     )
     def test_search_with_unknown_filter_returns_400(
         self, mock_get_all_collection_choices
@@ -30,6 +32,95 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
         # Leave error page rendering to Nginx; do not return response details.
         self.assertEqual(response.content, b"")
+
+    @responses.activate
+    @patch(
+        "app.search.forms.get_all_collection_choices",
+        return_value=(("ADM", "ADM Collection"),),
+    )
+    def test_cached_collection_returns_no_results(
+        self, mock_get_all_collection_choices
+    ):
+        """Test when queried for a cached collection, but no results are returned."""
+
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "tna", "count": 1},
+                        ],
+                    }
+                ],
+                "stats": {
+                    "total": 26008838,
+                    "results": 20,
+                },
+                "aggregations": [
+                    {
+                        # Special case: api returns single entry for parent "Y" with zero doc_count as dict
+                        "name": "longCollection",
+                        "total": 0,
+                        "other": 0,
+                        "entries": {"value": "Y", "doc_count": 0},
+                        "Y": {"name": "Y", "total": 0},
+                    }
+                ],
+            },
+            status=HTTPStatus.OK,
+        )
+
+        response = self.client.get(
+            "/catalogue/search/?q=UFO&collection=ADM",
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        context_data = response.context_data
+        form = context_data.get("form")
+        collection_field = form.fields["collection"]
+        level_field = form.fields["level"]
+
+        self.assertEqual(len(context_data.get("results")), 0)
+
+        self.assertEqual(
+            collection_field.value,
+            ["ADM"],
+        )
+        self.assertEqual(
+            collection_field.cleaned,
+            ["ADM"],
+        )
+        self.assertEqual(collection_field.choices_updated, True)
+        self.assertEqual(
+            collection_field.choices,
+            [("ADM", "ADM Collection (0)", None)],
+        )
+
+        self.assertEqual(len(collection_field.items), 1)
+        self.assertEqual(
+            context_data.get("selected_filters"),
+            [
+                {
+                    "label": "Collection: ADM Collection",
+                    "href": "?q=UFO",
+                    "title": "Remove ADM Collection collection",
+                }
+            ],
+        )
+
+        self.assertEqual(level_field.choices_updated, True)
+        # should not reflect configured choices
+        self.assertEqual(len(level_field.items), 0)
+        self.assertEqual(
+            collection_field.more_filter_choices_available,
+            False,
+        )
+
+        self.assertTrue(response.context_data.get("filters_visible"))
+        self.assertTrue(collection_field.is_visible)
 
     # TODO: FILTER_CHOICES_LIMIT: discuss limit with team
     # @responses.activate
