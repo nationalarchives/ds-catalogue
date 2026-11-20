@@ -1,10 +1,11 @@
 from http import HTTPStatus
-from unittest.mock import patch
 
 import responses
 from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
+
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
@@ -16,10 +17,7 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
     def tearDown(self):
         cache.clear()
 
-    @patch(
-        "app.search.forms.get_all_collection_choices",
-        return_value=(("ADM", "ADM Collection"),),
-    )
+    @patch_collection_choices(return_value=(("ADM", "ADM Collection"),))
     def test_search_with_unknown_filter_returns_400(
         self, mock_get_all_collection_choices
     ):
@@ -33,11 +31,8 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
         # Leave error page rendering to Nginx; do not return response details.
         self.assertEqual(response.content, b"")
 
+    @patch_collection_choices(return_value=(("ADM", "ADM Collection"),))
     @responses.activate
-    @patch(
-        "app.search.forms.get_all_collection_choices",
-        return_value=(("ADM", "ADM Collection"),),
-    )
     def test_cached_collection_returns_no_results(
         self, mock_get_all_collection_choices
     ):
