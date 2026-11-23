@@ -458,17 +458,19 @@ def prepare_collection_choices(
     missing_collection_values_in_api_data = [
         name for name in collection_names if name not in api_values
     ]
-    logger.warning(
-        f"Missing collection values in API data [5+]: {missing_collection_values_in_api_data[:5]}"
-    )
+    if missing_collection_values_in_api_data:
+        logger.warning(
+            f"Missing collection values in API data [5+]: {missing_collection_values_in_api_data[:5]}"
+        )
 
     # Missing API values not present in the configured collection names
     missing_api_data_in_names = [
         value for value in api_values if value not in collection_names
     ]
-    logger.warning(
-        f"Missing API values not present in the configured collection names [5+]: {missing_api_data_in_names[:5]}"
-    )
+    if missing_api_data_in_names:
+        logger.warning(
+            f"Missing API values not present in the configured collection names [5+]: {missing_api_data_in_names[:5]}"
+        )
 
     # Build choices: configured names first, followed by unknown API values
     choices = tuple(

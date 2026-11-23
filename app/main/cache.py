@@ -172,7 +172,7 @@ def get_all_collection_choices() -> tuple[tuple[str, str], ...]:
         except Exception as e:
             # Fall back to an empty result if the API request fails,
             # incorrectly formatted data is returned
-            data = []
+            data = ()
             logger.error(f"Failed to fetch all Collections: {e}")
 
     return data
