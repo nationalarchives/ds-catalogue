@@ -3,16 +3,28 @@ from unittest.mock import patch
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase, override_settings
+
+from test.utils import patch_collection_choices
 
 
 @override_settings(DEBUG=False)
 class CatalogueSearchViewDebugAPILongFilterTnaBucketTests(TestCase):
     """Tests Long filter API calls (url) made by the catalogue search view for tna bucket/group."""
 
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @patch("app.lib.api.logger")
     @responses.activate
-    def test_catalogue_long_filter_collection_debug_api(self, mock_logger):
+    def test_catalogue_long_filter_collection_debug_api(
+        self, mock_logger, mock_collection_choices
+    ):
 
         responses.add(
             responses.GET,
@@ -65,9 +77,12 @@ class CatalogueSearchViewDebugAPILongFilterTnaBucketTests(TestCase):
             "&size=0"
         )
 
+    @patch_collection_choices()
     @patch("app.lib.api.logger")
     @responses.activate
-    def test_catalogue_long_filter_subject_debug_api(self, mock_logger):
+    def test_catalogue_long_filter_subject_debug_api(
+        self, mock_logger, mock_collection_choices
+    ):
 
         responses.add(
             responses.GET,

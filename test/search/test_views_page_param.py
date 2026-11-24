@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 from django.utils.encoding import force_str
 
@@ -12,10 +13,17 @@ from app.search.constants import (
     PAGE_LIMIT_WARNING_THRESHOLD,
     RESULTS_PER_PAGE,
 )
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewInvalidPageNumberTests(TestCase):
     """Test invalid page number param values for catalogue search view."""
+
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
 
     def test_page_constants(self):
         """Test page related constants are as expected."""
@@ -23,7 +31,8 @@ class CatalogueSearchViewInvalidPageNumberTests(TestCase):
         self.assertEqual(500, PAGE_LIMIT)
         self.assertEqual(20, RESULTS_PER_PAGE)
 
-    def test_invalid_page_number_param_returns_404(self):
+    @patch_collection_choices()
+    def test_invalid_page_number_param_returns_404(self, mock_collection_choices):
         """Test invalid page number param returns 404."""
 
         # test page number param less than 1 returns 404
@@ -34,9 +43,12 @@ class CatalogueSearchViewInvalidPageNumberTests(TestCase):
         response = self.client.get("/catalogue/search/?page=ABC")
         self.assertEqual(HTTPStatus.NOT_FOUND, response.status_code)
 
+    @patch_collection_choices()
     @patch("app.lib.api.logger")
     @responses.activate
-    def test_requested_page_exceed_total_calc_pages_returns_404(self, mock_logger):
+    def test_requested_page_exceed_total_calc_pages_returns_404(
+        self, mock_logger, mock_collection_choices
+    ):
         """Test page number param greater than calculated total pages returns 404.
         This page number is less than the PAGE_LIMIT, so the API is called to get
         the total records available for the query, which is used to calculate total
@@ -85,7 +97,8 @@ class CatalogueSearchViewInvalidPageNumberTests(TestCase):
             "&from=700"
         )
 
-    def test_requested_page_above_page_limit_returns_404(self):
+    @patch_collection_choices()
+    def test_requested_page_above_page_limit_returns_404(self, mock_collection_choices):
         """Test page number param greater than PAGE_LIMIT returns 404."""
 
         # page number just above PAGE_LIMIT e.g. 501
@@ -109,6 +122,10 @@ class CatalogueSearchViewValidPageNumberTests(TestCase):
             "Only the first 10,000 results are shown, "
             "apply filters to narrow your search."
         )
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
 
     def test_page_constants(self):
         """Test page related constants are as expected."""
@@ -118,9 +135,12 @@ class CatalogueSearchViewValidPageNumberTests(TestCase):
         self.assertEqual(495, PAGE_LIMIT_WARNING_THRESHOLD)
         self.assertEqual(self.page_limit_warning, PAGE_LIMIT_WARNING_MESSAGE)
 
+    @patch_collection_choices()
     @patch("app.lib.api.logger")
     @responses.activate
-    def test_last_page_within_page_limit_and_page_warning_threshold(self, mock_logger):
+    def test_last_page_within_page_limit_and_page_warning_threshold(
+        self, mock_logger, mock_collection_choices
+    ):
         """Tests page related parts when page number equals to last page and has pages
         of records less than PAGE_LIMIT."""
 
@@ -207,9 +227,12 @@ class CatalogueSearchViewValidPageNumberTests(TestCase):
         # since it is below the PAGE_LIMIT_WARNING_THRESHOLD
         self.assertNotIn(self.page_limit_warning, html)
 
+    @patch_collection_choices()
     @patch("app.lib.api.logger")
     @responses.activate
-    def test_requesting_last_page_when_more_records_exist(self, mock_logger):
+    def test_requesting_last_page_when_more_records_exist(
+        self, mock_logger, mock_collection_choices
+    ):
         """Tests page related parts when page number equals to PAGE_LIMIT and has pages
         of records more than PAGE_LIMIT."""
 

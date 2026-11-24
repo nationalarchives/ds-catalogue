@@ -2,18 +2,27 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 
 from app.search.constants import FieldsConstant
 from app.search.forms import CatalogueSearchTnaForm
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewSortParamTests(TestCase):
     """Mainly tests the context.
     Sort param is available for all groups."""
 
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
-    def test_catalogue_search_context_with_sort_param(self):
+    def test_catalogue_search_context_with_sort_param(self, mock_collection_choices):
 
         responses.add(
             responses.GET,
@@ -73,7 +82,8 @@ class CatalogueSearchViewSortParamTests(TestCase):
         self.assertEqual(response.context_data.get("selected_filters"), [])
         self.assertTrue(response.context_data.get("filters_visible"))
 
-    def test_search_with_invalid_sort(self):
+    @patch_collection_choices()
+    def test_search_with_invalid_sort(self, mock_collection_choices):
         """Tests invalid sort param returns base form with errors."""
 
         response = self.client.get("/catalogue/search/?sort=INVALID")
@@ -108,7 +118,10 @@ class CatalogueSearchViewSortParamTests(TestCase):
             False,
         )
 
-    def test_filters_visible_with_invalid_sort_and_display(self):
+    @patch_collection_choices()
+    def test_filters_visible_with_invalid_sort_and_display(
+        self, mock_collection_choices
+    ):
         """Tests filters_visible is False when both sort and display params are invalid."""
 
         response = self.client.get("/catalogue/search/?sort=INVALID&display=INVALID")

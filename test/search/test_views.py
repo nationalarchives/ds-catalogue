@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 
 from app.records.models import Record
@@ -10,14 +11,22 @@ from app.search.forms import (
     CatalogueSearchTnaForm,
     FieldsConstant,
 )
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewDefaultTests(TestCase):
     """Mainly tests the context.
     Default is tna group."""
 
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
-    def test_catalogue_search_context_without_params(self):
+    def test_catalogue_search_context_without_params(self, mock_collection_choices):
 
         responses.add(
             responses.GET,

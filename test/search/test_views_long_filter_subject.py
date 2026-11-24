@@ -2,19 +2,29 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 from django.utils.encoding import force_str
 
 from app.search.constants import FieldsConstant
 from app.search.forms import DynamicMultipleChoiceField
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
     """Subject filter is only available for tna group."""
 
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
     def test_search_for_more_filter_choices_available_above_limit(
         self,
+        mock_collection_choices,
     ):
         """Tests more filter choices attributes are correctly set in context"""
 
@@ -88,9 +98,11 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
             "?filter_list=longSubject",
         )
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_for_filter_list_param_without_other_params(
         self,
+        mock_collection_choices,
     ):
         """Tests long filters only - without other params"""
 
@@ -180,9 +192,11 @@ class CatalogueSearchViewSubjectMoreFilterChoicesTests(TestCase):
         self.assertIn("""<input type="hidden" name="display" value="list">""", html)
         self.assertNotIn("""<input type="hidden" name="online" """, html)
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_for_filter_list_param_with_other_params(
         self,
+        mock_collection_choices,
     ):
         """Tests long filters are correctly processed with other params"""
 

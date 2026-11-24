@@ -2,17 +2,26 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 
 from app.search.constants import FieldsConstant
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewOnlineFilterTests(TestCase):
     """Mainly tests the context.
     Online filter is only available for tna group."""
 
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
-    def test_search_with_valid_input(self):
+    def test_search_with_valid_input(self, mock_collection_choices):
         """Test filter with valid param value."""
 
         responses.add(
@@ -84,7 +93,8 @@ class CatalogueSearchViewOnlineFilterTests(TestCase):
             False,
         )
 
-    def test_search_with_invalid_input(self):
+    @patch_collection_choices()
+    def test_search_with_invalid_input(self, mock_collection_choices):
         """Test filter with invalid param value."""
 
         response = self.client.get("/catalogue/search/?online=INVALID")

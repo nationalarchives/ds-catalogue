@@ -3,18 +3,27 @@ from unittest.mock import patch
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 
 from app.search.constants import MAX_FILTER_CHOICES, FieldsConstant
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
     """Mainly tests the context. Nested Collection filter i.e. Parliamentary Archives is
     only available for tna group."""
 
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
     def test_search_preserves_parliamentary_archives_parent_within_first_n_entries(
-        self,
+        self, mock_collection_choices
     ):
         """Test search with no filters preserves parliamentary archives parent collection
         order within the first n entries, removes child entries."""
@@ -192,9 +201,11 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(collection_field.is_visible)
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_relocates_parliamentary_archives_parent_within_first_n_entries(
         self,
+        mock_collection_choices,
     ):
         """Test search with no filters with parent outside the first n entries repositions
         the parliamentary archives parent collection within the first n entries,
@@ -440,9 +451,11 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(collection_field.is_visible)
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_with_non_parliamentary_archives(
         self,
+        mock_collection_choices,
     ):
         """Test that applying a non-parliamentary archives filter removes the parent collection since it is returned with 0 hits."""
 
@@ -543,11 +556,13 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(collection_field.is_visible)
 
+    @patch_collection_choices()
     @patch("app.lib.api.logger")
     @responses.activate
     def test_search_with_parliamentary_archives_parent(
         self,
         mock_logger,
+        mock_collection_choices,
     ):
         """Test search with selected parliamentary archives parent collection"""
 
@@ -794,11 +809,13 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
             "&from=0"
         )
 
+    @patch_collection_choices()
     @patch("app.lib.api.logger")
     @responses.activate
     def test_search_with_parliamentary_archives_parent_and_child(
         self,
         mock_logger,
+        mock_collection_choices,
     ):
         """Test search with selected parliamentary archives parent and child collection"""
 
@@ -964,11 +981,13 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
             "&from=0"
         )
 
+    @patch_collection_choices()
     @patch("app.lib.api.logger")
     @responses.activate
     def test_search_with_parliamentary_archives_child_without_parent(
         self,
         mock_logger,
+        mock_collection_choices,
     ):
         """Test search with selected parliamentary archives parent and child collection"""
 

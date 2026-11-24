@@ -79,6 +79,16 @@ def patch_collection_choices(return_value: tuple[tuple[str, str], ...] | None = 
                 "YBLK",
                 "YBLK - Papers of Robert Norman William Blake (1916-2003, Baron Blake of Braydeston",
             ),
+            ("PROB", "PROB - Prerogative Court of Canterbury"),
+            ("FO", "FO - Foreign Office"),
+            ("EF", "EF - Health and Safety Commission and Executive"),
+            ("YHC", "YHC - Records of the House of Commons"),
+            (
+                "CO",
+                "CO - Colonial Office, Commonwealth and Foreign and Commonwealth Offices",
+            ),
+            ("CSPR", "CSPR - Civil Service Pay Research Unit"),
+            ("J", "J - Supreme Court of Judicature"),
         )
     return patch(
         "app.search.forms.get_all_collection_choices",

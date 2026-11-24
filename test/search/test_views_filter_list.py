@@ -1,15 +1,24 @@
 from http import HTTPStatus
 
+from django.core.cache import cache
 from django.test import TestCase
 
 from app.search.constants import FieldsConstant
 from app.search.forms import CatalogueSearchBaseForm
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewFilterListTests(TestCase):
     """Test for filter list parameter handling in catalogue search view."""
 
-    def test_filter_list_choices(self):
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
+    def test_filter_list_choices(self, mock_collection_choices):
         """Tests that an invalid filter_list parameter returns the base form with errors."""
 
         response = self.client.get("/catalogue/search/?filter_list=INVALID")

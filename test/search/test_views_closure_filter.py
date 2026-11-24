@@ -2,9 +2,11 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 
 from app.search.constants import FieldsConstant
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewClosureFilterTests(TestCase):
@@ -12,9 +14,16 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
 
     def setUp(self):
         self.maxDiff = None
+        cache.clear()
 
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
-    def test_catalogue_search_context_with_valid_closure_param(self):
+    def test_catalogue_search_context_with_valid_closure_param(
+        self, mock_collection_choices
+    ):
 
         responses.add(
             responses.GET,
@@ -125,8 +134,11 @@ class CatalogueSearchViewClosureFilterTests(TestCase):
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(closure_field.is_visible)
 
+    @patch_collection_choices()
     @responses.activate
-    def test_catalogue_search_context_with_invalid_closure_param(self):
+    def test_catalogue_search_context_with_invalid_closure_param(
+        self, mock_collection_choices
+    ):
 
         responses.add(
             responses.GET,

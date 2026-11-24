@@ -157,3 +157,6 @@ class AllCollectionChoicesTests(TestCase):
             "ERROR:app.main.cache:Failed to fetch all Collections: list index out of range",
             lc.output,
         )
+
+        # verify choices are not cached due to the invalid API response
+        self.assertIsNone(cache.get("COLLECTION_CHOICES"))

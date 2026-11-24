@@ -2,16 +2,27 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 from django.utils.encoding import force_str
+
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchFiltersNotAppliedTests(TestCase):
     """Tests the 'filters not applied' banner in various scenarios."""
 
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
     def test_filters_not_applied_banner_for_tna(
         self,
+        mock_collection_choices,
     ):
         """Tests banner for TNA search - filters not applicable to tna"""
 
@@ -75,9 +86,11 @@ class CatalogueSearchFiltersNotAppliedTests(TestCase):
         # tests specific banner text in template
         self.assertIn("Some filters have not been applied", html)
 
+    @patch_collection_choices()
     @responses.activate
     def test_filters_not_applied_banner_for_nontna_grid_view(
         self,
+        mock_collection_choices,
     ):
         """Tests banner for NON TNA search - filters not applicable to non tna with Grid view"""
 
@@ -145,8 +158,11 @@ class CatalogueSearchFiltersNotAppliedTests(TestCase):
         # tests specific banner text in template
         self.assertIn("Some filters have not been applied", html)
 
+    @patch_collection_choices()
     @responses.activate
-    def test_filters_not_applied_banner_for_api_no_results_found(self):
+    def test_filters_not_applied_banner_for_api_no_results_found(
+        self, mock_collection_choices
+    ):
         """Tests banner for search with no results - filters not applicable to search"""
 
         responses.add(
@@ -186,7 +202,10 @@ class CatalogueSearchFiltersNotAppliedTests(TestCase):
         # tests specific banner text in template
         self.assertIn("Some filters have not been applied", html)
 
-    def test_filters_not_applied_banner_for_form_errors_no_results_found(self):
+    @patch_collection_choices()
+    def test_filters_not_applied_banner_for_form_errors_no_results_found(
+        self, mock_collection_choices
+    ):
         """Tests banner for search with no results - form errors causing filters not applied"""
 
         # default search for tna, display list view

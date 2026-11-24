@@ -2,18 +2,28 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 from django.utils.encoding import force_str
 
 from app.search.constants import MAX_FILTER_CHOICES, FieldsConstant
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewAboveNEntriesNestedCollectionFilterTests(TestCase):
     """Tests selections above the first N entries."""
 
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
     def test_search_selection_above_first_n_entries_y_inside_first_n(
         self,
+        mock_collection_choices,
     ):
         """Test selections above the first N entries."""
 
@@ -418,9 +428,11 @@ class CatalogueSearchViewAboveNEntriesNestedCollectionFilterTests(TestCase):
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(collection_field.is_visible)
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_selection_above_first_n_entries_y_outside_first_n_not_last(
         self,
+        mock_collection_choices,
     ):
         """Test selections above the first N entries with Y outside the first N but not last"""
 
@@ -830,9 +842,10 @@ class CatalogueSearchViewAboveNEntriesNestedCollectionFilterTests(TestCase):
         self.assertTrue(response.context_data.get("filters_visible"))
         self.assertTrue(collection_field.is_visible)
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_selection_above_first_n_entries_y_outside_first_n_is_last(
-        self,
+        self, mock_collection_choices
     ):
         """Test selections above the first N entries with Y outside the first N is last"""
 
