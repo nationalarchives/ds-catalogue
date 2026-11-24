@@ -170,9 +170,8 @@ def get_all_collection_choices() -> tuple[tuple[str, str], ...]:
                 timeout=COLLECTIONS_CHOICES_CACHE_TIMEOUT,
             )
         except Exception as e:
-            # Fall back to an empty result if the API request fails,
-            # incorrectly formatted data is returned
-            data = ()
             logger.error(f"Failed to fetch all Collections: {e}")
+            # re-raise as choices are validated
+            raise
 
     return data

@@ -120,3 +120,40 @@ class AllCollectionChoicesTests(TestCase):
             ("UNCONFIGNEWCOLLECTION", "UNCONFIGNEWCOLLECTION"),
             cached_collection_choices,
         )
+
+    @responses.activate
+    def test_get_all_collection_choices_raises_error_invalid_api_response(self):
+        """Test that get_all_collection_choices raises an error when the API response is invalid."""
+
+        responses.add(
+            responses.GET,
+            f"{settings.ROSETTA_API_URL}/search",
+            json={
+                "buckets": [
+                    {
+                        "name": "group",
+                        "entries": [
+                            {"value": "tna", "count": 1},
+                        ],
+                    }
+                ],
+                "stats": {
+                    "total": 26008838,
+                    "results": 20,
+                },
+                "aggregations": [],
+            },
+            status=HTTPStatus.OK,
+        )
+
+        with self.assertRaisesMessage(Exception, "list index out of range"):
+            with self.assertLogs("app.main.cache", level="ERROR") as lc:
+                self.assertIsNone(cache.get("COLLECTION_CHOICES"))
+                # Trigger the cache by calling get_all_collection_choices()
+                # includes configured and unconfigured collections
+                _ = get_all_collection_choices()
+
+        self.assertIn(
+            "ERROR:app.main.cache:Failed to fetch all Collections: list index out of range",
+            lc.output,
+        )
