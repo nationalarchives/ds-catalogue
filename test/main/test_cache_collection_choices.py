@@ -9,8 +9,8 @@ from app.main.cache import get_collection_choices
 from app.search.collection_names import COLLECTION_NAMES
 
 
-class AllCollectionChoicesTests(TestCase):
-    """Tests for getting all collection choices."""
+class CacheCollectionChoicesTests(TestCase):
+    """Tests building and caching of collection choices."""
 
     def setUp(self):
         cache.clear()
