@@ -91,6 +91,6 @@ def patch_collection_choices(return_value: tuple[tuple[str, str], ...] | None = 
             ("J", "J - Supreme Court of Judicature"),
         )
     return patch(
-        "app.search.forms.get_all_collection_choices",
+        "app.search.forms.get_collection_choices",
         return_value=return_value,
     )

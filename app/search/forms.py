@@ -7,7 +7,7 @@ from app.lib.fields import (
     ToDateField,
 )
 from app.lib.forms import BaseForm
-from app.main.cache import get_all_collection_choices
+from app.main.cache import get_collection_choices
 from app.records.constants import TnaLevels
 
 from .buckets import (
@@ -241,7 +241,7 @@ class CatalogueSearchTnaForm(CatalogueSearchCommonForm):
                 ),
                 FieldsConstant.COLLECTION: NestedCollectionDynamicMultipleChoiceField(
                     label="Collections",
-                    choices=get_all_collection_choices(),
+                    choices=get_collection_choices(),
                     validate_input=True,
                     active_filter_label="Collection",
                     more_filter_choices_text="See more collections",

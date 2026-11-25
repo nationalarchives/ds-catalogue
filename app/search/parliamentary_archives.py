@@ -442,7 +442,7 @@ def build_hidden_collections_for_filter_list(form, is_filter_list_applied) -> li
 
 
 def prepare_collection_choices(
-    api_entries: list[dict[str, str | int]], collection_names: dict[str, str]
+    api_entries: list[dict[str, str | int]], config_collection_names: dict[str, str]
 ) -> tuple[tuple[str, str], ...]:
     """Prepares collection choices for the form. Returns a tuple of tuples containing collection choices, with configured names first,
     followed by unknown API values.
@@ -456,7 +456,7 @@ def prepare_collection_choices(
 
     # Missing collection values from configured names not present in API data
     missing_collection_values_in_api_data = [
-        name for name in collection_names if name not in api_values
+        name for name in config_collection_names if name not in api_values
     ]
     if missing_collection_values_in_api_data:
         logger.warning(
@@ -465,7 +465,7 @@ def prepare_collection_choices(
 
     # Missing API values not present in the configured collection names
     missing_api_data_in_names = [
-        value for value in api_values if value not in collection_names
+        value for value in api_values if value not in config_collection_names
     ]
     if missing_api_data_in_names:
         logger.warning(
@@ -475,7 +475,7 @@ def prepare_collection_choices(
     # Build choices: configured names first, followed by unknown API values
     choices = tuple(
         (k, f"{k} - {v}")
-        for k, v in sorted(collection_names.items(), key=lambda x: x[1])
+        for k, v in sorted(config_collection_names.items(), key=lambda x: x[1])
     )
 
     # Append unknown collection names / API values to the choices

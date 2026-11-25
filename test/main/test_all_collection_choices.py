@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase
 
-from app.main.cache import get_all_collection_choices
+from app.main.cache import get_collection_choices
 from app.search.collection_names import COLLECTION_NAMES
 
 
@@ -23,7 +23,7 @@ class AllCollectionChoicesTests(TestCase):
         self.assertEqual(len(COLLECTION_NAMES), 677)
 
     @responses.activate
-    def test_get_all_collection_choices(self):
+    def test_get_collection_choices(self):
         """Tests the build and caching of all collection choices."""
 
         responses.add(
@@ -86,9 +86,9 @@ class AllCollectionChoicesTests(TestCase):
             "app.search.parliamentary_archives", level="WARNING"
         ) as lc:
             self.assertIsNone(cache.get("COLLECTION_CHOICES"))
-            # Trigger the cache by calling get_all_collection_choices()
+            # Trigger the cache by calling get_collection_choices()
             # includes configured and unconfigured collections
-            all_collection_choices = get_all_collection_choices()
+            all_collection_choices = get_collection_choices()
 
         self.assertCountEqual(
             [
@@ -122,8 +122,8 @@ class AllCollectionChoicesTests(TestCase):
         )
 
     @responses.activate
-    def test_get_all_collection_choices_raises_error_invalid_api_response(self):
-        """Test that get_all_collection_choices raises an error when the API response is invalid."""
+    def test_get_collection_choices_raises_error_invalid_api_response(self):
+        """Test that get_collection_choices raises an error when the API response is invalid."""
 
         responses.add(
             responses.GET,
@@ -149,9 +149,9 @@ class AllCollectionChoicesTests(TestCase):
         with self.assertRaisesMessage(Exception, "list index out of range"):
             with self.assertLogs("app.main.cache", level="ERROR") as lc:
                 self.assertIsNone(cache.get("COLLECTION_CHOICES"))
-                # Trigger the cache by calling get_all_collection_choices()
+                # Trigger the cache by calling get_collection_choices()
                 # includes configured and unconfigured collections
-                _ = get_all_collection_choices()
+                _ = get_collection_choices()
 
         self.assertIn(
             "ERROR:app.main.cache:Failed to fetch all Collections: list index out of range",

@@ -17,10 +17,8 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
     def tearDown(self):
         cache.clear()
 
-    @patch_collection_choices(return_value=(("ADM", "ADM Collection"),))
-    def test_search_with_unknown_filter_returns_400(
-        self, mock_get_all_collection_choices
-    ):
+    @patch_collection_choices()
+    def test_search_with_unknown_filter_returns_400(self, mock_get_collection_choices):
         """Tests search with an unknown collection filter."""
 
         response = self.client.get(
@@ -31,11 +29,9 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
         # Leave error page rendering to Nginx; do not return response details.
         self.assertEqual(response.content, b"")
 
-    @patch_collection_choices(return_value=(("ADM", "ADM Collection"),))
+    @patch_collection_choices()
     @responses.activate
-    def test_cached_collection_returns_no_results(
-        self, mock_get_all_collection_choices
-    ):
+    def test_cached_collection_returns_no_results(self, mock_get_collection_choices):
         """Test when queried for a cached collection, but no results are returned."""
 
         responses.add(
@@ -91,7 +87,7 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
         self.assertEqual(collection_field.choices_updated, True)
         self.assertEqual(
             collection_field.choices,
-            [("ADM", "ADM Collection (0)", None)],
+            [("ADM", "ADM - Admiralty, Navy, Royal Marines, and Coastguard (0)", None)],
         )
 
         self.assertEqual(len(collection_field.items), 1)
@@ -99,9 +95,9 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
             context_data.get("selected_filters"),
             [
                 {
-                    "label": "Collection: ADM Collection",
+                    "label": "Collection: ADM - Admiralty, Navy, Royal Marines, and Coastguard",
                     "href": "?q=UFO",
-                    "title": "Remove ADM Collection collection",
+                    "title": "Remove ADM - Admiralty, Navy, Royal Marines, and Coastguard collection",
                 }
             ],
         )

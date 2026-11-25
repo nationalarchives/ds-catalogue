@@ -6,10 +6,10 @@ import string
 from django.core.cache import cache
 
 from app.records.api import wagtail_request_handler
-from app.search.collection_names import COLLECTION_NAMES
+from app.search.collection_names import COLLECTION_NAMES as CONFIG_COLLECTION_NAMES
 from app.search.parliamentary_archives import prepare_collection_choices
 
-from .api import fetch_all_collections, fetch_all_subjects
+from .api import fetch_all_subjects, fetch_collection_api_entries
 from .constants import (
     COLLECTIONS_CHOICES_CACHE_KEY,
     COLLECTIONS_CHOICES_CACHE_TIMEOUT,
@@ -157,13 +157,15 @@ def get_explore_the_collection() -> dict:
     return data.get("explore_the_collection", {})
 
 
-def get_all_collection_choices() -> tuple[tuple[str, str], ...]:
-    """Fetch and cache all collection choices."""
+def get_collection_choices() -> tuple[tuple[str, str], ...]:
+    """Fetch and cache all collection choices - prepared with api entries and
+    configured collection names."""
+
     data = cache.get(COLLECTIONS_CHOICES_CACHE_KEY)
     if data is None:
         try:
-            api_entries = fetch_all_collections()
-            data = prepare_collection_choices(api_entries, COLLECTION_NAMES)
+            api_entries = fetch_collection_api_entries()
+            data = prepare_collection_choices(api_entries, CONFIG_COLLECTION_NAMES)
             cache.set(
                 COLLECTIONS_CHOICES_CACHE_KEY,
                 data,
