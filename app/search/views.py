@@ -496,8 +496,6 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             current_bucket_key=self.current_bucket_key,
         )
 
-        context = self.get_context_data(form=self.form)
-
         # Check if any of the specified fields have errors
         # and return a 400 response if so.
         for field_name in [FieldsConstant.COLLECTION]:
@@ -505,6 +503,8 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
                 # Return only the 400 status code;
                 # Nginx serves the corresponding error page.
                 return HttpResponseBadRequest()
+
+        context = self.get_context_data(form=self.form)
 
         return self.render_to_response(context=context)
 
