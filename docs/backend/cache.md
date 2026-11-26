@@ -2,9 +2,10 @@
 
 # Overview
 
-| Key                | Description                      |
-| ------------------ | -------------------------------- |
-| SUBJECTS_CACHE_KEY | Cached data for grouped subjects |
+| Key                        | Description                      |
+| -------------------------- | -------------------------------- |
+| SUBJECTS_GROUPED_BY_LETTER | Cached data for grouped subjects |
+| COLLECTION_CHOICES         | Cached collection choices        |
 
 # Cache invalidation
 
