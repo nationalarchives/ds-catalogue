@@ -85,8 +85,9 @@ def filter_api_entries(
 ) -> list[dict[str, str | int]]:
     """Filter out API entries for parliamentary archives where the parent has doc_count 0.
     This ensures that the parent entry with doc_count 0 is not included in the choices.
-    Note: Call this at start of processing API entries to minimise conditional logic later
-    in the processing pipeline. Also ensures consistency in the data format returned.
+    Note: This handles a CIIM-specific edge case. Call this at start of processing API
+    entries to minimise conditional logic later in the processing pipeline. Also ensures
+    consistency in the data format returned.
     """
 
     if isinstance(api_entries, dict) and api_entries == {"value": "Y", "doc_count": 0}:
