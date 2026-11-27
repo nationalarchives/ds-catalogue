@@ -27,14 +27,14 @@ class NestedCollectionDynamicMultipleChoiceField(DynamicMultipleChoiceField):
     parent collection - the top-level parliamentary archive collection.
                         Y is the value representing the parent collection.
     child collections - sub-level parliamentary archive collections.
-                        value begins with the parent collection value.]
+                        value begins with the parent collection value.
                         E.g.: YHL, YHC.
     The field handles the display and selection of both parent and child collections in the UI.
     """
 
     def __init__(self, choices: list[tuple[str, str]], **kwargs):
         super().__init__(choices, **kwargs)
-        # additional arributes for long filter and nested choices link handling.
+        # additional attributes for long filter and nested choices link handling.
         self.collection_filter_list_applied = False
         self.parliamentary_archive_collection_filter_list_applied = False
         self.request = None
