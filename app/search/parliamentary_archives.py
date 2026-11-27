@@ -100,7 +100,10 @@ def filter_api_entries(
     return [
         entry
         for entry in api_entries
-        if not (entry.get("value") == "Y" and entry.get("doc_count") == 0)
+        if not (
+            entry.get("value") == PARLIAMENTARY_ARCHIVE_COLLECTION_PARENT_VALUE
+            and entry.get("doc_count") == 0
+        )
     ]
 
 
@@ -134,14 +137,14 @@ def build_choice_api_data_for_collection_filter(
         # set request for nested choice more options link handling
         form.fields[field_name].request = request
         nested_choice_api_data = (
-            prepare_api_parent_child_entries_for_parliamentay_archives(choice_api_data)
+            prepare_api_parent_child_entries_for_parliamentary_archives(choice_api_data)
         )
         choice_api_data = nested_choice_api_data
 
     return choice_api_data
 
 
-def prepare_api_parent_child_entries_for_parliamentay_archives(
+def prepare_api_parent_child_entries_for_parliamentary_archives(
     api_entries: list[dict[str, str | int]],
 ) -> list[dict[str, str | int | list[dict]]]:
     """Returns transformed entries with parent positioned correctly and children nested appropriately.
@@ -410,7 +413,7 @@ def remove_parliamentary_archives_parent_from_api_data(
 ) -> list[dict[str, str | int]]:
     """Removes items from the API data that are parliamentary archive parent.
     E.g.
-    "Y" is aparliamentary archive parent.
+    "Y" is a parliamentary archive parent.
     [{"value": "Y","doc_count": 10},] -> []
     """
 

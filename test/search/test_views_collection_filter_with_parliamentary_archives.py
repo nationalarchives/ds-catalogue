@@ -164,7 +164,7 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
         self.assertNotIn("children", collection_field.items[1])
 
         # child entries are not included in the items list,
-        # no sepecific see more link is shown for the parent collection "Y"
+        # no specific see more link is shown for the parent collection "Y"
         self.assertEqual(
             collection_field.items,
             [
