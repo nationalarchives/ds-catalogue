@@ -72,9 +72,9 @@ class CatalogueSearchViewQueryParamTests(TestCase):
                 "data": [],
                 "aggregations": [
                     {"name": "closure", "total": 0, "other": 0},
-                    {"name": "collection", "total": 0, "other": 0},
+                    {"name": "longCollection", "total": 0, "other": 0},
                     {"name": "level", "total": 0, "other": 0},
-                    {"name": "subject", "total": 0, "other": 0},
+                    {"name": "longSubject", "total": 0, "other": 0},
                 ],
                 "buckets": [{"name": "group", "total": 0, "other": 0}],
                 "stats": {
