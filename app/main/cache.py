@@ -5,9 +5,13 @@ import logging
 from django.core.cache import cache
 
 from app.records.api import wagtail_request_handler
+from app.search.collection_names import COLLECTION_NAMES as CONFIG_COLLECTION_NAMES
+from app.search.parliamentary_archives import prepare_collection_choices
 
-from .api import fetch_all_subjects
+from .api import fetch_all_subjects, fetch_collection_api_entries
 from .constants import (
+    COLLECTIONS_CHOICES_CACHE_KEY,
+    COLLECTIONS_CHOICES_CACHE_TIMEOUT,
     GLOBAL_NOTIFICATIONS_CACHE_KEY,
     LANDING_PAGE_CACHE_KEY,
     SUBJECTS_CACHE_KEY,
@@ -151,3 +155,25 @@ def get_explore_the_collection() -> dict:
     if data is None:
         return {}
     return data.get("explore_the_collection", {})
+
+
+def get_collection_choices() -> tuple[tuple[str, str], ...]:
+    """Fetch and cache all collection choices - prepared with api entries and
+    configured collection names."""
+
+    data = cache.get(COLLECTIONS_CHOICES_CACHE_KEY)
+    if data is None:
+        try:
+            api_entries = fetch_collection_api_entries()
+            data = prepare_collection_choices(api_entries, CONFIG_COLLECTION_NAMES)
+            cache.set(
+                COLLECTIONS_CHOICES_CACHE_KEY,
+                data,
+                timeout=COLLECTIONS_CHOICES_CACHE_TIMEOUT,
+            )
+        except Exception as e:
+            logger.error(f"Failed to fetch all Collections: {e}")
+            # re-raise as choices are validated
+            raise
+
+    return data

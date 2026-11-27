@@ -2,18 +2,27 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 from django.utils.encoding import force_str
 
 from app.search.constants import FieldsConstant
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewLevelFilterTests(TestCase):
     """Mainly tests the context.
     Level filter is only available for tna group."""
 
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
-    def test_search_with_valid_level_filters(self):
+    def test_search_with_valid_level_filters(self, mock_collection_choices):
         """Test level filter with valid param value."""
 
         responses.add(
@@ -108,8 +117,10 @@ class CatalogueSearchViewLevelFilterTests(TestCase):
             False,
         )
 
+    @patch_collection_choices()
     def test_search_with_invalid_level_filters_returns_error_with_no_results(
         self,
+        mock_collection_choices,
     ):
         """Test level filter with invalid param value.
         No response mocking as we are testing invalid param handling only.

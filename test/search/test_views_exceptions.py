@@ -2,24 +2,30 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import SuspiciousOperation
 from django.test import RequestFactory, TestCase, override_settings
 
 from app.lib.fields import DATE_YMD_SEPARATOR, DateKeys
 from app.search.constants import FieldsConstant
 from app.search.views import CatalogueSearchView
-from test.utils import prevent_request_warnings
+from test.utils import patch_collection_choices, prevent_request_warnings
 
 
 class TestCatalogueSearchViewExceptions(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
+        cache.clear()
 
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @prevent_request_warnings  # suppress test output: Internal Server Error: /catalogue/search/
     @override_settings(
         ROSETTA_API_URL="",
     )
-    def test_missing_config_with_server_error(self):
+    def test_missing_config_with_server_error(self, mock_collection_choices):
 
         with self.assertLogs("app.errors.middleware", level="ERROR") as log:
             response = self.client.get("/catalogue/search/")
@@ -33,8 +39,9 @@ class TestCatalogueSearchViewExceptions(TestCase):
             response.content.decode("utf-8"),
         )
 
+    @patch_collection_choices()
     @prevent_request_warnings
-    def test_suspicious_operation(self):
+    def test_suspicious_operation(self, mock_collection_choices):
         """Test that multiple values for ChoiceField, CharField, FromDateField, ToDateField
         raise SuspiciousOperation and are handled by middleware."""
 
@@ -112,9 +119,11 @@ class TestCatalogueSearchViewExceptions(TestCase):
                         response.content.decode("utf-8"),
                     )
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_unexpected_response_without_parent(
         self,
+        mock_collection_choices,
     ):
         """Test search with unexpected response without parliamentary archives parent."""
 

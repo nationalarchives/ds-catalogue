@@ -2,21 +2,38 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
+
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
-    """Mainly tests the context.
-    Collection filter is only available for tna group."""
+    """Tests for the catalogue search view with nested collection filters."""
 
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
+    def test_search_with_unknown_filter_returns_400(self, mock_get_collection_choices):
+        """Tests search with an unknown collection filter."""
+
+        response = self.client.get(
+            "/catalogue/search/?collection=DOESNOTEXIST",
+        )
+
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        # Leave error page rendering to Nginx; do not return response details.
+        self.assertEqual(response.content, b"")
+
+    @patch_collection_choices()
     @responses.activate
-    def test_search_with_unknown_filter_returns_no_results_no_aggs(
-        self,
-    ):
-        """Tests configure choices do not appear when no data is returned
-        and also no aggregations returned for the input filter value."""
+    def test_cached_collection_returns_no_results(self, mock_get_collection_choices):
+        """Test when queried for a cached collection, but no results are returned."""
 
-        # no data for input collection, no aggregations returned
         responses.add(
             responses.GET,
             f"{settings.ROSETTA_API_URL}/search",
@@ -48,9 +65,10 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
         )
 
         response = self.client.get(
-            "/catalogue/search/?collection=DOESNOTEXIST",
+            "/catalogue/search/?q=UFO&collection=ADM",
         )
 
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         context_data = response.context_data
         form = context_data.get("form")
         collection_field = form.fields["collection"]
@@ -60,29 +78,27 @@ class CatalogueSearchViewNestedCollectionFilterTests(TestCase):
 
         self.assertEqual(
             collection_field.value,
-            ["DOESNOTEXIST"],
+            ["ADM"],
         )
         self.assertEqual(
             collection_field.cleaned,
-            ["DOESNOTEXIST"],
+            ["ADM"],
         )
-
         self.assertEqual(collection_field.choices_updated, True)
         self.assertEqual(
             collection_field.choices,
-            [("DOESNOTEXIST", "DOESNOTEXIST (0)", None)],
+            [("ADM", "ADM - Admiralty, Navy, Royal Marines, and Coastguard (0)", None)],
         )
 
-        # should not reflect configured choices
         self.assertEqual(len(collection_field.items), 1)
         self.assertEqual(
             context_data.get("selected_filters"),
             [
                 {
-                    "label": "Collection: DOESNOTEXIST",
-                    "href": "?",
-                    "title": "Remove DOESNOTEXIST collection",
-                },
+                    "label": "Collection: ADM - Admiralty, Navy, Royal Marines, and Coastguard",
+                    "href": "?q=UFO",
+                    "title": "Remove ADM - Admiralty, Navy, Royal Marines, and Coastguard collection",
+                }
             ],
         )
 

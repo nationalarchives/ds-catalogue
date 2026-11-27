@@ -677,7 +677,3 @@ COLLECTION_NAMES = {
     "YWLL": "Papers of Baron Williams of Ynyshir, Glamorgan",
     "CRAN": "Cranston Inquiry",
 }
-
-COLLECTION_CHOICES = tuple(
-    (k, f"{k} - {v}") for k, v in sorted(COLLECTION_NAMES.items(), key=lambda x: x[1])
-)

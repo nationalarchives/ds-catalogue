@@ -3,9 +3,11 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 
 from app.search.forms import CatalogueSearchTnaForm, FieldsConstant
+from test.utils import patch_collection_choices
 
 
 class CoveringDateFilterTests(TestCase):
@@ -14,9 +16,14 @@ class CoveringDateFilterTests(TestCase):
 
     def setUp(self):
         self.maxDiff = None
+        cache.clear()
 
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
-    def test_search_with_all_date_parts(self):
+    def test_search_with_all_date_parts(self, mock_collection_choices):
 
         responses.add(
             responses.GET,
@@ -132,8 +139,9 @@ class CoveringDateFilterTests(TestCase):
         self.assertTrue(form.fields.get(FieldsConstant.OPENING_DATE_FROM).is_visible)
         self.assertTrue(form.fields.get(FieldsConstant.OPENING_DATE_TO).is_visible)
 
+    @patch_collection_choices()
     @responses.activate
-    def test_search_with_year_date_part(self):
+    def test_search_with_year_date_part(self, mock_collection_choices):
 
         responses.add(
             responses.GET,
@@ -218,9 +226,14 @@ class CoveringDateFilterErrorTests(TestCase):
 
     def setUp(self):
         self.maxDiff = None
+        cache.clear()
 
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
-    def test_search_with_invalid_date_range(self):
+    def test_search_with_invalid_date_range(self, mock_collection_choices):
         """'From' date is after 'to' date.
         Form with error does make api call."""
 
@@ -302,8 +315,9 @@ class CoveringDateFilterErrorTests(TestCase):
         self.assertFalse(form.fields.get(FieldsConstant.OPENING_DATE_FROM).is_visible)
         self.assertFalse(form.fields.get(FieldsConstant.OPENING_DATE_TO).is_visible)
 
+    @patch_collection_choices()
     @responses.activate
-    def test_search_with_invalid_date_parts(self):
+    def test_search_with_invalid_date_parts(self, mock_collection_choices):
         """'From' date is after 'to' date.
         Form with error does make api call."""
 

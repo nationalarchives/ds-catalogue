@@ -2,16 +2,27 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 
 from app.search.constants import FieldsConstant
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewSubjectsFilterTests(TestCase):
     """Tests the subjects filter context in the catalogue search view."""
 
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
-    def test_catalogue_search_context_with_valid_subjects_params(self):
+    def test_catalogue_search_context_with_valid_subjects_params(
+        self, mock_collection_choices
+    ):
         """Test that valid subjects parameters are processed correctly."""
 
         responses.add(
@@ -128,8 +139,11 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
             False,
         )
 
+    @patch_collection_choices()
     @responses.activate
-    def test_catalogue_search_context_with_invalid_subjects_params(self):
+    def test_catalogue_search_context_with_invalid_subjects_params(
+        self, mock_collection_choices
+    ):
         """Test behavior with invalid subject IDs."""
 
         responses.add(
@@ -243,8 +257,11 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
             False,
         )
 
+    @patch_collection_choices()
     @responses.activate
-    def test_catalogue_search_context_without_subjects_params(self):
+    def test_catalogue_search_context_without_subjects_params(
+        self, mock_collection_choices
+    ):
         """Test that subjects field works correctly when no subjects are selected."""
 
         responses.add(
@@ -328,8 +345,11 @@ class CatalogueSearchViewSubjectsFilterTests(TestCase):
             False,
         )
 
+    @patch_collection_choices()
     @responses.activate
-    def test_catalogue_search_context_with_subjects_param(self):
+    def test_catalogue_search_context_with_subjects_param(
+        self, mock_collection_choices
+    ):
         """Test that subjects parameters are processed correctly."""
 
         responses.add(

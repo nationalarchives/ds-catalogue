@@ -5,7 +5,13 @@ from typing import Any
 from urllib.parse import urlencode
 
 from django.core.exceptions import SuspiciousOperation
-from django.http import HttpRequest, HttpResponse, JsonResponse, QueryDict
+from django.http import (
+    HttpRequest,
+    HttpResponse,
+    HttpResponseBadRequest,
+    JsonResponse,
+    QueryDict,
+)
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
@@ -490,7 +496,16 @@ class CatalogueSearchFormMixin(APIMixin, TemplateView):
             current_bucket_key=self.current_bucket_key,
         )
 
+        # Check if any of the specified fields have errors
+        # and return a 400 response if so.
+        for field_name in [FieldsConstant.COLLECTION]:
+            if field_name in self.form.errors:
+                # Return only the 400 status code;
+                # Nginx serves the corresponding error page.
+                return HttpResponseBadRequest()
+
         context = self.get_context_data(form=self.form)
+
         return self.render_to_response(context=context)
 
     def get_context_data(self, **kwargs):

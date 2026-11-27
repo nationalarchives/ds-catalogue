@@ -443,3 +443,46 @@ def build_hidden_collections_for_filter_list(form, is_filter_list_applied) -> li
             hidden_collections.extend(non_parliamentary_archive_selections)
 
     return hidden_collections
+
+
+def prepare_collection_choices(
+    api_entries: list[dict[str, str | int]], config_collection_names: dict[str, str]
+) -> tuple[tuple[str, str], ...]:
+    """Prepares collection choices for the form. Returns a tuple of tuples containing collection choices, with configured names first,
+    followed by unknown API values.
+    """
+
+    # Extract API values
+    api_values = {item["value"] for item in api_entries}
+
+    # Identify missing entries:
+    # This may be due to discrepancies between the configured collection names and the API data.
+
+    # Missing collection values from configured names not present in API data
+    missing_collection_values_in_api_data = [
+        name for name in config_collection_names if name not in api_values
+    ]
+    if missing_collection_values_in_api_data:
+        logger.warning(
+            f"Missing collection values in API data [5+]: {missing_collection_values_in_api_data[:5]}"
+        )
+
+    # Missing API values not present in the configured collection names
+    missing_api_data_in_names = [
+        value for value in api_values if value not in config_collection_names
+    ]
+    if missing_api_data_in_names:
+        logger.warning(
+            f"Missing API values not present in the configured collection names [5+]: {missing_api_data_in_names[:5]}"
+        )
+
+    # Build choices: configured names first, followed by unknown API values
+    choices = tuple(
+        (k, f"{k} - {v}")
+        for k, v in sorted(config_collection_names.items(), key=lambda x: x[1])
+    )
+
+    # Append unknown collection names / API values to the choices
+    choices = choices + tuple((value, value) for value in missing_api_data_in_names)
+
+    return choices

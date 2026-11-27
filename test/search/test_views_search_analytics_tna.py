@@ -2,16 +2,27 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 from django.utils.encoding import force_str
+
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewAnalyticsTnaTests(TestCase):
     """Tests analytics metadata, data layer in CatalogueSearchView for TNA group"""
 
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
     def test_search_analytics_without_filters(
         self,
+        mock_collection_choices,
     ):
         """Tests analytics metadata, data layer without filters"""
 
@@ -101,9 +112,11 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
             },
         )
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_analytics_with_filters(
         self,
+        mock_collection_choices,
     ):
         """Tests analytics metadata, data layer with filters"""
 
@@ -193,9 +206,11 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
             },
         )
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_analytics_with_no_results(
         self,
+        mock_collection_choices,
     ):
         """Tests analytics metadata, data layer when no results found"""
 
@@ -269,9 +284,11 @@ class CatalogueSearchViewAnalyticsTnaTests(TestCase):
             },
         )
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_analytics_with_errors(
         self,
+        mock_collection_choices,
     ):
         """Tests analytics metadata, data layer when form has errors"""
 

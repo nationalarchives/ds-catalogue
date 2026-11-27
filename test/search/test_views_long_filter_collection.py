@@ -2,19 +2,28 @@ from http import HTTPStatus
 
 import responses
 from django.conf import settings
+from django.core.cache import cache
 from django.test import TestCase
 from django.utils.encoding import force_str
 
 from app.search.constants import MAX_FILTER_CHOICES, FieldsConstant
 from app.search.forms import DynamicMultipleChoiceField
+from test.utils import patch_collection_choices
 
 
 class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
     """Collection filter is only available for tna group."""
 
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch_collection_choices()
     @responses.activate
     def test_search_for_more_filter_choices_available_above_limit(
-        self,
+        self, mock_collection_choices
     ):
         """Tests more filter choices attributes are correctly set in context"""
 
@@ -91,9 +100,11 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
             "?filter_list=longCollection",
         )
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_for_more_filter_choices_unavailable_at_limit(
         self,
+        mock_collection_choices,
     ):
         """Tests more filter choices attributes are correctly set in context when below limit"""
 
@@ -167,9 +178,11 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
             "",
         )
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_for_more_filter_choices_unavailable_below_limit(
         self,
+        mock_collection_choices,
     ):
         """Tests more filter choices attributes are correctly set in context when below limit"""
 
@@ -242,9 +255,11 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
             "",
         )
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_for_filter_list_param_without_other_params(
         self,
+        mock_collection_choices,
     ):
         """Tests long filters only - without other params"""
 
@@ -372,9 +387,11 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
             html,
         )
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_for_filter_list_param_with_other_params(
         self,
+        mock_collection_choices,
     ):
         """Tests long filters are correctly processed with other params"""
 
@@ -495,9 +512,11 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
             """<input type="hidden" name="covering_date_from-day" """, html
         )
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_for_filter_list_param_with_collection_param(
         self,
+        mock_collection_choices,
     ):
         """Tests search for filter list param with collection param"""
 
@@ -584,9 +603,11 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         # test hidden inputs
         self.assertNotIn("""<input type="hidden" name="collection" """, html)
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_for_parliament_filter_list_param_with_collection_param(
         self,
+        mock_collection_choices,
     ):
         """Tests search for filter list param with parliament collection param value"""
 
@@ -679,9 +700,11 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
         self.assertIn("""<input type="hidden" name="collection" value="Y""", html)
         self.assertIn("""<input type="hidden" name="collection" value="BT""", html)
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_for_filter_list_param_with_parent_parliament_archive(
         self,
+        mock_collection_choices,
     ):
         """Test search for filter list param with parent parliament archive 'Y'"""
 
@@ -784,9 +807,10 @@ class CatalogueSearchViewCollectionMoreFilterChoicesTests(TestCase):
                         mfc_field.parliamentary_archive_collection_filter_list_applied
                     )
 
+    @patch_collection_choices()
     @responses.activate
     def test_search_for_filter_list_param_with_child_parliament_archive_without_parent(
-        self,
+        self, mock_collection_choices
     ):
         """Test search for filter list param with child parliament archive without parent"""
 
